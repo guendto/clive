@@ -1,0 +1,74 @@
+Prerequisites
+------------------------------------------------------------------------------
+
+Perl >= 5.8 with the following (recommended) module versions:
+
+* Config::Tiny/2.12           * BerkeleyDB/0.34
+* WWW::Curl/4.05              * URI::Escape/3.29
+* HTML::TokeParser/2.37       * Clipboard/0.09
+* IO::Pager/0.05
+
+* Getopt::Long/2.35           * Pod::Usage/1.33
+* File::Path/1.08             * File::Spec/3.12
+* Digest::SHA/5.47            * POSIX/1.09
+* Cwd/3.12                    * Encode/2.12
+
+Note that the Clipboard module is OPTIONAL.
+
+
+Installation
+------------------------------------------------------------------------------
+
+Extract:
+    % tar xvjf clive-$release.tar.bz2 && cd clive-$release
+
+Run:
+    % ./clive [option]... [URL]...
+
+Getting started:
+    % ./clive --manual # See the EXAMPLES
+
+
+Installation: FreeBSD
+------------------------------------------------------------------------------
+
+Tested on 7.0. Likely inaccurate.
+
+From the ports:
+  * databases/p5-BerkeleyDB
+  * security/p5-Digest-SHA
+  * devel/p5-Config-Tiny
+  * devel/p5-IO-Pager
+  * net/p5-URI
+  * www/p5-HTML-Parser
+  * x11/p5-Clipboard (if needed)
+
+CPAN: WWW::Curl (outdated in the ports at the time of writing this)
+  % sudo pkg_add -r curl (or: cd /usr/ports/www/curl; sudo make install)
+  % sudo cpan install WWW::Curl
+
+
+Installation: Ubuntu
+------------------------------------------------------------------------------
+
+Tested on Hardy. Likely inaccurate.
+
+% sudo apt-get install:
+  * libconfig-tiny-perl
+  * libberkeleydb-perl
+  * libdigest-sha-perl
+  * libfile-spec-perl
+  * libxml-simple-perl
+  * liburi-perl 
+  * libhtml-parser-perl
+
+CPAN:
+  * WWW::Curl (outdated in apt at the time of writing this)
+    % sudo apt-get install libcurl-dev
+    % sudo cpan install WWW::Curl
+
+  * IO::Pager (not packaged?)
+    % sudo cpan install IO::Pager
+
+  * Clipboard (not packaged?, only if needed)
+    % sudo cpan install Clipboard

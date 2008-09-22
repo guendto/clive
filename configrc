@@ -1,0 +1,52 @@
+## Example config file for clive.
+## Recommended: chmod 0600 ~/.config/clive/config
+
+[http]
+    ## HTTP User-agent string (default: Mozilla/5.0).
+    #agent = Furball/0.2
+
+    ## HTTP proxy. Overrides http_proxy env. variable.
+    #proxy = http://foo:1234
+
+[output]
+    ## Save videos to directory (default: cwd).
+    #savedir = /home/user/videos
+
+    ## Character class used to filter out garbage characters from
+    ## video filenames (default: \w).
+    #cclass = [A-Za-z0-9]
+    #cclass = .
+
+    ## Extracted video filename format (default: %t-(%i)-[%d].%s).
+    ## %t = video name after applying the character class regex
+    ## %s = video file suffix (e.g. flv)
+    ## %d = video domain
+    ## %i = video id
+    ## %D = current date
+    ## %T = current time
+    ## %S = timestamp (same as: %D %T)
+    #file = %n.%e
+
+    ## Format for --show (default: %D: "%t" | %mMB)
+    ## %t = video page title
+    ## %i = video id
+    ## %l = video file length (bytes)
+    ## %m = video file length (mb)
+    ## %u = video page url
+    ## %x = video extraction url
+    ## %D = video extraction date
+    ## %T = video extraction time
+    ## %S = video extraction timestamp (same as: %D %T)
+    #show = %t (id: %i | bytes: %l)
+
+[youtube]
+    ## Username and password for Youtube. OPTIONAL unless you
+    ## plan on extracting flagged content.
+    #user = myusername
+    #pass = mypassword
+
+[commands]
+    ## Path to a player command. If used, clive will play the
+    ## extracted videos subsequently. Be sure to use the %i
+    ## specifier for input file.
+    #play = /usr/local/bin/xine -f %i

@@ -1,0 +1,49 @@
+Version 2.0beta1
+(?? ?? ????)
+
+A complete overhaul and rewrite of 1.x.
+
+ User-visible changes:
+  * Users are expected to use the --continue/-c option to resume transfers
+  * Configuration file format (=> INI), path was changed (=> ~/.config/clive)
+  * All extractions now assume flv as the default download format
+  * Users are expected to understand when/how use the --format/-f option
+  * Reading input from multiple sources is possible (e.g. % clive -x URL URL)
+  * Added: --grep: used to grep and recall cached URL entries
+  * Added: --background and --output=logfile, --append=logfile options
+  * Many old cmdline and config options were removed due to new design
+  * Improved GoogleVideo support: handles redirects to other hosts
+  * Pager is used where needed (e.g. --show/-s)
+  * Changed default output file naming format to "%n-(%i)-[%d].%s"
+  * Removed: guba (deadweight), myvideo (borked), dmotion (bitches @ anon users)
+
+ Developer-visible changes:
+  * Python => Perl
+    - See the INSTALL file for prerequisites
+  * No installation: all-in-one script (excl. the 3rd party modules)
+  * Cache is now an integral part of clive, see CACHE in the manual page
+  * Embedded the --manual page (Pod)
+  * Improved Youtube login: removed is_adult HTTP get (done manually now)
+  * Grab the file suffix from the Content-Type header
+  * Improved GoogleVideo support: mp4 detection no more relies on English words
+  * Improved Metacafe support: removed unnecessary "familyfilter" HTTP get
+
+ Other:
+  * Project: moved
+    - 2.x+ at http://googlecode.com/p/clive/
+    - 1.x remains at http://gna.org/projects/clive
+  * Tarballs: moved
+    - 2.x+ at http://googlecode.com/p/clive/
+    - 1.x remain at http://dl.gna.org/clive
+  * Website: moved
+    - http://clive.sf.net/
+    - http://home.gna.org/clive redirects to the above
+  * SCM: SVN => Git
+    - 2.x+ at git://repo.or.cz/clive.git
+    - 1.x remains at svn://svn.gna.org/svn/clive
+  * Issue tracking: Moved
+    - 2.x+ at http://googlecode.com/p/clive/issues/
+    - 1.x bug tracker remains at http://gna.org/projects/clive
+  * Created http://googlegroups.com/group/clive-announce/
+
+NOTE: See http://dl.gna.org/clive/CHANGES for 1.x.

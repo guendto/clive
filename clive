@@ -1,0 +1,1419 @@
+#!/usr/bin/env perl
+# -*- coding: ascii -*-
+###########################################################################
+# clive, the non-interactive video extraction utility
+# Copyright (C) 2007,2008 Toni Gundogdu.
+#
+# clive is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# clive is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with clive.  If not, see <http://www.gnu.org/licenses/>.
+###########################################################################
+
+# Keep it simple.
+
+use strict;
+use warnings;
+
+binmode(STDOUT, ":utf8");
+
+use HTML::TokeParser;
+use WWW::Curl::Easy;
+use Config::Tiny;
+use URI::Escape;
+use BerkeleyDB;
+use IO::Pager;
+
+# Core modules:
+use Digest::SHA qw(sha1_hex);
+use POSIX qw(strftime);
+use Getopt::Long;
+use XML::Simple;
+use File::Path;
+use File::Spec;
+use Pod::Usage;
+use Encode;
+use Cwd;
+
+# Check for non-essential modules: set flags that indicate their availability
+my %optional_mods = (Clipboard => 1);
+eval "use Clipboard;"; $optional_mods{Clipboard}=0 if $@;
+
+my $VERSION     = "2.0beta1";
+my $HOMEDIR     = $ENV{HOME} or die "error: HOME environment variable not set";
+my $CONFIGDIR   = File::Spec->catfile(  $HOMEDIR, ".config/clive");
+my $CONFIGFILE  = File::Spec->catfile($CONFIGDIR, "config");
+my $CACHEFILE   = File::Spec->catfile($CONFIGDIR, "cache");
+my $RECALLFILE  = File::Spec->catfile($CONFIGDIR, "recall");
+
+my %opts;           # Holds runtime options
+my @queue;          # Holds input URLs
+my $workdir=getcwd; # Holds startup workdir
+my $logfile;        # Holds path to logfile (--output-file, --append-file)
+my $curl;           # Holds the curl handle: reused throughout lifespan
+my $cache_db;       # Holds the handle to cache BDB
+my %cache;          # Holds the handle to cache BDB (tied hash)
+my $hash;           # Hash (SHA1) of the current URL
+my %entry;          # Multi-purpose video (cache) record (hold/read/write)
+my $youtube_on=0;   # Flag: Whether logged into Youtube
+my $last_bspaces;   # Progress: Keeps count of the last printed backspaces
+my $curr_fn;        # Progress: Holds the name of the current video file
+my $time_started;   # Progress: Holds transfer started time
+my $last_eta;       # Progress: Holds last saved ETA for file transfer
+
+my $default_showfmt # Default --show format
+    = qq/%D: "%t" | %mMB/;
+
+my %re_hosts = (    # Precompiled regex used to identify the host
+IsYoutube   => qr|\Qyoutube.com\E|i,    IsGoogle => qr|\Qvideo.google.\E|i,
+IsSevenload => qr|\Qsevenload.com\E|i,  IsBreak  => qr|\Qbreak.com\E|i,
+IsMetacafe  => qr|\Qmetacafe.com\E|i
+);
+
+# Parse config
+my $c = Config::Tiny->read($CONFIGFILE);
+%opts = (
+    agent   => $c->{http}->{agent},
+    proxy   => $c->{http}->{proxy},
+    maxspeed=> $c->{http}->{maxspeed},
+    minspeed=> $c->{http}->{minspeed},
+    savedir => $c->{output}->{savedir},
+    cclass  => $c->{output}->{cclass},
+    fnfmt   => $c->{output}->{file},
+    showfmt => $c->{output}->{show},
+    ytuser  => $c->{youtube}->{user},
+    ytpass  => $c->{youtube}->{pass},
+    play    => $c->{commands}->{play},
+);
+
+# Parse cmdline
+# Define those not read from config and init with defaults
+$opts{quiet}        = 0;
+$opts{paste}        = 0;
+$opts{format}       = 'flv';
+$opts{extract}      = 1;
+$opts{renew}        = 0;
+$opts{clear}        = 0;
+$opts{recall}       = 0;
+$opts{login}        = 1;
+$opts{show}         = 0;
+$opts{grep}         = undef;
+$opts{case}         = 1;
+$opts{delete}       = 0;
+$opts{background}   = 0;
+$opts{output}       = undef;
+$opts{append}       = undef;
+$opts{progress}     = 1;
+$opts{debug}        = 0;
+$opts{help}         = 0;
+$opts{manual}       = 0;
+$opts{version}      = 0;
+
+Getopt::Long::Configure("bundling");
+GetOptions(\%opts,
+    'debug|d',          'help|h',           'manual|m',     'version|v',
+    'paste|x',          'show|s',           'delete|D',     'clear|C',
+    'continue|c',       'renew|R',          'recall|r',     'format|f=s',
+    'output|o=s',       'append|a=s',       'background|b', 'quiet|q',
+    'grep|g=s',
+#'maxspeed!',    'minspeed!',
+    # Since '$longopt!|$shortopt' is a no-no.
+    'ignore-case|i' => sub { $opts{case}    = 0; },
+    'noextract|n'   => sub { $opts{extract} = 0; },
+    'noplay|P'      => sub { $opts{play}    = 0; },
+    'nologin|L'     => sub { $opts{login}   = 0; },
+    'noproxy|X'     => sub { $opts{proxy}   = ""; },
+    'noprogress|G'  => sub { $opts{progress}= 0; },
+) or pod2usage(1);
+
+print_version() if $opts{version};
+pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
+pod2usage(-exitstatus => 0, -verbose => 2) if $opts{manual};
+
+init_cache();
+
+if      ( $opts{clear} )    { clear_cache(); }
+elsif   ( $opts{show} )     { show_cache(); }
+
+get_queue();
+
+select STDERR; $| = 1; # Make unbuffered
+select STDOUT; $| = 1;
+
+daemonize() if $opts{background};
+
+process_queue();
+
+free_cache();
+
+
+## Subroutines: Connection
+
+sub set_curl_opts { # Set common curl options for handle
+    $curl->setopt(CURLOPT_USERAGENT,
+        $opts{agent} ? $opts{agent} : "Mozilla/5.0");
+
+    $curl->setopt(CURLOPT_VERBOSE, 1) if $opts{debug};
+    $curl->setopt(CURLOPT_PROXY, $opts{proxy}) if defined $opts{proxy};
+    $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
+    $curl->setopt(CURLOPT_AUTOREFERER, 1);
+    $curl->setopt(CURLOPT_HEADER, 1);
+    $curl->setopt(CURLOPT_NOBODY, 0);
+
+    # NOTE: No effect. Bug in WWW::Curl::Easy?
+    $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE, $opts{maxspeed})
+        if $opts{maxpseed};
+
+    $curl->setopt(CURLOPT_LOW_SPEED_LIMIT, $opts{minspeed})
+        if $opts{minspeed};
+}
+
+sub auth_youtube { # Log into Youtube
+    print "=> Youtube: Attempting to login as $opts{ytuser} ..."
+        unless $opts{quiet};
+
+    my $response = "";
+    open my $fh, ">", \$response;
+
+    my $login_url = "http://youtube.com/login?current_form=loginform"
+        ."&username=$opts{ytuser}&password=$opts{ytpass}&action_login=log+in";
+
+    $curl->setopt(CURLOPT_URL, $login_url);
+    $curl->setopt(CURLOPT_COOKIEFILE, ""); # Enable cookies from here on
+    $curl->setopt(CURLOPT_ENCODING, ""); # Supported encodings
+    $curl->setopt(CURLOPT_WRITEDATA, $fh);
+
+    my $rc = $curl->perform;
+    my $errmsg;
+
+    if ( $rc == 0 ) {
+        foreach ( $response ) {
+            $errmsg = "error: incorrect login for $opts{ytuser}" and last
+                if /login was incorrect/i;
+        }
+    } else {
+        $errmsg = "error: ".$curl->strerror($rc)." (http/$rc)";
+    }
+    close $fh;
+
+    print STDERR "\n$errmsg\n" and exit if $errmsg;
+
+    print "done.\n=> Youtube: Bypassing age check ..." unless $opts{quiet};
+    $curl->setopt(CURLOPT_COOKIE, "is_adult=" . uc( sha1_hex(rand()) ) );
+    print "Done.\n" unless $opts{quiet};
+
+    $youtube_on = 1;
+}
+
+
+# Subroutines: Queue
+
+sub process_queue {
+    $curl = WWW::Curl::Easy->new;
+    set_curl_opts();
+
+    foreach ( @queue ) {
+        $hash = sha1_hex($_);
+
+        my ($rc, $rfh, $response) = fetch_page($_);
+        my $errmsg;
+
+        # TODO: Clean up
+        if ( $rc == 0 ) {
+            $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
+            if ( $rc == 0 or $rc == 200) {
+                if ( ! defined( $entry{page_url} ) ) {
+                    next if process_page($_, \$response, $rfh) == -1;
+                }
+                if ( $entry{xurl} ) {
+                    my ($rc, $content_type) = query_video_length();
+                    if ( $rc == 0 ) {
+                        my ($rc, $path) = extract_video($content_type)
+                            if $content_type;
+                        if ( $opts{play} and $rc == 0 ) {
+                            print "=> Play: $path\n";
+                            my $cmd = $opts{play};
+                            $cmd =~ s/%i/"$path"/;
+                            system($cmd.">/dev/null") == 0
+                                or die "system exited with $?";
+                        }
+                    }
+                }
+            } else {
+                $errmsg = $curl->strerror($rc)." (http/$rc)";
+            }
+        } else {
+            $errmsg = $curl->strerror($rc)." (http/$rc)";
+        }
+        close $rfh;
+        print STDERR "\n==> error: $errmsg\n" if $errmsg;
+    }
+}
+
+sub fetch_page {
+    my ($url, $from_cache, $response, $rc) = (shift, 0, "", 0);
+
+    open my $fh, ">", \$response;
+
+    # Log into Youtube if username and password are defined
+    if ( $opts{ytuser} and $opts{ytpass} and $opts{login} ) {
+        auth_youtube() if ! $youtube_on and $url =~ /$re_hosts{IsYoutube}/;
+    }
+
+    if ( $cache{$hash} ) {
+        fetch_entry($hash); # Make sure cached "format" matches with options
+        $from_cache = 1 if $opts{format} eq $entry{file_format};
+    }
+
+    $from_cache = 0 if $opts{renew};
+
+    printf "%s $url ...", ! $from_cache ? "Fetching":"Caching" 
+        unless $opts{quiet};
+
+    if ( ! $from_cache ) {
+        %entry = ();
+        $curl->setopt(CURLOPT_URL, $url);
+        $curl->setopt(CURLOPT_ENCODING, ""); # Supported encodings
+        $curl->setopt(CURLOPT_WRITEDATA, $fh);
+        $rc = $curl->perform;
+    }
+
+    return ($rc, $fh, $response);
+}
+
+sub process_page {
+    my ($url, $response_ref, $response_fh) = @_;
+    print "done.\n=> Processing page ..." unless $opts{quiet};
+
+    $$response_ref =~ tr{\n}//d;
+
+    my $p = HTML::TokeParser->new($response_ref);
+    $p->get_tag("title");
+    my $title = $p->get_trimmed_text;
+
+    my ($xurl, $id);
+    if      ( $url =~ /$re_hosts{IsYoutube}/ ) {
+        ($xurl, $id) = handle_youtube($response_ref);
+    } elsif ( $url =~ /$re_hosts{IsGoogle}/ ) {
+        ($xurl, $id) = handle_google($response_ref);
+    } elsif ( $url =~ /$re_hosts{IsSevenload}/ ) {
+        ($xurl, $id, $title) = handle_sevenload($response_ref, $response_fh);
+    } elsif ( $url =~ /$re_hosts{IsBreak}/ ) {
+        ($xurl, $id, $title) = handle_break($response_ref);
+    } elsif ( $url =~ /$re_hosts{IsMetacafe}/ ) {
+        ($xurl, $id, $title) = handle_metacafe($response_ref);
+    }
+    return -1 if ! $xurl or ! $id or ! $title;
+
+    $title = decode_utf8($title); # sevenload, break grab title from elsewhere
+    $title =~ tr{;}//d; # Cache values cannot contain ';'
+
+    $entry{page_url}      = $url;
+    $entry{xurl}          = $xurl;
+    $entry{page_title}    = $title;
+    $entry{video_id}      = $id;
+    $entry{file_format}   = $opts{format};
+
+    return 0;
+}
+
+sub query_video_length {
+    my ($content_type, $errmsg);
+
+    if ( ! $entry{file_length} ) {
+        print "done.\n=> Querying file length ..." unless $opts{quiet};
+
+        $curl->setopt(CURLOPT_URL, $entry{xurl});
+        # We're not interested in downloading the file. GET => HEAD request.
+        $curl->setopt(CURLOPT_NOBODY, 1);
+        my $rc = $curl->perform;
+        # Reset HEAD => GET
+        $curl->setopt(CURLOPT_HTTPGET, 1);
+
+        $entry{file_length} =
+            $curl->getinfo(CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+
+        $content_type           =
+            $entry{file_suffix} =
+            $curl->getinfo(CURLINFO_CONTENT_TYPE);
+
+        $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
+
+        # TODO: Clean up
+        if ( $rc == 200 ) {
+            my $content_ok = 0;
+            if ( $content_type =~ m!video/(.*)! ) {
+                $entry{file_suffix} = $1;
+                if ( $content_type =~ /(.*)-(.*)$/ ) {
+                    $entry{file_suffix} = $2;
+                } $content_ok = 1;
+            # Break and Metacafe return "text/plain" for Content-Type
+            } elsif ( $content_type =~ m!text/plain! ) {
+                if ( $opts{format} eq "flv" ) {
+                    if ( $entry{page_url} =~ /$re_hosts{IsBreak}/
+                     or $entry{page_url} =~ /$re_hosts{IsMetacafe}/ ) {
+                        $entry{file_suffix} = "flv";
+                        $content_ok = 1;
+                    }
+                }
+            }
+            $errmsg = "expected different content-type, "
+                . "received \"$content_type\"" unless $content_ok;
+        } else {
+            $errmsg = "server returned HTTP/$rc";
+        }
+    } else { # Construct content-type from cache
+        $content_type = "video/$entry{file_suffix}";
+    }
+
+    unless ( $opts{quiet} ) {
+        if ( ! $errmsg ) { print "done.\n"; } 
+        else { print STDERR "\n==> error: $errmsg\n"; }
+    }
+
+    return ($errmsg ? -1:0, $content_type);
+}
+
+sub extract_video {
+    my $content_type= shift;
+    my $fn          = title_to_filename($entry{page_title});
+    my $path        = File::Spec->catfile( $opts{savedir} || $workdir, $fn );
+    my $filemode    = ">";
+    my $cont_from   = 0;
+    my $remaining   = $entry{file_length};
+    my $size        = -s $path;
+    my $rc          = 0;
+    my $errmsg;
+
+    # We have everything for cache. Add/update the bdb entry.
+    save_entry($hash);
+
+    $curl->setopt(CURLOPT_ENCODING, "identity"); # Disable
+
+    if ( $size ) {
+        if ( $size == $entry{file_length} and $opts{extract} ) {
+            print "=> Refusing to extract. "
+                . "localfile length matches remotefile length.\n";
+            return (0, $path);
+        }
+        if ( $size < $entry{file_length} and $opts{continue} ) {
+            $cont_from  = $size;
+            $filemode   = ">>";
+            $remaining  = ($entry{file_length} - $cont_from);
+        } else {
+            $path = newname_if_exists( $opts{savedir} || $workdir, $fn );
+        }
+    }
+
+    unless ( $opts{quiet} ) {
+        print "=> File: $fn\n" if ( ! $opts{extract} );
+        print "=> Length: $entry{file_length} ";
+        printf"(%.2fMB)  ",$entry{file_length}/1024/1024 if $entry{file_length};
+        printf "From: %u (Left: %u)  ", $cont_from, $remaining if $cont_from;
+        printf "[$content_type]" if $content_type;
+        print "\n";
+    }
+
+    if ( $rc == 0 ) { #
+        # -1 = Disable subsequent play with --noextract
+        return (-1, $path) unless $opts{extract};
+
+        if ( open my $fh, "$filemode$path" ) {
+            $curl->setopt(CURLOPT_URL, $entry{xurl});
+            $curl->setopt(CURLOPT_HEADER, 0); # Disable
+            $curl->setopt(CURLOPT_RESUME_FROM, $cont_from) if $cont_from;
+            $curl->setopt(CURLOPT_WRITEDATA, $fh);
+
+            unless ( $opts{quiet} ) {
+                $curl->setopt(CURLOPT_PROGRESSFUNCTION, \&progress_callback);
+                $curl->setopt(CURLOPT_NOPROGRESS, 0);
+                $curr_fn        = $fn;
+                $last_bspaces   = 0;
+                $time_started   = time;
+                $last_eta       = '';
+            }
+
+            $rc = $curl->perform;
+            close $fh;
+
+            # Reset
+            $curl->setopt(CURLOPT_HEADER, 1);
+
+            if ( $rc == 0 ) { $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE); }
+            else { $errmsg = $curl->strerror($rc)." (http/$rc)"; }
+        } else {
+            $errmsg = "$path: $!";
+            $rc = -1; # Disable subsequent play
+        }
+    } else {
+        $errmsg = $curl->strerror($rc)." (http/$rc)";
+    }
+
+    if ( $errmsg ) { print STDERR "\n==> error: $errmsg\n"; }
+    else { print "\n==> Closed with HTTP/$rc.\n" unless $opts{quiet}; }
+
+    return ($errmsg ? -1:0, $path);
+}
+
+sub get_queue {
+    if ( $opts{recall} and -e $RECALLFILE ) {
+        open my $fh, "<$RECALLFILE" or die "error: $RECALLFILE: $!";
+        parse_input($_) while ( <$fh> );
+        close $fh;
+    }
+
+    if ( $opts{paste} ) {
+        print STDERR "error: Clipboard module not found" and exit
+            unless $optional_mods{Clipboard};
+        parse_input($_) foreach Clipboard->paste();
+    }
+
+    parse_input($_) foreach @ARGV;
+    grep_cache() if $opts{grep};
+    read_stdin() unless @queue;
+
+    my %h = map { $_, 1 } @queue; # Remove duplicates
+    @queue = keys %h;
+
+    open my $fh, ">$RECALLFILE" or die "error: $RECALLFILE: $!";
+    print $fh "$_\n" foreach @queue;
+    close $fh;
+}
+
+sub read_stdin {
+    parse_input($_) while ( <STDIN> );
+}
+
+sub parse_input {
+    my $url = shift;
+
+    return if $url =~ /^$/;
+    chomp $url;
+
+    if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects
+        unless ( $opts{quiet} ) {
+            print "Found redirect in  ...".(split /&/,$url)[0]."\n";
+            print "=> Using the redirect URL instead\n";
+        }
+        $url = uri_unescape($1);
+    }
+
+    # Insert http:// if not found
+    if ( $url !~ /^http:\/\//i ) { $url = "http://$url"; } 
+
+    # Translate embedded URL to video page URL
+    $url =~ s{/v/}{/watch?v=}ig; # Youtube
+    $url =~ s{\Q/googleplayer.swf?docid=}{/videoplay?docid=\E}ig; # GVideo
+
+    # Remove params from the URL  NOTE: May require tweaking
+    $url = (split /&/, $url) [0];
+
+    foreach my $re ( %re_hosts ) {
+        push @queue,$url and return 0 if $url =~ /$re/;
+    }
+    print STDERR "error: nosupport: $url\n";
+    return -1;
+}
+
+
+# Subroutines: Video page handlers
+
+sub handle_youtube {
+    my ($response_ref, $xurl) = (shift);
+
+    my %re = (
+        GrabID  => qr/"video_id": "(.*?)"/,
+        GrabT   => qr/"t": "(.*?)"/
+    );
+
+    my $id = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $t  = $1 if $$response_ref =~ /$re{GrabT}/;
+
+    if ( $id and $t ) {
+        $xurl = "http://youtube.com/get_video?video_id=$id&t=$t";
+        my $fmt;
+        if      ( $opts{format} eq  "mp4" ) { $fmt = 18; }
+        elsif   ( $opts{format} eq "3gpp" ) { $fmt = 17; }
+        elsif   ( $opts{format} eq "xflv" ) { $fmt =  6; }
+        $xurl .= "&fmt=$fmt" if $fmt;
+    } else {
+        printf STDERR "\nerror: failed to extract &%s\n", $id ? "t":"video_id";
+    }
+    return ($xurl, $id);
+}
+
+sub handle_google {
+    my $response_ref = shift;
+
+    my %re = (
+        GrabRedirect => qr|lfRedirect\('(.*?)'|,
+        GrabVideoURL => qr|\Qgoogleplayer.swf?videoUrl\x3d\E(.*?)\Q\x26|,
+        GrabID       => qr|docid: '(.*?)'|,
+        GrabMP4      => qr|\Qhref="http://vp.\E(.*?)"|,
+    );
+
+    my $redir  = $1 if $$response_ref =~ /$re{GrabRedirect}/;
+    my $xurl   = uri_unescape($1) if $$response_ref =~ /$re{GrabVideoURL}/;
+    my $id     = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $mp4    = $1 if $$response_ref =~ /$re{GrabMP4}/;
+
+    if ( $redir ) {
+        $redir =~ s{\\x3d}{=};
+        push @queue, $redir;
+        print "Found a redirect to another host. Pushed into queue.\n"
+            unless $opts{quiet};
+    } else {
+        $xurl = $mp4 if ( $mp4 and $opts{format} eq "mp4" );
+        print STDERR "\nerror: extraction url not found\n" unless $xurl;
+    }
+    return ($xurl, $id);
+}
+
+sub handle_sevenload {
+    my ($response_ref, $response_fh) = @_;
+
+    my %re       = ( GrabConfigPath => qr|configPath=(.*?)"| );
+    my $confpath = uri_unescape($1) if $$response_ref =~ /$re{GrabConfigPath}/;
+
+    my ($id, $xurl, $title);
+    if ( $confpath ) {
+        ($xurl, $id, $title) =
+            fetch_sevenload_configxml($confpath, $response_fh);
+    } else {
+        print STDERR "\nerror: configPath not found\n";
+    }
+    return ($xurl, $id, $title);
+}
+
+sub handle_break {
+    my $response_ref = shift;
+
+    my %re = (
+        GrabTitle    => qr|id="vid_title" content="(.*?)"|,
+        GrabID       => qr|ContentID='(.*?)'|,
+        GrabFilePath => qr|ContentFilePath='(.*?)'|,
+        GrabFileName => qr|FileName='(.*?)'|
+    );
+
+    my $title   = $1 if $$response_ref =~ /$re{GrabTitle}/;
+    my $id      = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $fpath   = $1 if $$response_ref =~ /$re{GrabFilePath}/;
+    my $fname   = $1 if $$response_ref =~ /$re{GrabFileName}/;
+
+    my ($xurl, $errmsg);
+    if ( $fpath and $fname ) {
+        $xurl = "http://media1.break.com/dnet/media/$fpath/$fname";
+        my $fmt = $opts{format};
+        $fmt = 'flv' if not grep /$opts{format}/, ('flv','wmv');
+        $xurl .= ".$fmt";
+    } else {
+        $errmsg = "failed to extract ContentFilePath" if ! $fpath;
+        $errmsg = "failed to extract FileName" if ! $fname and ! $errmsg;
+    }
+
+    $errmsg = "failed to extract title" if ! $title and ! $errmsg;
+    $errmsg = "failed to extract id"    if ! $id and ! $errmsg;
+    print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
+
+    return ($xurl, $id, $title);
+}
+
+sub handle_metacafe {
+    my $response_ref = shift;
+
+    my %re = (
+        GrabTitle     => qr|"title":"(.*?)"|,
+        GrabID        => qr|"itemID":"(.*?)"|,
+        GrabItemFiles => qr|ItemFiles(.*?)"|,
+        GrabVideoCDN  => qr|"videoCDNURL":"(.*?)"|
+    );
+
+    my $title     = $1 if $$response_ref =~ /$re{GrabTitle}/;
+    my $id        = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $itemfiles = $1 if $$response_ref =~ /$re{GrabItemFiles}/;
+    my $videocdn  = $1 if $$response_ref =~ /$re{GrabVideoCDN}/;
+
+    my ($xurl, $errmsg);
+    if ( $itemfiles and $videocdn ) {
+        $itemfiles =~ tr{\\}//d;
+        $videocdn  =~ tr{\\}//d;
+        $xurl = $videocdn.$itemfiles;
+    } else {
+        $errmsg = "failed to extract ItemFiles" if ! $itemfiles;
+        $errmsg = "failed to extract videoCDNURL" if ! $videocdn and ! $errmsg;
+    }
+
+    $errmsg = "failed to extract title" if ! $title and ! $errmsg;
+    $errmsg = "failed to extract itemID" if ! $id and ! $errmsg;
+    print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
+
+    return ($xurl, $id, $title);
+}
+
+
+# Subroutines: LittleHelpers
+
+sub daemonize {
+    $logfile = $opts{append}
+        || $opts{output}
+        || File::Spec->catfile( $workdir, "clive-log" );
+
+    my $pid = fork;
+    if ( $pid < 0 ) {
+        print STDERR "\nfork failed: $!";
+        exit 1;
+    } elsif ( $pid != 0 ) {
+        print "Continuing in background, pid $pid.\n";
+        print "Output will be written to $logfile.\n" unless $opts{quiet};
+        exit 0;
+    }
+
+    chdir $workdir;
+
+    my $mode = $opts{append} ? ">>" : ">";
+    $logfile = "/dev/null" if $opts{quiet};
+
+    open STDOUT, "$mode", "$logfile" or die "cannot redirect STDOUT: $!";
+    open STDERR, ">&STDOUT" or die "cannot dup STDOUT: $!";
+}
+
+sub fetch_sevenload_configxml {
+    my ($conf_url, $response_fh) = @_;
+    print "done.\n=> Fetching config XML..." unless $opts{quiet};
+
+    my $conf_xml = "";
+    open my $conf_fh, ">", \$conf_xml;
+
+    $curl->setopt(CURLOPT_URL, $conf_url);
+    $curl->setopt(CURLOPT_HEADER, 0); 
+    $curl->setopt(CURLOPT_WRITEDATA, $conf_fh);
+
+    my $rc = $curl->perform;
+
+    # Reset
+    $curl->setopt(CURLOPT_HEADER, 1);
+    $curl->setopt(CURLOPT_WRITEDATA, $response_fh);
+
+    close $conf_fh;
+
+    my ($id, $xurl, $title);
+
+    if ( $rc == 0 ) {
+        my $xml = XMLin($conf_xml);
+        #use Data::Dumper; print Dumper($xml);
+        $title  = $xml->{playlists}{playlist}{items}{item}{title}; # Monstrous.
+        $id     = $xml->{playlists}{playlist}{items}{item}{id};
+        $xurl   = $xml->{playlists}{playlist}{items}{item}{videos}{video}{url};
+    } else {
+        print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
+    }
+
+    my $errmsg;
+    $errmsg = "failed to extract item title" if ! $title;
+    $errmsg = "failed to extract item id"    if ! $id and ! $errmsg;
+    print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
+
+    return ($xurl, $id, $title);
+}
+
+sub title_to_filename {
+    my $title = shift;
+
+    $title =~ s/youtube - //i; # Remove host specific strings from title
+    $title =~ s/ video//i; # Breakcom
+
+    my $r = $opts{cclass} || qr|\w|;
+    $title = join '', $title =~ /$r/g;
+
+    # Courtesy of:
+    #   http://search.cpan.org/~gaas/URI-1.37/URI.pm#PARSING_URIs_WITH_REGEXP
+    my ($scheme, $authority, $path, $query, $fragment) =
+        m{(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?}o;
+    # Extract the domain from the URL.
+    my @a = split /\./, $authority;
+
+    my $fn          = $opts{fnfmt} || "%t-(%i)-[%d].%s";
+    my $timestamp   = strftime("%F %T",localtime);
+
+    my %h = (
+        "%t" => $title,
+        "%s" => $entry{file_suffix},
+        "%d" => $a[scalar @a-2], # Without the TLD.
+        "%i" => $entry{video_id},
+        "%D" => (split / /, $timestamp)[0],
+        "%T" => (split / /, $timestamp)[1],
+        "%S" => $timestamp,
+    );
+
+    my $m = join '|', keys %h;
+    $fn =~ s/($m)/$h{$1}/ig;
+
+    return $fn;
+}
+
+sub newname_if_exists {
+    my ($path, $orig, $new) = (shift, shift);
+
+    for ( my $i=1;; $i++ ) {
+        $new = File::Spec->catfile( $path, "$orig.$i" );
+        last if ! -e $new;
+    }
+    return $new;
+}
+
+sub progress_callback {
+    return 0 unless $opts{progress};
+
+    my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
+
+    my $percent = 0;
+    $percent = int ( $dlnow / $dltotal * 100 ) if $dlnow;
+
+    my $elapsed = time - $time_started;
+    return 0 if $elapsed < 1.0;
+
+    my $rate = $dlnow / $elapsed;
+
+    my $eta = "--:--:--";
+    if ( $rate > 0 ) {
+        my $left = ( $dltotal - $dlnow ) / $rate;
+        my $ss = $left % 60;
+        my $mm = int( ( $left % 3600 ) / 60 );
+        my $hh = int( $left / 3600 );
+        if ( $hh > 99 ) { $eta = sprintf "%2dh%02dm", $hh, $mm; }
+        else { $eta = sprintf "%2dh%02dm%02ds", $hh, $mm, $ss; }
+    }
+    return 0 if $eta eq $last_eta;
+
+    my $s = sprintf "%.50s%4.4g%%%8.1fKB/s%12s",
+        $curr_fn, $percent, $rate/1024, $eta;
+
+    print "\b" x $last_bspaces . $s unless $opts{quiet};
+    $last_bspaces = length(encode_utf8($s));
+
+    return 0;
+}
+
+sub init_cache {
+    mkpath( [$CONFIGDIR], 1, 0700 );
+    $cache_db = tie %cache, "BerkeleyDB::Hash",
+        -Filename => $CACHEFILE,
+        -Flags => DB_CREATE
+    or die "error: cannot open $CACHEFILE: $! $BerkeleyDB::Error\n";
+}
+
+sub format_show {
+    my $s   = shift;
+    my %e   = map_entry(shift);
+
+    my %h   = (
+        "%t" => $e{page_title},
+        "%i" => $e{video_id},
+        "%l" => $e{file_length},
+        "%m" => sprintf("%.2f", $e{file_length}/1048576),
+        "%u" => $e{page_url},
+        "%x" => $e{xurl},
+        "%D" => (split / /, $e{time_stamp})[0],
+        "%T" => (split / /, $e{time_stamp})[1],
+        "%S" => $e{time_stamp},
+    );
+
+    my $m = join '|', keys %h;
+    $s =~ s/($m)/$h{$1}/ig;
+
+    return $s;
+}
+
+sub show_cache {
+    IO::Pager->new(*STDOUT);
+
+    my $fmt = $opts{showfmt} || $default_showfmt;
+    my @entries = ();
+
+    if ( $opts{grep} ) {
+        grep_cache(); # Stores matches => @queue
+        push @entries, format_show( $fmt, sha1_hex($_) )
+            foreach ( @queue );
+    } else {
+        push @entries, format_show( $fmt, $_ )
+            foreach ( sort keys %cache );
+    }        
+    print STDOUT "$_\n" foreach sort @entries;
+    close STDOUT;
+
+    if ( $opts{grep} and $opts{delete} and scalar @queue > 0 ) {
+        print "Confirm delete (y/N):";
+        $_ = lc <STDIN>;
+        chomp;
+        if ( lc $_ eq "y" ) { delete $cache{sha1_hex($_)} foreach ( @queue ); }
+    }
+    exit;
+}
+
+sub clear_cache {
+    unlink $CACHEFILE if -e $CACHEFILE;
+    exit;
+}
+
+sub free_cache {
+    undef $cache_db;
+    untie %cache;
+}
+
+sub map_entry {
+    my $key     = shift;
+    my @values  = split /;/, $cache{$key};
+
+    my @keys = qw(
+        file_suffix file_length file_format page_title
+        page_url    time_stamp  video_id    xurl
+    ); # Order matters. See also save_cache_entry.
+
+    my $i = 0;
+    return map { $_ => $values[$i++] } @keys;
+}
+
+sub fetch_entry {
+    %entry = map_entry($hash);
+    $entry{page_title} = decode_utf8($entry{page_title});
+    #while (my ($key, $value) = each(%entry)) { print "$key => $value\n"; } die;
+}
+
+sub save_entry {
+    my @values;
+
+    $entry{time_stamp} = strftime("%F %T",localtime);
+    push @values,$entry{$_} foreach sort keys %entry;
+
+    $cache{$hash} = join ';', @values;
+    $cache_db->db_sync();
+}
+
+sub grep_cache {
+    my $g = $opts{case} ? qr|$opts{grep}| : qr|$opts{grep}|i;
+    my $fmt = $opts{showfmt} || $default_showfmt;
+    foreach ( sort keys %cache ) {
+        my @e = split /;/, $cache{$_};
+        if ( grep /$g/, @e ) {
+            if   ( $opts{delete} ) {
+                if ( $opts{show} ) { push @queue,$e[4]; }
+                else { delete $cache{$_}; }
+            }
+            else { push @queue,$e[4]; } # 4=URL
+        }
+    }
+    exit if $opts{delete} and not $opts{show};
+}
+
+sub print_version {
+    my $perl_v      = sprintf "%vd", $^V;
+    my $clipboard_v = $optional_mods{Clipboard} ? $Clipboard::VERSION : "-";
+print
+"clive version $VERSION.  Copyright (C) 2007,2008 Toni Gundogdu.
+
+Perl: $perl_v ($^O)
+Modules:
+  * Config::Tiny/$Config::Tiny::VERSION\t\t* BerkeleyDB/$BerkeleyDB::VERSION
+  * WWW::Curl/$WWW::Curl::VERSION\t\t* URI::Escape/$URI::Escape::VERSION
+  * HTML::TokeParser/$HTML::TokeParser::VERSION\t* Clipboard/$clipboard_v
+  * IO::Pager/$IO::Pager::VERSION
+Core modules:
+  * POSIX/$POSIX::VERSION\t\t\t* Cwd/$Cwd::VERSION
+  * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION
+  * File::Path/$File::Path::VERSION\t\t* File::Spec/$File::Spec::VERSION
+  * Digest::SHA/$Digest::SHA::VERSION\t\t* Encode/$Encode::VERSION
+
+See --manual for a list of the supported websites.
+
+This program comes with ABSOLUTELY NO WARRANTY. You may redistribute copies of
+clive under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your option)
+any later version. You should have received a copy of the General Public License
+along with this program. If not, see http://www.gnu.org/licenses/.
+"; exit;
+}
+
+
+__END__
+
+=head1 NAME
+
+clive - the non-interactive video extraction utility
+
+=head1 SYNOPSIS
+
+clive [option]... [URL]...
+
+=head1 DESCRIPTION
+
+clive is an open source command-line utility for extracting videos from Youtube
+and other video sharing websites. It was originally written to bypass the
+Adobe Flash requirement needed to view the hosted videos.
+
+clive is non-interactive meaning it can work in the background while the user
+is not logged on. This allows the user to start an extraction and disconnect
+from the system letting clive finish the work. By contrast, most of the
+extraction websites and UNIX scripts require constant user's presence
+which can be a great hindrance when transferring a lot of data.
+
+Users familiar with the GNU L<wget(1)> utility will notice that clive borrows
+some of the feature concepts from wget, as well as, with some changes,
+the above paragraph, option syntax description below and the output option
+descriptions. Kudos to the wget team for their original work.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<Option Syntax>
+
+Every option has a long form along with the short one. Long options are more
+convenient to remember but take time to type. You may freely mix different
+option styles, or specify options after the command-line arguments. For example:
+
+    clive -c --format=mp4 URL -n
+
+You may also put several options together that do not require arguments.
+For example:
+
+    clive -xcn URL
+
+Which is equivalent to:
+
+    clive -x -c -n URL
+
+=back
+
+B<Basic Options>
+
+=over 4
+
+=item B<-h --help>
+
+Print this help and exit.
+
+=item B<-m --manual>
+
+Display the manual page and exit.
+
+=item B<-v --version>
+
+Display version details and exit.
+
+=item B<-b --background>
+
+Go to background immediately after startup. If no output file is specified
+using the B<--output> or B<--append>, the output is redirected to I<clive-log>
+file.
+
+=back
+
+B<Cache Options>
+
+=over 4
+
+=item B<-R --renew>
+
+Renew the cache entries for the input URLs. See L</CACHE> in the manual page.
+
+=item B<-s --show>
+
+Print cache entries to standard output. See L</CONFIG> in the manual page
+for how to configure the output.
+
+=item B<-g --grep=>I<pattern>
+
+Grep cache entries for I<pattern>. All cache entry values are included in
+the search.
+
+    % clive --grep=git
+    % clive --grep=^git --ignore-case
+
+The matched entries are then extracted. To only show the matches, use the
+B<--show> option. For example:
+
+    % clive -sg ^git
+
+=item B<-i --ignore-case>
+
+When used with B<--grep>, causes clive to ignore case differences between
+the patterns.
+
+=item B<-D --delete>
+
+When used with B<--grep>, deletes the matched entries from cache. If used
+together with the B<--show> option, causes clive to prompt to confirm delete.
+For example:
+
+    % clive -siDg ^git
+
+=item B<-C --clear>
+
+Clear cache and exit.
+
+=back
+
+B<Logging and Input Options>
+
+=over 4
+
+=item B<-o --output=>I<logfile>
+
+Log all messages to I<logfile>. The messages are normally reported to
+stdout and stderr.
+
+=item B<-a --append=>I<logfile>
+
+Append to I<logfile>. This is the same as B<--output> but it appends to
+I<logfile> instead of overwriting it. If the I<logfile> does not exist,
+the file is created.
+
+=item B<-d --debug>
+
+Causes the program to print debug messages.
+
+=item B<-G --noprogress>
+
+Turn off progress meter.
+
+=item B<-q --quiet>
+
+Turn off all output.
+
+=item B<-r --recall>
+
+Recall the last URL batch. If this option is used, no URLs need to be present
+on the command-line.
+
+=item B<-x --paste>
+
+Paste input from clipboard. If this option is used, no URLs need to be present
+on the command-line. The pasted URLs are expected to be separated with newlines.
+
+=back
+
+B<Download Options>
+
+=over 4
+
+=item B<-c --continue>
+
+Continue extraction of a partially downloaded file. Note that this works only
+with HTTP servers that support the "Range" header. Ignored unless I<localfile>
+E<lt> I<remotefile>.
+
+The "requested range was not delivered" error typically implies that the
+host does not allow continuing partially extracted video files. You will
+see this error if you attempt to continue a partially downloaded flv video
+from Youtube, for example.
+
+=item B<-X --noproxy>
+
+Do not use of the proxy defined in the config or the http_proxy environment
+variable.
+
+=item B<-L --nologin>
+
+Do not log in. Ignored unless [youtube]:user and [youtube]:pass are used
+in the config file.
+
+=item B<-n --noextract>
+
+Do not actually extract any videos.
+
+=item B<-f --format=>I<format>
+
+Extract I<format> of the video. See L</FORMATS> in the manual page.
+
+=item B<-P --noplay>
+
+Disable subsequent play. Ignored unless [commands]:play is used in the 
+configuration file.
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item clive "http://youtube.com/watch?v=3HD220e0bx4"
+
+Extracts the video from the specified URL.
+
+=item cat url.lst | clive
+
+Reads input from UNIX pipe. Separate each URL with a newline.
+
+=item clive -x URL URL
+
+Combines input from the command-line and the clipboard (each URL separated
+with a newline).
+
+=item clive -rf mp4
+
+Recalls the last URL batch and extracts the mp4 format.
+
+=item clive -g 3HD220e0bx4
+
+Greps the pattern from the cache and extracts the matched videos.
+
+=item clive -iDg ^3hd2
+
+Same as above but I<deletes> the matched entries from the cache instead of
+extracting them.
+
+=item clive -s
+
+Dumps the contents of the cache to stdout.
+
+=item clive -sig ^3hd2
+
+Instead of displaying all of the cache entries, show only the matching ones.
+
+=item clive -big ^3hd2 -o my.log
+
+Goes to background immediately after startup, redirects output to I<my.log>
+file, greps for the pattern and extracts the video.
+
+=item clive -bqig ^3hd2
+
+Same as above but turns off all output. See also the B<--noprogress> option.
+
+=back
+
+=head1 FORMATS
+
+clive defaults to extract the flv format unless the B<--format> option is
+used. The requested format may not always be available and in such case
+the server usually returns the HTTP/404 or the HTTP/403 error.
+
+The quality of the video depends on the uploaded video quality. Each
+website typically recompresses the uploaded videos to 320x240 resolution
+(sometimes higher). As this varies per video and website, you should not
+read too much into the video quality information listed below.
+
+=over 4
+
+=item B<www.youtube.com>
+
+Formats: flv | mp4 | 3gpp | xflv
+
+The flv format is usually available unless the video has been removed or
+set private. The mp4 and 3gpp formats are often, or will become, available.
+The xflv on the other hand appears to be very rarely available.
+
+Videos dating back to 2006 are usually available as flv only. The B<--continue>
+option should work with all other formats but flv.
+
+=back
+
+=over 4
+
+=item B<video.google.com>
+
+Formats: flv | mp4
+
+The mp4 may not always be available.
+
+The B<--continue> option does not work with the flv format. Streaming seems
+impossible with the mp4. For a comparison, this is possible with Youtube's
+mp4 videos which are compressed using a different mp4 codec.
+
+=back
+
+=over 4
+
+=item B<www.sevenload.com>
+
+Formats: flv
+
+The B<--continue> option works.
+
+=back
+
+=over 4
+
+=item B<www.break.com>
+
+Formats: flv | wmv
+
+The B<--continue> option works.
+
+=back
+
+=over 4
+
+=item B<www.metacafe.com>
+
+Formats: flv
+
+The B<--continue> option works.
+
+=back
+
+=head1 CACHE
+
+The cache has two purposes:
+
+=over 4
+
+=item 1.
+
+Gather reusable info for a fast re-extraction without having to fetch the
+same data again.
+
+=item 2.
+
+Keep a record of videos. The B<--grep> option can then later be used to
+extract the videos.
+
+=back
+
+Each cache entry contains information about a video, including, but not limited
+to, page title, file length and extraction URL.
+
+Some entries may need to be renewed from time to time as some websites have
+their extraction URLs expire after awhile. Youtube is an example of this.
+Youtube servers usually return the HTTP/410 error if the extraction URL has
+expired. You can use the B<--renew> option to fix this.
+
+Note that if you use a different B<--format> than previously, clive will renew
+the cache entry automatically. This is done for two reasons:
+
+=over 4
+
+=item 1.
+
+The cached extraction URL would point to a wrong file
+
+=item 2.
+
+The file length would be incorrect
+
+=back
+
+=head1 UNICODE
+
+As long as the terminal can handle unicode, so should clive. Details of enabling
+unicode in your terminal falls outside the scope of this manual page.
+If you are running X, switching to a unicode capable terminal
+(e.g. L<uxterm(1)>) may also provide some remedy to this.
+
+If you are using a user-defined character class in the config file,
+make sure it is not blocking any unicode characters. See L</CONFIG>.
+
+=head1 FILES
+
+=over 4
+
+=item ~/.config/clive/config
+
+Configuration file for clive. See L</CONFIG>.
+
+=item ~/.config/clive/cache
+
+Contains the cache entries of the visited URLs. A Berkeley DB (Hash) file.
+
+=item ~/.config/clive/recall
+
+Contains the last URL batch. Can be recalled with the B<--recall> option.
+
+=back
+
+=head1 CONFIG
+
+    ## Example config file for clive.
+    ## Recommended: chmod 0600 ~/.config/clive/config
+
+    [http]
+        ## HTTP User-agent string (default: Mozilla/5.0).
+        agent = Furball/0.2
+
+        ## HTTP proxy.
+        proxy = http://foo:1234
+
+    [output]
+        ## Save videos to directory (default: cwd).
+        savedir = /home/user/videos
+
+        ## Character class used to filter out garbage characters from
+        ## video filenames (default: \w).
+        cclass = [A-Za-z0-9]
+        #cclass = .
+
+        ## Extracted video filename format (default: %t-(%i)-[%d].%s).
+        ## %t = video name after applying the character class regex
+        ## %s = video file suffix (e.g. flv)
+        ## %d = video domain
+        ## %i = video id
+        ## %D = current date
+        ## %T = current time
+        ## %S = timestamp (same as: %D %T)
+        file = %t.%e
+
+        ## Format for --show (default: %D: "%t" | %mMB)
+        ## %t = video page title
+        ## %i = video id
+        ## %l = video file length (bytes)
+        ## %u = video page url
+        ## %x = video extraction url
+        ## %D = video extraction date
+        ## %T = video extraction time
+        ## %S = video extraction timestamp (same as: %D %T)
+        show = %t (id: %i | bytes: %l)
+
+    [youtube]
+        ## Username and password for Youtube. OPTIONAL unless you
+        ## plan on extracting flagged content.
+        user = myusername
+        pass = mypassword
+
+    [commands]
+        ## Path to a player command. If used, clive will play the
+        ## extracted videos subsequently. Be sure to use the %i
+        ## specifier for input file.
+        play = /usr/local/bin/xine -f %i
+
+=head1 SEE ALSO
+
+=over 4
+
+=item Website:
+
+http://clive.sf.net/
+
+=item Project:    
+
+http://googlecode.com/p/clive/
+
+=item Issue Tracker:
+
+http://googlecode.com/p/clive/issues/
+
+=item Announcements:
+
+http://googlegroups.com/group/clive-announce/
+
+=back
+
+=head1 OTHER
+
+A clive development repository can be obtained from:
+
+    git clone git://repo.or.cz/clive.git
+
+Patches welcome.
+
+=head1 AUTHOR
+
+Written by Toni Gundogdu <legatvs@gmail.com>.
+
+=cut

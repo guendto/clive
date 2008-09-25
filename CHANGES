@@ -4,6 +4,7 @@ Version 2.0beta2
  Developer-visible changes:
   * --version now displays XML::Simple
   * XML::Simple was missing as a prerequisite in INSTALL
+  * Made minor syntactic tweaks to the source code
 
 
 Version 2.0beta1

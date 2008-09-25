@@ -155,7 +155,7 @@ free_cache();
 
 ## Subroutines: Connection
 
-sub init_curl { # Set common curl options for handle
+sub init_curl {
     $curl = WWW::Curl::Easy->new;
 
     $curl->setopt(CURLOPT_USERAGENT,

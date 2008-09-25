@@ -37,11 +37,13 @@ Tested on 7.0. Likely inaccurate.
 From the ports:
   * databases/p5-BerkeleyDB
   * security/p5-Digest-SHA
+  * textproc/p5-XML-Simple
   * devel/p5-Config-Tiny
+  * www/p5-HTML-Parser
   * devel/p5-IO-Pager
   * net/p5-URI
-  * www/p5-HTML-Parser
-  * x11/p5-Clipboard (if needed)
+  -- Optional:
+  * x11/p5-Clipboard
 
 CPAN: WWW::Curl (outdated in the ports at the time of writing this)
   % sudo pkg_add -r curl (or: cd /usr/ports/www/curl; sudo make install)
@@ -54,13 +56,13 @@ Installation: Ubuntu
 Tested on Hardy. Likely inaccurate.
 
 % sudo apt-get install:
+  * libhtml-parser-perl
   * libconfig-tiny-perl
   * libberkeleydb-perl
   * libdigest-sha-perl
-  * libfile-spec-perl
   * libxml-simple-perl
+  * libfile-spec-perl
   * liburi-perl 
-  * libhtml-parser-perl
 
 CPAN:
   * WWW::Curl (outdated in apt at the time of writing this)

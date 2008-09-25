@@ -507,7 +507,7 @@ sub parse_input {
     }
 
     # Insert http:// if not found
-    if ( $url !~ /^http:\/\//i ) { $url = "http://$url"; } 
+    $url = "http://$url" if $url !~ m!^http://!i;
 
     # Translate embedded URL to video page URL
     $url =~ s{/v/}{/watch?v=}ig; # Youtube

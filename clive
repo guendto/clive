@@ -155,7 +155,9 @@ free_cache();
 
 ## Subroutines: Connection
 
-sub set_curl_opts { # Set common curl options for handle
+sub init_curl { # Set common curl options for handle
+    $curl = WWW::Curl::Easy->new;
+
     $curl->setopt(CURLOPT_USERAGENT,
         $opts{agent} ? $opts{agent} : "Mozilla/5.0");
 
@@ -215,8 +217,7 @@ sub auth_youtube { # Log into Youtube
 # Subroutines: Queue
 
 sub process_queue {
-    $curl = WWW::Curl::Easy->new;
-    set_curl_opts();
+    init_curl();
 
     foreach ( @queue ) {
         $hash = sha1_hex($_);

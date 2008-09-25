@@ -119,11 +119,11 @@ $opts{version}      = 0;
 
 Getopt::Long::Configure("bundling");
 GetOptions(\%opts,
-    'debug|d',          'help|h',           'manual|m',     'version|v',
-    'paste|x',          'show|s',           'delete|D',     'clear|C',
-    'continue|c',       'renew|R',          'recall|r',     'format|f=s',
-    'output|o=s',       'append|a=s',       'background|b', 'quiet|q',
-    'grep|g=s',
+    'debug|d',    'help|h',     'manual|m',       'version|v',
+    'paste|x',    'show|s',     'delete|D',       'clear|C',
+    'continue|c', 'renew|R',    'recall|r',       'format|f=s',
+    'output|o=s', 'append|a=s', 'background|b',   'quiet|q',
+    'grep|g=s',   'version|v' => \&print_version,
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
     'ignore-case|i' => sub { $opts{case}    = 0; },
@@ -134,7 +134,6 @@ GetOptions(\%opts,
     'noprogress|G'  => sub { $opts{progress}= 0; },
 ) or pod2usage(1);
 
-print_version() if $opts{version};
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
 pod2usage(-exitstatus => 0, -verbose => 2) if $opts{manual};
 

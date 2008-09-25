@@ -33,9 +33,9 @@ use BerkeleyDB;
 use IO::Pager;
 
 # Core modules:
+use Getopt::Long qw(:config bundling);
 use Digest::SHA qw(sha1_hex);
 use POSIX qw(strftime);
-use Getopt::Long;
 use XML::Simple;
 use File::Path;
 use File::Spec;
@@ -117,7 +117,6 @@ $opts{help}         = 0;
 $opts{manual}       = 0;
 $opts{version}      = 0;
 
-Getopt::Long::Configure("bundling");
 GetOptions(\%opts,
     'debug|d',    'help|h',     'manual|m',       'version|v',
     'paste|x',    'show|s',     'delete|D',       'clear|C',

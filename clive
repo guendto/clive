@@ -513,7 +513,7 @@ sub parse_input {
     $url =~ s{\Q/googleplayer.swf?docid=}{/videoplay?docid=\E}ig; # GVideo
 
     # Remove params from the URL  NOTE: May require tweaking
-    $url = (split /&/, $url) [0];
+    ($url) = split /&/, $url;
 
     foreach my $re ( %re_hosts ) {
         push @queue,$url and return 0 if $url =~ /$re/;

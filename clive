@@ -44,8 +44,8 @@ use Encode;
 use Cwd;
 
 # Check for non-essential modules: set flags that indicate their availability
-my %optional_mods = (Clipboard => 1);
-eval "use Clipboard;"; $optional_mods{Clipboard}=0 if $@;
+my %opted_mods = (Clipboard => 1);
+eval "use Clipboard;"; $opted_mods{Clipboard}=0 if $@;
 
 my $VERSION     = "2.0beta1";
 my $HOMEDIR     = $ENV{HOME} or die "error: HOME environment variable not set";
@@ -471,7 +471,7 @@ sub get_queue {
 
     if ( $opts{paste} ) {
         print STDERR "error: Clipboard module not found" and exit
-            unless $optional_mods{Clipboard};
+            unless $opted_mods{Clipboard};
         parse_input($_) foreach Clipboard->paste();
     }
 
@@ -914,7 +914,7 @@ sub grep_cache {
 
 sub print_version {
     my $perl_v      = sprintf "%vd", $^V;
-    my $clipboard_v = $optional_mods{Clipboard} ? $Clipboard::VERSION : "-";
+    my $clipboard_v = $opted_mods{Clipboard} ? $Clipboard::VERSION : "-";
 print
 "clive version $VERSION.  Copyright (C) 2007,2008 Toni Gundogdu.
 

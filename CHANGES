@@ -7,6 +7,7 @@ Version 2.0beta2
   * Made minor syntactic tweaks to the source code
   * Fixed missing --quiet check with the "=> Play" message.
   * Changed "= Play:" to "=> Playing ..."
+  * Playing occurs now subsequently after going over the URL batch
 
 
 Version 2.0beta1

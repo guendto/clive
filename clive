@@ -217,6 +217,8 @@ sub auth_youtube { # Log into Youtube
 # Subroutines: Queue
 
 sub process_queue {
+    my @play_queue;
+
     init_curl();
 
     foreach ( @queue ) {
@@ -238,10 +240,7 @@ sub process_queue {
                         my ($rc, $path) = extract_video($content_type)
                             if $content_type;
                         if ( $opts{play} and $rc == 0 ) {
-                            print "=> Playing ...$path\n" unless $opts{quiet};
-                            my $cmd = $opts{play};
-                            $cmd =~ s/%i/"$path"/;
-                            system "$cmd >/dev/null";
+                            push @play_queue, $path;
                         }
                     }
                 }
@@ -253,6 +252,15 @@ sub process_queue {
         }
         close $rfh;
         print STDERR "\n==> error: $errmsg\n" if $errmsg;
+    }
+
+    foreach ( @play_queue ) {
+        print "=> Playing ...$_\n" unless $opts{quiet};
+
+        my $cmd = $opts{play};
+        $cmd =~ s/%i/"$_"/;
+
+        system "$cmd >/dev/null";
     }
 }
 

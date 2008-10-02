@@ -238,11 +238,10 @@ sub process_queue {
                         my ($rc, $path) = extract_video($content_type)
                             if $content_type;
                         if ( $opts{play} and $rc == 0 ) {
-                            print "=> Play: $path\n";
+                            print "=> Playing ...$path\n" unless $opts{quiet};
                             my $cmd = $opts{play};
                             $cmd =~ s/%i/"$path"/;
-                            system($cmd.">/dev/null") == 0
-                                or die "system exited with $?";
+                            system "$cmd >/dev/null";
                         }
                     }
                 }

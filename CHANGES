@@ -5,6 +5,8 @@ Version 2.0beta2
   * --version now displays XML::Simple
   * XML::Simple was missing as a prerequisite in INSTALL
   * Made minor syntactic tweaks to the source code
+  * Fixed missing --quiet check with the "=> Play" message.
+  * Changed "= Play:" to "=> Playing ..."
 
 
 Version 2.0beta1

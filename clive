@@ -484,7 +484,7 @@ sub get_queue {
 
     parse_input($_) foreach @ARGV;
     grep_cache() if $opts{grep};
-    read_stdin() unless @queue;
+    unless ( @queue ) { parse_input($_) while ( <STDIN> ); }
 
     my %h = map { $_, 1 } @queue; # Remove duplicates
     @queue = keys %h;
@@ -492,10 +492,6 @@ sub get_queue {
     open my $fh, ">$RECALLFILE" or die "error: $RECALLFILE: $!";
     print $fh "$_\n" foreach @queue;
     close $fh;
-}
-
-sub read_stdin {
-    parse_input($_) while ( <STDIN> );
 }
 
 sub parse_input {

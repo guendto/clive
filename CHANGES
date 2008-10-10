@@ -8,9 +8,10 @@ Version 2.0beta2
   * Playing occurs now subsequently after going over the URL batch
 
  Developer-visible changes:
+  * Added the AUTHORS file
   * XML::Simple was missing as a prerequisite in INSTALL
   * Made minor syntactic tweaks to the source code
-  * Fixed missing --quiet check with the "=> Play" message.
+  * Fixed missing --quiet check with the "=> Play" message
 
 
 Version 2.0beta1

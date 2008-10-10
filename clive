@@ -75,7 +75,7 @@ my $default_showfmt # Default --show format
 my %re_hosts = (    # Precompiled regex used to identify the host
 IsYoutube   => qr|\Qyoutube.com\E|i,    IsGoogle => qr|\Qvideo.google.\E|i,
 IsSevenload => qr|\Qsevenload.com\E|i,  IsBreak  => qr|\Qbreak.com\E|i,
-IsMetacafe  => qr|\Qmetacafe.com\E|i
+IsMetacafe  => qr|\Qmetacafe.com\E|i,   IsLastfm => qr|\Qlast.fm\E|i,
 );
 
 # Parse config
@@ -514,6 +514,14 @@ sub parse_input {
     # Translate embedded URL to video page URL
     $url =~ s{/v/}{/watch?v=}ig; # Youtube
     $url =~ s{\Q/googleplayer.swf?docid=}{/videoplay?docid=\E}ig; # GVideo
+
+    # Last.fm wraps Youtube videos as their own
+    if ( $url =~ /$re_hosts{IsLastfm}/ ) {
+        $url =~ /\Q+1-\E(.+)/;
+        print STDERR "error: nosupport: $url\n" and return -1
+            unless defined($1);
+        $url = "http://youtube.com/watch?v=$1";
+    }
 
     # Remove params from the URL  NOTE: May require tweaking
     ($url) = split /&/, $url;
@@ -1214,6 +1222,8 @@ read too much into the video quality information listed below.
 
 =item B<www.youtube.com>
 
+=item B<www.last.fm>
+
 Formats: flv | mp4 | 3gpp | xflv
 
 The flv format is usually available unless the video has been removed or
@@ -1222,6 +1232,8 @@ The xflv on the other hand appears to be very rarely available.
 
 Videos dating back to 2006 are usually available as flv only. The B<--continue>
 option should work with all other formats but flv.
+
+Lastfm wraps Youtube videos.
 
 =back
 

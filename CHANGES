@@ -2,6 +2,7 @@ Version 2.0beta2
 (? ??, 2008)
 
  User-visible changes:
+  * Ported lastfm video support from 1.x
   * --version now displays XML::Simple
   * Changed "= Play:" to "=> Playing ..."
   * Playing occurs now subsequently after going over the URL batch

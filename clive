@@ -48,8 +48,9 @@ my %opted_mods = (Clipboard => 1);
 eval "use Clipboard;"; $opted_mods{Clipboard}=0 if $@;
 
 my $VERSION     = "2.0beta1";
-my $HOMEDIR     = $ENV{HOME} or die "error: HOME environment variable not set";
-my $CONFIGDIR   = File::Spec->catfile(  $HOMEDIR, ".config/clive");
+my $CONFIGDIR   = $ENV{CLIVE_CONFIGDIR}
+    ? $ENV{CLIVE_CONFIGDIR}
+    : File::Spec->catfile($ENV{HOME}, ".config/clive");
 my $CONFIGFILE  = File::Spec->catfile($CONFIGDIR, "config");
 my $CACHEFILE   = File::Spec->catfile($CONFIGDIR, "cache");
 my $RECALLFILE  = File::Spec->catfile($CONFIGDIR, "recall");
@@ -1333,6 +1334,9 @@ If you are using a user-defined character class in the config file,
 make sure it is not blocking any unicode characters. See L</CONFIG>.
 
 =head1 FILES
+
+clive defaults config directory to ~/.config/clive. The CLIVE_CONFIGDIR
+environment variable can be used to override this.
 
 =over 4
 

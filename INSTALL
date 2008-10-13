@@ -63,10 +63,12 @@ Tested on Hardy. Likely inaccurate.
   * libxml-simple-perl
   * libfile-spec-perl
   * liburi-perl 
+  * perl-doc
+  * xclip (for Clipboard module below)
 
 CPAN:
   * WWW::Curl (outdated in apt at the time of writing this)
-    % sudo apt-get install libcurl-dev
+    % sudo apt-get install libcurl4-openssl-dev
     % sudo cpan install WWW::Curl
 
   * IO::Pager (not packaged?)

@@ -9,6 +9,7 @@ Version 2.0beta2
   * Playing occurs now subsequently after going over the URL batch
 
  Developer-visible changes:
+  * Removed a google video redirect (commented out, see code)
   * Added the AUTHORS file
   * XML::Simple was missing as a prerequisite in INSTALL
   * Made minor syntactic tweaks to the source code

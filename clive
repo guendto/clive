@@ -565,26 +565,29 @@ sub handle_google {
     my $response_ref = shift;
 
     my %re = (
-        GrabRedirect => qr|lfRedirect\('(.*?)'|,
+        #GrabRedirect => qr|lfRedirect\('(.*?)'|,
         GrabVideoURL => qr|\Qgoogleplayer.swf?videoUrl\x3d\E(.*?)\Q\x26|,
         GrabID       => qr|docid: '(.*?)'|,
         GrabMP4      => qr|\Qhref="http://vp.\E(.*?)"|,
     );
 
-    my $redir  = $1 if $$response_ref =~ /$re{GrabRedirect}/;
+    #my $redir  = $1 if $$response_ref =~ /$re{GrabRedirect}/;
     my $xurl   = uri_unescape($1) if $$response_ref =~ /$re{GrabVideoURL}/;
     my $id     = $1 if $$response_ref =~ /$re{GrabID}/;
     my $mp4    = $1 if $$response_ref =~ /$re{GrabMP4}/;
 
-    if ( $redir ) {
-        $redir =~ s{\\x3d}{=};
-        push @queue, $redir;
-        print "Found a redirect to another host. Pushed into queue.\n"
-            unless $opts{quiet};
-    } else {
+#    if ( $redir ) {
+# video.google.* http/302 redirects to the actual video hosts again.
+# Leaving this commented out until they decide to flip it back on
+# again after some mind-boggling brainstorming.
+#        $redir =~ s{\\x3d}{=};
+#        push @queue, $redir;
+#        print "Found a redirect to another host. Pushed into queue.\n"
+#            unless $opts{quiet};
+#    } else {
         $xurl = $mp4 if ( $mp4 and $opts{format} eq "mp4" );
         print STDERR "\nerror: extraction url not found\n" unless $xurl;
-    }
+#    }
     return ($xurl, $id);
 }
 

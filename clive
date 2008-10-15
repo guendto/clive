@@ -1335,8 +1335,8 @@ make sure it is not blocking any unicode characters. See L</CONFIG>.
 
 =head1 FILES
 
-clive defaults config directory to ~/.config/clive. The CLIVE_CONFIGDIR
-environment variable can be used to override this.
+By default, clive searches the ~/.config/clive directory for the config file.
+The B<CLIVE_CONFIGDIR> environment variable can be used to override this.
 
 =over 4
 

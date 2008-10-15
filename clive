@@ -47,7 +47,7 @@ use Cwd;
 my %opted_mods = (Clipboard => 1);
 eval "use Clipboard;"; $opted_mods{Clipboard}=0 if $@;
 
-my $VERSION     = "2.0beta1";
+my $VERSION     = "2.0beta2";
 my $CONFIGDIR   = $ENV{CLIVE_CONFIGDIR}
     ? $ENV{CLIVE_CONFIGDIR}
     : File::Spec->catfile($ENV{HOME}, ".config/clive");

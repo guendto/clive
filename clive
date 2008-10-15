@@ -499,6 +499,7 @@ sub parse_input {
     my $url = shift;
 
     return if $url =~ /^$/;
+    return if $url =~ /^#/;
     chomp $url;
 
     if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects

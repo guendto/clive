@@ -2,6 +2,7 @@ Version 2.0beta2
 (October 15, 2008)
 
  User-visible changes:
+  * clive now ignores input lines that start with the '#' character
   * Added support for CLIVE_CONFIGDIR environment variable
   * Ported lastfm video support from 1.x
   * --version now displays XML::Simple

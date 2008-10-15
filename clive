@@ -1161,11 +1161,10 @@ Extracts the video from the specified URL.
 
 =item cat E<gt>E<gt> url.lst
 
-http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
-http://youtube.com/watch?v=3HD220e0bx4
-http://video.google.com/googleplayer.swf?docid=-3999952944619245780
-http://www.metacafe.com/watch/1040857/chelsea/
-http://break.com/index/beach-tackle-whip-lash.html
+    http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
+    http://youtube.com/watch?v=3HD220e0bx4
+    http://www.metacafe.com/watch/1040857/chelsea/
+    http://break.com/index/beach-tackle-whip-lash.html
 
 =item cat url.lst | clive
 

@@ -69,6 +69,7 @@ my $last_bspaces;   # Progress: Keeps count of the last printed backspaces
 my $curr_fn;        # Progress: Holds the name of the current video file
 my $time_started;   # Progress: Holds transfer started time
 my $last_eta;       # Progress: Holds last saved ETA for file transfer
+my @play_queue;     # Holds files to be played
 
 my $default_showfmt # Default --show format
     = qq/%D: "%t" | %mMB/;
@@ -218,8 +219,6 @@ sub auth_youtube { # Log into Youtube
 # Subroutines: Queue
 
 sub process_queue {
-    my @play_queue;
-
     init_curl();
 
     foreach ( @queue ) {
@@ -228,23 +227,13 @@ sub process_queue {
         my ($rc, $rfh, $response) = fetch_page($_);
         my $errmsg;
 
-        # TODO: Clean up
         if ( $rc == 0 ) {
             $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
             if ( $rc == 0 or $rc == 200) {
-                if ( ! defined( $entry{page_url} ) ) {
+                if ( !defined( $entry{page_url} ) ) {
                     next if process_page($_, \$response, $rfh) == -1;
                 }
-                if ( $entry{xurl} ) {
-                    my ($rc, $content_type) = query_video_length();
-                    if ( $rc == 0 ) {
-                        my ($rc, $path) = extract_video($content_type)
-                            if $content_type;
-                        if ( $opts{play} and $rc == 0 ) {
-                            push @play_queue, $path;
-                        }
-                    }
-                }
+                extract_video() if $entry{xurl};
             } else {
                 $errmsg = $curl->strerror($rc)." (http/$rc)";
             }
@@ -390,14 +379,15 @@ sub query_video_length {
 }
 
 sub extract_video {
-    my $content_type= shift;
+    my ($rc, $content_type) = query_video_length();
+    return if ( $rc != 0 or !defined $content_type );
+
     my $fn          = title_to_filename($entry{page_title});
     my $path        = File::Spec->catfile( $opts{savedir} || $workdir, $fn );
     my $filemode    = ">";
     my $cont_from   = 0;
     my $remaining   = $entry{file_length};
     my $size        = -s $path;
-    my $rc          = 0;
     my $errmsg;
 
     # We have everything for cache. Add/update the bdb entry.
@@ -409,7 +399,7 @@ sub extract_video {
         if ( $size == $entry{file_length} and $opts{extract} ) {
             print "=> Refusing to extract. "
                 . "localfile length matches remotefile length.\n";
-            return (0, $path);
+            push @play_queue,$path and return;
         }
         if ( $size < $entry{file_length} and $opts{continue} ) {
             $cont_from  = $size;
@@ -429,9 +419,8 @@ sub extract_video {
         print "\n";
     }
 
-    if ( $rc == 0 ) { #
-        # -1 = Disable subsequent play with --noextract
-        return (-1, $path) unless $opts{extract};
+    if ( $rc == 0 ) {
+        return unless $opts{extract};
 
         if ( open my $fh, "$filemode$path" ) {
             $curl->setopt(CURLOPT_URL, $entry{xurl});
@@ -458,16 +447,17 @@ sub extract_video {
             else { $errmsg = $curl->strerror($rc)." (http/$rc)"; }
         } else {
             $errmsg = "$path: $!";
-            $rc = -1; # Disable subsequent play
         }
     } else {
         $errmsg = $curl->strerror($rc)." (http/$rc)";
     }
 
-    if ( $errmsg ) { print STDERR "\n==> error: $errmsg\n"; }
-    else { print "\n==> Closed with HTTP/$rc.\n" unless $opts{quiet}; }
-
-    return ($errmsg ? -1:0, $path);
+    if ( ! $errmsg ) {
+        print "\n==> Closed with HTTP/$rc.\n" unless $opts{quiet};
+        push @play_queue,$path if $opts{play};
+    } else {
+        print STDERR "\n==> error: $errmsg\n";
+    }
 }
 
 sub get_queue {

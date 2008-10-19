@@ -458,6 +458,7 @@ sub extract_video {
     } else {
         print STDERR "\n==> error: $errmsg\n";
     }
+    $curl->setopt(CURLOPT_NOPROGRESS, 1);
 }
 
 sub get_queue {

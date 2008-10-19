@@ -3,6 +3,10 @@ version 2.0
 
  User-visible changes:
   * Fixed pasting from clipboard containing multiple URLs
+  * Fixed page fetch progress glitch that occured with 1+ batches
+
+ Developer-visible changes:
+  * Cleaned up queue processing subroutine
 
 
 Version 2.0beta2

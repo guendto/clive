@@ -209,7 +209,7 @@ sub auth_youtube { # Log into Youtube
 
     print "done.\n=> Youtube: Bypassing age check ..." unless $opts{quiet};
     $curl->setopt(CURLOPT_COOKIE, "is_adult=" . uc( sha1_hex(rand()) ) );
-    print "Done.\n" unless $opts{quiet};
+    print "done.\n" unless $opts{quiet};
 
     $youtube_on = 1;
 }

@@ -1163,7 +1163,7 @@ from Youtube, for example.
 
 =item B<-L --nologin>
 
-Do not log in. Ignored unless the I<usern> and I<passw> commands are defined
+Do not log in. Ignored unless the I<user> and I<pass> commands are defined
 in the config file.
 
 =item B<-n --noextract>

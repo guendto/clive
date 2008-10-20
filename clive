@@ -1168,7 +1168,7 @@ Extract I<format> of the video. See L</FORMATS> in the manual page.
 Disable subsequent play. Ignored unless I<play> command is defined in the config
 file.
 
-=item B<-L --cclass=>I<character-class>
+=item B<-l --cclass=>I<character-class>
 
 Use I<character-class> for tweaking video page titles. The default is B<\w>.
 This is used to filter out any unwanted characters from the video titles which

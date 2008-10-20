@@ -124,7 +124,7 @@ GetOptions(\%opts,
     'paste|x',    'show|s',     'delete|D',       'clear|C',
     'continue|c', 'renew|R',    'recall|r',       'format|f=s',
     'output|o=s', 'append|a=s', 'background|b',   'quiet|q',
-    'grep|g=s',   'version|v' => \&print_version,
+    'grep|g=s',   'version|v' => \&print_version, 'agent|U=s',
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
     'ignore-case|i' => sub { $opts{case}    = 0; },
@@ -1025,6 +1025,21 @@ file.
 
 =back
 
+B<HTTP options>
+
+=over 4
+
+=item B<-U --agent=>I<agent-string>
+
+Identify as I<agent-string> to the HTTP server. Defaults to "Mozilla/5.0".
+
+=item B<-X --noproxy>
+
+Do not use of the proxy defined in the config or the http_proxy environment
+variable.
+
+=back
+
 B<Cache Options>
 
 =over 4
@@ -1123,11 +1138,6 @@ The "requested range was not delivered" error typically implies that the
 host does not allow continuing partially extracted video files. You will
 see this error if you attempt to continue a partially downloaded flv video
 from Youtube, for example.
-
-=item B<-X --noproxy>
-
-Do not use of the proxy defined in the config or the http_proxy environment
-variable.
 
 =item B<-L --nologin>
 

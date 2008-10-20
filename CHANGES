@@ -4,6 +4,7 @@ version 2.0
  User-visible changes:
   * Fixed pasting from clipboard containing multiple URLs
   * Fixed page fetch progress glitch that occured with 1+ batches
+  * Added --agent option
 
  Developer-visible changes:
   * Cleaned up queue processing subroutine

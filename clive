@@ -137,6 +137,8 @@ GetOptions(\%opts,
     'noprogress|G'        => sub { $opts{progress}  = 0 },
     'filename-format|N=s' => sub { $opts{fnfmt}     = $_[1] },
     'show-format|H=s'     => sub { $opts{showfmt}   = $_[1] },
+    'youtube-user|u=s',   => sub { $opts{ytuser}    = $_[1] },
+    'youtube-pass|t=s',   => sub { $opts{ytpass}    = $_[1] },
 ) or pod2usage(1);
 
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
@@ -1161,10 +1163,17 @@ host does not allow continuing partially extracted video files. You will
 see this error if you attempt to continue a partially downloaded flv video
 from Youtube, for example.
 
+=item B<-u --youtube-user=>I<username>
+
+Use I<username> for logging into Youtube.
+
+=item B<-t --youtube-pass=>I<password>
+
+Use I<password> for logging into Youtube.
+
 =item B<-L --nologin>
 
-Do not log in. Ignored unless the I<user> and I<pass> commands are defined
-in the config file.
+Do not log into Youtube if I<username> and I<password> are defined.
 
 =item B<-n --noextract>
 

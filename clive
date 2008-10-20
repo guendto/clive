@@ -125,7 +125,7 @@ GetOptions(\%opts,
     'continue|c', 'renew|R',    'recall|r',       'format|f=s',
     'output|o=s', 'append|a=s', 'background|b',   'quiet|q',
     'grep|g=s',   'version|v' => \&print_version, 'agent|U=s',
-    'proxy|y=s',
+    'proxy|y=s',  'savedir|S=s',
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
     'ignore-case|i' => sub { $opts{case}    = 0; },
@@ -1152,6 +1152,10 @@ in the config file.
 =item B<-n --noextract>
 
 Do not actually extract any videos.
+
+=item B<-S --savedir=>I<dir>
+
+Save extracted videos to I<dir>.
 
 =item B<-f --format=>I<format>
 

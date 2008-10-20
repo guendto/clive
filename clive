@@ -125,6 +125,7 @@ GetOptions(\%opts,
     'continue|c', 'renew|R',    'recall|r',       'format|f=s',
     'output|o=s', 'append|a=s', 'background|b',   'quiet|q',
     'grep|g=s',   'version|v' => \&print_version, 'agent|U=s',
+    'proxy|y=s',
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
     'ignore-case|i' => sub { $opts{case}    = 0; },
@@ -1033,10 +1034,14 @@ B<HTTP options>
 
 Identify as I<agent-string> to the HTTP server. Defaults to "Mozilla/5.0".
 
+=item B<-y --proxy=>I<proxy-address>
+
+Use I<proxy-address> for HTTP proxy, e.g. http://foo:1234. If http_proxy
+environment variable is defined, it will be used.
+
 =item B<-X --noproxy>
 
-Do not use of the proxy defined in the config or the http_proxy environment
-variable.
+Do not use the defined (B<--proxy>, config or http_proxy) HTTP proxy.
 
 =back
 

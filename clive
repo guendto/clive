@@ -136,6 +136,7 @@ GetOptions(\%opts,
     'noproxy|X'           => sub { $opts{proxy}     = "" },
     'noprogress|G'        => sub { $opts{progress}  = 0 },
     'filename-format|N=s' => sub { $opts{fnfmt}     = $_[1] },
+    'show-format|H=s'     => sub { $opts{showfmt}   = $_[1] },
 ) or pod2usage(1);
 
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
@@ -1059,6 +1060,20 @@ Renew the cache entries for the input URLs. See L</CACHE> in the manual page.
 
 Print cache entries to standard output. See L</CONFIG> in the manual page
 for how to configure the output.
+
+=item B<-H --show-format=>I<string>
+
+Format printed entries using the I<string>. The default is '%D: "%t" | %mMB'.
+The following specifiers are supported:
+
+    %t = video page title
+    %i = video id
+    %l = video file length (bytes)
+    %u = video page url
+    %x = video extraction url
+    %D = video extraction date
+    %T = video extraction time
+    %S = video extraction timestamp (same as: %D %T)
 
 =item B<-g --grep=>I<pattern>
 

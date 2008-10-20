@@ -9,6 +9,7 @@ version 2.0
   * Added --savedir option
   * Added --cclass option
   * Added --filename-format option
+  * Added --show-format option
 
  Developer-visible changes:
   * Cleaned up queue processing subroutine

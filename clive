@@ -1141,7 +1141,7 @@ from Youtube, for example.
 
 =item B<-L --nologin>
 
-Do not log in. Ignored unless [youtube]:user and [youtube]:pass are used
+Do not log in. Ignored unless the I<usern> and I<passw> commands are defined
 in the config file.
 
 =item B<-n --noextract>
@@ -1154,8 +1154,8 @@ Extract I<format> of the video. See L</FORMATS> in the manual page.
 
 =item B<-P --noplay>
 
-Disable subsequent play. Ignored unless [commands]:play is used in the 
-configuration file.
+Disable subsequent play. Ignored unless I<play> command is defined in the config
+file.
 
 =back
 

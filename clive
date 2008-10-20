@@ -1030,13 +1030,13 @@ B<HTTP options>
 
 =over 4
 
-=item B<-U --agent=>I<agent-string>
+=item B<-U --agent=>I<string>
 
-Identify as I<agent-string> to the HTTP server. Defaults to "Mozilla/5.0".
+Identify as I<string> to the HTTP server. Defaults to "Mozilla/5.0".
 
-=item B<-y --proxy=>I<proxy-address>
+=item B<-y --proxy=>I<address>
 
-Use I<proxy-address> for HTTP proxy, e.g. http://foo:1234. If http_proxy
+Use I<address> for HTTP proxy, e.g. http://foo:1234. If http_proxy
 environment variable is defined, it will be used.
 
 =item B<-X --noproxy>

@@ -8,6 +8,7 @@ version 2.0
   * Added --proxy option
   * Added --savedir option
   * Added --cclass option
+  * Added --filename-format option
 
  Developer-visible changes:
   * Cleaned up queue processing subroutine

@@ -129,12 +129,13 @@ GetOptions(\%opts,
     'version|v' => \&print_version,
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
-    'ignore-case|i' => sub { $opts{case}    = 0; },
-    'noextract|n'   => sub { $opts{extract} = 0; },
-    'noplay|P'      => sub { $opts{play}    = 0; },
-    'nologin|L'     => sub { $opts{login}   = 0; },
-    'noproxy|X'     => sub { $opts{proxy}   = ""; },
-    'noprogress|G'  => sub { $opts{progress}= 0; },
+    'ignore-case|i'       => sub { $opts{case}      = 0 },
+    'noextract|n'         => sub { $opts{extract}   = 0 },
+    'noplay|P'            => sub { $opts{play}      = 0 },
+    'nologin|L'           => sub { $opts{login}     = 0 },
+    'noproxy|X'           => sub { $opts{proxy}     = "" },
+    'noprogress|G'        => sub { $opts{progress}  = 0 },
+    'filename-format|N=s' => sub { $opts{fnfmt}     = $_[1] },
 ) or pod2usage(1);
 
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
@@ -1172,6 +1173,18 @@ file.
 Use I<character-class> for tweaking video page titles. The default is B<\w>.
 This is used to filter out any unwanted characters from the video titles which
 are used to name the extracted videos.
+
+=item B<-N --filename-format=>I<string>
+
+Use I<string> for naming the extracted videos. The default is
+"%t-(%i)-[%d].%s". The following specifiers are supported:
+
+    %i = video id
+    %d = video domain
+    %s = video suffix
+    %D = current date
+    %T = current time
+    %S = timestamp (same as %D %T)
 
 =back
 

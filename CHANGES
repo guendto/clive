@@ -7,6 +7,7 @@ version 2.0
   * Added --agent option
   * Added --proxy option
   * Added --savedir option
+  * Added --cclass option
 
  Developer-visible changes:
   * Cleaned up queue processing subroutine

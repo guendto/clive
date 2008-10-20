@@ -125,6 +125,7 @@ GetOptions(\%opts,
     'continue|c', 'renew|R',    'recall|r',     'format|f=s',
     'output|o=s', 'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
+    'cclass|l=s',
     'version|v' => \&print_version,
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
@@ -1165,6 +1166,12 @@ Extract I<format> of the video. See L</FORMATS> in the manual page.
 
 Disable subsequent play. Ignored unless I<play> command is defined in the config
 file.
+
+=item B<-L --cclass=>I<character-class>
+
+Use I<character-class> for tweaking video page titles. The default is B<\w>.
+This is used to filter out any unwanted characters from the video titles which
+are used to name the extracted videos.
 
 =back
 

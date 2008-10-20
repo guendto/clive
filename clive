@@ -988,16 +988,16 @@ Every option has a long form along with the short one. Long options are more
 convenient to remember but take time to type. You may freely mix different
 option styles, or specify options after the command-line arguments. For example:
 
-    clive -c --format=mp4 URL -n
+    % clive -c --format=mp4 URL -n
 
 You may also put several options together that do not require arguments.
 For example:
 
-    clive -xcn URL
+    % clive -xcn URL
 
 Which is equivalent to:
 
-    clive -x -c -n URL
+    % clive -x -c -n URL
 
 =back
 
@@ -1153,53 +1153,53 @@ configuration file.
 
 =over 4
 
-=item clive "http://youtube.com/watch?v=3HD220e0bx4"
+=item % clive "http://youtube.com/watch?v=3HD220e0bx4"
 
 Extracts the video from the specified URL.
 
-=item cat E<gt>E<gt> url.lst
+=item % cat E<gt>E<gt> url.lst
 
 http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
 http://youtube.com/watch?v=3HD220e0bx4
 http://www.metacafe.com/watch/1040857/chelsea/
 http://break.com/index/beach-tackle-whip-lash.html
 
-=item cat url.lst | clive
+=item % cat url.lst | clive
 
 Reads input from UNIX pipe. Separate each URL with a newline.
 
-=item clive -x URL URL
+=item % clive -x URL URL
 
 Combines input from the command-line and the clipboard (each URL separated
 with a newline).
 
-=item clive -rf mp4
+=item % clive -rf mp4
 
 Recalls the last URL batch and extracts the mp4 format.
 
-=item clive -g 3HD220e0bx4
+=item % clive -g 3HD220e0bx4
 
 Greps the pattern from the cache and extracts the matched videos.
 
-=item clive -iDg ^3hd2
+=item % clive -iDg ^3hd2
 
 Same as above but I<deletes> the matched entries from the cache instead of
 extracting them.
 
-=item clive -s
+=item % clive -s
 
 Dumps the contents of the cache to stdout.
 
-=item clive -sig ^3hd2
+=item % clive -sig ^3hd2
 
 Instead of displaying all of the cache entries, show only the matching ones.
 
-=item clive -big ^3hd2 -o my.log
+=item % clive -big ^3hd2 -o my.log
 
 Goes to background immediately after startup, redirects output to I<my.log>
 file, greps for the pattern and extracts the video.
 
-=item clive -bqig ^3hd2
+=item % clive -bqig ^3hd2
 
 Same as above but turns off all output. See also the B<--noprogress> option.
 

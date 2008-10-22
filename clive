@@ -431,9 +431,9 @@ sub extract_video {
         if ( $size == $entry{file_length} and $opts{extract} ) {
             print "=> Refusing to extract. "
                 . "localfile length matches remotefile length.\n";
-            push @play_queue,$path and return;
-        }
-        if ( $size < $entry{file_length} and $opts{continue} ) {
+            push @play_queue,$path if $opts{play};
+            return unless $opts{emitcsv} or $opts{emitxml};
+        } elsif ( $size < $entry{file_length} and $opts{continue} ) {
             $cont_from  = $size;
             $filemode   = ">>";
             $remaining  = ($entry{file_length} - $cont_from);

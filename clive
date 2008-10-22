@@ -129,12 +129,14 @@ GetOptions(\%opts,
     'version|v' => \&print_version,
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
-    'ignore-case|i'       => sub { $opts{case}      = 0 },
     'noextract|n'         => sub { $opts{extract}   = 0 },
     'noplay|P'            => sub { $opts{play}      = 0 },
     'nologin|L'           => sub { $opts{login}     = 0 },
     'noproxy|X'           => sub { $opts{proxy}     = "" },
     'noprogress|G'        => sub { $opts{progress}  = 0 },
+    # Workaround for options that contain dashes in them.
+    # There's probably a better way to do this.
+    'ignore-case|i'       => sub { $opts{case}      = 0 },
     'filename-format|N=s' => sub { $opts{fnfmt}     = $_[1] },
     'show-format|H=s'     => sub { $opts{showfmt}   = $_[1] },
     'youtube-user|u=s',   => sub { $opts{ytuser}    = $_[1] },
@@ -1046,7 +1048,7 @@ environment variable is defined, it will be used.
 
 =item B<-X --noproxy>
 
-Do not use the defined (B<--proxy>, config or http_proxy) HTTP proxy.
+Do not use the defined HTTP proxy (B<--proxy>, config or http_proxy).
 
 =back
 

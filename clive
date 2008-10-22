@@ -427,8 +427,6 @@ sub extract_video {
     # We have everything for cache. Add/update the bdb entry.
     save_entry($hash);
 
-    $curl->setopt(CURLOPT_ENCODING, "identity"); # Disable
-
     if ( $size ) {
         if ( $size == $entry{file_length} and $opts{extract} ) {
             print "=> Refusing to extract. "
@@ -465,6 +463,7 @@ sub extract_video {
         return unless $opts{extract};
 
         if ( open my $fh, "$filemode$path" ) {
+            $curl->setopt(CURLOPT_ENCODING, "identity"); # Disable
             $curl->setopt(CURLOPT_URL, $entry{xurl});
             $curl->setopt(CURLOPT_HEADER, 0); # Disable
             $curl->setopt(CURLOPT_RESUME_FROM, $cont_from) if $cont_from;

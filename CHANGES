@@ -11,6 +11,8 @@ version 2.0
   * Added --filename-format option
   * Added --show-format option
   * Added --youtube-user and --youtube-pass options
+  * Ported --emit-csv option from 1.x with minor changes
+  * Added --emit-xml option
 
  Developer-visible changes:
   * Cleaned up queue processing subroutine

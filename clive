@@ -70,6 +70,7 @@ my $curr_fn;        # Progress: Holds the name of the current video file
 my $time_started;   # Progress: Holds transfer started time
 my $last_eta;       # Progress: Holds last saved ETA for file transfer
 my @play_queue;     # Holds files to be played
+my @emit_queue;     # Holds videos to be emitted to stdout
 
 my $default_showfmt # Default --show format
     = qq/%D: "%t" | %mMB/;
@@ -114,6 +115,8 @@ $opts{background}   = 0;
 $opts{output}       = undef;
 $opts{append}       = undef;
 $opts{progress}     = 1;
+$opts{emitcsv}      = 0;
+$opts{emitxml}      = 0;
 $opts{debug}        = 0;
 $opts{help}         = 0;
 $opts{manual}       = 0;
@@ -141,6 +144,8 @@ GetOptions(\%opts,
     'show-format|H=s'     => sub { $opts{showfmt}   = $_[1] },
     'youtube-user|u=s',   => sub { $opts{ytuser}    = $_[1] },
     'youtube-pass|t=s',   => sub { $opts{ytpass}    = $_[1] },
+    'emit-csv|e',         => sub { $opts{emitcsv}   = 1 },
+    'emit-xml|E',         => sub { $opts{emitxml}   = 1 },
 ) or pod2usage(1);
 
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
@@ -254,12 +259,33 @@ sub process_queue {
 
     foreach ( @play_queue ) {
         print "=> Playing ...$_\n" unless $opts{quiet};
-
         my $cmd = $opts{play};
         $cmd =~ s/%i/"$_"/;
-
         system "$cmd >/dev/null";
     }
+
+    print "<?xml version=\"1.0\"?>\n<queue>\n"
+        if $opts{emitxml} and @emit_queue;
+
+    foreach ( @emit_queue ) {
+        if ( $opts{emitcsv} ) {
+            my @e;
+            while ( my ($key,$value) = each (%$_) ) {
+                $value =~ tr{"}//d;
+                push @e,"\"$value\"";
+            }
+            print "csv:" . join(',',@e) . "\n";
+        } elsif ( $opts{emitxml} ) {
+            print "  <video>\n";
+            while ( my ($key,$value) = each (%$_) ) {
+                $value = uri_escape($value)
+                    if $key eq 'xurl' or $key eq 'page_url';
+                print "    <$key>$value</$key>\n";
+            }
+            print "  </video>\n";
+        }
+    }
+    print "</queue>\n" if $opts{emitxml} and @emit_queue;
 }
 
 sub fetch_page {
@@ -416,6 +442,14 @@ sub extract_video {
         } else {
             $path = newname_if_exists( $opts{savedir} || $workdir, $fn );
         }
+    }
+
+    if ( $opts{emitcsv} or $opts{emitxml} ) {
+        $entry{fn}          = $fn;
+        $entry{remaining}   = $remaining;
+        $entry{cont_from}   = $cont_from;
+        push @emit_queue, {%entry};
+        return;
     }
 
     unless ( $opts{quiet} ) {
@@ -1030,6 +1064,18 @@ Display version details and exit.
 Go to background immediately after startup. If no output file is specified
 using the B<--output> or B<--append>, the output is redirected to I<clive-log>
 file.
+
+=item B<-e --emit-csv>
+
+Do not actually extract any videos but dump the video details to stdout in CSV
+format. Note that the B<--quiet> option does not effect on the emitted output.
+For example:
+
+    % clive -eq URL # Would still print the CSV content
+
+=item B<-E --emit-xml>
+
+Similar to B<--emit-csv> but in XML format.
 
 =back
 

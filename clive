@@ -269,12 +269,9 @@ sub process_queue {
 
     foreach ( @emit_queue ) {
         if ( $opts{emitcsv} ) {
-            my @e;
-            while ( my ($key,$value) = each (%$_) ) {
-                $value =~ tr{"}//d;
-                push @e,"\"$value\"";
-            }
-            print "csv:" . join(',',@e) . "\n";
+            printf "csv:\"%s\",\"%s\",\"%s\",\"%.2fMB\"\n",
+                $_->{page_url}, $_->{xurl}, $_->{fn},
+                $_->{file_length}/1024/1024;
         } elsif ( $opts{emitxml} ) {
             print "  <video>\n";
             while ( my ($key,$value) = each (%$_) ) {

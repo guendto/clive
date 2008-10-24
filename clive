@@ -71,6 +71,7 @@ my $time_started;   # Progress: Holds transfer started time
 my $last_eta;       # Progress: Holds last saved ETA for file transfer
 my @play_queue;     # Holds files to be played
 my @emit_queue;     # Holds videos to be emitted to stdout
+my %dotp;           # Holds dot progress data
 
 my $default_showfmt # Default --show format
     = qq/%D: "%t" | %mMB/;
@@ -114,7 +115,7 @@ $opts{delete}       = 0;
 $opts{background}   = 0;
 $opts{output}       = undef;
 $opts{append}       = undef;
-$opts{progress}     = 1;
+$opts{progress}     = 'foo';
 $opts{emitcsv}      = 0;
 $opts{emitxml}      = 0;
 $opts{debug}        = 0;
@@ -128,7 +129,7 @@ GetOptions(\%opts,
     'continue|c', 'renew|R',    'recall|r',     'format|f=s',
     'output|o=s', 'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
-    'cclass|l=s',
+    'cclass|l=s', 'progress|G=s',
     'version|v' => \&print_version,
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
@@ -136,7 +137,6 @@ GetOptions(\%opts,
     'noplay|P'            => sub { $opts{play}      = 0 },
     'nologin|L'           => sub { $opts{login}     = 0 },
     'noproxy|X'           => sub { $opts{proxy}     = "" },
-    'noprogress|G'        => sub { $opts{progress}  = 0 },
     # Workaround for options that contain dashes in them.
     # There's probably a better way to do this.
     'ignore-case|i'       => sub { $opts{case}      = 0 },
@@ -451,7 +451,8 @@ sub extract_video {
     }
 
     unless ( $opts{quiet} ) {
-        print "=> File: $fn\n" if ( ! $opts{extract} );
+        print "=> File: ".decode_utf8($fn)."\n"
+            if !$opts{extract} or $opts{progress} eq 'dot';
         print "=> Length: $entry{file_length} ";
         printf"(%.2fMB)  ",$entry{file_length}/1024/1024 if $entry{file_length};
         printf "From: %u (Left: %u)  ", $cont_from, $remaining if $cont_from;
@@ -476,10 +477,14 @@ sub extract_video {
                 $last_bspaces   = 0;
                 $time_started   = time;
                 $last_eta       = '';
+                dotp_init() if $opts{progress} eq 'dot';
             }
 
             $rc = $curl->perform;
             close $fh;
+
+            if ( $opts{progress} eq 'foo' )     { foop_finish() }
+            elsif ( $opts{progress} eq 'dot' )  { dotp_finish() }
 
             # Reset
             $curl->setopt(CURLOPT_HEADER, 1);
@@ -709,9 +714,179 @@ sub handle_metacafe {
 }
 
 
+# Subroutines: Progress
+
+sub time2str {
+    my ($secs, $condensed) = @_;
+    my $space = $condensed ? "" : " ";
+
+    my $str;
+    if ( $secs < 100 ) {
+        $str = sprintf("%ds", $secs);
+    } elsif ( $secs < 100 * 60 ) {
+        $str = sprintf("%dm%s%ds", $secs / 60, $space, $secs % 60);
+    } elsif ( $secs < 48 * 3600) {
+        $str = sprintf("%dh%s%dm", $secs / 3600, $space, ($secs / 60) % 60);
+    } elsif ( $secs < 100 * 86400) {
+        $str = sprintf("%dd%s%dh", $secs / 86400, $space, ($secs / 3600) % 60);
+    } else {
+        $str = sprintf("%dd", $secs / 86500);
+    }
+    return $str;
+}
+
+sub calc_progress {
+    my ($dlnow, $dltotal, $condensed) = @_;
+
+    my $percent = 0;
+    $percent    = int ($dlnow / $dltotal * 100) if $dlnow;
+
+    my $elapsed = time - $time_started;
+    my $rate    = $dlnow / $elapsed if $elapsed;
+
+    my $eta     = '--:--';
+    if ( $rate > 0 ) {
+        my $left = ( $dltotal - $dlnow ) / $rate;
+        $eta = time2str($left, $condensed);
+    }
+    return ($percent, $elapsed, $rate, $eta);
+}
+
+sub progress_callback {
+    return 0 if $opts{progress} eq 'none';
+
+    if ( $opts{progress} eq 'dot' ) { dotp_update(@_); }
+    else { foop_update(@_); }
+
+    return 0;
+}
+
+sub dotp_init {
+    $dotp{dots}     = 0;
+    $dotp{rows}     = 0;
+    $dotp{dlthen}   = 0;
+}
+
+sub normalize_rate {
+    my $rate = shift;
+
+    my @names = qw/K M G/;
+    my $units;
+
+    if ( $rate < 1024*1024 ) {
+        $units = 0;
+        $rate /= 1024;
+    } elsif ( $rate < 1024*1024 ) {
+        $units = 1;
+        $rate /= 1024*1024;
+    } else {
+        $units = 2;
+        $rate /= 1024*1024*1024;
+    }
+    return ($rate, $names[$units]);
+}
+
+sub dotp_print_row_stats {
+    my ($percent, $elapsed, $eta, $rate, $last) = @_;
+
+    my $units;
+    ($rate, $units) = normalize_rate($rate);
+
+    printf "%3d%% %4.1f%s", $percent, $rate, $units;
+    printf "%s%s", $last ? "=":" ", $eta;
+}
+
+sub dotp_update { # Courtesy (more or less) of wget
+    my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
+    my ($percent, $elapsed, $rate, $eta) = calc_progress($dlnow, $dltotal, 1);
+
+    return 0 if $elapsed < 1.0 or $eta eq $last_eta;
+    $last_eta = $eta;
+
+    my $dot_bytes    = 1024; # Default. TODO: Make option
+    my $dots_in_line = 50; # Default. TODO: Make option
+    my $dot_spacing  = 10; # Default. TODO: Make option
+    my $ROW_BYTES    = $dot_bytes * $dots_in_line;
+
+    my $dlaccum      = $dlnow - $dotp{dlthen};
+    $dotp{dlthen}    = $dlnow;
+
+    for (; $dlaccum >= $dot_bytes; $dlaccum -= $dot_bytes) {
+        printf "\n%6dK", $dotp{rows} * $ROW_BYTES / 1024
+            if $dotp{dots} == 0;
+
+        print " " if $dotp{dots} % $dot_spacing == 0;
+
+        ++$dotp{dots};
+        print ".";
+
+        if ( $dotp{dots} >= $dots_in_line ) {
+            ++$dotp{rows};
+            $dotp{dots} = 0;
+
+            dotp_print_row_stats($percent, $elapsed, $eta, $rate, 0);
+        }
+    }
+}
+
+sub dotp_finish {
+    my $dot_bytes    = 1024; # Default. TODO: Make option
+    my $dots_in_line = 50; # Default. TODO: Make option
+    my $dot_spacing  = 10; # Default. TODO: Make option
+    my $ROW_BYTES    = $dot_bytes * $dots_in_line;
+
+    printf "\n%6dK", $dotp{rows} * $ROW_BYTES / 1024
+        if $dotp{dots} == 0;
+
+    for (my $i=$dotp{dots}; $i<$dots_in_line; $i++) {
+        print " " if $i % $dot_spacing == 0;
+        print " ";
+    }
+
+    my $elapsed = time - $time_started;
+    my $eta     = time2str($elapsed, 1);
+    my $rate    = $entry{file_length} / $elapsed if $elapsed;
+    dotp_print_row_stats(100, $elapsed, $eta, $rate, 1);
+}
+
+sub foop_print_row_stats {
+    my ($percent, $rate, $eta) = @_;
+
+    my $units;
+    ($rate, $units) = normalize_rate($rate);
+
+    my $str = sprintf "%.55s%4.4g%%%8.1f%s%10s",
+        $curr_fn, $percent, $rate, $units, $eta;
+
+    print "\b" x $last_bspaces . $str;
+    $last_bspaces = length($str);
+}
+
+sub foop_update {
+    return if $opts{quiet};
+    my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
+    my ($percent, $elapsed, $rate, $eta) = calc_progress($dlnow, $dltotal, 0);
+
+    return 0 if $elapsed < 1.0 or $eta eq $last_eta;
+    $last_eta = $eta;
+
+    foop_print_row_stats($percent, $rate, $eta);
+}
+
+sub foop_finish {
+    return if $opts{quiet};
+    my $elapsed = time - $time_started;
+    my $eta     = time2str($elapsed, 1);
+    my $rate    = $entry{file_length} / $elapsed if $elapsed;
+    foop_print_row_stats(100, $rate, $eta);
+}
+
+
 # Subroutines: LittleHelpers
 
 sub daemonize {
+    $opts{progress} = 'dot';
+
     $logfile = $opts{append}
         || $opts{output}
         || File::Spec->catfile( $workdir, "clive-log" );
@@ -819,47 +994,6 @@ sub newname_if_exists {
     return $new;
 }
 
-sub progress_callback {
-    return 0 unless $opts{progress};
-
-    my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
-
-    my $percent = 0;
-    $percent = int ( $dlnow / $dltotal * 100 ) if $dlnow;
-
-    my $elapsed = time - $time_started;
-    return 0 if $elapsed < 1.0;
-
-    my $rate = $dlnow / $elapsed;
-
-    my $eta = "--:--:--";
-    if ( $rate > 0 ) {
-        my $left = ( $dltotal - $dlnow ) / $rate;
-        my $ss = $left % 60;
-        my $mm = int( ( $left % 3600 ) / 60 );
-        my $hh = int( $left / 3600 );
-        if ( $hh > 99 ) { $eta = sprintf "%2dh%02dm", $hh, $mm; }
-        else { $eta = sprintf "%2dh%02dm%02ds", $hh, $mm, $ss; }
-    }
-    return 0 if $eta eq $last_eta;
-
-    my $s = sprintf "%.50s%4.4g%%%8.1fKB/s%12s",
-        $curr_fn, $percent, $rate/1024, $eta;
-
-    print "\b" x $last_bspaces . $s unless $opts{quiet};
-    $last_bspaces = length(encode_utf8($s));
-
-    return 0;
-}
-
-sub init_cache {
-    mkpath( [$CONFIGDIR], 1, 0700 );
-    $cache_db = tie %cache, "BerkeleyDB::Hash",
-        -Filename => $CACHEFILE,
-        -Flags => DB_CREATE
-    or die "error: cannot open $CACHEFILE: $! $BerkeleyDB::Error\n";
-}
-
 sub format_show {
     my $s   = shift;
     my %e   = map_entry(shift);
@@ -880,6 +1014,14 @@ sub format_show {
     $s =~ s/($m)/$h{$1}/ig;
 
     return $s;
+}
+
+sub init_cache {
+    mkpath( [$CONFIGDIR], 1, 0700 );
+    $cache_db = tie %cache, "BerkeleyDB::Hash",
+        -Filename => $CACHEFILE,
+        -Flags => DB_CREATE
+    or die "error: cannot open $CACHEFILE: $! $BerkeleyDB::Error\n";
 }
 
 sub show_cache {
@@ -1062,7 +1204,7 @@ Display version details and exit.
 
 Go to background immediately after startup. If no output file is specified
 using the B<--output> or B<--append>, the output is redirected to I<clive-log>
-file.
+file. Implies B<--progress=>I<dot>.
 
 =item B<-e --emit-csv>
 

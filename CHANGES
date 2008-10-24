@@ -16,6 +16,11 @@ version 2.0
     - Prints additional video details
         - $length, $video_id, $time_stamp, $page_title, $cont_from, $remaining
   * Added --emit-xml option
+  * Added --progress=[none|foo|dot]
+  * Replaced --noprogress with --progress=none
+  * Reduced --progress=foo flickering ($last_eta was not utilized properly)
+  * Changed --background to imply --progress=dot
+  * Changed ETA meter to use short output
 
  Developer-visible changes:
   * Cleaned up queue processing subroutine

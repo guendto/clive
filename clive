@@ -761,12 +761,6 @@ sub progress_callback {
     return 0;
 }
 
-sub dotp_init {
-    $dotp{dots}     = 0;
-    $dotp{rows}     = 0;
-    $dotp{dlthen}   = 0;
-}
-
 sub normalize_rate {
     my $rate = shift;
 
@@ -784,6 +778,12 @@ sub normalize_rate {
         $rate /= 1024*1024*1024;
     }
     return ($rate, $names[$units]);
+}
+
+sub dotp_init {
+    $dotp{dots}     = 0;
+    $dotp{rows}     = 0;
+    $dotp{dlthen}   = 0;
 }
 
 sub dotp_print_row_stats {

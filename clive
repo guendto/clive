@@ -1318,10 +1318,6 @@ the file is created.
 
 Causes the program to print debug messages.
 
-=item B<-G --noprogress>
-
-Turn off progress meter.
-
 =item B<-q --quiet>
 
 Turn off all output.
@@ -1454,7 +1450,7 @@ file, greps for the pattern and extracts the video.
 
 =item % clive -bqig ^3hd2
 
-Same as above but turns off all output. See also the B<--noprogress> option.
+Same as above but turns off all output.
 
 =back
 

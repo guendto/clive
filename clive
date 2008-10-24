@@ -715,42 +715,7 @@ sub handle_metacafe {
 
 
 # Subroutines: Progress
-
-sub time2str {
-    my ($secs, $condensed) = @_;
-    my $space = $condensed ? "" : " ";
-
-    my $str;
-    if ( $secs < 100 ) {
-        $str = sprintf("%ds", $secs);
-    } elsif ( $secs < 100 * 60 ) {
-        $str = sprintf("%dm%s%ds", $secs / 60, $space, $secs % 60);
-    } elsif ( $secs < 48 * 3600) {
-        $str = sprintf("%dh%s%dm", $secs / 3600, $space, ($secs / 60) % 60);
-    } elsif ( $secs < 100 * 86400) {
-        $str = sprintf("%dd%s%dh", $secs / 86400, $space, ($secs / 3600) % 60);
-    } else {
-        $str = sprintf("%dd", $secs / 86500);
-    }
-    return $str;
-}
-
-sub calc_progress {
-    my ($dlnow, $dltotal, $condensed) = @_;
-
-    my $percent = 0;
-    $percent    = int ($dlnow / $dltotal * 100) if $dlnow;
-
-    my $elapsed = time - $time_started;
-    my $rate    = $dlnow / $elapsed if $elapsed;
-
-    my $eta     = '--:--';
-    if ( $rate > 0 ) {
-        my $left = ( $dltotal - $dlnow ) / $rate;
-        $eta = time2str($left, $condensed);
-    }
-    return ($percent, $elapsed, $rate, $eta);
-}
+# NOTE: 'dot' progress copies much from wget.
 
 sub progress_callback {
     return 0 if $opts{progress} eq 'none';
@@ -759,25 +724,6 @@ sub progress_callback {
     else { foop_update(@_); }
 
     return 0;
-}
-
-sub normalize_rate {
-    my $rate = shift;
-
-    my @names = qw/K M G/;
-    my $units;
-
-    if ( $rate < 1024*1024 ) {
-        $units = 0;
-        $rate /= 1024;
-    } elsif ( $rate < 1024*1024 ) {
-        $units = 1;
-        $rate /= 1024*1024;
-    } else {
-        $units = 2;
-        $rate /= 1024*1024*1024;
-    }
-    return ($rate, $names[$units]);
 }
 
 sub dotp_init {
@@ -879,6 +825,61 @@ sub foop_finish {
     my $eta     = time2str($elapsed, 1);
     my $rate    = $entry{file_length} / $elapsed if $elapsed;
     foop_print_row_stats(100, $rate, $eta);
+}
+
+sub time2str {
+    my ($secs, $condensed) = @_;
+    my $space = $condensed ? "" : " ";
+
+    my $str;
+    if ( $secs < 100 ) {
+        $str = sprintf("%ds", $secs);
+    } elsif ( $secs < 100 * 60 ) {
+        $str = sprintf("%dm%s%ds", $secs / 60, $space, $secs % 60);
+    } elsif ( $secs < 48 * 3600) {
+        $str = sprintf("%dh%s%dm", $secs / 3600, $space, ($secs / 60) % 60);
+    } elsif ( $secs < 100 * 86400) {
+        $str = sprintf("%dd%s%dh", $secs / 86400, $space, ($secs / 3600) % 60);
+    } else {
+        $str = sprintf("%dd", $secs / 86500);
+    }
+    return $str;
+}
+
+sub calc_progress {
+    my ($dlnow, $dltotal, $condensed) = @_;
+
+    my $percent = 0;
+    $percent    = int ($dlnow / $dltotal * 100) if $dlnow;
+
+    my $elapsed = time - $time_started;
+    my $rate    = $dlnow / $elapsed if $elapsed;
+
+    my $eta     = '--:--';
+    if ( $rate > 0 ) {
+        my $left = ( $dltotal - $dlnow ) / $rate;
+        $eta = time2str($left, $condensed);
+    }
+    return ($percent, $elapsed, $rate, $eta);
+}
+
+sub normalize_rate {
+    my $rate = shift;
+
+    my @names = qw/K M G/;
+    my $units;
+
+    if ( $rate < 1024*1024 ) {
+        $units = 0;
+        $rate /= 1024;
+    } elsif ( $rate < 1024*1024 ) {
+        $units = 1;
+        $rate /= 1024*1024;
+    } else {
+        $units = 2;
+        $rate /= 1024*1024*1024;
+    }
+    return ($rate, $names[$units]);
 }
 
 

@@ -12,6 +12,9 @@ version 2.0
   * Added --show-format option
   * Added --youtube-user and --youtube-pass options
   * Ported --emit-csv option from 1.x with minor changes
+    - Backwards compatible with 1.x
+    - Prints additional video details
+        - $length, $video_id, $time_stamp, $page_title, $cont_from, $remaining
   * Added --emit-xml option
 
  Developer-visible changes:

@@ -268,11 +268,7 @@ sub process_queue {
         if $opts{emitxml} and @emit_queue;
 
     foreach ( @emit_queue ) {
-        if ( $opts{emitcsv} ) {
-            printf "csv:\"%s\",\"%s\",\"%s\",\"%.2fMB\"\n",
-                $_->{page_url}, $_->{xurl}, $_->{fn},
-                $_->{file_length}/1024/1024;
-        } elsif ( $opts{emitxml} ) {
+        if ( $opts{emitxml} ) {
             print "  <video>\n";
             while ( my ($key,$value) = each (%$_) ) {
                 $value = uri_escape($value)
@@ -280,6 +276,13 @@ sub process_queue {
                 print "    <$key>$value</$key>\n";
             }
             print "  </video>\n";
+        } elsif ( $opts{emitcsv} ) {
+            printf qq/csv:"%s","%s","%s","%.2fMB",/
+                 . qq/"%s","%s","%s","%s","%s","%s"\n/,
+                $_->{page_url}, $_->{xurl}, $_->{fn},
+                $_->{file_length}/1024/1024, $_->{file_length},
+                $_->{video_id}, $_->{time_stamp}, $_->{page_title}, 
+                $_->{cont_from}, $_->{remaining};
         }
     }
     print "</queue>\n" if $opts{emitxml} and @emit_queue;
@@ -1071,7 +1074,7 @@ For example:
 
 =item B<-E --emit-xml>
 
-Similar to B<--emit-csv> but in XML format.
+Similar to B<--emit-csv> but in XML format. Overwrites B<--emit-csv>.
 
 =back
 

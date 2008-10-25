@@ -85,17 +85,18 @@ IsMetacafe  => qr|\Qmetacafe.com\E|i,   IsLastfm => qr|\Qlast.fm\E|i,
 # Parse config
 my $c = Config::Tiny->read($CONFIGFILE);
 %opts = (
-    agent   => $c->{http}->{agent},
-    proxy   => $c->{http}->{proxy},
-    maxspeed=> $c->{http}->{maxspeed},
-    minspeed=> $c->{http}->{minspeed},
-    savedir => $c->{output}->{savedir},
-    cclass  => $c->{output}->{cclass},
-    fnfmt   => $c->{output}->{file},
-    showfmt => $c->{output}->{show},
-    ytuser  => $c->{youtube}->{user},
-    ytpass  => $c->{youtube}->{pass},
-    play    => $c->{commands}->{play},
+    progress => $c->{_}->{progress},
+    agent    => $c->{http}->{agent},
+    proxy    => $c->{http}->{proxy},
+    maxspeed => $c->{http}->{maxspeed},
+    minspeed => $c->{http}->{minspeed},
+    savedir  => $c->{output}->{savedir},
+    cclass   => $c->{output}->{cclass},
+    fnfmt    => $c->{output}->{file},
+    showfmt  => $c->{output}->{show},
+    ytuser   => $c->{youtube}->{user},
+    ytpass   => $c->{youtube}->{pass},
+    play     => $c->{commands}->{play},
 );
 
 # Parse cmdline
@@ -115,7 +116,7 @@ $opts{delete}       = 0;
 $opts{background}   = 0;
 $opts{output}       = undef;
 $opts{append}       = undef;
-$opts{progress}     = 'foo';
+$opts{progress}     = 'foo' if !defined $opts{progress};
 $opts{emitcsv}      = 0;
 $opts{emitxml}      = 0;
 $opts{debug}        = 0;
@@ -718,11 +719,8 @@ sub handle_metacafe {
 # NOTE: 'dot' progress copies much from wget.
 
 sub progress_callback {
-    return 0 if $opts{progress} eq 'none';
-
-    if ( $opts{progress} eq 'dot' ) { dotp_update(@_); }
-    else { foop_update(@_); }
-
+    if ( $opts{progress} eq 'dot' )    { dotp_update(@_); }
+    elsif ( $opts{progress} eq 'foo' ) { foop_update(@_); }
     return 0;
 }
 
@@ -1604,6 +1602,10 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
 
     ## Example config file for clive.
     ## Recommended: chmod 0600 ~/.config/clive/config
+
+    ## Progress indicator (default: foo)
+    ## Possible values: none, foo, dot
+    #progress = dot
 
     [http]
         ## HTTP User-agent string (default: Mozilla/5.0).

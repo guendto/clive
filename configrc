@@ -1,6 +1,10 @@
 ## Example config file for clive.
 ## Recommended: chmod 0600 ~/.config/clive/config
 
+## Progress indicator (default: foo)
+## Possible values: none, foo, dot
+#progress = dot
+
 [http]
     ## HTTP User-agent string (default: Mozilla/5.0).
     #agent = Furball/0.2

@@ -453,7 +453,7 @@ sub extract_video {
 
     unless ( $opts{quiet} ) {
         print "=> File: ".decode_utf8($fn)."\n"
-            if !$opts{extract} or $opts{progress} eq 'dot';
+            if !$opts{extract} or $opts{progress} =~ /^dot/;
         print "=> Length: $entry{file_length} ";
         printf"(%.2fMB)  ",$entry{file_length}/1024/1024 if $entry{file_length};
         printf "From: %u (Left: %u)  ", $cont_from, $remaining if $cont_from;
@@ -478,14 +478,14 @@ sub extract_video {
                 $last_bspaces   = 0;
                 $time_started   = time;
                 $last_eta       = '';
-                dotp_init() if $opts{progress} eq 'dot';
+                dotp_init() if $opts{progress} =~ /^dot/;
             }
 
             $rc = $curl->perform;
             close $fh;
 
             if ( $opts{progress} eq 'foo' )     { foop_finish() }
-            elsif ( $opts{progress} eq 'dot' )  { dotp_finish() }
+            elsif ( $opts{progress} =~ /^dot/ )  { dotp_finish() }
 
             # Reset
             $curl->setopt(CURLOPT_HEADER, 1);
@@ -719,7 +719,7 @@ sub handle_metacafe {
 # NOTE: 'dot' progress copies much from wget.
 
 sub progress_callback {
-    if ( $opts{progress} eq 'dot' )    { dotp_update(@_); }
+    if ( $opts{progress} =~ /^dot/ )   { dotp_update(@_); }
     elsif ( $opts{progress} eq 'foo' ) { foop_update(@_); }
     return 0;
 }
@@ -728,6 +728,26 @@ sub dotp_init {
     $dotp{dots}     = 0;
     $dotp{rows}     = 0;
     $dotp{dlthen}   = 0;
+    $dotp{accum}    = 0;
+
+    # Default style
+    $dotp{dot_bytes}    = 1024;
+    $dotp{dot_spacing}  = 10;
+    $dotp{dots_in_line} = 50;
+
+    my ($type,$style) = split /:/,$opts{progress};
+
+    if ( $style ) {
+        if ( $style eq 'binary' ) {
+            $dotp{dot_bytes}    = 8192;
+            $dotp{dot_spacing}  = 16;
+            $dotp{dots_in_line} = 48;
+        } elsif ( $style eq 'mega' ) {
+            $dotp{dot_bytes}    = 65536;
+            $dotp{dot_spacing}  = 8;
+            $dotp{dots_in_line} = 48;
+        }
+    }
 }
 
 sub dotp_update {
@@ -737,24 +757,21 @@ sub dotp_update {
     return 0 if $elapsed < 1.0 or $eta eq $last_eta;
     $last_eta = $eta;
 
-    my $dot_bytes    = 1024; # Default. TODO: Make option
-    my $dots_in_line = 50; # Default. TODO: Make option
-    my $dot_spacing  = 10; # Default. TODO: Make option
-    my $ROW_BYTES    = $dot_bytes * $dots_in_line;
+    my $ROW_BYTES   = $dotp{dot_bytes} * $dotp{dots_in_line};
 
-    my $dlaccum      = $dlnow - $dotp{dlthen};
+    $dotp{accum}    += $dlnow - $dotp{dlthen};
     $dotp{dlthen}    = $dlnow;
 
-    for (; $dlaccum >= $dot_bytes; $dlaccum -= $dot_bytes) {
+    for (; $dotp{accum} >= $dotp{dot_bytes}; $dotp{accum} -= $dotp{dot_bytes}) {
         printf "\n%6dK", $dotp{rows} * $ROW_BYTES / 1024
             if $dotp{dots} == 0;
 
-        print " " if $dotp{dots} % $dot_spacing == 0;
+        print " " if $dotp{dots} % $dotp{dot_spacing} == 0;
 
         ++$dotp{dots};
         print ".";
 
-        if ( $dotp{dots} >= $dots_in_line ) {
+        if ( $dotp{dots} >= $dotp{dots_in_line} ) {
             ++$dotp{rows};
             $dotp{dots} = 0;
 
@@ -764,16 +781,13 @@ sub dotp_update {
 }
 
 sub dotp_finish {
-    my $dot_bytes    = 1024; # Default. TODO: Make option
-    my $dots_in_line = 50; # Default. TODO: Make option
-    my $dot_spacing  = 10; # Default. TODO: Make option
-    my $ROW_BYTES    = $dot_bytes * $dots_in_line;
+    my $ROW_BYTES = $dotp{dot_bytes} * $dotp{dots_in_line};
 
     printf "\n%6dK", $dotp{rows} * $ROW_BYTES / 1024
         if $dotp{dots} == 0;
 
-    for (my $i=$dotp{dots}; $i<$dots_in_line; $i++) {
-        print " " if $i % $dot_spacing == 0;
+    for (my $i=$dotp{dots}; $i<$dotp{dots_in_line}; $i++) {
+        print " " if $i % $dotp{dot_spacing} == 0;
         print " ";
     }
 
@@ -884,7 +898,7 @@ sub normalize_rate {
 # Subroutines: LittleHelpers
 
 sub daemonize {
-    $opts{progress} = 'dot';
+    $opts{progress} = 'dot' unless $opts{progress} =~ /^dot/;
 
     $logfile = $opts{append}
         || $opts{output}

@@ -12,7 +12,7 @@ version 2.0beta3
   * Added --show-format option
   * Added --youtube-user and --youtube-pass options
   * Added --emit-xml option
-  * Added --progress=[none|foo|dot]
+  * Added --progress=[none|bar|dot]
   * Replaced --noprogress with --progress=none
   * Added avg. transfer rate notification
   * Fixed filename printing for existing output files (e.g. output.flv.1)

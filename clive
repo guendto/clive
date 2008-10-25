@@ -1363,6 +1363,27 @@ host does not allow continuing partially extracted video files. You will
 see this error if you attempt to continue a partially downloaded flv video
 from Youtube, for example.
 
+=item B<-G --progress=>I<type>
+
+Select the I<type> of the progress indicator. Accepted types are "none", "foo"
+and "dot".
+
+The "none" disables the progress indicator.
+
+The "foo" indicator is used by default. It displays a progress status that
+contains output filename, progress percentage, transfer rate and ETA.
+
+Use --progress=dot to switch to the "dot" display. It traces the retrieval
+by printing dots on the screen, each dot representing a fixed amount of
+downloaded data.
+
+When using the dotted retrieval, you may also set the style by specifying
+the type as dot:style.
+
+    --progress=dot:default .. each dot  1K, 10-dots clusters, 50-dots lines
+    --progress=dot:binary  .. each dot  8K, 16-dots clusters, 48-dots lines
+    --progress=dot:mega    .. each dot 64K,  8-dots clusters, 48-dots lines
+
 =item B<-u --youtube-user=>I<username>
 
 Use I<username> for logging into Youtube.

@@ -21,6 +21,7 @@ version 2.0beta3
   * Reduced --progress=foo flickering ($last_eta was not utilized properly)
   * Changed --background to imply --progress=dot
   * Changed ETA meter to use short output
+  * Changed default progress meter to display time with avg. rate when done
 
  Developer-visible changes:
   * Cleaned up queue processing subroutine

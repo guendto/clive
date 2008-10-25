@@ -439,7 +439,7 @@ sub extract_video {
             $filemode   = ">>";
             $remaining  = ($entry{file_length} - $cont_from);
         } else {
-            $path = newname_if_exists( $opts{savedir} || $workdir, $fn );
+            ($path,$fn) = newname_if_exists( $opts{savedir} || $workdir, $fn );
         }
     }
 
@@ -1004,7 +1004,9 @@ sub newname_if_exists {
         $new = File::Spec->catfile( $path, "$orig.$i" );
         last if ! -e $new;
     }
-    return $new;
+
+    my ($vol, $dir, $fn) = File::Spec->splitpath($new);
+    return ($new,$fn);
 }
 
 sub format_show {

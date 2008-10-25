@@ -22,6 +22,7 @@ version 2.0beta3
   * Changed --background to imply --progress=dot
   * Changed ETA meter to use short output
   * Changed default progress meter to display time with avg. rate when done
+  * Fixed display for existing output filenames (output.flv => output.flv.1)
 
  Developer-visible changes:
   * Cleaned up queue processing subroutine

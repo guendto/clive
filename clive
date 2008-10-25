@@ -1171,10 +1171,9 @@ from the system letting clive finish the work. By contrast, most of the
 extraction websites and UNIX scripts require constant user's presence
 which can be a great hindrance when transferring a lot of data.
 
-Users familiar with the GNU L<wget(1)> utility will notice that clive borrows
-some of the feature concepts from wget, as well as, with some changes,
-the above paragraph, option syntax description below and the output option
-descriptions. Kudos to the wget team for their original work.
+Users familiar with the GNU L<wget(1)> utility notice that clive copies
+shamelessly some of the feature concepts and descriptions from wget. Kudos to
+the wget team for their original work.
 
 =head1 OPTIONS
 

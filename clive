@@ -477,8 +477,10 @@ sub extract_video {
                 $curr_fn        = $fn;
                 $time_started   = time;
 
-                $opts{progress} = 'dot' # Prefer dot if output is not a TTY
-                    if ! -t STDOUT or ! -t STDERR and $opts{progress} ne 'none';
+                if ( $opts{progress} !~ /^dot/ and $opts{progress} ne 'none' ) {
+                    $opts{progress} = 'dot' # Prefer dot if output is not a TTY
+                        if ! -t STDOUT or ! -t STDERR;
+                }
 
                 if ( $opts{progress} eq 'bar' )     { bar_init() }
                 elsif ( $opts{progress} =~ /^dot/ ) { dot_init() }

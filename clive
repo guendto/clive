@@ -1361,10 +1361,12 @@ from Youtube, for example.
 
 =item B<-G --progress=>I<type>
 
-Select the I<type> of the progress indicator. Accepted types are "none", "bar"
-and "dot". If the output is not a TTY, the "dot" bar will be used by default.
+Select the I<type> of the progress indicator. Accepted types are "bar",
+"dot" and "none".
 
-The "none" disables the progress indicator.
+The "bar" indicator is used by default. It draws an ASCII progress bar
+graphics (a.k.a "thermometer" display) indicating the status of retrieval.
+If the output is not a TTY, the "dot" bar will be used by default.
 
 The "bar" indicator is used by default. It displays a progress status that
 contains output filename, progress percentage, transfer rate and ETA.
@@ -1379,6 +1381,8 @@ the type as dot:style.
     --progress=dot:default .. each dot  1K, 10-dots clusters, 50-dots lines
     --progress=dot:binary  .. each dot  8K, 16-dots clusters, 48-dots lines
     --progress=dot:mega    .. each dot 64K,  8-dots clusters, 48-dots lines
+
+The "none" disables the progress indicator.
 
 =item B<-u --youtube-user=>I<username>
 

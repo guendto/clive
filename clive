@@ -757,13 +757,13 @@ sub dotp_update {
     return 0 if $elapsed < 1.0 or $eta eq $last_eta;
     $last_eta = $eta;
 
-    my $ROW_BYTES   = $dotp{dot_bytes} * $dotp{dots_in_line};
+    my $row_bytes   = $dotp{dot_bytes} * $dotp{dots_in_line};
 
     $dotp{accum}    += $dlnow - $dotp{dlthen};
     $dotp{dlthen}    = $dlnow;
 
     for (; $dotp{accum} >= $dotp{dot_bytes}; $dotp{accum} -= $dotp{dot_bytes}) {
-        printf "\n%6dK", $dotp{rows} * $ROW_BYTES / 1024
+        printf "\n%6dK", $dotp{rows} * $row_bytes / 1024
             if $dotp{dots} == 0;
 
         print " " if $dotp{dots} % $dotp{dot_spacing} == 0;
@@ -781,9 +781,9 @@ sub dotp_update {
 }
 
 sub dotp_finish {
-    my $ROW_BYTES = $dotp{dot_bytes} * $dotp{dots_in_line};
+    my $row_bytes = $dotp{dot_bytes} * $dotp{dots_in_line};
 
-    printf "\n%6dK", $dotp{rows} * $ROW_BYTES / 1024
+    printf "\n%6dK", $dotp{rows} * $row_bytes / 1024
         if $dotp{dots} == 0;
 
     for (my $i=$dotp{dots}; $i<$dotp{dots_in_line}; $i++) {

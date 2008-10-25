@@ -25,6 +25,7 @@ use warnings;
 
 binmode(STDOUT, ":utf8");
 
+use Term::ProgressBar 2.00;
 use HTML::TokeParser;
 use WWW::Curl::Easy;
 use Config::Tiny;
@@ -65,13 +66,13 @@ my %cache;          # Holds the handle to cache BDB (tied hash)
 my $hash;           # Hash (SHA1) of the current URL
 my %entry;          # Multi-purpose video (cache) record (hold/read/write)
 my $youtube_on=0;   # Flag: Whether logged into Youtube
-my $last_bspaces;   # Progress: Keeps count of the last printed backspaces
 my $curr_fn;        # Progress: Holds the name of the current video file
 my $time_started;   # Progress: Holds transfer started time
-my $last_eta;       # Progress: Holds last saved ETA for file transfer
 my @play_queue;     # Holds files to be played
 my @emit_queue;     # Holds videos to be emitted to stdout
 my %dotp;           # Holds dot progress data
+my $barp;           # Holds handle to default progress bar
+my $bar_nextupd;
 
 my $default_showfmt # Default --show format
     = qq/%D: "%t" | %mMB/;
@@ -116,7 +117,7 @@ $opts{delete}       = 0;
 $opts{background}   = 0;
 $opts{output}       = undef;
 $opts{append}       = undef;
-$opts{progress}     = 'foo' if !defined $opts{progress};
+$opts{progress}     = 'bar' if !defined $opts{progress};
 $opts{emitcsv}      = 0;
 $opts{emitxml}      = 0;
 $opts{debug}        = 0;
@@ -452,8 +453,7 @@ sub extract_video {
     }
 
     unless ( $opts{quiet} ) {
-        print "=> File: ".decode_utf8($fn)."\n"
-            if !$opts{extract} or $opts{progress} =~ /^dot/;
+        print "=> File: ".decode_utf8($fn)."\n";
         print "=> Length: $entry{file_length} ";
         printf"(%.2fMB)  ",$entry{file_length}/1024/1024 if $entry{file_length};
         printf "From: %u (Left: %u)  ", $cont_from, $remaining if $cont_from;
@@ -475,17 +475,22 @@ sub extract_video {
                 $curl->setopt(CURLOPT_PROGRESSFUNCTION, \&progress_callback);
                 $curl->setopt(CURLOPT_NOPROGRESS, 0);
                 $curr_fn        = $fn;
-                $last_bspaces   = 0;
                 $time_started   = time;
-                $last_eta       = '';
-                dotp_init() if $opts{progress} =~ /^dot/;
+
+                $opts{progress} = 'dot' # Prefer dot if output is not a TTY
+                    if ! -t STDOUT or ! -t STDERR and $opts{progress} ne 'none';
+
+                if ( $opts{progress} eq 'bar' )     { bar_init() }
+                elsif ( $opts{progress} =~ /^dot/ ) { dot_init() }
             }
 
             $rc = $curl->perform;
             close $fh;
 
-            if ( $opts{progress} eq 'foo' )     { foop_finish() }
-            elsif ( $opts{progress} =~ /^dot/ )  { dotp_finish() }
+            unless ( $opts{quiet} ) {
+                if ( $opts{progress} eq 'bar' )     { bar_finish() }
+                elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
+            }
 
             # Reset
             $curl->setopt(CURLOPT_HEADER, 1);
@@ -719,12 +724,12 @@ sub handle_metacafe {
 # NOTE: 'dot' progress copies much from wget.
 
 sub progress_callback {
-    if ( $opts{progress} =~ /^dot/ )   { dotp_update(@_); }
-    elsif ( $opts{progress} eq 'foo' ) { foop_update(@_); }
+    if ( $opts{progress} =~ /^dot/ )   { dot_update(@_); }
+    elsif ( $opts{progress} eq 'bar' ) { bar_update(@_); }
     return 0;
 }
 
-sub dotp_init {
+sub dot_init {
     $dotp{dots}     = 0;
     $dotp{rows}     = 0;
     $dotp{dlthen}   = 0;
@@ -750,17 +755,15 @@ sub dotp_init {
     }
 }
 
-sub dotp_update {
+sub dot_update {
     my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
     my ($percent, $elapsed, $rate, $eta) = calc_progress($dlnow, $dltotal, 1);
-
-    return 0 if $elapsed < 1.0 or $eta eq $last_eta;
-    $last_eta = $eta;
+    return 0 if $elapsed < 1.0;
 
     my $row_bytes   = $dotp{dot_bytes} * $dotp{dots_in_line};
 
-    $dotp{accum}    += $dlnow - $dotp{dlthen};
-    $dotp{dlthen}    = $dlnow;
+    $dotp{accum}   += $dlnow - $dotp{dlthen};
+    $dotp{dlthen}   = $dlnow;
 
     for (; $dotp{accum} >= $dotp{dot_bytes}; $dotp{accum} -= $dotp{dot_bytes}) {
         printf "\n%6dK", $dotp{rows} * $row_bytes / 1024
@@ -775,12 +778,12 @@ sub dotp_update {
             ++$dotp{rows};
             $dotp{dots} = 0;
 
-            dotp_print_row_stats($percent, $elapsed, $eta, $rate, 0);
+            dot_print_row_stats($percent, $elapsed, $eta, $rate, 0);
         }
     }
 }
 
-sub dotp_finish {
+sub dot_finish {
     my $row_bytes = $dotp{dot_bytes} * $dotp{dots_in_line};
 
     printf "\n%6dK", $dotp{rows} * $row_bytes / 1024
@@ -792,12 +795,12 @@ sub dotp_finish {
     }
 
     my $elapsed = time - $time_started;
-    my $eta     = human_readable_time($elapsed, 1);
-    my $rate    = $entry{file_length} / $elapsed if $elapsed;
-    dotp_print_row_stats(100, $elapsed, $eta, $rate, 1);
+    my $eta     = time2str($elapsed, 1);
+    my $rate    = $entry{file_length} / $elapsed;
+    dot_print_row_stats(100, $elapsed, $eta, $rate, 1);
 }
 
-sub dotp_print_row_stats {
+sub dot_print_row_stats {
     my ($percent, $elapsed, $eta, $rate, $last) = @_;
 
     my $units;
@@ -807,39 +810,51 @@ sub dotp_print_row_stats {
     printf "%s%s", $last ? "=":" ", $eta;
 }
 
-sub foop_update {
-    return if $opts{quiet};
+sub bar_init {
+    $barp = Term::ProgressBar->new({
+        count => $entry{file_length},
+        ETA   => 'linear',
+        #remove => 1,
+    });
+
+    $barp->max_update_rate(1);
+    $barp->minor(0);
+
+    $bar_nextupd = 0;
+}
+
+sub bar_update {
     my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
-    my ($percent, $elapsed, $rate, $eta) = calc_progress($dlnow, $dltotal, 0);
-
-    return 0 if $elapsed < 1.0 or $eta eq $last_eta;
-    $last_eta = $eta;
-
-    foop_print_stats($percent, $rate, $eta);
+    $bar_nextupd = $barp->update($dlnow) if $dlnow >= $bar_nextupd;
 }
 
-sub foop_finish {
-    return if $opts{quiet};
+sub bar_finish {
+    my $l = $entry{file_length};
+    $barp->update($l) if $l >= $bar_nextupd;
+
     my $elapsed = time - $time_started;
-    my $eta     = human_readable_time($elapsed, 1);
-    my $rate    = $entry{file_length} / $elapsed if $elapsed;
-    foop_print_stats(100, $rate, $eta);
+    my ($rate,$units) = normalize_rate($entry{file_length} / $elapsed);
+    printf "Avg. transfer rate ~%.2f%s/s", $rate, $units;
 }
 
-sub foop_print_stats {
-    my ($percent, $rate, $eta) = @_;
+sub calc_progress {
+    my ($dlnow, $dltotal, $condensed) = @_;
 
-    my $units;
-    ($rate, $units) = normalize_rate($rate);
+    my $percent = 0;
+    $percent    = int ($dlnow / $dltotal * 100) if $dlnow;
 
-    my $str = sprintf "%.55s%4.4g%%%8.1f%s%10s",
-        $curr_fn, $percent, $rate, $units, $eta;
+    my $elapsed = time - $time_started;
+    my $rate    = $dlnow / $elapsed if $elapsed;
 
-    print "\b" x $last_bspaces . $str;
-    $last_bspaces = length($str);
+    my $eta     = '--:--';
+    if ( $rate > 0 ) {
+        my $left = ( $dltotal - $dlnow ) / $rate;
+        $eta = time2str($left, $condensed);
+    }
+    return ($percent, $elapsed, $rate, $eta);
 }
 
-sub human_readable_time {
+sub time2str {
     my ($secs, $condensed) = @_;
     my $space = $condensed ? "" : " ";
 
@@ -856,23 +871,6 @@ sub human_readable_time {
         $str = sprintf("%dd", $secs / 86500);
     }
     return $str;
-}
-
-sub calc_progress {
-    my ($dlnow, $dltotal, $condensed) = @_;
-
-    my $percent = 0;
-    $percent    = int ($dlnow / $dltotal * 100) if $dlnow;
-
-    my $elapsed = time - $time_started;
-    my $rate    = $dlnow / $elapsed if $elapsed;
-
-    my $eta     = '--:--';
-    if ( $rate > 0 ) {
-        my $left = ( $dltotal - $dlnow ) / $rate;
-        $eta = human_readable_time($left, $condensed);
-    }
-    return ($percent, $elapsed, $rate, $eta);
 }
 
 sub normalize_rate {
@@ -898,8 +896,6 @@ sub normalize_rate {
 # Subroutines: LittleHelpers
 
 sub daemonize {
-    $opts{progress} = 'dot' unless $opts{progress} =~ /^dot/;
-
     $logfile = $opts{append}
         || $opts{output}
         || File::Spec->catfile( $workdir, "clive-log" );
@@ -1132,6 +1128,7 @@ Modules:
   * WWW::Curl/$WWW::Curl::VERSION\t\t* URI::Escape/$URI::Escape::VERSION
   * HTML::TokeParser/$HTML::TokeParser::VERSION\t* Clipboard/$clipboard_v
   * IO::Pager/$IO::Pager::VERSION\t\t* XML::Simple/$XML::Simple::VERSION
+  * Term::ProgressBar/$Term::ProgressBar::VERSION
 Core modules:
   * POSIX/$POSIX::VERSION\t\t\t* Cwd/$Cwd::VERSION
   * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION
@@ -1364,12 +1361,12 @@ from Youtube, for example.
 
 =item B<-G --progress=>I<type>
 
-Select the I<type> of the progress indicator. Accepted types are "none", "foo"
-and "dot".
+Select the I<type> of the progress indicator. Accepted types are "none", "bar"
+and "dot". If the output is not a TTY, the "dot" bar will be used by default.
 
 The "none" disables the progress indicator.
 
-The "foo" indicator is used by default. It displays a progress status that
+The "bar" indicator is used by default. It displays a progress status that
 contains output filename, progress percentage, transfer rate and ETA.
 
 Use --progress=dot to switch to the "dot" display. It traces the retrieval
@@ -1639,8 +1636,8 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
     ## Example config file for clive.
     ## Recommended: chmod 0600 ~/.config/clive/config
 
-    ## Progress indicator (default: foo)
-    ## Possible values: none, foo, dot
+    ## Progress indicator (default: bar)
+    ## Possible values: none, bar, dot
     #progress = dot
 
     [http]

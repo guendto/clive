@@ -778,7 +778,7 @@ sub dotp_finish {
     }
 
     my $elapsed = time - $time_started;
-    my $eta     = time2str($elapsed, 1);
+    my $eta     = human_readable_time($elapsed, 1);
     my $rate    = $entry{file_length} / $elapsed if $elapsed;
     dotp_print_row_stats(100, $elapsed, $eta, $rate, 1);
 }
@@ -807,7 +807,7 @@ sub foop_update {
 sub foop_finish {
     return if $opts{quiet};
     my $elapsed = time - $time_started;
-    my $eta     = time2str($elapsed, 1);
+    my $eta     = human_readable_time($elapsed, 1);
     my $rate    = $entry{file_length} / $elapsed if $elapsed;
     foop_print_stats(100, $rate, $eta);
 }
@@ -825,7 +825,7 @@ sub foop_print_stats {
     $last_bspaces = length($str);
 }
 
-sub time2str {
+sub human_readable_time {
     my ($secs, $condensed) = @_;
     my $space = $condensed ? "" : " ";
 
@@ -856,7 +856,7 @@ sub calc_progress {
     my $eta     = '--:--';
     if ( $rate > 0 ) {
         my $left = ( $dltotal - $dlnow ) / $rate;
-        $eta = time2str($left, $condensed);
+        $eta = human_readable_time($left, $condensed);
     }
     return ($percent, $elapsed, $rate, $eta);
 }

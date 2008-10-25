@@ -7,6 +7,7 @@ Perl >= 5.8 with the following (recommended) module versions:
 * WWW::Curl/4.05              * URI::Escape/3.29
 * HTML::TokeParser/2.37       * Clipboard/0.09
 * IO::Pager/0.05              * XML::Simple/2.18
+* Term::ProgressBar/2.09
 
 * Getopt::Long/2.35           * Pod::Usage/1.33
 * File::Path/1.08             * File::Spec/3.12

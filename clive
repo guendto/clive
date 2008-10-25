@@ -730,17 +730,7 @@ sub dotp_init {
     $dotp{dlthen}   = 0;
 }
 
-sub dotp_print_row_stats {
-    my ($percent, $elapsed, $eta, $rate, $last) = @_;
-
-    my $units;
-    ($rate, $units) = normalize_rate($rate);
-
-    printf "%3d%% %4.1f%s", $percent, $rate, $units;
-    printf "%s%s", $last ? "=":" ", $eta;
-}
-
-sub dotp_update { # Courtesy (more or less) of wget
+sub dotp_update {
     my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
     my ($percent, $elapsed, $rate, $eta) = calc_progress($dlnow, $dltotal, 1);
 
@@ -793,17 +783,14 @@ sub dotp_finish {
     dotp_print_row_stats(100, $elapsed, $eta, $rate, 1);
 }
 
-sub foop_print_row_stats {
-    my ($percent, $rate, $eta) = @_;
+sub dotp_print_row_stats {
+    my ($percent, $elapsed, $eta, $rate, $last) = @_;
 
     my $units;
     ($rate, $units) = normalize_rate($rate);
 
-    my $str = sprintf "%.55s%4.4g%%%8.1f%s%10s",
-        $curr_fn, $percent, $rate, $units, $eta;
-
-    print "\b" x $last_bspaces . $str;
-    $last_bspaces = length($str);
+    printf "%3d%% %4.1f%s", $percent, $rate, $units;
+    printf "%s%s", $last ? "=":" ", $eta;
 }
 
 sub foop_update {
@@ -814,7 +801,7 @@ sub foop_update {
     return 0 if $elapsed < 1.0 or $eta eq $last_eta;
     $last_eta = $eta;
 
-    foop_print_row_stats($percent, $rate, $eta);
+    foop_print_stats($percent, $rate, $eta);
 }
 
 sub foop_finish {
@@ -822,7 +809,20 @@ sub foop_finish {
     my $elapsed = time - $time_started;
     my $eta     = time2str($elapsed, 1);
     my $rate    = $entry{file_length} / $elapsed if $elapsed;
-    foop_print_row_stats(100, $rate, $eta);
+    foop_print_stats(100, $rate, $eta);
+}
+
+sub foop_print_stats {
+    my ($percent, $rate, $eta) = @_;
+
+    my $units;
+    ($rate, $units) = normalize_rate($rate);
+
+    my $str = sprintf "%.55s%4.4g%%%8.1f%s%10s",
+        $curr_fn, $percent, $rate, $units, $eta;
+
+    print "\b" x $last_bspaces . $str;
+    $last_bspaces = length($str);
 }
 
 sub time2str {

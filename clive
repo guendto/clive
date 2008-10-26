@@ -131,7 +131,7 @@ GetOptions(\%opts,
     'continue|c', 'renew|R',    'recall|r',     'format|f=s',
     'output|o=s', 'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
-    'cclass|l=s', 'progress|G=s',
+    'cclass|l=s', 'play|p=s',   'progress|G=s',
     'version|v' => \&print_version,
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
@@ -1350,6 +1350,10 @@ B<Download Options>
 
 =over 4
 
+=item B<-n --noextract>
+
+Do not actually extract any videos.
+
 =item B<-c --continue>
 
 Continue extraction of a partially downloaded file. Note that this works only
@@ -1401,10 +1405,6 @@ Use I<password> for logging into Youtube.
 
 Do not log into Youtube if I<username> and I<password> are defined.
 
-=item B<-n --noextract>
-
-Do not actually extract any videos.
-
 =item B<-S --savedir=>I<dir>
 
 Save extracted videos to I<dir>.
@@ -1412,11 +1412,6 @@ Save extracted videos to I<dir>.
 =item B<-f --format=>I<format>
 
 Extract I<format> of the video. See L</FORMATS> in the manual page.
-
-=item B<-P --noplay>
-
-Disable subsequent play. Ignored unless I<play> command is defined in the config
-file.
 
 =item B<-l --cclass=>I<character-class>
 
@@ -1435,6 +1430,17 @@ Use I<string> for naming the extracted videos. The default is
     %D = current date
     %T = current time
     %S = timestamp (same as %D %T)
+
+=item B<-p --play=>I<command>
+
+Play the extracted videos with I<command>. The I<command> must include
+the %i specifier for input file. For example:
+
+    % clive --play="xine %i" URL
+
+=item B<-P --noplay>
+
+Disable subsequent play.
 
 =back
 

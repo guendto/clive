@@ -16,6 +16,7 @@ version 2.0beta3
   * Replaced --noprogress with --progress=none
   * Added avg. transfer rate notification
   * Fixed filename printing for existing output files (e.g. output.flv.1)
+  * Added --play option
 
  Developer-visible changes:
   * Ported --emit-csv option from 1.x with minor changes

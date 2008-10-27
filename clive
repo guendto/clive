@@ -482,7 +482,7 @@ sub extract_video {
                         if ! -t STDOUT or ! -t STDERR;
                 }
 
-                if ( $opts{progress} eq 'bar' )     { bar_init() }
+                if ( $opts{progress} =~ /^bar/ )    { bar_init() }
                 elsif ( $opts{progress} =~ /^dot/ ) { dot_init() }
             }
 
@@ -490,7 +490,7 @@ sub extract_video {
             close $fh;
 
             unless ( $opts{quiet} ) {
-                if ( $opts{progress} eq 'bar' )     { bar_finish() }
+                if ( $opts{progress} =~ /^bar/ )    { bar_finish() }
                 elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
             }
 
@@ -727,7 +727,7 @@ sub handle_metacafe {
 
 sub progress_callback {
     if ( $opts{progress} =~ /^dot/ )   { dot_update(@_); }
-    elsif ( $opts{progress} eq 'bar' ) { bar_update(@_); }
+    elsif ( $opts{progress} =~ /^bar/ ){ bar_update(@_); }
     return 0;
 }
 
@@ -820,7 +820,9 @@ sub bar_init {
     });
 
     $barp->max_update_rate(1);
-    $barp->minor(0);
+
+    my ($type,$style) = split /:/,$opts{progress};
+    $barp->minor(0) if $style and $style eq 'nominor';
 
     $bar_nextupd = 0;
 }
@@ -1377,12 +1379,15 @@ If the output is not a TTY, the "dot" bar will be used by default.
 The "bar" indicator is used by default. It displays a progress status that
 contains output filename, progress percentage, transfer rate and ETA.
 
+You may disable the 'minor character' that moves from left-to-right on
+the progress bar by specifying the I<type> as bar:nominor.
+
 Use --progress=dot to switch to the "dot" display. It traces the retrieval
 by printing dots on the screen, each dot representing a fixed amount of
 downloaded data.
 
 When using the dotted retrieval, you may also set the style by specifying
-the type as dot:style.
+the I<type> as dot:style.
 
     --progress=dot:default
         each dot 1K, 10-dots clusters, 50-dots lines
@@ -1653,7 +1658,7 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
 
     ## Progress indicator (default: bar)
     ## Possible values: none, bar, dot
-    #progress = dot
+    progress = dot:binary
 
     [http]
         ## HTTP User-agent string (default: Mozilla/5.0).

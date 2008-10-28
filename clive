@@ -69,6 +69,7 @@ my $youtube_on=0;   # Flag: Whether logged into Youtube
 my $curr_fn;        # Progress: Holds the name of the current video file
 my $time_started;   # Progress: Holds transfer started time
 my @play_queue;     # Holds files to be played
+my @rencode_queue;  # Holds files to be re-encoded
 my @emit_queue;     # Holds videos to be emitted to stdout
 my %dotp;           # Holds dot progress data
 my $barp;           # Holds handle to default progress bar
@@ -98,6 +99,7 @@ my $c = Config::Tiny->read($CONFIGFILE);
     ytuser   => $c->{youtube}->{user},
     ytpass   => $c->{youtube}->{pass},
     play     => $c->{commands}->{play},
+    rencode  => $c->{commands}->{rencode},
 );
 
 # Parse cmdline
@@ -131,12 +133,13 @@ GetOptions(\%opts,
     'continue|c', 'renew|R',    'recall|r',     'format|f=s',
     'output|o=s', 'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
-    'cclass|l=s', 'play|p=s',   'progress|G=s',
+    'cclass|l=s', 'play|p=s',   'progress|G=s', 'rencode|A=s',
     'version|v' => \&print_version,
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
     'noextract|n'         => sub { $opts{extract}   = 0 },
     'noplay|P'            => sub { $opts{play}      = 0 },
+    'norencode|B'         => sub { $opts{rencode}   = 0 },
     'nologin|L'           => sub { $opts{login}     = 0 },
     'noproxy|X'           => sub { $opts{proxy}     = "" },
     # Workaround for options that contain dashes in them.
@@ -263,7 +266,15 @@ sub process_queue {
         print "=> Playing ...$_\n" unless $opts{quiet};
         my $cmd = $opts{play};
         $cmd =~ s/%i/"$_"/;
-        system "$cmd >/dev/null";
+        system "$cmd";
+    }
+
+    foreach ( @rencode_queue ) {
+        print "=> Re-encoding ...$_\n" unless $opts{quiet};
+        my $cmd = $opts{rencode};
+        $cmd =~ s/%i/"$_"/;
+        $cmd =~ s/%o/"$_"/;
+        system "$cmd";
     }
 
     print "<?xml version=\"1.0\"?>\n<queue>\n"
@@ -434,6 +445,7 @@ sub extract_video {
             print "=> Refusing to extract. "
                 . "localfile length matches remotefile length.\n";
             push @play_queue,$path if $opts{play};
+            push @rencode_queue,$path if $opts{rencode};
             return unless $opts{emitcsv} or $opts{emitxml};
         } elsif ( $size < $entry{file_length} and $opts{continue} ) {
             $cont_from  = $size;
@@ -509,6 +521,7 @@ sub extract_video {
     if ( ! $errmsg ) {
         print "\n==> Closed with HTTP/$rc.\n" unless $opts{quiet};
         push @play_queue,$path if $opts{play};
+        push @rencode_queue,$path if $opts{rencode};
     } else {
         print STDERR "\n==> error: $errmsg\n";
     }
@@ -1442,6 +1455,18 @@ the %i specifier for input file. For example:
 
 Disable subsequent play.
 
+=item B<-A --rencode=>I<command>
+
+Re-encode the extracted videos with I<command>. The I<command> must include
+at least the %i (input) specifier. Use the %o (output) specifier as needed.
+For example:
+
+    % clive --rencode="ffmpeg -i %i %o.mpg" URL
+
+=item B<-B --norencode>
+
+Disable subsequent re-encoding.
+
 =back
 
 =head1 EXAMPLES
@@ -1699,10 +1724,11 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
         pass = mypassword
 
     [commands]
-        ## Path to a player command. If used, clive will play the
-        ## extracted videos subsequently. Be sure to use the %i
-        ## specifier for input file.
+        ## Player command. Note the use of the %i (input) specifier.
         play = /usr/local/bin/xine -f %i
+        ## Re-encode command. Note the %i (input) and %o (output)
+        ## specifiers.
+        rencode = /usr/local/bin/ffmpeg -i %i %o.mpg
 
 =head1 SEE ALSO
 

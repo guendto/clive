@@ -341,7 +341,7 @@ sub process_page {
     } elsif ( $url =~ /$re_hosts{IsBreak}/ ) {
         ($xurl, $id, $title) = handle_break($response_ref);
     } elsif ( $url =~ /$re_hosts{IsMetacafe}/ ) {
-        ($xurl, $id, $title) = handle_metacafe($response_ref);
+        ($xurl, $id) = handle_metacafe($response_ref);
     }
     return -1 if ! $xurl or ! $id or ! $title;
 
@@ -693,32 +693,27 @@ sub handle_metacafe {
     my $response_ref = shift;
 
     my %re = (
-        GrabTitle     => qr|"title":"(.*?)"|,
-        GrabID        => qr|"itemID":"(.*?)"|,
-        GrabItemFiles => qr|ItemFiles(.*?)"|,
-        GrabVideoCDN  => qr|"videoCDNURL":"(.*?)"|
+        GrabID        => qr|itemID=(.*?)&|,
+        GrabVideoCDN  => qr|videoCDNURL=(.*?)&|,
+        GrabMediaURL  => qr|mediaURL=(.*?)&|,
     );
 
-    my $title     = $1 if $$response_ref =~ /$re{GrabTitle}/;
-    my $id        = $1 if $$response_ref =~ /$re{GrabID}/;
-    my $itemfiles = $1 if $$response_ref =~ /$re{GrabItemFiles}/;
-    my $videocdn  = $1 if $$response_ref =~ /$re{GrabVideoCDN}/;
+    my $id       = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $videocdn = $1 if $$response_ref =~ /$re{GrabVideoCDN}/;
+    my $mediaurl = $1 if $$response_ref =~ /$re{GrabMediaURL}/;
 
     my ($xurl, $errmsg);
-    if ( $itemfiles and $videocdn ) {
-        $itemfiles =~ tr{\\}//d;
-        $videocdn  =~ tr{\\}//d;
-        $xurl = $videocdn.$itemfiles;
+    if ( $videocdn and $mediaurl ) {
+        $xurl = uri_unescape($videocdn .'/'. $mediaurl);
     } else {
-        $errmsg = "failed to extract ItemFiles" if ! $itemfiles;
-        $errmsg = "failed to extract videoCDNURL" if ! $videocdn and ! $errmsg;
+        $errmsg = "failed to extract videoCDNURL" if !$videocdn;
+        $errmsg = "failed to extract mediaURL" if !$errmsg and !$mediaurl;
     }
 
-    $errmsg = "failed to extract title" if ! $title and ! $errmsg;
-    $errmsg = "failed to extract itemID" if ! $id and ! $errmsg;
-    print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
+    $errmsg = "failed to extract itemID" if !$id and !$errmsg;
+    print STDERR "\nerror: " .$errmsg. "\n" if $errmsg;
 
-    return ($xurl, $id, $title);
+    return ($xurl, $id);
 }
 
 

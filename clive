@@ -453,7 +453,7 @@ sub extract_video {
     }
 
     unless ( $opts{quiet} ) {
-        print "=> File: ".decode_utf8($fn)."\n";
+        print "=> File: $fn\n";
         print "=> Length: $entry{file_length} ";
         printf"(%.2fMB)  ",$entry{file_length}/1024/1024 if $entry{file_length};
         printf "From: %u (Left: %u)  ", $cont_from, $remaining if $cont_from;

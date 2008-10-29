@@ -1272,8 +1272,7 @@ Renew the cache entries for the input URLs. See L</CACHE> in the manual page.
 
 =item B<-s --show>
 
-Print cache entries to standard output. See L</CONFIG> in the manual page
-for how to configure the output.
+Print cache entries to standard output.
 
 =item B<-H --show-format=>I<string>
 
@@ -1523,6 +1522,11 @@ file, greps for the pattern and extracts the video.
 
 Same as above but turns off all output.
 
+=item % clive --play="xine %i" --rencode="ffmpeg -i %i %o.mpg" URL
+
+Play the extracted video using L<xine(1)> and re-encode it to mpeg format
+using L<ffmpeg(1)>.
+
 =back
 
 =head1 FORMATS
@@ -1647,8 +1651,8 @@ unicode in your terminal falls outside the scope of this manual page.
 If you are running X, switching to a unicode capable terminal
 (e.g. L<uxterm(1)>) may also provide some remedy to this.
 
-If you are using a user-defined character class in the config file,
-make sure it is not blocking any unicode characters. See L</CONFIG>.
+If you are using a user-defined character class (B<--cclass>),
+make sure it is not dismissing unicode characters.
 
 =head1 FILES
 

@@ -28,6 +28,7 @@ Run:
 
 Getting started:
     % ./clive --manual # See the EXAMPLES
+    % pod2man clive > clive.1 # POD => *roff, see pod2man(1) documentation
 
 
 Installation: FreeBSD

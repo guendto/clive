@@ -20,8 +20,8 @@
 
 # Keep it simple.
 
-use strict;
 use warnings;
+use strict;
 
 binmode(STDOUT, ":utf8");
 
@@ -50,8 +50,7 @@ eval "use Clipboard;"; $opted_mods{Clipboard}=0 if $@;
 
 my $VERSION     = "2.0beta3";
 my $CONFIGDIR   = $ENV{CLIVE_CONFIGDIR}
-    ? $ENV{CLIVE_CONFIGDIR}
-    : File::Spec->catfile($ENV{HOME}, ".config/clive");
+    || File::Spec->catfile($ENV{HOME}, ".config/clive");
 my $CONFIGFILE  = File::Spec->catfile($CONFIGDIR, "config");
 my $CACHEFILE   = File::Spec->catfile($CONFIGDIR, "cache");
 my $RECALLFILE  = File::Spec->catfile($CONFIGDIR, "recall");
@@ -163,7 +162,7 @@ elsif   ( $opts{show} )     { show_cache(); }
 
 get_queue();
 
-select STDERR; $| = 1; # Make unbuffered
+select STDERR; $| = 1; # => unbuffered
 select STDOUT; $| = 1;
 
 daemonize() if $opts{background};
@@ -177,10 +176,7 @@ free_cache();
 
 sub init_curl {
     $curl = WWW::Curl::Easy->new;
-
-    $curl->setopt(CURLOPT_USERAGENT,
-        $opts{agent} ? $opts{agent} : "Mozilla/5.0");
-
+    $curl->setopt(CURLOPT_USERAGENT, $opts{agent} || "Mozilla/5.0");
     $curl->setopt(CURLOPT_VERBOSE, 1) if $opts{debug};
     $curl->setopt(CURLOPT_PROXY, $opts{proxy}) if defined $opts{proxy};
     $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);

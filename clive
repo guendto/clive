@@ -571,8 +571,7 @@ sub parse_input {
     $url = "http://$url" if $url !~ m!^http://!i;
 
     # Translate embedded URL to video page URL
-    $url =~ s{/v/}{/watch?v=}ig; # Youtube
-    $url =~ s{\Q/googleplayer.swf?docid=}{/videoplay?docid=\E}ig; # GVideo
+    translate_embed(\$url);
 
     # Last.fm wraps Youtube videos as their own
     if ( $url =~ /$re_hosts{IsLastfm}/ ) {
@@ -1122,6 +1121,37 @@ sub grep_cache {
         }
     }
     exit if $opts{delete} and not $opts{show};
+}
+
+sub translate_embed {
+    my ($urlref) = @_;
+
+    my %re = ( # See clivescan for more details
+        YoutubeEmbed => {
+            url_prefix => "http://youtube.com/watch?v=",
+            search_for => qr|\Qyoutube.com/v/\E(.*?)$|i,
+        },
+        GVideoEmbed => {
+            url_prefix => "http://video.google.com/videoplay?docid=",
+            search_for => qr|\Q/googleplayer.swf?docid=\E(.*?)$|i,
+        },
+        MetacafeEmbed => {
+            url_prefix => "http://metacafe.com/watch/",
+            search_for => qr|\Qmetacafe.com/fplayer/\E(.*?)/|i,
+        },
+        SevenLoadEmbed => {
+            url_prefix => "http://sevenload.com/videos/",
+            search_for => qr|\Qsevenload.com/pl/\E(.*?)/|i,
+        },
+        # TODO: add BreakEmbed, e.g.:
+        # Page  URL: http://break.com/index/if-all-movies-had-cell-phones.html
+        # Embed URL: http://embed.break.com/600081
+    );
+
+    while ( my $host = each( %re ) ) {
+        $$urlref = "$re{$host}{url_prefix}$1" and last
+            if ( $$urlref =~ /$re{$host}{search_for}/ );
+    }
 }
 
 sub print_version {

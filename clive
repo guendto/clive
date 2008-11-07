@@ -1504,10 +1504,10 @@ Extracts the video from the specified URL.
 
 =item % cat E<gt>E<gt> url.lst
 
-http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
-http://youtube.com/watch?v=3HD220e0bx4
-http://www.metacafe.com/watch/1040857/chelsea/
-http://break.com/index/beach-tackle-whip-lash.html
+ http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
+ http://youtube.com/watch?v=3HD220e0bx4
+ http://www.metacafe.com/watch/1040857/chelsea/
+ http://break.com/index/beach-tackle-whip-lash.html
 
 =item % cat url.lst | clive
 
@@ -1703,62 +1703,63 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
 
 =head1 CONFIG
 
-    ## Example config file for clive.
-    ## Recommended: chmod 0600 ~/.config/clive/config
+ ## Example config file for clive.
+ ## Recommended: chmod 0600 ~/.config/clive/config
 
-    ## Progress indicator (default: bar)
-    ## Possible values: none, bar, dot
-    progress = dot:binary
+ ## Progress indicator (default: bar)
+ ## Possible values: none, bar, dot
+ progress = dot:binary
 
-    [http]
-        ## HTTP User-agent string (default: Mozilla/5.0).
-        agent = Furball/0.2
+ [http]
+   ## HTTP User-agent string (default: Mozilla/5.0).
+   agent = Furball/0.2
 
-        ## HTTP proxy.
-        proxy = http://foo:1234
+   ## HTTP proxy.
+   proxy = http://foo:1234
 
-    [output]
-        ## Save videos to directory (default: cwd).
-        savedir = /home/user/videos
+ [output]
+   ## Save videos to directory (default: cwd).
+   savedir = /home/user/videos
 
-        ## Character class used to filter out garbage characters from
-        ## video filenames (default: \w).
-        cclass = [A-Za-z0-9]
-        #cclass = .
+   ## Character class used to filter out garbage characters from
+   ## video filenames (default: \w).
+   cclass = [A-Za-z0-9]
+   #cclass = .
 
-        ## Extracted video filename format (default: %t-(%i)-[%d].%s).
-        ## %t = video name after applying the character class regex
-        ## %s = video file suffix (e.g. flv)
-        ## %d = video domain
-        ## %i = video id
-        ## %D = current date
-        ## %T = current time
-        ## %S = timestamp (same as: %D %T)
-        file = %t.%e
+   ## Extracted video filename format (default: %t-(%i)-[%d].%s).
+   ## %t = video name after applying the character class regex
+   ## %s = video file suffix (e.g. flv)
+   ## %d = video domain
+   ## %i = video id
+   ## %D = current date
+   ## %T = current time
+   ## %S = timestamp (same as: %D %T)
+   file = %t.%e
 
-        ## Format for --show (default: %D: "%t" | %mMB)
-        ## %t = video page title
-        ## %i = video id
-        ## %l = video file length (bytes)
-        ## %u = video page url
-        ## %x = video extraction url
-        ## %D = video extraction date
-        ## %T = video extraction time
-        ## %S = video extraction timestamp (same as: %D %T)
-        show = %t (id: %i | bytes: %l)
+   ## Format for --show (default: %D: "%t" | %mMB)
+   ## %t = video page title
+   ## %i = video id
+   ## %l = video file length (bytes)
+   ## %u = video page url
+   ## %x = video extraction url
+   ## %D = video extraction date
+   ## %T = video extraction time
+   ## %S = video extraction timestamp (same as: %D %T)
+   show = %t (id: %i | bytes: %l)
 
-    [youtube]
-        ## Username and password for Youtube. OPTIONAL unless you
-        ## plan on extracting flagged content.
-        user = myusername
-        pass = mypassword
+ [youtube]
+   ## Username and password for Youtube. OPTIONAL unless you
+   ## plan on extracting flagged content.
+   user = myusername
+   pass = mypassword
 
-    [commands]
-        ## Player command. Note the use of the %i (input) specifier.
-        play = /usr/local/bin/xine -f %i
-        ## Re-encode command. Note the %i (input) and %o (output)
-        ## specifiers.
-        rencode = /usr/local/bin/ffmpeg -i %i %o.mpg
+ [commands]
+   ## Player command. Note the use of the %i (input) specifier.
+   play = /usr/local/bin/xine -f %i
+
+   ## Re-encode command. Note the %i (input) and %o (output)
+   ## specifiers.
+   rencode = /usr/local/bin/ffmpeg -i %i %o.mpg
 
 =head1 SEE ALSO
 
@@ -1776,9 +1777,10 @@ http://googlecode.com/p/clive/
 
 http://googlecode.com/p/clive/issues/
 
-=item Announcements:
+=item Mailing-lists:
 
-http://googlegroups.com/group/clive-announce/
+ http://googlegroups.com/group/clive-announce/
+ http://googlegroups.com/group/clive-users/
 
 =back
 
@@ -1786,7 +1788,7 @@ http://googlegroups.com/group/clive-announce/
 
 A clive development repository can be obtained from:
 
-    git clone git://repo.or.cz/clive.git
+    % git clone git://repo.or.cz/clive.git
 
 Patches welcome.
 

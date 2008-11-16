@@ -1,3 +1,8 @@
+clive-CHANGES
+
+TODO: Fix metacafe support (http/404)
+
+
 version 2.0
 (? ??, 2008)
 
@@ -7,6 +12,9 @@ version 2.0
  Developer-visible changes:
    * Cleaned up some code
    * Rewrote embed URL translation
+
+ Known-issues:
+   * Metacafe support broken (http/404)
 
 
 version 2.0beta3

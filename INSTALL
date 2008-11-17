@@ -31,10 +31,8 @@ Getting started:
     % pod2man clive > clive.1 # POD => *roff, see pod2man(1) documentation
 
 
-Installation: FreeBSD
+Installation: FreeBSD (7.0)
 ------------------------------------------------------------------------------
-
-Tested on 7.0. Likely inaccurate.
 
 From the ports:
   * devel/p5-Term-ProgressBar
@@ -45,20 +43,20 @@ From the ports:
   * www/p5-HTML-Parser
   * devel/p5-IO-Pager
   * net/p5-URI
+  * ftp/curl
   -- Optional:
   * x11/p5-Clipboard
 
-CPAN: WWW::Curl (outdated in the ports at the time of writing this)
-  % sudo pkg_add -r curl (or: cd /usr/ports/www/curl; make install)
-  % sudo cpan install WWW::Curl
+From CPAN:
+  * WWW::Curl
 
 
-Installation: Ubuntu
+Installation: Ubuntu (Hardy)
 ------------------------------------------------------------------------------
 
-Tested on Hardy. Likely inaccurate.
-
-% sudo apt-get install:
+From apt: # Typically: "sudo apt-get install $module"
+  * libterm-progressbar-perl
+  * libcurl4-openssl-dev
   * libhtml-parser-perl
   * libconfig-tiny-perl
   * libberkeleydb-perl
@@ -67,17 +65,11 @@ Tested on Hardy. Likely inaccurate.
   * libfile-spec-perl
   * liburi-perl 
   * perl-doc
-  * libterm-progressbar-perl
   -- Optional:
   * xclip (for Clipboard module below)
 
-CPAN:
+From CPAN: # Typically: "sudo cpan install $module"
   * WWW::Curl
-    % sudo apt-get install libcurl4-openssl-dev
-    % sudo cpan install WWW::Curl
-
   * IO::Pager
-    % sudo cpan install IO::Pager
-
-  * Clipboard (optional)
-    % sudo cpan install Clipboard
+  -- Optional:
+  * Clipboard

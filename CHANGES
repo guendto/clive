@@ -10,6 +10,7 @@ version 2.0
    * Added support for metacafe and sevenload embed URL translation
 
  Developer-visible changes:
+   * Updated FreeBSD + Ubuntu details in INSTALL file
    * Cleaned up some code
    * Rewrote embed URL translation
 

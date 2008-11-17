@@ -37,6 +37,7 @@ Installation: FreeBSD
 Tested on 7.0. Likely inaccurate.
 
 From the ports:
+  * devel/p5-Term-ProgressBar
   * databases/p5-BerkeleyDB
   * security/p5-Digest-SHA
   * textproc/p5-XML-Simple
@@ -44,12 +45,11 @@ From the ports:
   * www/p5-HTML-Parser
   * devel/p5-IO-Pager
   * net/p5-URI
-  * devel/p5-Term-ProgressBar
   -- Optional:
   * x11/p5-Clipboard
 
 CPAN: WWW::Curl (outdated in the ports at the time of writing this)
-  % sudo pkg_add -r curl (or: cd /usr/ports/www/curl; sudo make install)
+  % sudo pkg_add -r curl (or: cd /usr/ports/www/curl; make install)
   % sudo cpan install WWW::Curl
 
 
@@ -72,12 +72,12 @@ Tested on Hardy. Likely inaccurate.
   * xclip (for Clipboard module below)
 
 CPAN:
-  * WWW::Curl (outdated in apt at the time of writing this)
+  * WWW::Curl
     % sudo apt-get install libcurl4-openssl-dev
     % sudo cpan install WWW::Curl
 
-  * IO::Pager (not packaged?)
+  * IO::Pager
     % sudo cpan install IO::Pager
 
-  * Clipboard (not packaged?, only if needed)
+  * Clipboard (optional)
     % sudo cpan install Clipboard

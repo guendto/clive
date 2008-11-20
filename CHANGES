@@ -1,5 +1,12 @@
 clive-CHANGES
 
+TODO: Add support for clivepass(1)
+TODO: Add --clivepass=path
+TODO: Implement youtube user and pass in config file
+TODO: Implement --youtube-pass=-
+TODO: Add support for CLIVEPASS environment variable
+TODO: Document --clivepass and in CONFIG
+TODO: Document Expect module prerequisite in INSTALL and CHANGES
 TODO: Fix metacafe support (http/404)
 
 

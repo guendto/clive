@@ -913,7 +913,7 @@ sub grab_clivepass {
     # TODO: Supports only Youtube. Expand to support other websites as needed.
     return unless $opts{login} and $opts{ytuser} and $opts{ytpass} eq "-";
 
-    print STDERR "error: no path to clivepass, use --clivepass" and exit
+    print STDERR "error: no path to clivepass, use --clivepass\n" and exit
         unless $opts{clivepass};
 
     my $phrase;
@@ -922,7 +922,7 @@ sub grab_clivepass {
     my $e = Expect->new;
     $e->log_stdout(0);
     $e->spawn($opts{clivepass}, "-g", $opts{ytuser})
-        or print STDERR "cannot spawn $!" and exit;
+        or print STDERR "cannot spawn $!\n" and exit;
 
     my ($spawned, $pwd);
     $e->expect(10, [

@@ -45,7 +45,8 @@
 
 [youtube]
     ## Username and password for Youtube. OPTIONAL unless you
-    ## plan on extracting flagged content.
+    ## plan on extracting flagged content. Set pass to "-" if
+    ## you are using clivepass(1) for storing login passwords.
     #user = myusername
     #pass = mypassword
 
@@ -55,3 +56,7 @@
     ## Re-encode command. Note the %i (input) and %o (output)
     ## specifiers.
     #rencode = /usr/local/bin/ffmpeg -i %i %o.mpg
+
+    ## Path to clivepass(1) utility. If you are planning to use clivepass
+    ## protected login passwords.
+    #clivepass = /usr/local/bin/clivepass

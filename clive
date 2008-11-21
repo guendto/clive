@@ -32,6 +32,7 @@ use Config::Tiny;
 use URI::Escape;
 use BerkeleyDB;
 use IO::Pager;
+use Expect;
 
 # Core modules:
 use Getopt::Long qw(:config bundling);
@@ -99,6 +100,7 @@ my $c = Config::Tiny->read($CONFIGFILE);
     ytpass   => $c->{youtube}->{pass},
     play     => $c->{commands}->{play},
     rencode  => $c->{commands}->{rencode},
+    clivepass=> $c->{commands}->{clivepass},
 );
 
 # Parse cmdline
@@ -121,18 +123,20 @@ $opts{append}       = undef;
 $opts{progress}     = 'bar' if !defined $opts{progress};
 $opts{emitcsv}      = 0;
 $opts{emitxml}      = 0;
+$opts{clivepass}    = $ENV{CLIVEPASS_PATH};
 $opts{debug}        = 0;
 $opts{help}         = 0;
 $opts{manual}       = 0;
 $opts{version}      = 0;
 
 GetOptions(\%opts,
-    'debug|d',    'help|h',     'manual|m',     'version|v',
-    'paste|x',    'show|s',     'delete|D',     'clear|C',
-    'continue|c', 'renew|R',    'recall|r',     'format|f=s',
-    'output|o=s', 'append|a=s', 'background|b', 'quiet|q',
-    'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
-    'cclass|l=s', 'play|p=s',   'progress|G=s', 'rencode|A=s',
+    'debug|d',     'help|h',     'manual|m',     'version|v',
+    'paste|x',     'show|s',     'delete|D',     'clear|C',
+    'continue|c',  'renew|R',    'recall|r',     'format|f=s',
+    'output|o=s',  'append|a=s', 'background|b', 'quiet|q',
+    'grep|g=s',    'agent|U=s',  'proxy|y=s',    'savedir|S=s',
+    'cclass|l=s',  'play|p=s',   'progress|G=s', 'rencode|A=s',
+    'clivepass|V=s',
     'version|v' => \&print_version,
 #'maxspeed!',    'minspeed!',
     # Since '$longopt!|$shortopt' is a no-no.
@@ -155,22 +159,7 @@ GetOptions(\%opts,
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
 pod2usage(-exitstatus => 0, -verbose => 2) if $opts{manual};
 
-init_cache();
-
-if      ( $opts{clear} )    { clear_cache(); }
-elsif   ( $opts{show} )     { show_cache(); }
-
-get_queue();
-
-select STDERR; $| = 1; # => unbuffered
-select STDOUT; $| = 1;
-
-daemonize() if $opts{background};
-
-process_queue();
-
-free_cache();
-
+main();
 
 ## Subroutines: Connection
 
@@ -902,6 +891,78 @@ sub normalize_rate {
 
 # Subroutines: LittleHelpers
 
+sub main {
+    init_cache();
+    if      ( $opts{clear} )    { clear_cache(); }
+    elsif   ( $opts{show} )     { show_cache(); }
+
+    grab_clivepass();
+    get_queue();
+
+    select STDERR; $| = 1; # => unbuffered
+    select STDOUT; $| = 1;
+
+    daemonize() if $opts{background};
+
+    process_queue();
+
+    free_cache();
+}
+
+sub grab_clivepass {
+    # TODO: Supports only Youtube. Expand to support other websites as needed.
+    return unless $opts{login} and $opts{ytuser} and $opts{ytpass} eq "-";
+
+    print STDERR "error: no path to clivepass, use --clivepass" and exit
+        unless $opts{clivepass};
+
+    my $phrase;
+    $phrase = getpass("Enter passphrase for clivepass: ") while ( ! $phrase );
+
+    my $e = Expect->new;
+    $e->log_stdout(0);
+    $e->spawn($opts{clivepass}, "-g", $opts{ytuser})
+        or print STDERR "cannot spawn $!" and exit;
+
+    my ($spawned, $pwd);
+    $e->expect(10, [
+        qr'Enter passphrase: $',
+        sub {
+            my $fh = shift;
+            $fh->send("$phrase\n");
+            $spawned = 1;
+            exp_continue;
+        }
+    ],
+    [ eof => sub {
+        if ( $spawned ) {
+            my $fh = shift;
+            $pwd = $fh->before();
+            if ( $pwd =~ /error: (.*?)$/ ) {
+                print STDERR "clivepass: error: $1\n"; exit;
+            } else {
+                $pwd = $1 if ( $pwd =~ /login: $opts{ytuser}=(.*?)$/ );
+            }
+        } else {
+            print STDERR "error: could not spawn $opts{clivepass}\n"; exit;
+        }
+    }],
+    [ timeout => sub {
+        print STDERR "error: clivepass: expect timed out\n"; exit;
+    }]);
+
+    $opts{ytpass} = $pwd;
+}
+
+sub getpass {
+    system "stty -echo";
+    print shift;
+    chomp(my $pwd = <STDIN>);
+    print "\n";
+    system "stty echo";
+    return $pwd;
+}
+
 sub daemonize {
     $logfile = $opts{append}
         || $opts{output}
@@ -1437,7 +1498,8 @@ Use I<username> for logging into Youtube.
 
 =item B<-t --youtube-pass=>I<password>
 
-Use I<password> for logging into Youtube.
+Use I<password> for logging into Youtube. Set I<password> to "-" to retrieve
+the login password for the I<username> from L<clivepass(1)>.
 
 =item B<-L --nologin>
 
@@ -1491,6 +1553,11 @@ For example:
 =item B<-B --norencode>
 
 Disable subsequent re-encoding.
+
+=item B<-V --clivepass=>I<path>
+
+Set I<path> to L<clivepass(1)> utility. If CLIVEPASS_PATH environment
+variable is set, it will will used.
 
 =back
 
@@ -1552,6 +1619,11 @@ Same as above but turns off all output.
 
 Play the extracted video using L<xine(1)> and re-encode it to mpeg format
 using L<ffmpeg(1)>.
+
+=item % clive -u myuser -t - -V /usr/bin/clivepass URL
+
+Retrieve login password from L<clivepass(1)> for "myuser" before logging
+into Youtube and extracting the video from the URL.
 
 =back
 
@@ -1749,7 +1821,8 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
 
  [youtube]
    ## Username and password for Youtube. OPTIONAL unless you
-   ## plan on extracting flagged content.
+   ## plan on extracting flagged content. Set pass to "-" if
+   ## you are using clivepass(1) for storing login passwords.
    user = myusername
    pass = mypassword
 
@@ -1761,7 +1834,14 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
    ## specifiers.
    rencode = /usr/local/bin/ffmpeg -i %i %o.mpg
 
+   ## Path to clivepass(1) utility. Optional.
+   ## If you are planning to use clivepass
+   ## protected login passwords.
+   clivepass = /usr/local/bin/clivepass
+
 =head1 SEE ALSO
+
+L<clivefeed(1)> L<clivescan(1)> L<clivepass(1)>
 
 =over 4
 

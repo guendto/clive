@@ -1,12 +1,6 @@
 clive-CHANGES
 
-TODO: Add support for clivepass(1)
-TODO: Add --clivepass=path
-TODO: Implement youtube user and pass in config file
-TODO: Implement --youtube-pass=-
-TODO: Add support for CLIVEPASS environment variable
-TODO: Document --clivepass and in CONFIG
-TODO: Document Expect module prerequisite in INSTALL and CHANGES
+TODO: Update INSTALL prerequisites and FreeBSD/Ubuntu steps
 TODO: Fix metacafe support (http/404)
 
 
@@ -14,9 +8,11 @@ version 2.0
 (? ??, 2008)
 
  User-visible changes:
+   * Added support clivepass(1) utility (http://code.google.com/p/clive-utils)
    * Added support for metacafe and sevenload embed URL translation
 
  Developer-visible changes:
+   * New prerequisite Expect module
    * Updated FreeBSD + Ubuntu details in INSTALL file
    * Cleaned up some code
    * Rewrote embed URL translation

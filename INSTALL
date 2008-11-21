@@ -1,20 +1,30 @@
 Prerequisites
 ------------------------------------------------------------------------------
 
-Perl >= 5.8 with the following (recommended) module versions:
+Perl >= 5.8 (http://perl.org)
+
+The following 3rd party perl modules are required. The versions are
+recommendations. The module lists below are more or less comprehensive.
+The required Perl core modules have not been listed below.
+
+Note that some Unix/Linux distributions may pack some of the Perl core modules
+separately and require them to be installed separately. This means also that
+the actual installation procedure may vary greatly for each distro.
+
+The FreeBSD and Ubuntu details further below are likely to be inaccurate and
+missing some steps. The information was mainly gathered to aid the current
+and future clive package maintainers to get started. Note that the CPAN
+installation steps exist only if the distro does not have the equivalent
+package or a version available. For example, the 3.x of WWW::Curl kept
+refusing to work with the current version of clive.
+
+Note that the Clipboard module is OPTIONAL.
 
 * Config::Tiny/2.12           * BerkeleyDB/0.34
 * WWW::Curl/4.05              * URI::Escape/3.29
 * HTML::TokeParser/2.37       * Clipboard/0.09
 * IO::Pager/0.05              * XML::Simple/2.18
-* Term::ProgressBar/2.09
-
-* Getopt::Long/2.35           * Pod::Usage/1.33
-* File::Path/1.08             * File::Spec/3.12
-* Digest::SHA/5.47            * POSIX/1.09
-* Cwd/3.12                    * Encode/2.12
-
-Note that the Clipboard module is OPTIONAL.
+* Term::ProgressBar/2.09      * Expect
 
 
 Installation
@@ -28,7 +38,7 @@ Run:
 
 Getting started:
     % ./clive --manual # See the EXAMPLES
-    % pod2man clive > clive.1 # POD => *roff, see pod2man(1) documentation
+    % pod2man clive > clive.1 # see pod2man(1) manual for more
 
 
 Installation: FreeBSD (7.0)
@@ -44,6 +54,7 @@ From the ports:
   * devel/p5-IO-Pager
   * net/p5-URI
   * ftp/curl
+  * lang/p5-Expect
   -- Optional:
   * x11/p5-Clipboard
 
@@ -65,6 +76,7 @@ From apt: # Typically: "sudo apt-get install $module"
   * libfile-spec-perl
   * liburi-perl 
   * perl-doc
+  * libexpect-perl
   -- Optional:
   * xclip (for Clipboard module below)
 

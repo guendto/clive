@@ -203,6 +203,8 @@ sub auth_youtube { # Log into Youtube
         $response =~ tr{\n}//d;
         $errmsg = "error: incorrect login password for $opts{ytuser}"
             if $response =~ /log-in was incorrect/i;
+        $errmsg = "error: too many login failures, try again later"
+            if $response =~ /too many login failures/i;
     } else {
         $errmsg = "error: ".$curl->strerror($rc)." (http/$rc)";
     }

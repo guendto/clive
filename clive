@@ -201,7 +201,7 @@ sub auth_youtube { # Log into Youtube
 
     if ( $rc == 0 ) {
         $response =~ tr{\n}//d;
-        $errmsg = "error: incorrect login for $opts{ytuser}"
+        $errmsg = "error: incorrect login password for $opts{ytuser}"
             if $response =~ /log-in was incorrect/i;
     } else {
         $errmsg = "error: ".$curl->strerror($rc)." (http/$rc)";

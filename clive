@@ -188,7 +188,7 @@ sub auth_youtube { # Log into Youtube
     my $response = "";
     open my $fh, ">", \$response;
 
-    my $login_url = "http://youtube.com/login?current_form=loginform"
+    my $login_url = "http://uk.youtube.com/login?current_form=loginform"
         ."&username=$opts{ytuser}&password=$opts{ytpass}&action_login=log+in";
 
     $curl->setopt(CURLOPT_URL, $login_url);

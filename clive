@@ -1620,10 +1620,15 @@ Same as above but turns off all output.
 Play the extracted video using L<xine(1)> and re-encode it to mpeg format
 using L<ffmpeg(1)>.
 
-=item % clive -u myuser -t - -V /usr/bin/clivepass URL
+=item % clivepass --create
 
-Retrieve login password from L<clivepass(1)> for "myuser" before logging
-into Youtube and extracting the video from the URL.
+=item % clivepass --add myusername
+
+=item % clive -u myusername -t - -V /usr/bin/clivepass URL
+
+Use the L<clivepass(1)> utility to create an encrypted login password for
+"myusername". Then have clive call L<clivepass(1)> utility to retrieve the
+password before logging into Youtube and extracting the video from the URL.
 
 =back
 

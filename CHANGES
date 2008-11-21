@@ -7,6 +7,7 @@ version 2.0
 (? ??, 2008)
 
  User-visible changes:
+   * Fixed Youtube login support: reported failures incorrectly OK
    * Added support clivepass(1) utility (http://code.google.com/p/clive-utils)
    * Added support for metacafe and sevenload embed URL translation
 

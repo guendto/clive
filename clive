@@ -1230,7 +1230,7 @@ Modules:
   * WWW::Curl/$WWW::Curl::VERSION\t\t* URI::Escape/$URI::Escape::VERSION
   * HTML::TokeParser/$HTML::TokeParser::VERSION\t* Clipboard/$clipboard_v
   * IO::Pager/$IO::Pager::VERSION\t\t* XML::Simple/$XML::Simple::VERSION
-  * Term::ProgressBar/$Term::ProgressBar::VERSION
+  * Term::ProgressBar/$Term::ProgressBar::VERSION\t* Expect/$Expect::VERSION
 Core modules:
   * POSIX/$POSIX::VERSION\t\t\t* Cwd/$Cwd::VERSION
   * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION

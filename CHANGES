@@ -1,24 +1,26 @@
-clive-CHANGES
+Version 2.0beta4
+(November 22, 2008)
 
-TODO: Fix metacafe support (http/404)
-
-
-version 2.0
-(? ??, 2008)
+ Notes:
+   This aims to be the last beta before the release of 2.0 in December 2008.
+   Please report any remaining bugs to the issue tracker at:
+     http://code.google.com/p/clive/issues/list
 
  User-visible changes:
+   * Removed metacafe support until fixed (see known issues)
    * Changed Youtube login to report if there were "too many login failures"
-   * Fixed Youtube login support: reported failures incorrectly OK
+   * Fixed Youtube login support: reported failures incorrectly as OK
    * Added support clivepass(1) utility (http://code.google.com/p/clive-utils)
    * Added support for metacafe and sevenload embed URL translation
 
  Developer-visible changes:
-   * New prerequisite Expect module
-   * Updated FreeBSD + Ubuntu details in INSTALL file
+   * Added TODO file
+   * New prerequisite module: Expect
+   * Updated FreeBSD + Ubuntu details (INSTALL)
    * Cleaned up some code
    * Rewrote embed URL translation
 
- Known-issues:
+ Known issues:
    * Metacafe support broken (http/404)
 
 

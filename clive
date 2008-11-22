@@ -81,7 +81,8 @@ my $default_showfmt # Default --show format
 my %re_hosts = (    # Precompiled regex used to identify the host
 IsYoutube   => qr|\Qyoutube.com\E|i,    IsGoogle => qr|\Qvideo.google.\E|i,
 IsSevenload => qr|\Qsevenload.com\E|i,  IsBreak  => qr|\Qbreak.com\E|i,
-IsMetacafe  => qr|\Qmetacafe.com\E|i,   IsLastfm => qr|\Qlast.fm\E|i,
+#IsMetacafe  => qr|\Qmetacafe.com\E|i,
+IsLastfm => qr|\Qlast.fm\E|i,
 );
 
 # Parse config
@@ -337,9 +338,10 @@ sub process_page {
         ($xurl, $id, $title) = handle_sevenload($response_ref, $response_fh);
     } elsif ( $url =~ /$re_hosts{IsBreak}/ ) {
         ($xurl, $id, $title) = handle_break($response_ref);
-    } elsif ( $url =~ /$re_hosts{IsMetacafe}/ ) {
-        ($xurl, $id) = handle_metacafe($response_ref);
     }
+#    elsif ( $url =~ /$re_hosts{IsMetacafe}/ ) {
+#        ($xurl, $id) = handle_metacafe($response_ref);
+#    }
     return -1 if ! $xurl or ! $id or ! $title;
 
     $title = decode_utf8($title); # sevenload, break grab title from elsewhere
@@ -387,8 +389,8 @@ sub query_video_length {
             # Break and Metacafe return "text/plain" for Content-Type
             } elsif ( $content_type =~ m!text/plain! ) {
                 if ( $opts{format} eq "flv" ) {
-                    if ( $entry{page_url} =~ /$re_hosts{IsBreak}/
-                     or $entry{page_url} =~ /$re_hosts{IsMetacafe}/ ) {
+                    if ( $entry{page_url} =~ /$re_hosts{IsBreak}/ ) {
+                     #or $entry{page_url} =~ /$re_hosts{IsMetacafe}/ ) {
                         $entry{file_suffix} = "flv";
                         $content_ok = 1;
                     }
@@ -1197,10 +1199,10 @@ sub translate_embed {
             url_prefix => "http://video.google.com/videoplay?docid=",
             search_for => qr|\Q/googleplayer.swf?docid=\E(.*?)$|i,
         },
-        MetacafeEmbed => {
-            url_prefix => "http://metacafe.com/watch/",
-            search_for => qr|\Qmetacafe.com/fplayer/\E(.*?)/|i,
-        },
+#        MetacafeEmbed => {
+#            url_prefix => "http://metacafe.com/watch/",
+#            search_for => qr|\Qmetacafe.com/fplayer/\E(.*?)/|i,
+#        },
         SevenLoadEmbed => {
             url_prefix => "http://sevenload.com/videos/",
             search_for => qr|\Qsevenload.com/pl/\E(.*?)/|i,
@@ -1574,7 +1576,6 @@ Extracts the video from the specified URL.
 
  http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
  http://youtube.com/watch?v=3HD220e0bx4
- http://www.metacafe.com/watch/1040857/chelsea/
  http://break.com/index/beach-tackle-whip-lash.html
 
 =item % cat url.lst | clive
@@ -1697,6 +1698,10 @@ The B<--continue> option works.
 
 =back
 
+=begin :comment
+
+NOTE: Support removed until fixed. From begin .. end :comment.
+
 =over 4
 
 =item B<www.metacafe.com>
@@ -1706,6 +1711,8 @@ Formats: flv
 The B<--continue> option works.
 
 =back
+
+=end :comment
 
 =head1 CACHE
 

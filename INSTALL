@@ -37,8 +37,11 @@ Run:
     % ./clive [option]... [URL]...
 
 Getting started:
-    % ./clive --manual # See the EXAMPLES
-    % pod2man clive > clive.1 # see pod2man(1) manual for more
+    % ./clive --manual
+
+The manual page is written in Perl Pod markup language and it is embedded
+in the script file. See "perldoc perlpod" for more info. For example:
+    % pod2man clive > clive.1
 
 
 Installation: FreeBSD (7.0)

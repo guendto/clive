@@ -38,6 +38,7 @@ use Expect;
 use Getopt::Long qw(:config bundling);
 use Digest::SHA qw(sha1_hex);
 use POSIX qw(strftime);
+use File::Basename;
 use XML::Simple;
 use File::Path;
 use File::Spec;
@@ -183,7 +184,7 @@ sub init_curl {
 }
 
 sub auth_youtube { # Log into Youtube
-    print "=> Youtube: Attempting to login as $opts{ytuser} ..."
+    print "=> [youtube] attempt log-in as $opts{ytuser} ..."
         unless $opts{quiet};
 
     my $response = "";
@@ -202,18 +203,18 @@ sub auth_youtube { # Log into Youtube
 
     if ( $rc == 0 ) {
         $response =~ tr{\n}//d;
-        $errmsg = "error: incorrect login password for $opts{ytuser}"
+        $errmsg = "[error] incorrect login password for $opts{ytuser}"
             if $response =~ /log-in was incorrect/i;
-        $errmsg = "error: too many login failures, try again later"
+        $errmsg = "[error] too many login failures, try again later"
             if $response =~ /too many login failures/i;
     } else {
-        $errmsg = "error: ".$curl->strerror($rc)." (http/$rc)";
+        $errmsg = "[error] ".$curl->strerror($rc)." (http/$rc)";
     }
     close $fh;
 
     print STDERR "\n$errmsg\n" and exit if $errmsg;
 
-    print "done.\n=> Youtube: Bypassing age check ..." unless $opts{quiet};
+    print "done.\n=> [youtube] bypass age check ..." unless $opts{quiet};
     $curl->setopt(CURLOPT_COOKIE, "is_adult=" . uc( sha1_hex(rand()) ) );
     print "done.\n" unless $opts{quiet};
 
@@ -246,18 +247,18 @@ sub process_queue {
             $errmsg = $curl->strerror($rc)." (http/$rc)";
         }
         close $rfh;
-        print STDERR "\n==> error: $errmsg\n" if $errmsg;
+        print STDERR "\n==> [error] $errmsg\n" if $errmsg;
     }
 
     foreach ( @play_queue ) {
-        print "=> Playing ...$_\n" unless $opts{quiet};
+        print "==> [play] " .basename($_). "\n" unless $opts{quiet};
         my $cmd = $opts{play};
         $cmd =~ s/%i/"$_"/;
         system "$cmd";
     }
 
     foreach ( @rencode_queue ) {
-        print "=> Re-encoding ...$_\n" unless $opts{quiet};
+        print "==> [re-encode] " .basename($_). "\n" unless $opts{quiet};
         my $cmd = $opts{rencode};
         $cmd =~ s/%i/"$_"/;
         $cmd =~ s/%o/"$_"/;
@@ -305,7 +306,7 @@ sub fetch_page {
 
     $from_cache = 0 if $opts{renew};
 
-    printf "%s $url ...", ! $from_cache ? "Fetching":"Caching" 
+    printf "[%s] $url ...", ! $from_cache ? "fetch":"cache" 
         unless $opts{quiet};
 
     if ( ! $from_cache ) {
@@ -321,7 +322,7 @@ sub fetch_page {
 
 sub process_page {
     my ($url, $response_ref, $response_fh) = @_;
-    print "done.\n=> Processing page ..." unless $opts{quiet};
+    print "done.\n=> [process] page ..." unless $opts{quiet};
 
     $$response_ref =~ tr{\n}//d;
 
@@ -360,7 +361,7 @@ sub query_video_length {
     my ($content_type, $errmsg);
 
     if ( ! $entry{file_length} ) {
-        print "done.\n=> Querying file length ..." unless $opts{quiet};
+        print "done.\n=> [query] length ..." unless $opts{quiet};
 
         $curl->setopt(CURLOPT_URL, $entry{xurl});
         # We're not interested in downloading the file. GET => HEAD request.
@@ -407,7 +408,7 @@ sub query_video_length {
 
     unless ( $opts{quiet} ) {
         if ( ! $errmsg ) { print "done.\n"; } 
-        else { print STDERR "\n==> error: $errmsg\n"; }
+        else { print STDERR "\n==> [error] $errmsg\n"; }
     }
 
     return ($errmsg ? -1:0, $content_type);
@@ -423,15 +424,14 @@ sub extract_video {
     my $cont_from   = 0;
     my $remaining   = $entry{file_length};
     my $size        = -s $path;
-    my $errmsg;
+    my ($errmsg, %rate);
 
     # We have everything for cache. Add/update the bdb entry.
     save_entry($hash);
 
     if ( $size ) {
         if ( $size == $entry{file_length} and $opts{extract} ) {
-            print "=> Refusing to extract. "
-                . "localfile length matches remotefile length.\n";
+            print "=> [refused] localfile length matches remotefile length.\n";
             push @play_queue,$path if $opts{play};
             push @rencode_queue,$path if $opts{rencode};
             return unless $opts{emitcsv} or $opts{emitxml};
@@ -453,10 +453,10 @@ sub extract_video {
     }
 
     unless ( $opts{quiet} ) {
-        print "=> File: $fn\n";
-        print "=> Length: $entry{file_length} ";
+        print "=> [file] $fn\n";
+        print "=> [length] $entry{file_length} ";
         printf"(%.2fMB)  ",$entry{file_length}/1024/1024 if $entry{file_length};
-        printf "From: %u (Left: %u)  ", $cont_from, $remaining if $cont_from;
+        printf "from: %u (left: %u)  ", $cont_from, $remaining if $cont_from;
         printf "[$content_type]" if $content_type;
         print "\n";
     }
@@ -490,7 +490,7 @@ sub extract_video {
             close $fh;
 
             unless ( $opts{quiet} ) {
-                if ( $opts{progress} =~ /^bar/ )    { bar_finish() }
+                if ( $opts{progress} =~ /^bar/ )    { %rate = bar_finish() }
                 elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
             }
 
@@ -507,24 +507,28 @@ sub extract_video {
     }
 
     if ( ! $errmsg ) {
-        print "\n==> Closed with HTTP/$rc.\n" unless $opts{quiet};
+        unless ( $opts{quiet} ) {
+            my $s = sprintf("==> [closed] http/$rc");
+            $s .= sprintf(" (%.2f%s)",$rate{rate},$rate{units}) if %rate;
+            print "$s\n";
+        }
         push @play_queue,$path if $opts{play};
         push @rencode_queue,$path if $opts{rencode};
     } else {
-        print STDERR "\n==> error: $errmsg\n";
+        print STDERR "\n==> [error] $errmsg\n";
     }
     $curl->setopt(CURLOPT_NOPROGRESS, 1);
 }
 
 sub get_queue {
     if ( $opts{recall} and -e $RECALLFILE ) {
-        open my $fh, "<$RECALLFILE" or die "error: $RECALLFILE: $!";
+        open my $fh, "<$RECALLFILE" or die "[error] $RECALLFILE: $!";
         parse_input($_) while ( <$fh> );
         close $fh;
     }
 
     if ( $opts{paste} ) {
-        print STDERR "error: Clipboard module not found" and exit
+        print STDERR "[error] Clipboard module not found" and exit
             unless $opted_mods{Clipboard};
         my $data = Clipboard->paste();            
         if ( $data ) {
@@ -539,7 +543,7 @@ sub get_queue {
     my %h = map { $_, 1 } @queue; # Remove duplicates
     @queue = keys %h;
 
-    open my $fh, ">$RECALLFILE" or die "error: $RECALLFILE: $!";
+    open my $fh, ">$RECALLFILE" or die "[error] $RECALLFILE: $!";
     print $fh "$_\n" foreach @queue;
     close $fh;
 }
@@ -552,10 +556,8 @@ sub parse_input {
     chomp $url;
 
     if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects
-        unless ( $opts{quiet} ) {
-            print "Found redirect in  ...".(split /&/,$url)[0]."\n";
-            print "=> Using the redirect URL instead\n";
-        }
+        print "=> [found] redirect ... ".(split /&/,$url)[0]." use it\n"
+            unless ( $opts{quiet} );
         $url = uri_unescape($1);
     }
 
@@ -568,7 +570,7 @@ sub parse_input {
     # Last.fm wraps Youtube videos as their own
     if ( $url =~ /$re_hosts{IsLastfm}/ ) {
         $url =~ /\Q+1-\E(.+)/;
-        print STDERR "error: nosupport: $url\n" and return -1
+        print STDERR "[error] nosupport: $url\n" and return -1
             unless defined($1);
         $url = "http://youtube.com/watch?v=$1";
     }
@@ -579,7 +581,7 @@ sub parse_input {
     foreach my $re ( %re_hosts ) {
         push @queue,$url and return 0 if $url =~ /$re/;
     }
-    print STDERR "error: nosupport: $url\n";
+    print STDERR "[error] nosupport: $url\n";
     return -1;
 }
 
@@ -605,7 +607,8 @@ sub handle_youtube {
         elsif   ( $opts{format} eq "xflv" ) { $fmt =  6; }
         $xurl .= "&fmt=$fmt" if $fmt;
     } else {
-        printf STDERR "\nerror: failed to extract &%s\n", $id ? "t":"video_id";
+        printf STDERR "\n[error] failed to extract &%s\n",
+            $id ? "t":"video_id";
     }
     return ($xurl, $id);
 }
@@ -635,7 +638,7 @@ sub handle_google {
 #            unless $opts{quiet};
 #    } else {
         $xurl = $mp4 if ( $mp4 and $opts{format} eq "mp4" );
-        print STDERR "\nerror: extraction url not found\n" unless $xurl;
+        print STDERR "\n[error] extraction url not found\n" unless $xurl;
 #    }
     return ($xurl, $id);
 }
@@ -651,7 +654,7 @@ sub handle_sevenload {
         ($xurl, $id, $title) =
             fetch_sevenload_configxml($confpath, $response_fh);
     } else {
-        print STDERR "\nerror: configPath not found\n";
+        print STDERR "\n[error] configPath not found\n";
     }
     return ($xurl, $id, $title);
 }
@@ -684,7 +687,7 @@ sub handle_break {
 
     $errmsg = "failed to extract title" if ! $title and ! $errmsg;
     $errmsg = "failed to extract id"    if ! $id and ! $errmsg;
-    print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
+    print STDERR "\n[error] " . $errmsg . "\n" if $errmsg;
 
     return ($xurl, $id, $title);
 }
@@ -711,7 +714,7 @@ sub handle_metacafe {
     }
 
     $errmsg = "failed to extract itemID" if !$id and !$errmsg;
-    print STDERR "\nerror: " .$errmsg. "\n" if $errmsg;
+    print STDERR "\n[error] " .$errmsg. "\n" if $errmsg;
 
     return ($xurl, $id);
 }
@@ -799,11 +802,9 @@ sub dot_finish {
 
 sub dot_print_row_stats {
     my ($percent, $elapsed, $eta, $rate, $last) = @_;
+    my %rate = normalize_rate($rate);
 
-    my $units;
-    ($rate, $units) = normalize_rate($rate);
-
-    printf "%3d%% %4.1f%s", $percent, $rate, $units;
+    printf "%3d%% %4.1f%s", $percent, $rate{rate}, $rate{units};
     printf "%s%s", $last ? "=":" ", $eta;
 }
 
@@ -832,8 +833,7 @@ sub bar_finish {
     $barp->update($l) if $l >= $bar_nextupd;
 
     my $elapsed = time - $time_started;
-    my ($rate,$units) = normalize_rate($entry{file_length} / $elapsed);
-    printf "Avg. transfer rate ~%.2f%s/s", $rate, $units;
+    return normalize_rate($entry{file_length} / $elapsed);
 }
 
 sub calc_progress {
@@ -888,7 +888,7 @@ sub normalize_rate {
         $units = 2;
         $rate /= 1024*1024*1024;
     }
-    return ($rate, $names[$units]);
+    return (rate => $rate, units => $names[$units]);
 }
 
 
@@ -916,7 +916,7 @@ sub grab_clivepass {
     # TODO: Supports only Youtube. Expand to support other websites as needed.
     return unless $opts{login} and $opts{ytuser} and $opts{ytpass} eq "-";
 
-    print STDERR "error: no path to clivepass, use --clivepass\n" and exit
+    print STDERR "[error] no path to clivepass, use --clivepass\n" and exit
         unless $opts{clivepass};
 
     my $phrase;
@@ -925,7 +925,7 @@ sub grab_clivepass {
     my $e = Expect->new;
     $e->log_stdout(0);
     $e->spawn($opts{clivepass}, "-g", $opts{ytuser})
-        or print STDERR "cannot spawn $!\n" and exit;
+        or print STDERR "[error] could not spawn: $!\n" and exit;
 
     my ($spawned, $pwd);
     $e->expect(10, [
@@ -941,17 +941,17 @@ sub grab_clivepass {
         if ( $spawned ) {
             my $fh = shift;
             $pwd = $fh->before();
-            if ( $pwd =~ /error: (.*?)$/ ) {
-                print STDERR "clivepass: error: $1\n"; exit;
+            if ( $pwd =~ /[error] (.*?)$/ ) {
+                print STDERR "clivepass: [error] $1\n"; exit;
             } else {
                 $pwd = $1 if ( $pwd =~ /login: $opts{ytuser}=(.*?)$/ );
             }
         } else {
-            print STDERR "error: could not spawn $opts{clivepass}\n"; exit;
+            print STDERR "[error] could not spawn $opts{clivepass}\n"; exit;
         }
     }],
     [ timeout => sub {
-        print STDERR "error: clivepass: expect timed out\n"; exit;
+        print STDERR "[error] clivepass: expect timed out\n"; exit;
     }]);
 
     $opts{ytpass} = $pwd;
@@ -976,8 +976,9 @@ sub daemonize {
         print STDERR "\nfork failed: $!";
         exit 1;
     } elsif ( $pid != 0 ) {
-        print "Continuing in background, pid $pid.\n";
-        print "Output will be written to $logfile.\n" unless $opts{quiet};
+        print "[daemon] continuing in background, pid $pid.\n";
+        print "[daemon] output will be written to $logfile.\n"
+            unless $opts{quiet};
         exit 0;
     }
 
@@ -986,13 +987,16 @@ sub daemonize {
     my $mode = $opts{append} ? ">>" : ">";
     $logfile = "/dev/null" if $opts{quiet};
 
-    open STDOUT, "$mode", "$logfile" or die "cannot redirect STDOUT: $!";
-    open STDERR, ">&STDOUT" or die "cannot dup STDOUT: $!";
+    open STDOUT, "$mode", "$logfile"
+        or die "[error] cannot redirect STDOUT: $!";
+
+    open STDERR, ">&STDOUT"
+        or die "[error] cannot dup STDOUT: $!";
 }
 
 sub fetch_sevenload_configxml {
     my ($conf_url, $response_fh) = @_;
-    print "done.\n=> Fetching config XML..." unless $opts{quiet};
+    print "done.\n=> [fetch] config xml..." unless $opts{quiet};
 
     my $conf_xml = "";
     open my $conf_fh, ">", \$conf_xml;
@@ -1018,13 +1022,13 @@ sub fetch_sevenload_configxml {
         $id     = $xml->{playlists}{playlist}{items}{item}{id};
         $xurl   = $xml->{playlists}{playlist}{items}{item}{videos}{video}{url};
     } else {
-        print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
+        print STDERR "\n[error] " . $curl->strerror($rc) . " (http/$rc)\n";
     }
 
     my $errmsg;
     $errmsg = "failed to extract item title" if ! $title;
     $errmsg = "failed to extract item id"    if ! $id and ! $errmsg;
-    print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
+    print STDERR "\n[error] " . $errmsg . "\n" if $errmsg;
 
     return ($xurl, $id, $title);
 }
@@ -1103,7 +1107,7 @@ sub init_cache {
     $cache_db = tie %cache, "BerkeleyDB::Hash",
         -Filename => $CACHEFILE,
         -Flags => DB_CREATE
-    or die "error: cannot open $CACHEFILE: $! $BerkeleyDB::Error\n";
+    or die "[error] cannot open $CACHEFILE: $! $BerkeleyDB::Error\n";
 }
 
 sub show_cache {
@@ -1127,7 +1131,9 @@ sub show_cache {
         print "Confirm delete (y/N):";
         $_ = lc <STDIN>;
         chomp;
-        if ( lc $_ eq "y" ) { delete $cache{sha1_hex($_)} foreach ( @queue ); }
+        if ( lc $_ eq "y" ) {
+            delete $cache{sha1_hex($_)} foreach ( @queue );
+        }
     }
     exit;
 }
@@ -1236,6 +1242,7 @@ Core modules:
   * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION
   * File::Path/$File::Path::VERSION\t\t* File::Spec/$File::Spec::VERSION
   * Digest::SHA/$Digest::SHA::VERSION\t\t* Encode/$Encode::VERSION
+  * File::Basename/$File::Basename::VERSION
 
 See --manual for a list of the supported websites.
 

@@ -1,3 +1,13 @@
+Version 2.0
+
+ User-visible changes:
+   * Updated status messages to use "[$verb] $msg" format
+   * Changed --play, --rencode status messages to use file basename
+
+ Developer-visible changes:
+   * Added missing Expect module version to INSTALL
+
+
 Version 2.0beta4
 (November 22, 2008)
 

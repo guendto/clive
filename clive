@@ -508,7 +508,7 @@ sub extract_video {
     if ( ! $errmsg ) {
         unless ( $opts{quiet} ) {
             my $s = sprintf("closed http/$rc");
-            $s .= sprintf(" (%.2f%s)",$rate{rate},$rate{units}) if %rate;
+            $s .= sprintf(" (%.2f%s/s)",$rate{rate},$rate{units}) if %rate;
             print "$s.\n";
         }
         push @play_queue,$path if $opts{play};

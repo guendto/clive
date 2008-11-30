@@ -317,7 +317,7 @@ sub fetch_page {
         $rc = $curl->perform;
     }
 
-    return ($rc, $fh, $response);
+    return ($rc, $fh, decode_utf8($response));
 }
 
 sub process_page {
@@ -345,7 +345,6 @@ sub process_page {
 #    }
     return -1 if ! $xurl or ! $id or ! $title;
 
-    $title = decode_utf8($title); # sevenload, break grab title from elsewhere
     $title =~ tr{;}//d; # Cache values cannot contain ';'
 
     $entry{page_url}      = $url;

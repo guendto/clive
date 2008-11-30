@@ -1796,7 +1796,7 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
 =head1 CONFIG
 
  ## Example config file for clive.
- ## Recommended: chmod 0600 ~/.config/clive/config
+ ## Default location: ~/.config/clive/config
 
  ## Progress indicator (default: bar)
  ## Possible values: none, bar, dot

@@ -43,6 +43,9 @@ The manual page is written in Perl Pod markup language and it is embedded
 in the script file. See "perldoc perlpod" for more info. For example:
     % pod2man clive > clive.1
 
+See also:
+    configrc file which serves as an example configuration file
+
 
 Installation: FreeBSD (7.0)
 ------------------------------------------------------------------------------

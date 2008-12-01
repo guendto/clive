@@ -2,6 +2,7 @@ Version 2.0.0
 (December 1, 2008)
 
  User-visible changes:
+   * Changed "found redirect" message
    * Changed --play, --rencode status messages to use file basename
 
  Developer-visible changes:

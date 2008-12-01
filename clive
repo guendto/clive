@@ -514,8 +514,10 @@ sub parse_input {
     chomp $url;
 
     if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects
-        print "found redirect ... ".(split /&/,$url)[0]."\n"
-            unless ( $opts{quiet} );
+        printf "found redirect ...%s\n=> %s\n",
+            (split /&/,$url)[0],
+            (split /&/,uri_unescape($1))[0]
+            unless $opts{quiet};
         $url = uri_unescape($1);
     }
 

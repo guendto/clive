@@ -1,10 +1,11 @@
 Version 2.0.0
+(December 1, 2008)
 
  User-visible changes:
    * Changed --play, --rencode status messages to use file basename
 
  Developer-visible changes:
-   * Use decode_utf8($page): removes extra steps, works with HTML::TokeParser
+   * decode_utf8($page): removes extra steps, works better with HTML::TokeParser
    * Added missing Expect module version to INSTALL
 
 

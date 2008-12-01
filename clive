@@ -1251,19 +1251,16 @@ clive [option]... [URL]...
 
 =head1 DESCRIPTION
 
-clive is an open source command-line utility for extracting videos from Youtube
-and other video sharing websites. It was originally written to bypass the
-Adobe Flash requirement needed to view the hosted videos.
+clive is a command line utility for extracting videos from Youtube and other
+video sharing Web sites. It was originally written to bypass the Adobe Flash
+requirement needed to view the hosted videos. It is non-interactive, meaning
+it can work in the background while the user is not logged on. This allows
+the user to start an extraction and disconnect from the system, letting clive
+finish the work.
 
-clive is non-interactive meaning it can work in the background while the user
-is not logged on. This allows the user to start an extraction and disconnect
-from the system letting clive finish the work. By contrast, most of the
-extraction websites and UNIX scripts require constant user's presence
-which can be a great hindrance when transferring a lot of data.
-
-Users familiar with the GNU L<wget(1)> utility notice that clive copies
-shamelessly some of the feature concepts and descriptions from wget. Kudos to
-the wget team for their original work.
+Users familiar with the GNU L<wget(1)> utility notice that clive copies some
+of the feature concepts from wget. Kudos to the wget team for their original
+work.
 
 =head1 OPTIONS
 

@@ -357,7 +357,7 @@ sub query_video_length {
             $errmsg = "expected different content-type, "
                 . "received \"$content_type\"" unless $content_ok;
         } else {
-            $errmsg = "server returned HTTP/$rc";
+            $errmsg = "server returned http/$rc";
         }
     } else { # Construct content-type from cache
         $content_type = "video/$entry{file_suffix}";

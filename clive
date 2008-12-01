@@ -597,7 +597,7 @@ sub handle_google {
 #        print "Found a redirect to another host. Pushed into queue.\n"
 #            unless $opts{quiet};
 #    } else {
-        $xurl = $mp4 if ( $mp4 and $opts{format} eq "mp4" );
+        $xurl = "http://vp.$mp4" if $mp4 and $opts{format} eq "mp4";
         print STDERR "\nerror: extraction url not found\n" unless $xurl;
 #    }
     return ($xurl, $id);

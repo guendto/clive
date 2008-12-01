@@ -18,8 +18,6 @@
 # along with clive.  If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
 
-# Keep it simple.
-
 use warnings;
 use strict;
 
@@ -46,44 +44,46 @@ use Pod::Usage;
 use Encode;
 use Cwd;
 
-# Check for non-essential modules: set flags that indicate their availability
+my $VERSION = "2.0.0";
+
+# Non-essential modules: set flags indicating availability
 my %opted_mods = (Clipboard => 1);
 eval "use Clipboard;"; $opted_mods{Clipboard}=0 if $@;
 
-my $VERSION     = "2.0.0";
 my $CONFIGDIR   = $ENV{CLIVE_CONFIGDIR}
     || File::Spec->catfile($ENV{HOME}, ".config/clive");
+
 my $CONFIGFILE  = File::Spec->catfile($CONFIGDIR, "config");
 my $CACHEFILE   = File::Spec->catfile($CONFIGDIR, "cache");
 my $RECALLFILE  = File::Spec->catfile($CONFIGDIR, "recall");
 
-my %opts;           # Holds runtime options
-my @queue;          # Holds input URLs
-my $workdir=getcwd; # Holds startup workdir
-my $logfile;        # Holds path to logfile (--output-file, --append-file)
-my $curl;           # Holds the curl handle: reused throughout lifespan
-my $cache_db;       # Holds the handle to cache BDB
-my %cache;          # Holds the handle to cache BDB (tied hash)
-my $hash;           # Hash (SHA1) of the current URL
-my %entry;          # Multi-purpose video (cache) record (hold/read/write)
-my $youtube_on=0;   # Flag: Whether logged into Youtube
-my $curr_fn;        # Progress: Holds the name of the current video file
-my $time_started;   # Progress: Holds transfer started time
-my @play_queue;     # Holds files to be played
-my @rencode_queue;  # Holds files to be re-encoded
-my @emit_queue;     # Holds videos to be emitted to stdout
-my %dotp;           # Holds dot progress data
-my $barp;           # Holds handle to default progress bar
-my $bar_nextupd;
+my $SHOWFMT_DEFAULT = qq/%D: "%t" | %mMB/;
 
-my $default_showfmt # Default --show format
-    = qq/%D: "%t" | %mMB/;
+my %opts;           # runtime options
+my @queue;          # input URLs
+my $curl;           # curl handle, reused throughout lifespan
+my $cache_db;       # handle to cache BDB
+my %cache;          # handle to cache BDB (tied hash)
+my $hash;           # sha1 hash of the current url used together with %cache
+my %entry;          # multi-purpose hash for caching
+my $ytube_logged=0; # youtube: whether logged-in
+my $time_started;   # time file transfer started
+my @play_queue;     # files to be played
+my @rencode_queue;  # files to be re-encoded
+my @emit_queue;     # videos to be emitted
+my $logfile;        # path to logfile (--output-file, --append-file)
+my %dotp;           # dot progress data
+my $barp;           # handle to default progress bar
+my $bar_nextupd;    # whether progressbar should be updated
+my $workdir=getcwd; # startup workdir
 
 my %re_hosts = (    # Precompiled regex used to identify the host
-IsYoutube   => qr|\Qyoutube.com\E|i,    IsGoogle => qr|\Qvideo.google.\E|i,
-IsSevenload => qr|\Qsevenload.com\E|i,  IsBreak  => qr|\Qbreak.com\E|i,
-#IsMetacafe  => qr|\Qmetacafe.com\E|i,
-IsLastfm => qr|\Qlast.fm\E|i,
+    IsYoutube   => qr|\Qyoutube.com\E|i,
+    IsGoogle    => qr|\Qvideo.google.\E|i,
+    IsSevenload => qr|\Qsevenload.com\E|i,
+    IsBreak     => qr|\Qbreak.com\E|i,
+    IsLastfm    => qr|\Qlast.fm\E|i,
+    #IsMetacafe => qr|\Qmetacafe.com\E|i,
 );
 
 # Parse config
@@ -105,31 +105,12 @@ my $c = Config::Tiny->read($CONFIGFILE);
     clivepass=> $c->{commands}->{clivepass},
 );
 
-# Parse cmdline
-# Define those not read from config and init with defaults
-$opts{quiet}        = 0;
-$opts{paste}        = 0;
+$opts{clivepass}    = $ENV{CLIVEPASS_PATH} unless $opts{clivepass};
+$opts{progress}     = 'bar' unless $opts{progress};
 $opts{format}       = 'flv';
 $opts{extract}      = 1;
-$opts{renew}        = 0;
-$opts{clear}        = 0;
-$opts{recall}       = 0;
 $opts{login}        = 1;
-$opts{show}         = 0;
-$opts{grep}         = undef;
 $opts{case}         = 1;
-$opts{delete}       = 0;
-$opts{background}   = 0;
-$opts{output}       = undef;
-$opts{append}       = undef;
-$opts{progress}     = 'bar' if !defined $opts{progress};
-$opts{emitcsv}      = 0;
-$opts{emitxml}      = 0;
-$opts{clivepass}    = $ENV{CLIVEPASS_PATH} unless $opts{clivepass};
-$opts{debug}        = 0;
-$opts{help}         = 0;
-$opts{manual}       = 0;
-$opts{version}      = 0;
 
 GetOptions(\%opts,
     'debug|d',     'help|h',     'manual|m',     'version|v',
@@ -138,17 +119,16 @@ GetOptions(\%opts,
     'output|o=s',  'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',    'agent|U=s',  'proxy|y=s',    'savedir|S=s',
     'cclass|l=s',  'play|p=s',   'progress|G=s', 'rencode|A=s',
-    'clivepass|V=s',
-    'version|v' => \&print_version,
-#'maxspeed!',    'minspeed!',
-    # Since '$longopt!|$shortopt' is a no-no.
+    'clivepass|V=s', 'version|v' => \&print_version,
+    # Commented out until WWW::Curl is fixed:
+    # 'maxspeed!', 'minspeed!',
+    # Workarounds since $longopt!|$shortopt cannot be used.
     'noextract|n'         => sub { $opts{extract}   = 0 },
     'noplay|P'            => sub { $opts{play}      = 0 },
     'norencode|B'         => sub { $opts{rencode}   = 0 },
     'nologin|L'           => sub { $opts{login}     = 0 },
     'noproxy|X'           => sub { $opts{proxy}     = "" },
-    # Workaround for options that contain dashes in them.
-    # There's probably a better way to do this.
+    # Workaround for options with dashes. There's likely a better way.
     'ignore-case|i'       => sub { $opts{case}      = 0 },
     'filename-format|N=s' => sub { $opts{fnfmt}     = $_[1] },
     'show-format|H=s'     => sub { $opts{showfmt}   = $_[1] },
@@ -167,6 +147,7 @@ main();
 
 sub init_curl {
     $curl = WWW::Curl::Easy->new;
+
     $curl->setopt(CURLOPT_USERAGENT, $opts{agent} || "Mozilla/5.0");
     $curl->setopt(CURLOPT_VERBOSE, 1) if $opts{debug};
     $curl->setopt(CURLOPT_PROXY, $opts{proxy}) if defined $opts{proxy};
@@ -175,12 +156,11 @@ sub init_curl {
     $curl->setopt(CURLOPT_HEADER, 1);
     $curl->setopt(CURLOPT_NOBODY, 0);
 
-    # NOTE: No effect. Bug in WWW::Curl::Easy?
     $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE, $opts{maxspeed})
-        if $opts{maxpseed};
+        if $opts{maxpseed}; # NOTE: No effect. Bug in WWW::Curl::Easy?
 
     $curl->setopt(CURLOPT_LOW_SPEED_LIMIT, $opts{minspeed})
-        if $opts{minspeed};
+        if $opts{minspeed}; # Ditto.
 }
 
 sub auth_youtube { # Log into Youtube
@@ -218,7 +198,7 @@ sub auth_youtube { # Log into Youtube
     $curl->setopt(CURLOPT_COOKIE, "is_adult=" . uc( sha1_hex(rand()) ) );
     print "done.\n" unless $opts{quiet};
 
-    $youtube_on = 1;
+    $ytube_logged = 1;
 }
 
 
@@ -265,28 +245,7 @@ sub process_queue {
         system "$cmd";
     }
 
-    print "<?xml version=\"1.0\"?>\n<queue>\n"
-        if $opts{emitxml} and @emit_queue;
-
-    foreach ( @emit_queue ) {
-        if ( $opts{emitxml} ) {
-            print "  <video>\n";
-            while ( my ($key,$value) = each (%$_) ) {
-                $value = uri_escape($value)
-                    if $key eq 'xurl' or $key eq 'page_url';
-                print "    <$key>$value</$key>\n";
-            }
-            print "  </video>\n";
-        } elsif ( $opts{emitcsv} ) {
-            printf qq/csv:"%s","%s","%s","%.2fMB",/
-                 . qq/"%s","%s","%s","%s","%s","%s"\n/,
-                $_->{page_url}, $_->{xurl}, $_->{fn},
-                $_->{file_length}/1024/1024, $_->{file_length},
-                $_->{video_id}, $_->{time_stamp}, $_->{page_title}, 
-                $_->{cont_from}, $_->{remaining};
-        }
-    }
-    print "</queue>\n" if $opts{emitxml} and @emit_queue;
+    emit();
 }
 
 sub fetch_page {
@@ -294,9 +253,9 @@ sub fetch_page {
 
     open my $fh, ">", \$response;
 
-    # Log into Youtube if username and password are defined
+    # Youtube: log-in only if both username and password are defined
     if ( $opts{ytuser} and $opts{ytpass} and $opts{login} ) {
-        auth_youtube() if ! $youtube_on and $url =~ /$re_hosts{IsYoutube}/;
+        auth_youtube() if ! $ytube_logged and $url =~ /$re_hosts{IsYoutube}/;
     }
 
     if ( $cache{$hash} ) {
@@ -312,7 +271,7 @@ sub fetch_page {
     if ( ! $from_cache ) {
         %entry = ();
         $curl->setopt(CURLOPT_URL, $url);
-        $curl->setopt(CURLOPT_ENCODING, ""); # Supported encodings
+        $curl->setopt(CURLOPT_ENCODING, "");
         $curl->setopt(CURLOPT_WRITEDATA, $fh);
         $rc = $curl->perform;
     }
@@ -363,10 +322,10 @@ sub query_video_length {
         print "done.\nquery length ..." unless $opts{quiet};
 
         $curl->setopt(CURLOPT_URL, $entry{xurl});
-        # We're not interested in downloading the file. GET => HEAD request.
+        # Do not download: GET => HEAD request.
         $curl->setopt(CURLOPT_NOBODY, 1);
         my $rc = $curl->perform;
-        # Reset HEAD => GET
+        # Reset back: HEAD => GET
         $curl->setopt(CURLOPT_HTTPGET, 1);
 
         $entry{file_length} =
@@ -378,7 +337,6 @@ sub query_video_length {
 
         $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
 
-        # TODO: Clean up
         if ( $rc == 200 ) {
             my $content_ok = 0;
             if ( $content_type =~ m!video/(.*)! ) {
@@ -425,7 +383,6 @@ sub extract_video {
     my $size        = -s $path;
     my ($errmsg, %rate);
 
-    # We have everything for cache. Add/update the bdb entry.
     save_entry($hash);
 
     if ( $size ) {
@@ -464,21 +421,21 @@ sub extract_video {
         return unless $opts{extract};
 
         if ( open my $fh, "$filemode$path" ) {
-            $curl->setopt(CURLOPT_ENCODING, "identity"); # Disable
+            # Disable: encoding, header
+            $curl->setopt(CURLOPT_ENCODING, "identity");
+            $curl->setopt(CURLOPT_HEADER, 0);
             $curl->setopt(CURLOPT_URL, $entry{xurl});
-            $curl->setopt(CURLOPT_HEADER, 0); # Disable
             $curl->setopt(CURLOPT_RESUME_FROM, $cont_from) if $cont_from;
             $curl->setopt(CURLOPT_WRITEDATA, $fh);
 
             unless ( $opts{quiet} ) {
                 $curl->setopt(CURLOPT_PROGRESSFUNCTION, \&progress_callback);
                 $curl->setopt(CURLOPT_NOPROGRESS, 0);
-                $curr_fn        = $fn;
                 $time_started   = time;
 
+                # Use 'dot' progress if the output is not a TTY
                 if ( $opts{progress} !~ /^dot/ and $opts{progress} ne 'none' ) {
-                    $opts{progress} = 'dot' # Prefer dot if output is not a TTY
-                        if ! -t STDOUT or ! -t STDERR;
+                    $opts{progress} = 'dot' if ! -t STDOUT or ! -t STDERR;
                 }
 
                 if ( $opts{progress} =~ /^bar/ )    { bar_init() }
@@ -493,7 +450,7 @@ sub extract_video {
                 elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
             }
 
-            # Reset
+            # Re-enable: header
             $curl->setopt(CURLOPT_HEADER, 1);
 
             if ( $rc == 0 ) { $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE); }
@@ -516,6 +473,8 @@ sub extract_video {
     } else {
         print STDERR "\nerror: $errmsg\n";
     }
+
+    # Disable: progress
     $curl->setopt(CURLOPT_NOPROGRESS, 1);
 }
 
@@ -539,7 +498,7 @@ sub get_queue {
     grep_cache() if $opts{grep};
     unless ( @queue ) { parse_input($_) while ( <STDIN> ); }
 
-    my %h = map { $_, 1 } @queue; # Remove duplicates
+    my %h = map { $_, 1 } @queue; # Remove duplicates from the URL queue
     @queue = keys %h;
 
     open my $fh, ">$RECALLFILE" or die "error: $RECALLFILE: $!";
@@ -574,7 +533,7 @@ sub parse_input {
         $url = "http://youtube.com/watch?v=$1";
     }
 
-    # Remove params from the URL  NOTE: May require tweaking
+    # Remove params from the URL
     ($url) = split /&/, $url;
 
     foreach my $re ( %re_hosts ) {
@@ -1000,13 +959,14 @@ sub fetch_sevenload_configxml {
     my $conf_xml = "";
     open my $conf_fh, ">", \$conf_xml;
 
-    $curl->setopt(CURLOPT_URL, $conf_url);
+    # Disable: header
     $curl->setopt(CURLOPT_HEADER, 0); 
+    $curl->setopt(CURLOPT_URL, $conf_url);
     $curl->setopt(CURLOPT_WRITEDATA, $conf_fh);
 
     my $rc = $curl->perform;
 
-    # Reset
+    # Re-enable: header
     $curl->setopt(CURLOPT_HEADER, 1);
     $curl->setopt(CURLOPT_WRITEDATA, $response_fh);
 
@@ -1017,8 +977,8 @@ sub fetch_sevenload_configxml {
     if ( $rc == 0 ) {
         my $xml = XMLin($conf_xml);
         #use Data::Dumper; print Dumper($xml);
-        $title  = $xml->{playlists}{playlist}{items}{item}{title}; # Monstrous.
-        $id     = $xml->{playlists}{playlist}{items}{item}{id};
+        $title  = $xml->{playlists}{playlist}{items}{item}{title};
+        $id     = $xml->{playlists}{playlist}{items}{item}{id}; # Monstrous.
         $xurl   = $xml->{playlists}{playlist}{items}{item}{videos}{video}{url};
     } else {
         print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
@@ -1035,8 +995,8 @@ sub fetch_sevenload_configxml {
 sub title_to_filename {
     my $title = shift;
 
-    $title =~ s/youtube - //i; # Remove host specific strings from title
-    $title =~ s/ video//i; # Breakcom
+    $title =~ s/youtube - //i;  # Remove host specific strings from title
+    $title =~ s/ video//i;      # Break
 
     my $r = $opts{cclass} || qr|\w|;
     $title = join '', $title =~ /$r/g;
@@ -1076,7 +1036,7 @@ sub newname_if_exists {
     }
 
     my ($vol, $dir, $fn) = File::Spec->splitpath($new);
-    return ($new,$fn);
+    return ($new, $fn);
 }
 
 sub format_show {
@@ -1112,7 +1072,7 @@ sub init_cache {
 sub show_cache {
     IO::Pager->new(*STDOUT);
 
-    my $fmt = $opts{showfmt} || $default_showfmt;
+    my $fmt = $opts{showfmt} || $SHOWFMT_DEFAULT;
     my @entries = ();
 
     if ( $opts{grep} ) {
@@ -1154,7 +1114,7 @@ sub map_entry {
     my @keys = qw(
         file_suffix file_length file_format page_title
         page_url    time_stamp  video_id    xurl
-    ); # Order matters. See also save_cache_entry.
+    ); # Order matters. See also save_entry.
 
     my $i = 0;
     return map { $_ => $values[$i++] } @keys;
@@ -1178,7 +1138,7 @@ sub save_entry {
 
 sub grep_cache {
     my $g = $opts{case} ? qr|$opts{grep}| : qr|$opts{grep}|i;
-    my $fmt = $opts{showfmt} || $default_showfmt;
+    my $fmt = $opts{showfmt} || $SHOWFMT_DEFAULT;
     foreach ( sort keys %cache ) {
         my @e = split /;/, $cache{$_};
         if ( grep /$g/, @e ) {
@@ -1204,14 +1164,14 @@ sub translate_embed {
             url_prefix => "http://video.google.com/videoplay?docid=",
             search_for => qr|\Q/googleplayer.swf?docid=\E(.*?)$|i,
         },
-#        MetacafeEmbed => {
-#            url_prefix => "http://metacafe.com/watch/",
-#            search_for => qr|\Qmetacafe.com/fplayer/\E(.*?)/|i,
-#        },
         SevenLoadEmbed => {
             url_prefix => "http://sevenload.com/videos/",
             search_for => qr|\Qsevenload.com/pl/\E(.*?)/|i,
         },
+#        MetacafeEmbed => {
+#            url_prefix => "http://metacafe.com/watch/",
+#            search_for => qr|\Qmetacafe.com/fplayer/\E(.*?)/|i,
+#        },
         # TODO: add BreakEmbed, e.g.:
         # Page  URL: http://break.com/index/if-all-movies-had-cell-phones.html
         # Embed URL: http://embed.break.com/600081
@@ -1221,6 +1181,31 @@ sub translate_embed {
         $$urlref = "$re{$host}{url_prefix}$1" and last
             if ( $$urlref =~ /$re{$host}{search_for}/ );
     }
+}
+
+sub emit {
+    print "<?xml version=\"1.0\"?>\n<queue>\n"
+        if $opts{emitxml} and @emit_queue;
+
+    foreach ( @emit_queue ) {
+        if ( $opts{emitxml} ) {
+            print "  <video>\n";
+            while ( my ($key,$value) = each (%$_) ) {
+                $value = uri_escape($value)
+                    if $key eq 'xurl' or $key eq 'page_url';
+                print "    <$key>$value</$key>\n";
+            }
+            print "  </video>\n";
+        } elsif ( $opts{emitcsv} ) {
+            printf qq/csv:"%s","%s","%s","%.2fMB",/
+                 . qq/"%s","%s","%s","%s","%s","%s"\n/,
+                $_->{page_url}, $_->{xurl}, $_->{fn},
+                $_->{file_length}/1024/1024, $_->{file_length},
+                $_->{video_id}, $_->{time_stamp}, $_->{page_title}, 
+                $_->{cont_from}, $_->{remaining};
+        }
+    }
+    print "</queue>\n" if $opts{emitxml} and @emit_queue;
 }
 
 sub print_version {

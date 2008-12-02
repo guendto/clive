@@ -681,7 +681,7 @@ sub handle_metacafe {
 
 
 # Subroutines: Progress
-# NOTE: 'dot' progress copies much from wget.
+# NOTE: the 'dot' progress copies much from wget.
 
 sub progress_callback {
     if ( $opts{progress} =~ /^dot/ )   { dot_update(@_); }
@@ -1260,9 +1260,8 @@ it can work in the background while the user is not logged on. This allows
 the user to start an extraction and disconnect from the system, letting clive
 finish the work.
 
-Users familiar with the GNU L<wget(1)> utility notice that clive copies some
-of the feature concepts from wget. Kudos to the wget team for their original
-work.
+clive was influenced by the GNU L<wget(1)> utility. Kudos to the wget team
+for their original work.
 
 =head1 OPTIONS
 

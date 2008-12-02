@@ -1064,7 +1064,7 @@ sub format_show {
 }
 
 sub init_cache {
-    mkpath( [$CONFIGDIR], 1, 0700 );
+    mkpath( [$CONFIGDIR], 0, 0700 );
     $cache_db = tie %cache, "BerkeleyDB::Hash",
         -Filename => $CACHEFILE,
         -Flags => DB_CREATE

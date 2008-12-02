@@ -1,5 +1,5 @@
 Version 2.0.0
-(December 1, 2008)
+(December 2, 2008)
 
  User-visible changes:
    * Fixed gvideo/mp4 support (http/404 even if the extraction link existed)

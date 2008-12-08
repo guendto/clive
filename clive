@@ -83,6 +83,7 @@ my %re_hosts = (    # Precompiled regex used to identify the host
     IsSevenload => qr|\Qsevenload.com\E|i,
     IsBreak     => qr|\Qbreak.com\E|i,
     IsLastfm    => qr|\Qlast.fm\E|i,
+    IsLiveleak  => qr|\Qliveleak.com\E|i,
     #IsMetacafe => qr|\Qmetacafe.com\E|i,
 );
 
@@ -298,6 +299,8 @@ sub process_page {
         ($xurl, $id, $title) = handle_sevenload($response_ref, $response_fh);
     } elsif ( $url =~ /$re_hosts{IsBreak}/ ) {
         ($xurl, $id, $title) = handle_break($response_ref);
+    } elsif ( $url =~ /$re_hosts{IsLiveleak}/ ) {
+        ($xurl, $id) = handle_liveleak($response_ref, $response_fh);
     }
 #    elsif ( $url =~ /$re_hosts{IsMetacafe}/ ) {
 #        ($xurl, $id) = handle_metacafe($response_ref);
@@ -352,6 +355,12 @@ sub query_video_length {
                         $entry{file_suffix} = "flv";
                         $content_ok = 1;
                     }
+                }
+            # Liveleak returns "flv-application/octet-stream"
+            } elsif ( $content_type =~ m!flv-application/octet-stream! ) {
+                if ( $opts{format} eq "flv" ) {
+                    $entry{file_suffix} = 'flv';
+                    $content_ok = 1;
                 }
             }
             $errmsg = "expected different content-type, "
@@ -650,6 +659,30 @@ sub handle_break {
     print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
 
     return ($xurl, $id, $title);
+}
+
+sub handle_liveleak {
+    my ($response_ref, $response_fh) = @_;
+
+    my %re = (
+        GrabID          => qr|token=(.*?)&|,
+        GrabConfigURL   => qr|'config','(.*?)'|,
+    );
+
+    my $id = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $conf_url = uri_unescape($1) if $$response_ref =~ /$re{GrabConfigURL}/;
+
+    my $xurl;
+    if ( $conf_url ) {
+        $xurl = fetch_liveleak_config($conf_url);
+        # Re-enable: header, reset WRITEDATA, the above overrides the
+        # original settings.
+        $curl->setopt(CURLOPT_HEADER, 0);
+        $curl->setopt(CURLOPT_WRITEDATA, $response_fh);
+    } else {
+        print STDERR "error: config url not found\n";
+    }
+    return ($xurl, $id);
 }
 
 sub handle_metacafe {
@@ -954,6 +987,62 @@ sub daemonize {
         or die "error: cannot dup STDOUT: $!";
 }
 
+sub fetch_liveleak_playlist {
+    my $playlist_url = shift;
+    print "done.\nfetch playlist xspf ..." unless $opts{quiet};
+
+    my $playlist = "";
+    open my $fh, ">", \$playlist;
+
+    $curl->setopt(CURLOPT_URL, $playlist_url);
+    $curl->setopt(CURLOPT_WRITEDATA, $fh);
+
+    my $rc = $curl->perform;
+    close $fh;
+
+    my $xurl;
+    if ( $rc ==  0 ) {
+        # NOTE: XML::XSPF exists in CPAN but this should work just as well.
+        # Parsing with XML::Simple results in errors due unescaped values.
+        $playlist =~ tr{\n}//d;
+        my $re = qr|<location>(.*?)</location>|;
+        $xurl = $1 if $playlist =~ /$re/;
+    } else {
+        print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
+    }
+
+    print STDERR "\nerror: track <location> not found\n" unless $xurl;
+
+    return $xurl;
+}
+
+sub fetch_liveleak_config {
+    my $config_url = shift;
+    print "done.\nfetch config xml ..." unless $opts{quiet};
+
+    my $config = "";
+    open my $fh, ">", \$config;
+
+    # Disable: header
+    $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_URL, $config_url);
+    $curl->setopt(CURLOPT_WRITEDATA, $fh);
+
+    my $rc = $curl->perform;
+    close $fh;
+
+    my $xurl;
+    if ( $rc == 0 ) {
+        my $xml = XMLin($config);
+        #use Data::Dumper; print Dumper($xml);
+        $xurl = fetch_liveleak_playlist($xml->{file});
+    } else {
+        print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
+    }
+
+    return $xurl;
+}
+
 sub fetch_sevenload_configxml {
     my ($conf_url, $response_fh) = @_;
     print "done.\nfetch config xml..." unless $opts{quiet};
@@ -999,6 +1088,7 @@ sub title_to_filename {
 
     $title =~ s/youtube - //i;  # Remove host specific strings from title
     $title =~ s/ video//i;      # Break
+    $title =~ s/\Qliveleak.com - \E//i;
 
     my $r = $opts{cclass} || qr|\w|;
     $title = join '', $title =~ /$r/g;
@@ -1169,6 +1259,10 @@ sub translate_embed {
         SevenLoadEmbed => {
             url_prefix => "http://sevenload.com/videos/",
             search_for => qr|\Qsevenload.com/pl/\E(.*?)/|i,
+        },
+        LiveleakEmbed => {
+            url_prefix => "http://liveleak.com/view?i=",
+            search_for => qr|\Qliveleak.com/e/\E(.*?)$|i,
         },
 #        MetacafeEmbed => {
 #            url_prefix => "http://metacafe.com/watch/",
@@ -1682,6 +1776,16 @@ The B<--continue> option works.
 =item B<www.break.com>
 
 Formats: flv | wmv
+
+The B<--continue> option works.
+
+=back
+
+=over 4
+
+=item B<www.liveleak.com>
+
+Formats: flv
 
 The B<--continue> option works.
 

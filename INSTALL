@@ -6,7 +6,7 @@ Perl >= 5.8 (http://perl.org)
 * Config::Tiny/2.12           * BerkeleyDB/0.34
 * WWW::Curl/4.05              * URI::Escape/3.29
 * HTML::TokeParser/2.37       * Clipboard/0.09 (optional)
-* IO::Pager/0.05              * XML::Simple/2.18
+* IO::Pager/0.05 (optional)   * XML::Simple/2.18
 * Expect/1.21 (optional)
 
 Most distros should have the above versions available as packages.
@@ -45,10 +45,10 @@ From the ports:
   * textproc/p5-XML-Simple
   * devel/p5-Config-Tiny
   * www/p5-HTML-Parser
-  * devel/p5-IO-Pager
   * net/p5-URI
   * ftp/curl
   -- Optional:
+  * devel/p5-IO-Pager
   * lang/p5-Expect
   * x11/p5-Clipboard
 
@@ -77,6 +77,6 @@ From apt: # Typically: "sudo apt-get install $module"
 
 From CPAN: # Typically: "sudo cpan install $module"
   * WWW::Curl
-  * IO::Pager
   -- Optional:
+  * IO::Pager
   * Clipboard

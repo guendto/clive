@@ -1,1 +1,10 @@
-Fix metacafe support (http/404)
+2.1.0
+-----
+
+ * Bring down the number of the required module deps if possible
+
+
+Eventually
+----------
+
+ * Fix metacafe support (http/404)

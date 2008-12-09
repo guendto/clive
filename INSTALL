@@ -25,7 +25,7 @@ Note that the Clipboard and Expect modules are OPTIONAL.
 * WWW::Curl/4.05              * URI::Escape/3.29
 * HTML::TokeParser/2.37       * Clipboard/0.09
 * IO::Pager/0.05              * XML::Simple/2.18
-* Term::ProgressBar/2.09      * Expect/1.21
+* Expect/1.21
 
 
 Installation
@@ -52,7 +52,6 @@ Installation: FreeBSD (7.0)
 ------------------------------------------------------------------------------
 
 From the ports:
-  * devel/p5-Term-ProgressBar
   * databases/p5-BerkeleyDB
   * security/p5-Digest-SHA
   * textproc/p5-XML-Simple
@@ -73,7 +72,6 @@ Installation: Ubuntu (Hardy)
 ------------------------------------------------------------------------------
 
 From apt: # Typically: "sudo apt-get install $module"
-  * libterm-progressbar-perl
   * libcurl4-openssl-dev # Required to build WWW::Curl 4.05 using CPAN
   * libhtml-parser-perl
   * libconfig-tiny-perl

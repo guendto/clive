@@ -23,7 +23,6 @@ use strict;
 
 binmode(STDOUT, ":utf8");
 
-use Term::ProgressBar 2.00;
 use WWW::Curl::Easy 4.05;
 use HTML::TokeParser;
 use Config::Tiny;
@@ -74,8 +73,7 @@ my @rencode_queue;  # files to be re-encoded
 my @emit_queue;     # videos to be emitted
 my $logfile;        # path to logfile (--output-file, --append-file)
 my %dotp;           # dot progress data
-my $barp;           # handle to default progress bar
-my $bar_nextupd;    # whether progressbar should be updated
+my $bar_lastupd;    # used to keep track of progressbar updates
 my $workdir=getcwd; # startup workdir
 
 my %re_hosts = (    # Precompiled regex used to identify the host
@@ -391,7 +389,7 @@ sub extract_video {
     my $cont_from   = 0;
     my $remaining   = $entry{file_length};
     my $size        = -s $path;
-    my ($errmsg, %rate);
+    my ($errmsg);
 
     save_entry($hash);
 
@@ -456,7 +454,7 @@ sub extract_video {
             close $fh;
 
             unless ( $opts{quiet} ) {
-                if ( $opts{progress} =~ /^bar/ )    { %rate = bar_finish() }
+                if ( $opts{progress} =~ /^bar/ )    { bar_finish() }
                 elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
             }
 
@@ -473,11 +471,7 @@ sub extract_video {
     }
 
     if ( ! $errmsg ) {
-        unless ( $opts{quiet} ) {
-            my $s = sprintf("closed http/$rc");
-            $s .= sprintf(" (%.2f%s/s)",$rate{rate},$rate{units}) if %rate;
-            print "$s.\n";
-        }
+        print "\nclosed http/$rc.\n" unless $opts{quiet};
         push @play_queue,$path if $opts{play};
         push @rencode_queue,$path if $opts{rencode};
     } else {
@@ -719,7 +713,10 @@ sub handle_metacafe {
 
 sub progress_callback {
     if ( $opts{progress} =~ /^dot/ )   { dot_update(@_); }
-    elsif ( $opts{progress} =~ /^bar/ ){ bar_update(@_); }
+    elsif ( $opts{progress} =~ /^bar/ ){
+        return 0 if time - $bar_lastupd < 1.0;
+        bar_update(@_);
+    }
     return 0;
 }
 
@@ -803,31 +800,41 @@ sub dot_print_row_stats {
 }
 
 sub bar_init {
-    $barp = Term::ProgressBar->new({
-        count => $entry{file_length},
-        ETA   => 'linear',
-        #remove => 1,
-    });
-
-    $barp->max_update_rate(1);
-
-    my ($type,$style) = split /:/,$opts{progress};
-    $barp->minor(0) if $style and $style eq 'nominor';
-
-    $bar_nextupd = 0;
+    $bar_lastupd = 0;
 }
 
 sub bar_update {
     my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
-    $bar_nextupd = $barp->update($dlnow) if $dlnow >= $bar_nextupd;
+
+    my ($percent, $elapsed, $rate, $eta) =
+        calc_progress($dlnow, $dltotal, 1);
+
+    my $width = 25;
+    my $char  = '=';
+
+    my $total   = $dltotal || 1;
+    my $bar     = $char x (($width-1)*$dlnow/$total) . '>';
+
+    my $now = sprintf "%.2fM", $dlnow/1024/1024;
+    $total  = sprintf "%.2fM", $entry{file_length}/1024/1024;
+
+    my %rate= normalize_rate($rate);
+    $rate   = sprintf "%4.1f%s/s", $rate{rate}, $rate{units};
+
+    my $totalw  = length($total);
+    my $noww    = length($now);
+    my $ratew   = length($rate);
+    my $etaw    = 8;
+
+    printf "|%-${width}s| %${totalw}s / %${noww}s | "
+        . "%-${ratew}s | ETA %-${etaw}s\r",
+        $bar, $now, $total, $rate, $eta;
+
+    $bar_lastupd = time;
 }
 
 sub bar_finish {
-    my $l = $entry{file_length};
-    $barp->update($l) if $l >= $bar_nextupd;
-
-    my $elapsed = time - $time_started;
-    return normalize_rate($entry{file_length} / $elapsed);
+    bar_update(undef, $entry{file_length}, $entry{file_length});
 }
 
 sub calc_progress {
@@ -837,9 +844,11 @@ sub calc_progress {
     $percent    = int ($dlnow / $dltotal * 100) if $dlnow;
 
     my $elapsed = time - $time_started;
-    my $rate    = $dlnow / $elapsed if $elapsed;
-
     my $eta     = '--:--';
+
+    my $rate    = 0;
+    $rate       = $dlnow / $elapsed if $elapsed;
+
     if ( $rate > 0 ) {
         my $left = ( $dltotal - $dlnow ) / $rate;
         $eta = time2str($left, $condensed);
@@ -1320,7 +1329,7 @@ Modules:
   * WWW::Curl/$WWW::Curl::VERSION\t\t* URI::Escape/$URI::Escape::VERSION
   * HTML::TokeParser/$HTML::TokeParser::VERSION\t* Clipboard/$clipboard_v
   * IO::Pager/$IO::Pager::VERSION\t\t* XML::Simple/$XML::Simple::VERSION
-  * Term::ProgressBar/$Term::ProgressBar::VERSION\t* Expect/$Expect::VERSION
+  * Expect/$Expect::VERSION
 Core modules:
   * POSIX/$POSIX::VERSION\t\t\t* Cwd/$Cwd::VERSION
   * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION
@@ -1557,14 +1566,8 @@ Select the I<type> of the progress indicator. Accepted types are "bar",
 "dot" and "none".
 
 The "bar" indicator is used by default. It draws an ASCII progress bar
-graphics (a.k.a "thermometer" display) indicating the status of retrieval.
+graphics (a.k.a. "thermometer" display) indicating the status of retrieval.
 If the output is not a TTY, the "dot" bar will be used by default.
-
-The "bar" indicator is used by default. It displays a progress status that
-contains output filename, progress percentage, transfer rate and ETA.
-
-You may disable the 'minor character' that moves from left-to-right on
-the progress bar by specifying the I<type> as bar:nominor.
 
 Use --progress=dot to switch to the "dot" display. It traces the retrieval
 by printing dots on the screen, each dot representing a fixed amount of

@@ -1,9 +1,15 @@
 Version #dev
 
  User-visible changes:
+  * Replaced Term::Progressbar with a built-in thermometer progressbar
+  * Removed --progress=bar:nominor support due to above changes
   * Added liveleakcom support
 
  Developer-visible changes:
+  * Cleaned up --progress option description
+  * Changed to require WWW::Curl 4.05+
+  * Removed Term::Progress module dependency
+  * Fixed a potential bug in calc_progress (improper $rate init)
   * Updated INSTALL
   * Made Expect module optional
 

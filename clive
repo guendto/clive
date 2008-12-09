@@ -24,8 +24,8 @@ use strict;
 binmode(STDOUT, ":utf8");
 
 use Term::ProgressBar 2.00;
+use WWW::Curl::Easy 4.05;
 use HTML::TokeParser;
-use WWW::Curl::Easy;
 use Config::Tiny;
 use URI::Escape;
 use BerkeleyDB;

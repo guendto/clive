@@ -15,8 +15,9 @@ The FreeBSD and Ubuntu details further below are likely to be inaccurate and
 missing some steps. The information was mainly gathered to aid the current
 and future clive package maintainers to get started. Note that the CPAN
 installation steps exist only if the distro does not have the equivalent
-package or a version available. For example, the 3.x of WWW::Curl kept
-refusing to work with the current version of clive.
+package or a version available. For example, the 3.02 of WWW::Curl which
+is widely available is now outdated and is missing the CURLOPT_WRITEDATA
+option.
 
 Note that the Clipboard and Expect modules are OPTIONAL.
 
@@ -60,8 +61,8 @@ From the ports:
   * devel/p5-IO-Pager
   * net/p5-URI
   * ftp/curl
-  * lang/p5-Expect
   -- Optional:
+  * lang/p5-Expect
   * x11/p5-Clipboard
 
 From CPAN:
@@ -73,7 +74,7 @@ Installation: Ubuntu (Hardy)
 
 From apt: # Typically: "sudo apt-get install $module"
   * libterm-progressbar-perl
-  * libcurl4-openssl-dev
+  * libcurl4-openssl-dev # Required to build WWW::Curl 4.05 using CPAN
   * libhtml-parser-perl
   * libconfig-tiny-perl
   * libberkeleydb-perl
@@ -82,8 +83,8 @@ From apt: # Typically: "sudo apt-get install $module"
   * libfile-spec-perl
   * liburi-perl 
   * perl-doc
-  * libexpect-perl
   -- Optional:
+  * libexpect-perl
   * xclip (for Clipboard module below)
 
 From CPAN: # Typically: "sudo cpan install $module"

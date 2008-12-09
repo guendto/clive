@@ -4,6 +4,7 @@ Version #dev
   * Added liveleakcom support
 
  Developer-visible changes:
+  * Updated INSTALL
   * Made Expect module optional
 
 

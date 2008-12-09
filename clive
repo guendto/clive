@@ -44,7 +44,7 @@ use Pod::Usage;
 use Encode;
 use Cwd;
 
-my $VERSION = "2.0.0";
+my $VERSION = "#dev";
 
 # Non-essential modules: set flags indicating availability
 my %opted_mods = (Clipboard => 1);

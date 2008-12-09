@@ -23,23 +23,24 @@ use strict;
 
 binmode(STDOUT, ":utf8");
 
+use URI::Escape qw(uri_escape uri_unescape);
 use WWW::Curl::Easy 4.05;
 use HTML::TokeParser;
 use Config::Tiny;
-use URI::Escape;
 use BerkeleyDB;
 
 # Core modules:
 use Getopt::Long qw(:config bundling);
+use File::Basename qw(basename);
 use Digest::SHA qw(sha1_hex);
+use XML::Simple qw(XMLin);
+use File::Path qw(mkpath);
 use POSIX qw(strftime);
-use File::Basename;
-use XML::Simple;
-use File::Path;
+use Cwd qw(getcwd);
 use File::Spec;
-use Pod::Usage;
 use Encode;
-use Cwd;
+
+use constant MBDIV => 0x100000;
 
 my $VERSION = "#dev";
 
@@ -419,7 +420,7 @@ sub extract_video {
     unless ( $opts{quiet} ) {
         print "file: $fn\n";
         print "length: $entry{file_length} ";
-        printf"(%.2fMB)  ",$entry{file_length}/1024/1024 if $entry{file_length};
+        printf"(%.2fMB)  ",$entry{file_length}/MBDIV if $entry{file_length};
         printf "from: %u (left: %u)  ", $cont_from, $remaining if $cont_from;
         printf "[$content_type]" if $content_type;
         print "\n";
@@ -494,7 +495,7 @@ sub get_queue {
             unless $opted_mods{Clipboard};
         my $data = Clipboard->paste();            
         if ( $data ) {
-            parse_input($_) foreach split/\n/,$data;
+            parse_input($_) foreach split(/\n/,$data);
         }
     }
 
@@ -519,8 +520,8 @@ sub parse_input {
 
     if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects
         printf "found redirect ...%s\n=> %s\n",
-            (split /&/,$url)[0],
-            (split /&/,uri_unescape($1))[0]
+            (split(/&/,$url))[0],
+            (split(/&/,uri_unescape($1)))[0]
             unless $opts{quiet};
         $url = uri_unescape($1);
     }
@@ -540,7 +541,7 @@ sub parse_input {
     }
 
     # Remove params from the URL
-    ($url) = split /&/, $url;
+    ($url) = split(/&/,$url);
 
     foreach my $re ( %re_hosts ) {
         push @queue,$url and return 0 if $url =~ /$re/;
@@ -731,7 +732,7 @@ sub dot_init {
     $dotp{dot_spacing}  = 10;
     $dotp{dots_in_line} = 50;
 
-    my ($type,$style) = split /:/,$opts{progress};
+    my ($type,$style) = split(/:/,$opts{progress});
 
     if ( $style ) {
         if ( $style eq 'binary' ) {
@@ -815,8 +816,8 @@ sub bar_update {
     my $total   = $dltotal || 1;
     my $bar     = $char x (($width-1)*$dlnow/$total) . '>';
 
-    my $now = sprintf "%.2fM", $dlnow/1024/1024;
-    $total  = sprintf "%.2fM", $entry{file_length}/1024/1024;
+    my $now = sprintf "%.2fM", $dlnow/MBDIV;
+    $total  = sprintf "%.2fM", $entry{file_length}/MBDIV;
 
     my %rate= normalize_rate($rate);
     $rate   = sprintf "%4.1f%s/s", $rate{rate}, $rate{units};
@@ -1104,14 +1105,14 @@ sub title_to_filename {
     $title =~ s/\Qliveleak.com - \E//i;
 
     my $r = $opts{cclass} || qr|\w|;
-    $title = join '', $title =~ /$r/g;
+    $title = join('',$title =~ /$r/g);
 
     # Courtesy of:
     #   http://search.cpan.org/~gaas/URI-1.37/URI.pm#PARSING_URIs_WITH_REGEXP
     my ($scheme, $authority, $path, $query, $fragment) =
         m{(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?}o;
     # Extract the domain from the URL.
-    my @a = split /\./, $authority;
+    my @a = split(/\./,$authority);
 
     my $fn          = $opts{fnfmt} || "%t-(%i)-[%d].%s";
     my $timestamp   = strftime("%F %T",localtime);
@@ -1121,12 +1122,12 @@ sub title_to_filename {
         "%s" => $entry{file_suffix},
         "%d" => $a[scalar @a-2], # Without the TLD.
         "%i" => $entry{video_id},
-        "%D" => (split / /, $timestamp)[0],
-        "%T" => (split / /, $timestamp)[1],
+        "%D" => (split(/ /,$timestamp))[0],
+        "%T" => (split(/ /,$timestamp))[1],
         "%S" => $timestamp,
     );
 
-    my $m = join '|', keys %h;
+    my $m = join('|',keys %h);
     $fn =~ s/($m)/$h{$1}/ig;
 
     return $fn;
@@ -1148,19 +1149,23 @@ sub format_show {
     my $s   = shift;
     my %e   = map_entry(shift);
 
+    my $t = $opted_mods{IOPager}
+        ? $e{page_title}
+        : decode_utf8($e{page_title});
+
     my %h   = (
-        "%t" => $e{page_title},
+        "%t" => $t,
         "%i" => $e{video_id},
         "%l" => $e{file_length},
-        "%m" => sprintf("%.2f", $e{file_length}/1048576),
+        "%m" => sprintf("%.2f", $e{file_length}/MBDIV),
         "%u" => $e{page_url},
         "%x" => $e{xurl},
-        "%D" => (split / /, $e{time_stamp})[0],
-        "%T" => (split / /, $e{time_stamp})[1],
+        "%D" => (split(/ /,$e{time_stamp}))[0],
+        "%T" => (split(/ /,$e{time_stamp}))[1],
         "%S" => $e{time_stamp},
     );
 
-    my $m = join '|', keys %h;
+    my $m = join('|',keys %h);
     $s =~ s/($m)/$h{$1}/ig;
 
     return $s;
@@ -1214,7 +1219,7 @@ sub free_cache {
 
 sub map_entry {
     my $key     = shift;
-    my @values  = split /;/, $cache{$key};
+    my @values  = split(/;/,$cache{$key});
 
     my @keys = qw(
         file_suffix file_length file_format page_title
@@ -1237,7 +1242,7 @@ sub save_entry {
     $entry{time_stamp} = strftime("%F %T",localtime);
     push @values,$entry{$_} foreach sort keys %entry;
 
-    $cache{$hash} = join ';', @values;
+    $cache{$hash} = join(';',@values);
     $cache_db->db_sync();
 }
 
@@ -1245,7 +1250,7 @@ sub grep_cache {
     my $g = $opts{case} ? qr|$opts{grep}| : qr|$opts{grep}|i;
     my $fmt = $opts{showfmt} || $SHOWFMT_DEFAULT;
     foreach ( sort keys %cache ) {
-        my @e = split /;/, $cache{$_};
+        my @e = split(/;/,$cache{$_});
         if ( grep /$g/, @e ) {
             if   ( $opts{delete} ) {
                 if ( $opts{show} ) { push @queue,$e[4]; }
@@ -1309,7 +1314,7 @@ sub emit {
             printf qq/csv:"%s","%s","%s","%.2fMB",/
                  . qq/"%s","%s","%s","%s","%s","%s"\n/,
                 $_->{page_url}, $_->{xurl}, $_->{fn},
-                $_->{file_length}/1024/1024, $_->{file_length},
+                $_->{file_length}/MBDIV, $_->{file_length},
                 $_->{video_id}, $_->{time_stamp}, $_->{page_title}, 
                 $_->{cont_from}, $_->{remaining};
         }

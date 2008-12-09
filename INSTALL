@@ -3,36 +3,22 @@ Prerequisites
 
 Perl >= 5.8 (http://perl.org)
 
-The following 3rd party perl modules are required. The versions are
-recommendations. The module lists below are more or less comprehensive.
-The required Perl core modules have not been listed below.
-
-Note that some Unix/Linux distributions may pack some of the Perl core modules
-separately and require them to be installed separately. This means also that
-the actual installation procedure may vary greatly for each distro.
-
-The FreeBSD and Ubuntu details further below are likely to be inaccurate and
-missing some steps. The information was mainly gathered to aid the current
-and future clive package maintainers to get started. Note that the CPAN
-installation steps exist only if the distro does not have the equivalent
-package or a version available. For example, the 3.02 of WWW::Curl which
-is widely available is now outdated and is missing the CURLOPT_WRITEDATA
-option.
-
-Note that the Clipboard and Expect modules are OPTIONAL.
-
 * Config::Tiny/2.12           * BerkeleyDB/0.34
 * WWW::Curl/4.05              * URI::Escape/3.29
-* HTML::TokeParser/2.37       * Clipboard/0.09
+* HTML::TokeParser/2.37       * Clipboard/0.09 (optional)
 * IO::Pager/0.05              * XML::Simple/2.18
-* Expect/1.21
+* Expect/1.21 (optional)
+
+Most distros should have the above versions available as packages.
+If not, you can still use CPAN to install the missing modules, e.g.:
+    % cpan install WWW::Curl # as root
 
 
 Installation
 ------------------------------------------------------------------------------
 
 Extract:
-    % tar xvjf clive-$release.tar.bz2 && cd clive-$release
+    % tar xvjf clive-$release.tar.bz2; cd clive-$release
 
 Run:
     % ./clive [option]... [URL]...
@@ -50,6 +36,8 @@ See also:
 
 Installation: FreeBSD (7.0)
 ------------------------------------------------------------------------------
+
+Likely inaccurate.
 
 From the ports:
   * databases/p5-BerkeleyDB
@@ -70,6 +58,8 @@ From CPAN:
 
 Installation: Ubuntu (Hardy)
 ------------------------------------------------------------------------------
+
+Likely inaccurate.
 
 From apt: # Typically: "sudo apt-get install $module"
   * libcurl4-openssl-dev # Required to build WWW::Curl 4.05 using CPAN

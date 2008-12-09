@@ -1331,7 +1331,6 @@ Modules:
  * HTML::TokeParser/$HTML::TokeParser::VERSION\t* Clipboard/$clipboard_v
  * XML::Simple/$XML::Simple::VERSION\t\t* IO::Pager/$iopager_v
  * URI::Escape/$URI::Escape::VERSION
- 
 Core modules:
  * POSIX/$POSIX::VERSION\t\t\t* Cwd/$Cwd::VERSION
  * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION

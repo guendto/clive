@@ -18,7 +18,7 @@ installation steps exist only if the distro does not have the equivalent
 package or a version available. For example, the 3.x of WWW::Curl kept
 refusing to work with the current version of clive.
 
-Note that the Clipboard module is OPTIONAL.
+Note that the Clipboard and Expect modules are OPTIONAL.
 
 * Config::Tiny/2.12           * BerkeleyDB/0.34
 * WWW::Curl/4.05              * URI::Escape/3.29

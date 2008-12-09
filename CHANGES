@@ -1,7 +1,10 @@
 Version #dev
 
  User-visible changes:
-   * Added liveleakcom support
+  * Added liveleakcom support
+
+ Developer-visible changes:
+  * Made Expect module optional
 
 
 Version 2.0.0

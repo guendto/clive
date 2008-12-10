@@ -41,9 +41,8 @@ use Cwd qw(getcwd);
 use File::Spec;
 use Encode;
 
-use constant MBDIV => 0x100000;
-
-my $VERSION = "#";
+use constant VERSION => "2.1.0";
+use constant MBDIV   => 0x100000;
 
 # Non-essential modules: set flags indicating availability
 my %opted_mods = (Clipboard => 1, Expect => 1, IOPager => 1);
@@ -361,9 +360,11 @@ sub query_video_length {
                 }
             # Liveleak returns "flv-application/octet-stream"
             } elsif ( $content_type =~ m!flv-application/octet-stream! ) {
-                if ( $opts{format} eq "flv" ) {
-                    $entry{file_suffix} = 'flv';
-                    $content_ok = 1;
+                if ( $entry{page_url} =~ /$re_hosts{IsLiveleak}/ ) {
+                    if ( $opts{format} eq "flv" ) {
+                        $entry{file_suffix} = 'flv';
+                        $content_ok = 1;
+                    }
                 }
             }
             $errmsg = "expected different content-type, "
@@ -1326,7 +1327,7 @@ sub emit {
 }
 
 sub print_version {
-    print "clive version $VERSION [$^O]\n"
+    print "clive version ".VERSION."  [$^O]\n"
         . "Copyright (c) 2007,2008 Toni Gundogdu.\n"
         . "See --manual for the supported websites.\n";
     exit;

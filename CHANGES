@@ -1,6 +1,6 @@
 Version #
 
- NOTE: License was changed from GPL3 to BSD-style license (OpenBSD/ISC).
+ NOTE: Changed license GPL3 => ISC/OpenBSD.
 
  User-visible changes:
   * Added --modversion option

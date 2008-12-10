@@ -1328,7 +1328,7 @@ sub emit {
 sub print_version {
     print "clive version $VERSION [$^O]\n"
         . "Copyright (c) 2007,2008 Toni Gundogdu.\n"
-        . "See --manual for the supported websites.";
+        . "See --manual for the supported websites.\n";
     exit;
 }
 

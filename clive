@@ -33,6 +33,7 @@ use BerkeleyDB;
 use Getopt::Long qw(:config bundling);
 use File::Basename qw(basename);
 use Digest::SHA qw(sha1_hex);
+use Pod::Usage qw(pod2usage);
 use XML::Simple qw(XMLin);
 use File::Path qw(mkpath);
 use POSIX qw(strftime);
@@ -1332,7 +1333,6 @@ sub print_version {
 }
 
 sub print_version_mods {
-    require Pod::Usage;
     my $perl_v      = sprintf "%vd", $^V;
     my $clipboard_v = $opted_mods{Clipboard} ? $Clipboard::VERSION  : "-";
     my $expect_v    = $opted_mods{Expect}    ? $Expect::VERSION     : "-";

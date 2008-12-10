@@ -1,8 +1,9 @@
-Version #dev
+Version #
 
  NOTE: License was changed from GPL3 to BSD-style license (OpenBSD/ISC).
 
  User-visible changes:
+  * Added --modversion option
   * Replaced Term::Progressbar with a built-in thermometer progressbar
   * Removed --progress=bar:nominor support due to above changes
   * Added liveleakcom support

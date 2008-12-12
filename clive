@@ -41,7 +41,7 @@ use Cwd qw(getcwd);
 use File::Spec;
 use Encode;
 
-use constant VERSION => "2.1.0";
+use constant VERSION => "2.1.1-dev";
 use constant MBDIV   => 0x100000;
 
 # Non-essential modules: set flags indicating availability

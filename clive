@@ -74,7 +74,7 @@ my @rencode_queue;  # files to be re-encoded
 my @emit_queue;     # videos to be emitted
 my $logfile;        # path to logfile (--output-file, --append-file)
 my %dotp;           # dot progress data
-my $bar_lastupd;    # used to keep track of progressbar updates
+my %barp;           # bar progress data
 my $workdir=getcwd; # startup workdir
 
 my %re_hosts = (    # Precompiled regex used to identify the host
@@ -719,8 +719,13 @@ sub handle_metacafe {
 sub progress_callback {
     if ( $opts{progress} =~ /^dot/ )   { dot_update(@_); }
     elsif ( $opts{progress} =~ /^bar/ ){
-        return 0 if time - $bar_lastupd < 1.0;
-        bar_update(@_);
+        if ( time - $barp{lastupd} >= 1.0 ) {
+            $barp{count} = 0;
+            bar_update(@_);
+        } else {
+            return 0 if $barp{count} > 5;
+            bar_update(@_);
+        }
     }
     return 0;
 }
@@ -805,7 +810,8 @@ sub dot_print_row_stats {
 }
 
 sub bar_init {
-    $bar_lastupd = 0;
+    $barp{lastupd} = time;
+    $barp{count}   = 0;
 }
 
 sub bar_update {
@@ -835,7 +841,8 @@ sub bar_update {
         . "%-${ratew}s | ETA %-${etaw}s\r",
         $bar, $now, $total, $rate, $eta;
 
-    $bar_lastupd = time;
+    $barp{lastupd} = time;
+    $barp{count}++;
 }
 
 sub bar_finish {

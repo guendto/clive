@@ -1,6 +1,7 @@
 Version 2.1.1
 
  Developer-visible changes:
+  * Changed progressbar refresh => max. 5/s
   * Fixed a potential div by zero bug in calc_progress
 
 

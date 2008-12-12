@@ -846,7 +846,7 @@ sub calc_progress {
     my ($dlnow, $dltotal, $condensed) = @_;
 
     my $percent = 0;
-    $percent    = int ($dlnow / $dltotal * 100) if $dlnow;
+    $percent    = int ($dlnow / $dltotal * 100) if $dltotal;
 
     my $elapsed = time - $time_started;
     my $eta     = '--:--';

@@ -843,14 +843,15 @@ sub bar_update {
     my %rate = normalize_rate($rate);
     $rate = sprintf("%4.1f%s/s", $rate{rate}, $rate{units});
 
+    my $pw = 3;
     my $tw = length($t);
     my $nw = length($n);
     my $rw = length($rate);
     my $ew = 8;
 
-    printf "|%-${barp{width}}s| %${tw}s / %${nw}s | "
+    printf "%${pw}s%% |%-${barp{width}}s| %${tw}s / %${nw}s | "
          . "%-${rw}s | ETA %-${ew}s\r",
-        $bar, $n, $t, $rate, $eta;
+        $percent, $bar, $n, $t, $rate, $eta;
 
     $barp{lastupd} = time;
     $barp{count}++;

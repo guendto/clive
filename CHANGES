@@ -1,6 +1,7 @@
 Version 2.1.1
 
  User-visible changes:
+  * Added percent to progressbar
   * Fixed progressbar display with --continue
 
  Developer-visible changes:

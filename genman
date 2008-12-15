@@ -1,0 +1,24 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+
+open(my $fh, "<", "clive") or die "error: clive: $!";
+
+my $re = qr|VERSION => "(.*?)"|;
+my $release;
+
+while ( <$fh> ) {
+    if ( $_ =~ /$re/ ) {
+        $release = $1;
+        last;
+    }
+}
+
+close($fh);
+
+print STDERR "error: release string not found\n" and exit
+    unless $release;
+
+system(qq/pod2man -c "clive Manual" -n clive /
+     . qq/-s 1 -r $release clive > clive.1/);

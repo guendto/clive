@@ -858,6 +858,7 @@ sub bar_update {
 }
 
 sub bar_finish {
+    bar_update(0, $entry{file_length}, $entry{file_length});
 }
 
 sub calc_progress {

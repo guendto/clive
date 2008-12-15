@@ -1,8 +1,14 @@
 2.1.1
 -----
 
+ * Add --savebatch=filename
+   Saves the current URL batch to a file (for later use).
+   Useful when dealing with multiple batches as ~/.config/clive/recall
+   batch gets overwritten over time. the specified file is not overwritten,
+   instead a numeric suffix is appended to the filename.
+
 Someday
 -------
 
  * Fix metacafe support (http/404)
-   - The current code is commented out
+   - The current (broken) code is commented out

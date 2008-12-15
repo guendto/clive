@@ -3,6 +3,7 @@ Version 2.1.1
  User-visible changes:
   * Fixed "print() on closed filehandle STDOUT" with --grep+delete
   * Added percent to progressbar
+  * Progressbar now remarks continued transfers
   * Fixed progressbar display with --continue
 
  Developer-visible changes:

@@ -24,6 +24,7 @@ use strict;
 binmode(STDOUT, ":utf8");
 
 use URI::Escape qw(uri_escape uri_unescape);
+use XML::Simple qw(XMLin);
 use WWW::Curl::Easy 4.05;
 use HTML::TokeParser;
 use Config::Tiny;
@@ -34,7 +35,6 @@ use Getopt::Long qw(:config bundling);
 use File::Basename qw(basename);
 use Digest::SHA qw(sha1_hex);
 use Pod::Usage qw(pod2usage);
-use XML::Simple qw(XMLin);
 use File::Path qw(mkpath);
 use POSIX qw(strftime);
 use Cwd qw(getcwd);

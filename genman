@@ -22,3 +22,5 @@ print STDERR "error: release string not found\n" and exit
 
 system(qq/pod2man -c "clive Manual" -n clive /
      . qq/-s 1 -r $release clive > clive.1/);
+
+system("gzip clive.1");

@@ -838,6 +838,7 @@ sub bar_update {
     }
 
     my $n = $dlnow == $entry{file_length} ? $dlnow : $dlnow+$cont_from;
+    $percent = sprintf("%.0f",$n/$entry{file_length}*100);
     $n = sprintf("%.2fM",$n/MBDIV);
     my $t = sprintf("%.2fM",$entry{file_length}/MBDIV);
     my %rate = normalize_rate($rate);

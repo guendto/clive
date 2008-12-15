@@ -1216,7 +1216,7 @@ sub show_cache {
             foreach ( sort keys %cache );
     }        
     print STDOUT "$_\n" foreach sort @entries;
-    close STDOUT;
+    close STDOUT if $opted_mods{IOPager};
 
     if ( $opts{grep} and $opts{delete} and scalar @queue > 0 ) {
         print "Confirm delete (y/N):";

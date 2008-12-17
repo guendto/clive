@@ -866,11 +866,11 @@ sub bar_update { # See no bar, hear no bar, speak no bar.
 
         my %rate = normalize_rate($rate);
 
-        $bar .= sprintf(" | %8.2fM ",$size/MBDIV);
+        $bar .= sprintf(" | %8.2fMB ",$size/MBDIV);
         $bar .= sprintf(" | %8.2f%s/s",$rate{rate},$rate{units});
         $bar .= sprintf(" | ETA %-8s",$eta);
     } else {
-        $bar .= sprintf(" | %6.2fM ",$dlnow/MBDIV);
+        $bar .= sprintf(" | %6.2fMB ",$dlnow/MBDIV);
         $bar .= sprintf(" | %8.2f%s/s",0,"K");
         $bar .= sprintf(" | ETA %-8s","0s");
     }
@@ -929,7 +929,7 @@ sub time2str {
 sub normalize_rate {
     my $rate = shift;
 
-    my @names = qw/K M G/;
+    my @names = qw/KB MB GB/;
     my $units;
 
     if ( $rate < 1024*1024 ) {

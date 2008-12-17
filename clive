@@ -42,6 +42,7 @@ use File::Spec;
 use Encode;
 
 use constant VERSION => "2.1.1-dev";
+use constant BP_REFRESH_INTERVAL => 0.2;
 use constant MBDIV   => 0x100000;
 
 # Non-essential modules: set flags indicating availability
@@ -73,9 +74,8 @@ my @play_queue;     # files to be played
 my @rencode_queue;  # files to be re-encoded
 my @emit_queue;     # videos to be emitted
 my $logfile;        # path to logfile (--output-file, --append-file)
-my %dotp;           # dot progress data
-my %barp;           # bar progress data
-my $cont_from;      # continue transfer from offset
+my %dp;             # dot progress data
+my %bp;             # bar progress data
 my $workdir=getcwd; # startup workdir
 
 my %re_hosts = (    # Precompiled regex used to identify the host
@@ -389,12 +389,12 @@ sub extract_video {
     my ($rc, $content_type) = query_video_length();
     return if ( $rc != 0 or !defined $content_type );
 
-    $cont_from      = 0;
     my $fn          = title_to_filename($entry{page_title});
     my $path        = File::Spec->catfile( $opts{savedir} || $workdir, $fn );
     my $filemode    = ">";
     my $remaining   = $entry{file_length};
     my $size        = -s $path;
+    my $cont_from   = 0;
     my $errmsg;
 
     save_entry($hash);
@@ -452,8 +452,11 @@ sub extract_video {
                     $opts{progress} = 'dot' if ! -t STDOUT or ! -t STDERR;
                 }
 
-                if ( $opts{progress} =~ /^bar/ )    { bar_init() }
-                elsif ( $opts{progress} =~ /^dot/ ) { dot_init() }
+                if ( $opts{progress} =~ /^bar/ ) {
+                    bar_init($cont_from, $entry{file_length});
+                } elsif ( $opts{progress} =~ /^dot/ ) {
+                    dot_init()
+                }
             }
 
             $rc = $curl->perform;
@@ -719,40 +722,32 @@ sub handle_metacafe {
 
 sub progress_callback {
     if ( $opts{progress} =~ /^dot/ )   { dot_update(@_); }
-    elsif ( $opts{progress} =~ /^bar/ ){
-        if ( time - $barp{lastupd} >= 1.0 ) {
-            $barp{count} = 0;
-            bar_update(@_);
-        } else {
-            return 0 if $barp{count} > 5;
-            bar_update(@_);
-        }
-    }
+    elsif ( $opts{progress} =~ /^bar/ ){ bar_update(@_); }
     return 0;
 }
 
 sub dot_init {
-    $dotp{dots}     = 0;
-    $dotp{rows}     = 0;
-    $dotp{dlthen}   = 0;
-    $dotp{accum}    = 0;
+    $dp{dots}     = 0;
+    $dp{rows}     = 0;
+    $dp{dlthen}   = 0;
+    $dp{accum}    = 0;
 
     # Default style
-    $dotp{dot_bytes}    = 1024;
-    $dotp{dot_spacing}  = 10;
-    $dotp{dots_in_line} = 50;
+    $dp{dot_bytes}    = 1024;
+    $dp{dot_spacing}  = 10;
+    $dp{dots_in_line} = 50;
 
     my ($type,$style) = split(/:/,$opts{progress});
 
     if ( $style ) {
         if ( $style eq 'binary' ) {
-            $dotp{dot_bytes}    = 8192;
-            $dotp{dot_spacing}  = 16;
-            $dotp{dots_in_line} = 48;
+            $dp{dot_bytes}    = 8192;
+            $dp{dot_spacing}  = 16;
+            $dp{dots_in_line} = 48;
         } elsif ( $style eq 'mega' ) {
-            $dotp{dot_bytes}    = 65536;
-            $dotp{dot_spacing}  = 8;
-            $dotp{dots_in_line} = 48;
+            $dp{dot_bytes}    = 65536;
+            $dp{dot_spacing}  = 8;
+            $dp{dots_in_line} = 48;
         }
     }
 }
@@ -762,23 +757,23 @@ sub dot_update {
     my ($percent, $elapsed, $rate, $eta) = calc_progress($dlnow, $dltotal, 1);
     return 0 if $elapsed < 1.0;
 
-    my $row_bytes   = $dotp{dot_bytes} * $dotp{dots_in_line};
+    my $row_bytes   = $dp{dot_bytes} * $dp{dots_in_line};
 
-    $dotp{accum}   += $dlnow - $dotp{dlthen};
-    $dotp{dlthen}   = $dlnow;
+    $dp{accum}   += $dlnow - $dp{dlthen};
+    $dp{dlthen}   = $dlnow;
 
-    for (; $dotp{accum} >= $dotp{dot_bytes}; $dotp{accum} -= $dotp{dot_bytes}) {
-        printf "\n%6dK", $dotp{rows} * $row_bytes / 1024
-            if $dotp{dots} == 0;
+    for (; $dp{accum} >= $dp{dot_bytes}; $dp{accum} -= $dp{dot_bytes}) {
+        printf "\n%6dK", $dp{rows} * $row_bytes / 1024
+            if $dp{dots} == 0;
 
-        print " " if $dotp{dots} % $dotp{dot_spacing} == 0;
+        print " " if $dp{dots} % $dp{dot_spacing} == 0;
 
-        ++$dotp{dots};
+        ++$dp{dots};
         print ".";
 
-        if ( $dotp{dots} >= $dotp{dots_in_line} ) {
-            ++$dotp{rows};
-            $dotp{dots} = 0;
+        if ( $dp{dots} >= $dp{dots_in_line} ) {
+            ++$dp{rows};
+            $dp{dots} = 0;
 
             dot_print_row_stats($percent, $elapsed, $eta, $rate, 0);
         }
@@ -786,13 +781,13 @@ sub dot_update {
 }
 
 sub dot_finish {
-    my $row_bytes = $dotp{dot_bytes} * $dotp{dots_in_line};
+    my $row_bytes = $dp{dot_bytes} * $dp{dots_in_line};
 
-    printf "\n%6dK", $dotp{rows} * $row_bytes / 1024
-        if $dotp{dots} == 0;
+    printf "\n%6dK", $dp{rows} * $row_bytes / 1024
+        if $dp{dots} == 0;
 
-    for (my $i=$dotp{dots}; $i<$dotp{dots_in_line}; $i++) {
-        print " " if $i % $dotp{dot_spacing} == 0;
+    for (my $i=$dp{dots}; $i<$dp{dots_in_line}; $i++) {
+        print " " if $i % $dp{dot_spacing} == 0;
         print " ";
     }
 
@@ -810,67 +805,82 @@ sub dot_print_row_stats {
     printf "%s%s", $last ? "=":" ", $eta;
 }
 
-sub bar_init {
-    $barp{lastupd} = time;
-    $barp{count}   = 0;
-    $barp{width}   = 25;
+sub bar_init { # A lazy man's progressbar
+    my ($initial, $total) = @_;
+
+    $total = $initial
+        if $initial > $total;
+
+    $bp{initial} = $initial; # bytes dl previously
+    $bp{total}   = $total;   # expected bytes
+
+    $bp{last_update} = 0;
+
+    bar_update(-1, $total, 0);
 }
 
-sub bar_update {
-    my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
+sub bar_update { # See no bar, hear no bar, speak no bar.
+    my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow, $done) = @_;
 
-    my $cc = $cont_from / $entry{file_length} * $barp{width};
-    my $cd = $dlnow     / $entry{file_length} * $barp{width};
-    my ($bar,$i) = ('');
+    my $elapsed = time - $time_started;
 
-    my ($percent, $elapsed, $rate, $eta) =
-        calc_progress($dlnow, $dltotal, 1);
-
-    for ( $i=0; $i<$cc-1; $i++ ) {
-        $bar .= '+';
+    if ( !$done ) {
+        return if ( $elapsed - $bp{last_update} < BP_REFRESH_INTERVAL);
+    } else {
+        $dlnow = $bp{total};
     }
 
-    if ( $cd > 0 ) {
-        for ( $i=0; $i<$cd-1; $i++ ) {
-            $bar .= '=';
+    $bp{last_update} = $elapsed;
+
+    my $size = $bp{initial} + $dlnow;
+    my $bar = "";
+
+    if ( $bp{total} > 0) {
+        my $percent = 100.0 * $size / $bp{total};
+        if ( $percent < 100 ) {
+            $bar .= sprintf("%2d%% ",$percent);
+        } else {
+            $bar .= "100%";
         }
-        $bar .= '>';
     }
 
-    my $n = $dlnow == $entry{file_length} ? $dlnow : $dlnow+$cont_from;
-    $percent = sprintf("%.0f",$n/$entry{file_length}*100);
-    $n = sprintf("%.2fM",$n/MBDIV);
-    my $t = sprintf("%.2fM",$entry{file_length}/MBDIV);
-    my %rate = normalize_rate($rate);
-    $rate = sprintf("%4.1f%s/s", $rate{rate}, $rate{units});
+    if ( !$done ) {
+        my ($percent_, $elapsed_, $rate, $eta) = 
+            calc_progress($dlnow, $dltotal, 1);
 
-    my $pw = 3;
-    my $tw = length($t);
-    my $nw = length($n);
-    my $rw = length($rate);
-    my $ew = 8;
+        my %rate = normalize_rate($rate);
 
-    printf "%${pw}s%% |%-${barp{width}}s| %${tw}s / %${nw}s | "
-         . "%-${rw}s | ETA %-${ew}s\r",
-        $percent, $bar, $n, $t, $rate, $eta;
+        $bar .= sprintf(" | %6.2fM ",$size/MBDIV);
+        $bar .= sprintf(" | %4d%s/s",$rate{rate},$rate{units});
+        $bar .= sprintf(" | ETA %-8s",$eta);
+    } else {
+        $bar .= sprintf(" | %6.2fM ",$dlnow/MBDIV);
+        $bar .= sprintf(" | %4d%s/s",0,"K");
+        $bar .= sprintf(" | ETA %-8s","0s");
+    }
 
-    $barp{lastupd} = time;
-    $barp{count}++;
+    $bp{count} = $dlnow;
+    print "\r".$bar;
 }
 
-sub bar_finish {
-    bar_update(0, $entry{file_length}, $entry{file_length});
+sub bar_finish { # Never again.
+    if ( $bp{total} > 0
+        && $bp{count} + $bp{initial} > $bp{total} ) {
+        $bp{total} = $bp{initial} + $bp{count};
+    }
+    bar_update(-1,-1,-1,-1,-1, 1);
 }
 
 sub calc_progress {
-    my ($dlnow, $dltotal, $condensed) = @_;
+    my ($dlnow, $dltotal, $condensed, $elapsed) = @_;
 
     my $percent = 0;
     $percent    = int ($dlnow / $dltotal * 100) if $dltotal;
 
-    my $elapsed = time - $time_started;
-    my $eta     = '--:--';
+    $elapsed = time - $time_started
+        unless $elapsed;
 
+    my $eta     = '--:--';
     my $rate    = 0;
     $rate       = $dlnow / $elapsed if $elapsed;
 

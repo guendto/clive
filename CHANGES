@@ -1,9 +1,10 @@
 Version 2.1.1
 
  User-visible changes:
+  * Converted the buggy progressbar to a lazy man's progressbar
+    - See no bar, hear no bar, speak no bar
+    - Thou shall not raise this matter ever again
   * Fixed "print() on closed filehandle STDOUT" with --grep+delete
-  * Added percent to progressbar
-  * Progressbar now remarks continued transfers
   * Fixed progressbar display with --continue
 
  Developer-visible changes:

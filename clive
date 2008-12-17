@@ -468,7 +468,8 @@ sub extract_video {
                 elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
             }
 
-            # Re-enable: header
+            # Reset
+            $curl->setopt(CURLOPT_RESUME_FROM, 0);
             $curl->setopt(CURLOPT_HEADER, 1);
 
             if ( $rc == 0 ) { $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE); }

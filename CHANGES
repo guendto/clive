@@ -1,6 +1,10 @@
 Version 2.1.1
 
  User-visible changes:
+  * Fixed "Requested range was not delivered by the server (http/33)" w/ -c
+    - this would occur with a batch of URLs while using the --continue option,
+    e.g. if the first file was continued, the following file transfers exited
+    with the above error
   * Added --savebatch option
   * Added --overwrite option
   * Converted the buggy progressbar to a lazy man's progressbar

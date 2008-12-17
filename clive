@@ -115,7 +115,7 @@ $opts{login}        = 1;
 $opts{case}         = 1;
 
 GetOptions(\%opts,
-    'debug|d',     'help|h',     'manual|m',
+    'debug|d',     'help|h',     'manual|m',     'overwrite|W',
     'paste|x',     'show|s',     'delete|D',     'clear|C',
     'continue|c',  'renew|R',    'recall|r',     'format|f=s',
     'output|o=s',  'append|a=s', 'background|b', 'quiet|q',
@@ -393,13 +393,13 @@ sub extract_video {
     my $path        = File::Spec->catfile( $opts{savedir} || $workdir, $fn );
     my $filemode    = ">";
     my $remaining   = $entry{file_length};
-    my $size        = -s $path;
+    my $size        = -s $path || 0;
     my $cont_from   = 0;
     my $errmsg;
 
     save_entry($hash);
 
-    if ( $size ) {
+    if ( $size > 0 and !$opts{overwrite} ) {
         if ( $size == $entry{file_length} and $opts{extract} ) {
             print "refused: localfile length matches remotefile length.\n";
             push @play_queue,$path if $opts{play};
@@ -410,7 +410,8 @@ sub extract_video {
             $filemode   = ">>";
             $remaining  = ($entry{file_length} - $cont_from);
         } else {
-            ($path,$fn) = newname_if_exists( $opts{savedir} || $workdir, $fn );
+            ($path,$fn) =
+                newname_if_exists( $opts{savedir} || $workdir, $fn );
         }
     }
 
@@ -1601,6 +1602,11 @@ The "requested range was not delivered" error typically implies that the
 host does not allow continuing partially extracted video files. You will
 see this error if you attempt to continue a partially downloaded flv video
 from Youtube, for example.
+
+=item B<-W --overwrite>
+
+Causes clive to overwrite any already existing video files. The default
+behaviour appends a numeric suffix to the output filename.
 
 =item B<-G --progress=>I<type>
 

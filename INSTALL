@@ -56,6 +56,11 @@ From Ports:
  * www/p5-libwww
  * net/p5-URI
 
+ Optional:
+ * x11/p5-Clipboard  # --paste
+ * lang/p5-Expect    # --clivepass
+ * devel/p5-IO-Pager # --show
+
 From CPAN:
 ----------
 
@@ -67,7 +72,6 @@ From CPAN:
 
    - freshports.org listed the latest version of ExtUtils::MakeMaker
    available in the ports but I did not try it
-     
 
 
 Installation: Ubuntu (Hardy)

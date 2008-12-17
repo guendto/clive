@@ -36,26 +36,38 @@ See also:
     configrc file which serves as an example configuration file
 
 
-Installation: FreeBSD (7.0)
+Installation: FreeBSD
 ------------------------------------------------------------------------------
 
-Likely inaccurate.
+These details apply to FreeBSD 7.0 fresh-outta-box. The ports tree is
+the same installed from the CD1 before updating it.
 
-From the ports:
-  * databases/p5-BerkeleyDB
-  * security/p5-Digest-SHA
-  * textproc/p5-XML-Simple
-  * devel/p5-Config-Tiny
-  * www/p5-HTML-Parser
-  * net/p5-URI
-  * ftp/curl
-  -- Optional:
-  * devel/p5-IO-Pager
-  * lang/p5-Expect
-  * x11/p5-Clipboard
+From Ports:
+-----------
+
+ * databases/p5-BerkeleyDB
+ * textproc/p5-XML-Simple
+ * security/p5-Digest-SHA
+ * devel/p5-Config-Tiny
+ * devel/p5-Date-Manip
+ * devel/p5-Parse-Yapp
+ * textproc/p5-XML-DOM
+ * devel/p5-IO-Tty
+ * www/p5-libwww
+ * net/p5-URI
 
 From CPAN:
-  * WWW::Curl
+----------
+
+ * WWW::Curl (% cpan install WWW::Curl # as root)
+   - The ports (www/p5-WWW-Curl) is still 3.02 and outdated
+
+   - depends on ExtUtils::MakeMaker which is available also as
+   devel/p5-ExtUtils-MakeMaker but cpan insisted installing from CPAN
+
+   - freshports.org listed the latest version of ExtUtils::MakeMaker
+   available in the ports but I did not try it
+     
 
 
 Installation: Ubuntu (Hardy)

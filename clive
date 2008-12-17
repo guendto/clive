@@ -1789,6 +1789,8 @@ using L<ffmpeg(1)>.
 Use the L<clivepass(1)> utility to create an encrypted login password for
 "myusername". Then have clive call L<clivepass(1)> utility to retrieve the
 password before logging into Youtube and extracting the video from the URL.
+L<clivepass(1)> is part of the B<clive-utils> project, see the L</SEE ALSO>
+section.
 
 =back
 
@@ -2028,20 +2030,24 @@ L<clivefeed(1)> L<clivescan(1)> L<clivepass(1)>
 
 =item Website:
 
-http://clive.sf.net/
+http://clive.sourceforge.net/
 
 =item Project:    
 
-http://googlecode.com/p/clive/
+http://code.google.com/p/clive/
 
 =item Issue Tracker:
 
-http://googlecode.com/p/clive/issues/
+http://code.google.com/p/clive/issues/
 
 =item Mailing-lists:
 
  http://googlegroups.com/group/clive-announce/
  http://googlegroups.com/group/clive-users/
+
+=item Additional clive utilities (e.g. clivepass):
+
+http://code.google.com/p/clive-utils/
 
 =back
 

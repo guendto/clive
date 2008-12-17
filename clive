@@ -851,11 +851,11 @@ sub bar_update { # See no bar, hear no bar, speak no bar.
         my %rate = normalize_rate($rate);
 
         $bar .= sprintf(" | %6.2fM ",$size/MBDIV);
-        $bar .= sprintf(" | %4.2f%s/s",$rate{rate},$rate{units});
+        $bar .= sprintf(" | %8.2f%s/s",$rate{rate},$rate{units});
         $bar .= sprintf(" | ETA %-8s",$eta);
     } else {
         $bar .= sprintf(" | %6.2fM ",$dlnow/MBDIV);
-        $bar .= sprintf(" | %4.2f%s/s",0,"K");
+        $bar .= sprintf(" | %8.2f%s/s",0,"K");
         $bar .= sprintf(" | ETA %-8s","0s");
     }
 

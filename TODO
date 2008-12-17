@@ -1,8 +1,6 @@
 2.1.1
 -----
 
- * Replace "or die" with "print STDERR" where suitable
-
 Someday
 -------
 

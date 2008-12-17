@@ -494,9 +494,12 @@ sub extract_video {
 
 sub get_queue {
     if ( $opts{recall} and -e $RECALLFILE ) {
-        open my $fh, "<$RECALLFILE" or die "error: $RECALLFILE: $!";
-        parse_input($_) while ( <$fh> );
-        close $fh;
+        if ( open my $fh, "<$RECALLFILE" ) {
+            parse_input($_) while ( <$fh> );
+            close $fh;
+        } else {
+            print STDERR "error: $RECALLFILE: $!";
+        }
     }
 
     if ( $opts{paste} ) {
@@ -515,9 +518,12 @@ sub get_queue {
     my %h = map { $_, 1 } @queue; # Remove duplicates from the URL queue
     @queue = keys %h;
 
-    open my $fh, ">$RECALLFILE" or die "error: $RECALLFILE: $!";
-    print $fh "$_\n" foreach @queue;
-    close $fh;
+    if ( open my $fh, ">$RECALLFILE" ) {
+        print $fh "$_\n" foreach @queue;
+        close $fh;
+    } else {
+        print STDERR "error: $RECALLFILE: $!";
+    }
 
     if ( $opts{savebatch} ) {
         if ( open $fh, ">", $opts{savebatch} ) {

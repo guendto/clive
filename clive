@@ -526,7 +526,7 @@ sub get_queue {
     }
 
     if ( $opts{savebatch} ) {
-        if ( open $fh, ">", $opts{savebatch} ) {
+        if ( open my $fh, ">", $opts{savebatch} ) {
             print $fh "$_\n" foreach @queue;
             close $fh;
         } else {

@@ -9,7 +9,7 @@ Version 2.1.1
 
  Developer-visible changes:
   * Updated INSTALL
-  * Started to bundle src tarball with clive.1.gz
+  * Started to bundle src tarball with clive.1 manual page
   * Added genman script which wraps pod2man with common options
   * Fixed a potential div by zero bug in calc_progress
 

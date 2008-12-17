@@ -1,11 +1,7 @@
 2.1.1
 -----
 
- * Add --savebatch=filename
-   Saves the current URL batch to a file (for later use).
-   Useful when dealing with multiple batches as ~/.config/clive/recall
-   batch gets overwritten over time. the specified file is not overwritten,
-   instead a numeric suffix is appended to the filename.
+ * Replace "or die" with "print STDERR" where suitable
 
 Someday
 -------

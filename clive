@@ -115,13 +115,13 @@ $opts{login}        = 1;
 $opts{case}         = 1;
 
 GetOptions(\%opts,
-    'debug|d',     'help|h',     'manual|m',     'overwrite|W',
-    'paste|x',     'show|s',     'delete|D',     'clear|C',
-    'continue|c',  'renew|R',    'recall|r',     'format|f=s',
-    'output|o=s',  'append|a=s', 'background|b', 'quiet|q',
-    'grep|g=s',    'agent|U=s',  'proxy|y=s',    'savedir|S=s',
-    'cclass|l=s',  'play|p=s',   'progress|G=s', 'rencode|A=s',
-    'clivepass|V=s',
+    'debug|d',      'help|h',     'manual|m',     'overwrite|W',
+    'paste|x',      'show|s',     'delete|D',     'clear|C',
+    'continue|c',   'renew|R',    'recall|r',     'format|f=s',
+    'output|o=s',   'append|a=s', 'background|b', 'quiet|q',
+    'grep|g=s',     'agent|U=s',  'proxy|y=s',    'savedir|S=s',
+    'cclass|l=s',   'play|p=s',   'progress|G=s', 'rencode|A=s',
+    'savebatch|T=s','clivepass|V=s',
     'version|v'     => \&print_version,
     'modversion|M', => \&print_version_mods,
     # Commented out until WWW::Curl is fixed:
@@ -518,6 +518,15 @@ sub get_queue {
     open my $fh, ">$RECALLFILE" or die "error: $RECALLFILE: $!";
     print $fh "$_\n" foreach @queue;
     close $fh;
+
+    if ( $opts{savebatch} ) {
+        if ( open $fh, ">", $opts{savebatch} ) {
+            print $fh "$_\n" foreach @queue;
+            close $fh;
+        } else {
+            print STDERR "error: $opts{savebatch}: $!";
+        }
+    }
 }
 
 sub parse_input {
@@ -1575,7 +1584,12 @@ Turn off all output.
 =item B<-r --recall>
 
 Recall the last URL batch. If this option is used, no URLs need to be present
-on the command-line.
+on the command-line. Note that clive overwrites the last recall batch on each
+time it's run.
+
+=item B<-T --savebatch=>I<file>
+
+Save current URL batch to I<file>. 
 
 =item B<-x --paste>
 

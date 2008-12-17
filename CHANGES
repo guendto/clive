@@ -8,8 +8,8 @@ Version 2.1.1
   * Fixed progressbar display with --continue
 
  Developer-visible changes:
+  * Started to bundle src tarball with clive.1.gz
   * Added genman script which wraps pod2man with common options
-  * Changed progressbar refresh => max. 5/s
   * Fixed a potential div by zero bug in calc_progress
 
 

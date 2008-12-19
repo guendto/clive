@@ -8,7 +8,7 @@ Version 2.1.1
     with the above error
   * Added --savebatch option
   * Added --overwrite option
-  * Converted the buggy progressbar to "lazy man's progressbar"
+  * Replaced the buggy progressbar with a "lazy man's progressbar"
   * Fixed "print() on closed filehandle STDOUT" with --grep+delete
   * Fixed progressbar display with --continue
 

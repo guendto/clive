@@ -1,7 +1,7 @@
 Prerequisites
 ------------------------------------------------------------------------------
 
-Perl >= 5.8 (http://perl.org)
+* Perl >= 5.8 (http://perl.org)
 
 * Config::Tiny/2.12           * BerkeleyDB/0.34
 * WWW::Curl/4.05              * URI::Escape/3.29
@@ -13,12 +13,15 @@ Most distros should have the above versions available as packages.
 If not, you can still use CPAN to install the missing modules, e.g.:
     % cpan install WWW::Curl # as root
 
+FreeBSD and Ubuntu users see the details further down.
+
 
 Installation
 ------------------------------------------------------------------------------
 
 Extract:
-    % tar xvjf clive-$release.tar.bz2; cd clive-$release
+    % tar xvjf clive-$release.tar.bz2
+    % cd clive-$release
 
 Run:
     % ./clive [option]... [URL]...
@@ -26,34 +29,30 @@ Run:
 Getting started:
     % ./clive --manual
 
-The manual page is written in Perl Pod markup language and it is embedded
-in the script file. See "perldoc perlpod" for more info. For example:
-    % pod2man clive > clive.1
+    The manual page is written in Perl Pod markup language and it is embedded
+    in the script file. See "perldoc perlpod" for more info. For example:
+      % pod2man clive > clive.1
     Or:
-    % ./genman # Wraps the above with some of the most common options
+      % ./genman # Same as above but with suitable options
 
 See also:
-    configrc file which serves as an example configuration file
+    configrc file for an example of a configuration file.
 
 
-Installation: FreeBSD
+Installation: FreeBSD 7.0
 ------------------------------------------------------------------------------
 
-These details apply to FreeBSD 7.0 fresh-outta-box. The ports tree is
-the same installed from the CD1 before updating it.
+Assumes the Ports collection is up-to-date.
 
-From Ports:
------------
+From the Ports:
+---------------
 
+ * lang/perl5.8
  * databases/p5-BerkeleyDB
  * textproc/p5-XML-Simple
  * security/p5-Digest-SHA
  * devel/p5-Config-Tiny
- * devel/p5-Date-Manip
- * devel/p5-Parse-Yapp
- * textproc/p5-XML-DOM
- * devel/p5-IO-Tty
- * www/p5-libwww
+ * www/p5-HTML-Parser
  * net/p5-URI
 
  Optional:
@@ -61,23 +60,42 @@ From Ports:
  * lang/p5-Expect    # --clivepass
  * devel/p5-IO-Pager # --show
 
-From CPAN:
-----------
+The last and the most frustrating prerequisite module is the WWW::Curl
+(www/p5-WWW-Curl) which is outdated (3.02) in the Ports at the time of
+writing this. There are three (3) ways to work around this:
 
- * WWW::Curl (% cpan install WWW::Curl # as root)
-   - The ports (www/p5-WWW-Curl) is still 3.02 and outdated
+  1) Patch www/p5-WWW-Curl to 4.05. # For the adventurous
+    % cd /usr/ports/www/p5-WWW-Curl
+      (backing up this directory is recommended)
+    % wget -O patch.txt \
+      http://www.freebsd.org/cgi/query-pr.cgi?prp=125323-1-txt&n=/patch.txt
+    % patch -p1 < patch.txt
+    % make install clean
 
-   - depends on ExtUtils::MakeMaker which is available also as
-   devel/p5-ExtUtils-MakeMaker but cpan insisted installing from CPAN
+  2) Use CPAN. Needless to say this complicates the installation because cpan
+  will install a plethora of other modules while at it. Some of them are 
+  available in the Ports, e.g.:
+    - devel/p5-ExtUtils-MakeMaker
+    - textproc/p5-XML-DOM
+    - devel/p5-Date-Manip
+    - devel/p5-Parse-Yapp
+    - devel/p5-IO-Tty
+    - www/p5-libwww
+    (probably missing some ports)
 
-   - freshports.org listed the latest version of ExtUtils::MakeMaker
-   available in the ports but I did not try it
+  If you are lazy (like most of us), let cpan handle the deps. If you are
+  organized (like some of us), install the above ports first instead,
+  and then run:
+    % cpan install WWW::Curl
+
+  3) Just give up, grow old and die.
 
 
 Installation: Ubuntu (Hardy)
 ------------------------------------------------------------------------------
 
-Likely inaccurate.
+TODO: Likely inaccurate. Anyone with enough time and more familiar with Ubuntu
+      is most welcome to fill in.
 
 From apt: # Typically: "sudo apt-get install $module"
   * libcurl4-openssl-dev # Required to build WWW::Curl 4.05 using CPAN

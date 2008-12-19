@@ -1,5 +1,9 @@
-2.1.1
+2.1.2
 -----
+
+ * Fix bar_finish
+    Reports 100% even if a file was not transferred, e.g. http/403 when
+    an extraction url has expired.
 
 Someday
 -------

@@ -463,17 +463,22 @@ sub extract_video {
             $rc = $curl->perform;
             close $fh;
 
-            unless ( $opts{quiet} ) {
-                if ( $opts{progress} =~ /^bar/ )    { bar_finish() }
-                elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
+            if ( $rc == 0 ) {
+                $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
+                if ( $rc == 200 ) {
+                    if    ( $opts{progress} =~ /^bar/ )    { bar_finish() }
+                    elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
+                } else {
+                    $errmsg = $curl->strerror($rc)." (http/$rc)";
+                }
+            }
+            else {
+                $errmsg = $curl->strerror($rc)." (http/$rc)";
             }
 
             # Reset
             $curl->setopt(CURLOPT_RESUME_FROM, 0);
             $curl->setopt(CURLOPT_HEADER, 1);
-
-            if ( $rc == 0 ) { $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE); }
-            else { $errmsg = $curl->strerror($rc)." (http/$rc)"; }
         } else {
             $errmsg = "$path: $!";
         }
@@ -798,6 +803,8 @@ sub dot_update {
 }
 
 sub dot_finish {
+    return if $opts{quiet};
+
     my $row_bytes = $dp{dot_bytes} * $dp{dots_in_line};
 
     printf "\n%6dK", $dp{rows} * $row_bytes / 1024
@@ -881,6 +888,7 @@ sub bar_update { # See no bar, hear no bar, speak no bar.
 }
 
 sub bar_finish { # Never again.
+    return if $opts{quiet};
     if ( $bp{total} > 0
         && $bp{count} + $bp{initial} > $bp{total} ) {
         $bp{total} = $bp{initial} + $bp{count};

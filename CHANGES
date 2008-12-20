@@ -1,3 +1,9 @@
+Version 2.1.2-dev
+
+ User-visible changes:
+  * Fixed progressbar: no longer reports 100% if error (e.g. http/403) occurred
+
+
 Version 2.1.1
 (December 19, 2008)
 

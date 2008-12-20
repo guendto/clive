@@ -217,9 +217,11 @@ sub process_queue {
         my ($rc, $rfh, $response) = fetch_page($_);
         my $errmsg;
 
-        if ( $rc == 0 ) {
-            $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
-            if ( $rc == 0 or $rc == 200) {
+        if ( $rc == 0 or $rc == 0xff ) {
+            $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE)
+                unless $rc == 0xff; # read from cache
+
+            if ( $rc == 200 or $rc == 0xff ) {
                 if ( !defined( $entry{page_url} ) ) {
                     next if process_page($_, \$response, $rfh) == -1;
                 }
@@ -253,8 +255,7 @@ sub process_queue {
 }
 
 sub fetch_page {
-    my ($url, $from_cache, $response, $rc) = (shift, 0, "", 0);
-
+    my ($url, $response, $from_cache, $rc) = (shift, "");
     open my $fh, ">", \$response;
 
     # Youtube: log-in only if both username and password are defined
@@ -269,15 +270,17 @@ sub fetch_page {
 
     $from_cache = 0 if $opts{renew};
 
-    printf "%s $url ...", ! $from_cache ? "fetch":"cache" 
+    printf "%s $url ...", !$from_cache ? "fetch":"cache" 
         unless $opts{quiet};
 
-    if ( ! $from_cache ) {
+    if ( !$from_cache ) {
         %entry = ();
         $curl->setopt(CURLOPT_URL, $url);
         $curl->setopt(CURLOPT_ENCODING, "");
         $curl->setopt(CURLOPT_WRITEDATA, $fh);
         $rc = $curl->perform;
+    } else {
+        $rc = 0xff; # cache
     }
 
     return ($rc, $fh, decode_utf8($response));
@@ -466,7 +469,7 @@ sub extract_video {
             if ( $rc == 0 ) {
                 $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
                 if ( $rc == 200 ) {
-                    if    ( $opts{progress} =~ /^bar/ )    { bar_finish() }
+                    if    ( $opts{progress} =~ /^bar/ ) { bar_finish() }
                     elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
                 } else {
                     $errmsg = $curl->strerror($rc)." (http/$rc)";

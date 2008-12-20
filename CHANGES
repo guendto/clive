@@ -1,7 +1,8 @@
 Version 2.1.2-dev
 
  User-visible changes:
-  * Fixed progressbar: no longer reports 100% if error (e.g. http/403) occurred
+  * Fixed: reused incorrectly last http error code for remaining urls in queue
+  * Fixed: progressbar reported 100% even if error had occurred (e.g. http/403)
 
 
 Version 2.1.1

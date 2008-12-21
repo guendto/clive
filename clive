@@ -351,8 +351,9 @@ sub process_page {
 sub query_video_length {
     my ($content_type, $errmsg);
 
-    if ( ! $entry{file_length} ) {
-        print "done.\nquery length ..." unless $opts{quiet};
+    unless ( $entry{file_length} ) {
+        print "done.\nquery length ..."
+            unless $opts{quiet};
 
         $curl->setopt(CURLOPT_URL, $entry{xurl});
         # Do not download: GET => HEAD request.
@@ -372,13 +373,13 @@ sub query_video_length {
 
         if ( $rc == 200 ) {
             my $content_ok = 0;
-            if ( $content_type =~ m!video/(.*)! ) {
+            if ( $content_type =~ m{video/(.*)} ) {
                 $entry{file_suffix} = $1;
                 if ( $content_type =~ /(.*)-(.*)$/ ) {
                     $entry{file_suffix} = $2;
                 } $content_ok = 1;
             # Break and Metacafe return "text/plain" for Content-Type
-            } elsif ( $content_type =~ m!text/plain! ) {
+            } elsif ( $content_type =~ m{text/plain} ) {
                 if ( $opts{format} eq "flv" ) {
                     if ( $entry{page_url} =~ /$re_hosts{IsBreak}/ ) {
                      #or $entry{page_url} =~ /$re_hosts{IsMetacafe}/ ) {
@@ -387,7 +388,7 @@ sub query_video_length {
                     }
                 }
             # Liveleak returns "flv-application/octet-stream"
-            } elsif ( $content_type =~ m!flv-application/octet-stream! ) {
+            } elsif ( $content_type =~ m{flv-application/octet-stream} ) {
                 if ( $entry{page_url} =~ /$re_hosts{IsLiveleak}/ ) {
                     if ( $opts{format} eq "flv" ) {
                         $entry{file_suffix} = 'flv';
@@ -396,7 +397,8 @@ sub query_video_length {
                 }
             }
             $errmsg = "expected different content-type, "
-                . "received \"$content_type\"" unless $content_ok;
+                    . "received \"$content_type\""
+                        unless $content_ok;
         } else {
             $errmsg = "server returned http/$rc";
         }
@@ -405,7 +407,7 @@ sub query_video_length {
     }
 
     unless ( $opts{quiet} ) {
-        if ( ! $errmsg ) { print "done.\n"; } 
+        if ( !$errmsg ) { print "done.\n"; } 
         else { print STDERR "\nerror: $errmsg\n"; }
     }
 

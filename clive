@@ -1243,7 +1243,9 @@ sub fetch_liveleak_config {
 
 sub fetch_sevenload_configxml {
     my ($conf_url, $response_fh) = @_;
-    print "done.\nfetch config xml..." unless $opts{quiet};
+
+    print "done.\nfetch config xml..."
+        unless $opts{quiet};
 
     my $conf_xml = "";
     open my $conf_fh, ">", \$conf_xml;
@@ -1254,12 +1256,11 @@ sub fetch_sevenload_configxml {
     $curl->setopt(CURLOPT_WRITEDATA, $conf_fh);
 
     my $rc = $curl->perform;
+    close $conf_fh;
 
     # Re-enable: header
     $curl->setopt(CURLOPT_HEADER, 1);
     $curl->setopt(CURLOPT_WRITEDATA, $response_fh);
-
-    close $conf_fh;
 
     my ($id, $xurl, $title);
 
@@ -1274,9 +1275,15 @@ sub fetch_sevenload_configxml {
     }
 
     my $errmsg;
-    $errmsg = "failed to extract item title" if ! $title;
-    $errmsg = "failed to extract item id"    if ! $id and ! $errmsg;
-    print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
+
+    $errmsg = "failed to extract item title"
+        if !$title;
+
+    $errmsg = "failed to extract item id"
+        if !$id and !$errmsg;
+
+    print STDERR "\nerror: $errmsg\n"
+        if $errmsg;
 
     return ($xurl, $id, $title);
 }

@@ -152,12 +152,16 @@ sub init_curl {
     $curl = WWW::Curl::Easy->new;
 
     $curl->setopt(CURLOPT_USERAGENT, $opts{agent} || "Mozilla/5.0");
-    $curl->setopt(CURLOPT_VERBOSE, 1) if $opts{debug};
-    $curl->setopt(CURLOPT_PROXY, $opts{proxy}) if defined $opts{proxy};
     $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
     $curl->setopt(CURLOPT_AUTOREFERER, 1);
     $curl->setopt(CURLOPT_HEADER, 1);
     $curl->setopt(CURLOPT_NOBODY, 0);
+
+    $curl->setopt(CURLOPT_VERBOSE, 1)
+        if $opts{debug};
+
+    $curl->setopt(CURLOPT_PROXY, $opts{proxy})
+        if defined $opts{proxy};
 
     $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE, $opts{maxspeed})
         if $opts{maxpseed}; # NOTE: No effect. Bug in WWW::Curl::Easy?

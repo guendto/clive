@@ -684,7 +684,9 @@ sub handle_google {
     );
 
     #my $redir  = $1 if $$response_ref =~ /$re{GrabRedirect}/;
-    my $xurl   = uri_unescape($1) if $$response_ref =~ /$re{GrabVideoURL}/;
+    my $xurl   = uri_unescape($1)
+        if $$response_ref =~ /$re{GrabVideoURL}/;
+
     my $id     = $1 if $$response_ref =~ /$re{GrabID}/;
     my $mp4    = $1 if $$response_ref =~ /$re{GrabMP4}/;
 
@@ -697,8 +699,11 @@ sub handle_google {
 #        print "Found a redirect to another host. Pushed into queue.\n"
 #            unless $opts{quiet};
 #    } else {
-        $xurl = "http://vp.$mp4" if $mp4 and $opts{format} eq "mp4";
-        print STDERR "\nerror: extraction url not found\n" unless $xurl;
+        $xurl = "http://vp.$mp4"
+            if $mp4 and $opts{format} eq "mp4";
+
+        print STDERR "\nerror: extraction url not found\n"
+            unless $xurl;
 #    }
     return ($xurl, $id);
 }

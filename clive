@@ -416,7 +416,9 @@ sub query_video_length {
 
 sub extract_video {
     my ($rc, $content_type) = query_video_length();
-    return if ( $rc != 0 or !defined $content_type );
+
+    return
+        if $rc != 0 or !defined $content_type;
 
     my $fn          = title_to_filename($entry{page_title});
     my $path        = File::Spec->catfile( $opts{savedir} || $workdir, $fn );
@@ -431,9 +433,16 @@ sub extract_video {
     if ( $size > 0 and !$opts{overwrite} ) {
         if ( $size == $entry{file_length} and $opts{extract} ) {
             print "refused: localfile length matches remotefile length.\n";
-            push @play_queue,$path if $opts{play};
-            push @rencode_queue,$path if $opts{rencode};
-            return unless $opts{emitcsv} or $opts{emitxml};
+
+            push @play_queue,$path
+                if $opts{play};
+
+            push @rencode_queue,$path
+                if $opts{rencode};
+
+            return
+                unless $opts{emitcsv} or $opts{emitxml};
+
         } elsif ( $size < $entry{file_length} and $opts{continue} ) {
             $cont_from  = $size;
             $filemode   = ">>";
@@ -455,22 +464,32 @@ sub extract_video {
     unless ( $opts{quiet} ) {
         print "file: $fn\n";
         print "length: $entry{file_length} ";
-        printf"(%.2fMB)  ",$entry{file_length}/MBDIV if $entry{file_length};
-        printf "from: %u (left: %u)  ", $cont_from, $remaining if $cont_from;
-        printf "[$content_type]" if $content_type;
+
+        printf"(%.2fMB)  ",$entry{file_length}/MBDIV
+            if $entry{file_length};
+
+        printf "from: %u (left: %u)  ", $cont_from, $remaining
+            if $cont_from;
+
+        printf "[$content_type]"
+            if $content_type;
+
         print "\n";
     }
 
     if ( $rc == 0 ) {
-        return unless $opts{extract};
+        return
+            unless $opts{extract};
 
         if ( open my $fh, "$filemode$path" ) {
             # Disable: encoding, header
-            $curl->setopt(CURLOPT_ENCODING, "identity");
             $curl->setopt(CURLOPT_HEADER, 0);
+            $curl->setopt(CURLOPT_ENCODING, "identity");
             $curl->setopt(CURLOPT_URL, $entry{xurl});
-            $curl->setopt(CURLOPT_RESUME_FROM, $cont_from) if $cont_from;
             $curl->setopt(CURLOPT_WRITEDATA, $fh);
+
+            $curl->setopt(CURLOPT_RESUME_FROM, $cont_from)
+                if $cont_from;
 
             unless ( $opts{quiet} ) {
                 $curl->setopt(CURLOPT_PROGRESSFUNCTION, \&progress_callback);
@@ -479,7 +498,8 @@ sub extract_video {
 
                 # Use 'dot' progress if the output is not a TTY
                 if ( $opts{progress} !~ /^dot/ and $opts{progress} ne 'none' ) {
-                    $opts{progress} = 'dot' if ! -t STDOUT or ! -t STDERR;
+                    $opts{progress} = 'dot'
+                        if ! -t STDOUT or ! -t STDERR;
                 }
 
                 if ( $opts{progress} =~ /^bar/ ) {
@@ -516,9 +536,14 @@ sub extract_video {
     }
 
     if ( ! $errmsg ) {
-        print "\nclosed http/$rc.\n" unless $opts{quiet};
-        push @play_queue,$path if $opts{play};
-        push @rencode_queue,$path if $opts{rencode};
+        print "\nclosed http/$rc.\n"
+            unless $opts{quiet};
+
+        push @play_queue,$path
+            if $opts{play};
+
+        push @rencode_queue,$path
+            if $opts{rencode};
     } else {
         print STDERR "\nerror: $errmsg\n";
     }

@@ -199,11 +199,17 @@ sub auth_youtube { # Log into Youtube
     }
     close $fh;
 
-    print STDERR "\n$errmsg\n" and exit if $errmsg;
+    print STDERR "\n$errmsg\n" and exit
+        if $errmsg;
 
-    print "done.\n[youtube] bypass age check ..." unless $opts{quiet};
-    $curl->setopt(CURLOPT_COOKIE, "is_adult=" . uc( sha1_hex(rand()) ) );
-    print "done.\n" unless $opts{quiet};
+    print "done.\n[youtube] bypass age check ..."
+        unless $opts{quiet};
+
+    $curl->setopt(CURLOPT_COOKIE, "is_adult="
+        . uc( sha1_hex(rand()) ) );
+
+    print "done.\n"
+        unless $opts{quiet};
 
     $ytube_logged = 1;
 }

@@ -744,17 +744,29 @@ sub handle_break {
     my ($xurl, $errmsg);
     if ( $fpath and $fname ) {
         $xurl = "http://media1.break.com/dnet/media/$fpath/$fname";
+
         my $fmt = $opts{format};
-        $fmt = 'flv' if not grep /$opts{format}/, ('flv','wmv');
+
+        $fmt = 'flv'
+            if not grep /$opts{format}/, ('flv','wmv');
+
         $xurl .= ".$fmt";
     } else {
-        $errmsg = "failed to extract ContentFilePath" if ! $fpath;
-        $errmsg = "failed to extract FileName" if ! $fname and ! $errmsg;
+        $errmsg = "failed to extract ContentFilePath"
+            if !$fpath;
+
+        $errmsg = "failed to extract FileName"
+            if !$fname and !$errmsg;
     }
 
-    $errmsg = "failed to extract title" if ! $title and ! $errmsg;
-    $errmsg = "failed to extract id"    if ! $id and ! $errmsg;
-    print STDERR "\nerror: " . $errmsg . "\n" if $errmsg;
+    $errmsg = "failed to extract title"
+        if !$title and !$errmsg;
+
+    $errmsg = "failed to extract id"
+        if !$id and !$errmsg;
+
+    print STDERR "\nerror: $errmsg\n"
+        if $errmsg;
 
     return ($xurl, $id, $title);
 }

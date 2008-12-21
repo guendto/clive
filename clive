@@ -1182,7 +1182,9 @@ sub daemonize {
 
 sub fetch_liveleak_playlist {
     my $playlist_url = shift;
-    print "done.\nfetch playlist xspf ..." unless $opts{quiet};
+
+    print "done.\nfetch playlist xspf ..."
+        unless $opts{quiet};
 
     my $playlist = "";
     open my $fh, ">", \$playlist;
@@ -1204,7 +1206,8 @@ sub fetch_liveleak_playlist {
         print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
     }
 
-    print STDERR "\nerror: track <location> not found\n" unless $xurl;
+    print STDERR "\nerror: track <location> not found\n"
+        unless $xurl;
 
     return $xurl;
 }

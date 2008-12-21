@@ -779,8 +779,11 @@ sub handle_liveleak {
         GrabConfigURL   => qr|'config','(.*?)'|,
     );
 
-    my $id = $1 if $$response_ref =~ /$re{GrabID}/;
-    my $conf_url = uri_unescape($1) if $$response_ref =~ /$re{GrabConfigURL}/;
+    my $id = $1
+        if $$response_ref =~ /$re{GrabID}/;
+
+    my $conf_url = uri_unescape($1)
+        if $$response_ref =~ /$re{GrabConfigURL}/;
 
     my $xurl;
     if ( $conf_url ) {

@@ -1437,15 +1437,21 @@ sub save_entry {
     my @values;
 
     $entry{time_stamp} = strftime("%F %T",localtime);
-    push @values,$entry{$_} foreach sort keys %entry;
+
+    push @values,$entry{$_}
+        foreach sort keys %entry;
 
     $cache{$hash} = join(';',@values);
     $cache_db->db_sync();
 }
 
 sub grep_cache {
-    my $g = $opts{case} ? qr|$opts{grep}| : qr|$opts{grep}|i;
+    my $g   =
+        $opts{case} ? qr|$opts{grep}|
+                    : qr|$opts{grep}|i;
+
     my $fmt = $opts{showfmt} || SHOWFMT_DEFAULT;
+
     foreach ( sort keys %cache ) {
         my @e = split(/;/,$cache{$_});
         if ( grep /$g/, @e ) {
@@ -1456,7 +1462,8 @@ sub grep_cache {
             else { push @queue,$e[4]; } # 4=URL
         }
     }
-    exit if $opts{delete} and not $opts{show};
+    exit
+        if $opts{delete} and not $opts{show};
 }
 
 sub translate_embed {

@@ -41,9 +41,10 @@ use Cwd qw(getcwd);
 use File::Spec;
 use Encode;
 
-use constant VERSION => "2.1.2-dev";
+use constant VERSION             => "2.1.2-dev";
+use constant MBDIV               => 0x100000;
 use constant BP_REFRESH_INTERVAL => 0.2;
-use constant MBDIV   => 0x100000;
+use constant SHOWFMT_DEFAULT     => qq/%D: "%t" | %mMB/;
 
 # Non-essential modules: set flags indicating availability
 my %opted_mods = (Clipboard => 1, Expect => 1, IOPager => 1);
@@ -58,8 +59,6 @@ my $CONFIGDIR   = $ENV{CLIVE_CONFIGDIR}
 my $CONFIGFILE  = File::Spec->catfile($CONFIGDIR, "config");
 my $CACHEFILE   = File::Spec->catfile($CONFIGDIR, "cache");
 my $RECALLFILE  = File::Spec->catfile($CONFIGDIR, "recall");
-
-my $SHOWFMT_DEFAULT = qq/%D: "%t" | %mMB/;
 
 my %opts;           # runtime options
 my @queue;          # input URLs
@@ -1248,7 +1247,7 @@ sub init_cache {
 sub show_cache {
     IO::Pager->new(*STDOUT) if $opted_mods{IOPager};
 
-    my $fmt = $opts{showfmt} || $SHOWFMT_DEFAULT;
+    my $fmt = $opts{showfmt} || SHOWFMT_DEFAULT;
     my @entries = ();
 
     if ( $opts{grep} ) {
@@ -1314,7 +1313,7 @@ sub save_entry {
 
 sub grep_cache {
     my $g = $opts{case} ? qr|$opts{grep}| : qr|$opts{grep}|i;
-    my $fmt = $opts{showfmt} || $SHOWFMT_DEFAULT;
+    my $fmt = $opts{showfmt} || SHOWFMT_DEFAULT;
     foreach ( sort keys %cache ) {
         my @e = split(/;/,$cache{$_});
         if ( grep /$g/, @e ) {

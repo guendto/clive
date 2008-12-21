@@ -1214,7 +1214,9 @@ sub fetch_liveleak_playlist {
 
 sub fetch_liveleak_config {
     my $config_url = shift;
-    print "done.\nfetch config xml ..." unless $opts{quiet};
+
+    print "done.\nfetch config xml ..."
+        unless $opts{quiet};
 
     my $config = "";
     open my $fh, ">", \$config;

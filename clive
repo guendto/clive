@@ -712,7 +712,9 @@ sub handle_sevenload {
     my ($response_ref, $response_fh) = @_;
 
     my %re       = ( GrabConfigPath => qr|configPath=(.*?)"| );
-    my $confpath = uri_unescape($1) if $$response_ref =~ /$re{GrabConfigPath}/;
+
+    my $confpath = uri_unescape($1)
+        if $$response_ref =~ /$re{GrabConfigPath}/;
 
     my ($id, $xurl, $title);
     if ( $confpath ) {

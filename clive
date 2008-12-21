@@ -657,14 +657,18 @@ sub handle_youtube {
 
     if ( $id and $t ) {
         $xurl = "http://youtube.com/get_video?video_id=$id&t=$t";
+
         my $fmt;
         if      ( $opts{format} eq  "mp4" ) { $fmt = 18; }
         elsif   ( $opts{format} eq "3gpp" ) { $fmt = 17; }
         elsif   ( $opts{format} eq "xflv" ) { $fmt =  6; }
-        $xurl .= "&fmt=$fmt" if $fmt;
+
+        $xurl .= "&fmt=$fmt"
+            if $fmt;
     } else {
         printf STDERR "\nerror: failed to extract &%s\n",
-            $id ? "t":"video_id";
+            $id ? "t"
+                : "video_id";
     }
     return ($xurl, $id);
 }

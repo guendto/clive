@@ -869,7 +869,9 @@ sub dot_init {
 
 sub dot_update {
     my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
-    my ($percent, $elapsed, $rate, $eta) = calc_progress($dlnow, $dltotal, 1);
+
+    my ($percent, $elapsed, $rate, $eta) =
+        calc_progress($dlnow, $dltotal, 1);
 
     return 0
         if $elapsed < 1.0;

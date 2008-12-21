@@ -815,12 +815,18 @@ sub handle_metacafe {
     if ( $videocdn and $mediaurl ) {
         $xurl = uri_unescape($videocdn .'/'. $mediaurl);
     } else {
-        $errmsg = "failed to extract videoCDNURL" if !$videocdn;
-        $errmsg = "failed to extract mediaURL" if !$errmsg and !$mediaurl;
+        $errmsg = "failed to extract videoCDNURL"
+            if !$videocdn;
+
+        $errmsg = "failed to extract mediaURL"
+            if !$errmsg and !$mediaurl;
     }
 
-    $errmsg = "failed to extract itemID" if !$id and !$errmsg;
-    print STDERR "\nerror: " .$errmsg. "\n" if $errmsg;
+    $errmsg = "failed to extract itemID"
+        if !$id and !$errmsg;
+
+    print STDERR "\nerror: $errmsg\n"
+        if $errmsg;
 
     return ($xurl, $id);
 }

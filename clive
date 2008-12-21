@@ -600,18 +600,20 @@ sub parse_input {
 
     return if $url =~ /^$/;
     return if $url =~ /^#/;
+
     chomp $url;
 
     if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects
         printf "found redirect ...%s\n=> %s\n",
             (split(/&/,$url))[0],
             (split(/&/,uri_unescape($1)))[0]
-            unless $opts{quiet};
+                unless $opts{quiet};
         $url = uri_unescape($1);
     }
 
     # Insert http:// if not found
-    $url = "http://$url" if $url !~ m!^http://!i;
+    $url = "http://$url"
+        if $url !~ m{^http://}i;
 
     # Translate embedded URL to video page URL
     translate_embed(\$url);
@@ -619,8 +621,10 @@ sub parse_input {
     # Last.fm wraps Youtube videos as their own
     if ( $url =~ /$re_hosts{IsLastfm}/ ) {
         $url =~ /\Q+1-\E(.+)/;
+
         print STDERR "error: nosupport: $url\n" and return -1
             unless defined($1);
+
         $url = "http://youtube.com/watch?v=$1";
     }
 
@@ -628,9 +632,12 @@ sub parse_input {
     ($url) = split(/&/,$url);
 
     foreach my $re ( %re_hosts ) {
-        push @queue,$url and return 0 if $url =~ /$re/;
+        push @queue,$url and return 0
+            if $url =~ /$re/;
     }
+
     print STDERR "error: nosupport: $url\n";
+
     return -1;
 }
 

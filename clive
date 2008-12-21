@@ -1092,7 +1092,8 @@ sub main {
 
 sub grab_clivepass {
     # TODO: Supports only Youtube. Expand to support other websites as needed.
-    return unless $opts{login} and $opts{ytuser} and $opts{ytpass} eq "-";
+    return
+        unless $opts{login} and $opts{ytuser} and $opts{ytpass} eq "-";
 
     print STDERR "error: no path to clivepass, use --clivepass\n" and exit
         unless $opts{clivepass};
@@ -1101,7 +1102,8 @@ sub grab_clivepass {
         unless $opted_mods{Expect};
 
     my $phrase;
-    $phrase = getpass("Enter passphrase for clivepass: ") while ( ! $phrase );
+    $phrase = getpass("Enter passphrase for clivepass: ")
+        while ( ! $phrase );
 
     my $e = Expect->new;
     $e->log_stdout(0);
@@ -1123,16 +1125,19 @@ sub grab_clivepass {
             my $fh = shift;
             $pwd = $fh->before();
             if ( $pwd =~ /error: (.*?)$/ ) {
-                print STDERR "clivepass: error: $1\n"; exit;
+                print STDERR "clivepass: error: $1\n";
+                exit;
             } else {
                 $pwd = $1 if ( $pwd =~ /login: $opts{ytuser}=(.*?)$/ );
             }
         } else {
-            print STDERR "error: could not spawn $opts{clivepass}\n"; exit;
+            print STDERR "error: could not spawn $opts{clivepass}\n";
+            exit;
         }
     }],
     [ timeout => sub {
-        print STDERR "error: clivepass: expect timed out\n"; exit;
+        print STDERR "error: clivepass: expect timed out\n";
+        exit;
     }]);
 
     $opts{ytpass} = $pwd;

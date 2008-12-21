@@ -468,7 +468,7 @@ sub extract_video {
 
             if ( $rc == 0 ) {
                 $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
-                if ( $rc == 200 ) {
+                if ( $rc == 200 or $rc == 206 ) {
                     if    ( $opts{progress} =~ /^bar/ ) { bar_finish() }
                     elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
                 } else {

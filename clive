@@ -836,8 +836,8 @@ sub handle_metacafe {
 # NOTE: the 'dot' progress copies much from wget.
 
 sub progress_callback {
-    if ( $opts{progress} =~ /^dot/ )   { dot_update(@_); }
-    elsif ( $opts{progress} =~ /^bar/ ){ bar_update(@_); }
+    if    ( $opts{progress} =~ /^dot/ ) { dot_update(@_); }
+    elsif ( $opts{progress} =~ /^bar/ ) { bar_update(@_); }
     return 0;
 }
 

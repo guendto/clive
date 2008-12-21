@@ -309,7 +309,9 @@ sub fetch_page {
 
 sub process_page {
     my ($url, $response_ref, $response_fh) = @_;
-    print "done.\nprocess page ..." unless $opts{quiet};
+
+    print "done.\nprocess page ..."
+        unless $opts{quiet};
 
     $$response_ref =~ tr{\n}//d;
 
@@ -332,7 +334,8 @@ sub process_page {
 #    elsif ( $url =~ /$re_hosts{IsMetacafe}/ ) {
 #        ($xurl, $id) = handle_metacafe($response_ref);
 #    }
-    return -1 if ! $xurl or ! $id or ! $title;
+    return -1
+        if !$xurl or !$id or !$title;
 
     $title =~ tr{;}//d; # Cache values cannot contain ';'
 

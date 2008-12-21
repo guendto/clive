@@ -260,27 +260,31 @@ sub fetch_page {
 
     # Youtube: log-in only if both username and password are defined
     if ( $opts{ytuser} and $opts{ytpass} and $opts{login} ) {
-        auth_youtube() if ! $ytube_logged and $url =~ /$re_hosts{IsYoutube}/;
+        auth_youtube()
+            if !$ytube_logged and $url =~ /$re_hosts{IsYoutube}/;
     }
 
     if ( $cache{$hash} ) {
         fetch_entry($hash); # Make sure cached "format" matches with options
-        $from_cache = 1 if $opts{format} eq $entry{file_format};
+        $from_cache = 1
+            if $opts{format} eq $entry{file_format};
     }
 
-    $from_cache = 0 if $opts{renew};
+    $from_cache = 0
+        if $opts{renew};
 
-    printf "%s $url ...", !$from_cache ? "fetch":"cache" 
-        unless $opts{quiet};
+    printf "%s $url ...",
+        $from_cache ? "cache" : "fetch" 
+            unless $opts{quiet};
 
-    if ( !$from_cache ) {
+    $rc = 0xff; # flag: read cache entry
+
+    unless ( $from_cache ) {
         %entry = ();
         $curl->setopt(CURLOPT_URL, $url);
         $curl->setopt(CURLOPT_ENCODING, "");
         $curl->setopt(CURLOPT_WRITEDATA, $fh);
         $rc = $curl->perform;
-    } else {
-        $rc = 0xff; # cache
     }
 
     return ($rc, $fh, decode_utf8($response));

@@ -1005,19 +1005,24 @@ sub calc_progress {
     my ($dlnow, $dltotal, $condensed, $elapsed) = @_;
 
     my $percent = 0;
-    $percent    = int ($dlnow / $dltotal * 100) if $dltotal;
+
+    $percent = int ($dlnow / $dltotal * 100)
+        if $dltotal;
 
     $elapsed = time - $time_started
         unless $elapsed;
 
     my $eta     = '--:--';
     my $rate    = 0;
-    $rate       = $dlnow / $elapsed if $elapsed;
+
+    $rate = $dlnow / $elapsed
+        if $elapsed;
 
     if ( $rate > 0 ) {
         my $left = ( $dltotal - $dlnow ) / $rate;
-        $eta = time2str($left, $condensed);
+        $eta     = time2str($left, $condensed);
     }
+
     return ($percent, $elapsed, $rate, $eta);
 }
 

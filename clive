@@ -910,13 +910,16 @@ sub dot_finish {
         if $dp{dots} == 0;
 
     for (my $i=$dp{dots}; $i<$dp{dots_in_line}; $i++) {
-        print " " if $i % $dp{dot_spacing} == 0;
+        print " "
+            if $i % $dp{dot_spacing} == 0;
+
         print " ";
     }
 
     my $elapsed = time - $time_started;
     my $eta     = time2str($elapsed, 1);
     my $rate    = $entry{file_length} / $elapsed;
+
     dot_print_row_stats(100, $elapsed, $eta, $rate, 1);
 }
 

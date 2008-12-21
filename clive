@@ -1371,7 +1371,8 @@ sub init_cache {
 }
 
 sub show_cache {
-    IO::Pager->new(*STDOUT) if $opted_mods{IOPager};
+    IO::Pager->new(*STDOUT)
+        if $opted_mods{IOPager};
 
     my $fmt = $opts{showfmt} || SHOWFMT_DEFAULT;
     my @entries = ();
@@ -1383,16 +1384,21 @@ sub show_cache {
     } else {
         push @entries, format_show( $fmt, $_ )
             foreach ( sort keys %cache );
-    }        
-    print STDOUT "$_\n" foreach sort @entries;
-    close STDOUT if $opted_mods{IOPager};
+    }
+
+    print STDOUT "$_\n"
+        foreach sort @entries;
+
+    close STDOUT
+        if $opted_mods{IOPager};
 
     if ( $opts{grep} and $opts{delete} and scalar @queue > 0 ) {
         print "Confirm delete (y/N):";
         $_ = lc <STDIN>;
         chomp;
         if ( lc $_ eq "y" ) {
-            delete $cache{sha1_hex($_)} foreach ( @queue );
+            delete $cache{sha1_hex($_)}
+                foreach ( @queue );
         }
     }
     exit;

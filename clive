@@ -1523,7 +1523,8 @@ sub emit {
                 $_->{cont_from}, $_->{remaining};
         }
     }
-    print "</queue>\n" if $opts{emitxml} and @emit_queue;
+    print "</queue>\n"
+        if $opts{emitxml} and @emit_queue;
 }
 
 sub print_version {

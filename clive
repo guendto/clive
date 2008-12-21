@@ -223,8 +223,8 @@ sub process_queue {
     foreach ( @queue ) {
         $hash = sha1_hex($_);
 
-        my ($rc, $rfh, $response) = fetch_page($_);
         my $errmsg;
+        my ($rc, $rfh, $response) = fetch_page($_);
 
         if ( $rc == 0 or $rc == 0xff ) {
             $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE)
@@ -242,21 +242,29 @@ sub process_queue {
             $errmsg = $curl->strerror($rc)." (http/$rc)";
         }
         close $rfh;
-        print STDERR "\nerror: $errmsg\n" if $errmsg;
+
+        print STDERR "\nerror: $errmsg\n"
+            if $errmsg;
     }
 
     foreach ( @play_queue ) {
-        print "play " .basename($_). "\n" unless $opts{quiet};
+        print "play " .basename($_). "\n"
+            unless $opts{quiet};
+
         my $cmd = $opts{play};
         $cmd =~ s/%i/"$_"/;
+
         system "$cmd";
     }
 
     foreach ( @rencode_queue ) {
-        print "re-encode " .basename($_). "\n" unless $opts{quiet};
+        print "re-encode " .basename($_). "\n"
+            unless $opts{quiet};
+
         my $cmd = $opts{rencode};
         $cmd =~ s/%i/"$_"/;
         $cmd =~ s/%o/"$_"/;
+
         system "$cmd";
     }
 

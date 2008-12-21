@@ -1072,8 +1072,9 @@ sub normalize_rate {
 
 sub main {
     init_cache();
-    if      ( $opts{clear} )    { clear_cache(); }
-    elsif   ( $opts{show} )     { show_cache(); }
+
+    if      ( $opts{clear} ) { clear_cache(); }
+    elsif   ( $opts{show} )  { show_cache(); }
 
     grab_clivepass();
     get_queue();
@@ -1081,7 +1082,8 @@ sub main {
     select STDERR; $| = 1; # => unbuffered
     select STDOUT; $| = 1;
 
-    daemonize() if $opts{background};
+    daemonize()
+        if $opts{background};
 
     process_queue();
 

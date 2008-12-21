@@ -992,10 +992,12 @@ sub bar_update { # See no bar, hear no bar, speak no bar.
 
 sub bar_finish { # Never again.
     return if $opts{quiet};
+
     if ( $bp{total} > 0
-        && $bp{count} + $bp{initial} > $bp{total} ) {
+         && $bp{count} + $bp{initial} > $bp{total} ) {
         $bp{total} = $bp{initial} + $bp{count};
     }
+
     bar_update(-1,-1,-1,-1,-1, 1);
 }
 

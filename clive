@@ -1367,7 +1367,7 @@ sub init_cache {
     $cache_db = tie %cache, "BerkeleyDB::Hash",
         -Filename => $CACHEFILE,
         -Flags => DB_CREATE
-    or die "error: cannot open $CACHEFILE: $! $BerkeleyDB::Error\n";
+        or die "error: cannot open $CACHEFILE: $! $BerkeleyDB::Error\n";
 }
 
 sub show_cache {

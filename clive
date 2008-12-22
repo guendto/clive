@@ -84,6 +84,7 @@ my %re_hosts = (    # Precompiled regex used to identify the host
     IsBreak     => qr|\Qbreak.com\E|i,
     IsLastfm    => qr|\Qlast.fm\E|i,
     IsLiveleak  => qr|\Qliveleak.com\E|i,
+    IsEvisor    => qr|\Qevisor.tv\E|i,
     #IsMetacafe => qr|\Qmetacafe.com\E|i,
 );
 
@@ -330,6 +331,8 @@ sub process_page {
         ($xurl, $id, $title) = handle_break($response_ref);
     } elsif ( $url =~ /$re_hosts{IsLiveleak}/ ) {
         ($xurl, $id) = handle_liveleak($response_ref, $response_fh);
+    } elsif ( $url =~ /$re_hosts{IsEvisor}/ ) {
+        ($xurl, $id) = handle_evisor($response_ref);
     }
 #    elsif ( $url =~ /$re_hosts{IsMetacafe}/ ) {
 #        ($xurl, $id) = handle_metacafe($response_ref);
@@ -378,10 +381,11 @@ sub query_video_length {
                 if ( $content_type =~ /(.*)-(.*)$/ ) {
                     $entry{file_suffix} = $2;
                 } $content_ok = 1;
-            # Break and Metacafe return "text/plain" for Content-Type
+            # Break, Evisor and Metacafe return "text/plain" for Content-Type
             } elsif ( $content_type =~ m{text/plain} ) {
                 if ( $opts{format} eq "flv" ) {
-                    if ( $entry{page_url} =~ /$re_hosts{IsBreak}/ ) {
+                    if ( $entry{page_url} =~ /$re_hosts{IsBreak}/
+                      or $entry{page_url} =~ /$re_hosts{IsEvisor}/ ) {
                      #or $entry{page_url} =~ /$re_hosts{IsMetacafe}/ ) {
                         $entry{file_suffix} = "flv";
                         $content_ok = 1;
@@ -795,6 +799,34 @@ sub handle_liveleak {
     } else {
         print STDERR "error: config url not found\n";
     }
+    return ($xurl, $id);
+}
+
+sub handle_evisor {
+    my $respr = shift;
+
+    my %re = (
+        GrabXurl    => qr|file=(.*?)"|,
+        GrabID      => qr|.+/(.*?).flv|,
+    );
+
+    my ($xurl, $id, $errmsg);
+
+    $xurl = $1
+        if $$respr =~ /$re{GrabXurl}/;
+
+    $id = $1
+        if $xurl and $xurl =~ /$re{GrabID}/;
+
+    $errmsg = "video extraction url not found"
+        unless $xurl;
+
+    $errmsg = "video id not found"
+        unless $id and !$errmsg;
+
+    print STDERR "error: $errmsg\n"
+        if $errmsg;
+
     return ($xurl, $id);
 }
 
@@ -2016,6 +2048,12 @@ The B<--continue> option works.
 =over 4
 
 =item B<www.liveleak.com>
+
+Formats: flv
+
+The B<--continue> option works.
+
+=item B<www.evisor.tv>
 
 Formats: flv
 

@@ -1,6 +1,7 @@
 Version 2.1.2-dev
 
  User-visible changes:
+  * Added support for evisortv
   * Fixed: reused incorrectly last http error code for remaining urls in queue
   * Fixed: progressbar reported 100% even if error had occurred (e.g. http/403)
 

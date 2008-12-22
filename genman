@@ -5,7 +5,7 @@ use strict;
 
 open(my $fh, "<", "clive") or die "error: clive: $!";
 
-my $re = qr|VERSION => "(.*?)"|;
+my $re = qr|VERSION.+=> "(.*?)"|;
 my $release;
 
 while ( <$fh> ) {

@@ -1,4 +1,5 @@
-Version 2.1.2-dev
+Version 2.1.2
+(December 29, 2008)
 
  User-visible changes:
   * Removed "See --manual" from --version output

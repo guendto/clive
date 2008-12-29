@@ -3,6 +3,7 @@ Version 2.1.2-dev
  User-visible changes:
   * Removed "See --manual" from --version output
   * Added support for evisortv
+    - http://code.google.com/p/clive/issues/detail?id=4
   * Fixed: reused incorrectly last http error code for remaining urls in queue
   * Fixed: progressbar reported 100% even if error had occurred (e.g. http/403)
 
@@ -41,6 +42,7 @@ Version 2.1.0
   * Replaced Term::Progressbar with a built-in thermometer progressbar
   * Removed --progress=bar:nominor support due to above changes
   * Added liveleakcom support
+    - http://code.google.com/p/clive/issues/detail?id=3
 
  Developer-visible changes:
   * Made IO::Pager module optional

@@ -53,7 +53,7 @@ eval "use IO::Pager;"; $opted_mods{IOPager}     = 0 if $@;
 sub exp_continue() {}; # Satisfies: "Bareword "exp_continue" not allowed while"
 eval "use Expect;"; $opted_mods{Expect}         = 0 if $@;
 
-my $CONFIGDIR   = $ENV{CLIVE_CONFIGDIR}
+my $CONFIGDIR   = $ENV{CLIVE_HOME}
     || File::Spec->catfile($ENV{HOME}, ".config/clive");
 
 my $CONFIGFILE  = File::Spec->catfile($CONFIGDIR, "config");
@@ -2129,8 +2129,8 @@ make sure it is not dismissing unicode characters.
 
 =head1 FILES
 
-By default, clive searches the ~/.config/clive directory for the config file.
-The B<CLIVE_CONFIGDIR> environment variable can be used to override this.
+clive searches the ~/.config/clive directory for the config file. You can
+override this by setting the B<CLIVE_HOME> environment variable.
 
 =over 4
 

@@ -1,5 +1,8 @@
 Version 2.1.3-dev
 
+ Developer-visible changes:
+  * Cleaned up FreeBSD details (INSTALL)
+
 
 Version 2.1.2
 (December 29, 2008)

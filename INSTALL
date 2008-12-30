@@ -53,7 +53,6 @@ From the Ports:
  * security/p5-Digest-SHA
  * devel/p5-Config-Tiny
  * www/p5-HTML-Parser
- * net/p5-URI
 
  Optional:
  * x11/p5-Clipboard  # --paste
@@ -67,8 +66,8 @@ writing this. There are three (3) ways to work around this:
   1) Patch www/p5-WWW-Curl to 4.05. # For the adventurous
     % cd /usr/ports/www/p5-WWW-Curl
       (backing up this directory is recommended)
-    % wget -O patch.txt \
-      http://www.freebsd.org/cgi/query-pr.cgi?prp=125323-1-txt&n=/patch.txt
+    % fetch \
+        "http://www.freebsd.org/cgi/query-pr.cgi?prp=125323-1-txt&n=/patch.txt"
     % patch -p1 < patch.txt
     % make install clean
 

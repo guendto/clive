@@ -4,6 +4,7 @@ Version 2.1.3-dev
   * Renamed CLIVE_CONFIGDIR environment variable to CLIVE_HOME
 
  Developer-visible changes:
+  * Added LICENSE file
   * Cleaned up FreeBSD details (INSTALL)
 
 

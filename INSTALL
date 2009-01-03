@@ -3,11 +3,14 @@ Prerequisites
 
 * Perl >= 5.8 (http://perl.org)
 
-* Config::Tiny/2.12           * BerkeleyDB/0.34
-* WWW::Curl/4.05              * URI::Escape/3.29
-* HTML::TokeParser/2.37       * Clipboard/0.09 (optional)
-* IO::Pager/0.05 (optional)   * XML::Simple/2.18
-* Expect/1.21 (optional)
+If a module is listed as "opt." (optional), meaning that clive runs without
+the module but the features depending on that module are disabled.
+
+* Config::Tiny/2.12         * BerkeleyDB/0.34
+* WWW::Curl/4.05            * URI::Escape/3.29
+* HTML::TokeParser/2.37     * XML::Simple/2.18
+* Clipboard/0.09 (opt.)     * IO::Pager/0.05 (opt.)
+* Expect/1.21 (opt.)
 
 Most distros should have the above versions available as packages.
 If not, you can still use CPAN to install the missing modules, e.g.:
@@ -93,7 +96,7 @@ writing this. There are three (3) ways to work around this:
 Installation: Ubuntu (Hardy)
 ------------------------------------------------------------------------------
 
-TODO: Likely inaccurate. Anyone with enough time and more familiar with Ubuntu
+TODO: Likely inaccurate. Anyone with time and familiar with Ubuntu
       is most welcome to fill in.
 
 From apt: # Typically: "sudo apt-get install $module"

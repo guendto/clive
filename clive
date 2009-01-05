@@ -436,7 +436,8 @@ sub extract_video {
 
     if ( $size > 0 and !$opts{overwrite} ) {
         if ( $size == $entry{file_length} and $opts{extract} ) {
-            print "refused: localfile length matches remotefile length.\n";
+            print "ignored: localfile_length == remotefile_length. "
+                . "refusing to proceed any further.\n";
 
             push @play_queue,$path
                 if $opts{play};

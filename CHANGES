@@ -1,6 +1,7 @@
 Version 2.1.3-dev
 
  User-visible changes:
+  * Tweaked "localfile_length == remotefile_length" message
   * Renamed CLIVE_CONFIGDIR environment variable to CLIVE_HOME
 
  Developer-visible changes:

@@ -1872,6 +1872,7 @@ are used to name the extracted videos.
 Use I<string> for naming the extracted videos. The default is
 "%t-(%i)-[%d].%s". The following specifiers are supported:
 
+    %t = video title (after applying --cclass)
     %i = video id
     %d = video domain
     %s = video suffix

@@ -1648,11 +1648,11 @@ Display the manual page and exit.
 
 =item B<-v --version>
 
-Display version details and exit.
+Print version and exit.
 
 =item B<-M --modversion>
 
-Displays version details of the Perl and the used modules.
+Print installed Perl and module version details.
 
 =item B<-b --background>
 
@@ -1662,15 +1662,15 @@ file. Implies B<--progress=>I<dot>.
 
 =item B<-e --emit-csv>
 
-Do not actually extract any videos but dump the video details to stdout in CSV
-format. Note that the B<--quiet> option does not effect on the emitted output.
-For example:
+Do not extract any videos, instead print the video details as CSV to stdout.
+Ignores B<--quiet> for the CSV data.
 
     % clive -eq URL # Would still print the CSV content
 
 =item B<-E --emit-xml>
 
-Similar to B<--emit-csv> but in XML format. Overwrites B<--emit-csv>.
+Equivalent to B<--emit-csv> in every way but the output is XML. Negates
+B<--emit-csv>.
 
 =back
 
@@ -1680,16 +1680,16 @@ B<HTTP options>
 
 =item B<-U --agent=>I<string>
 
-Identify as I<string> to the HTTP server. Defaults to "Mozilla/5.0".
+Identify as I<string> to the HTTP server. Defaults is "Mozilla/5.0".
 
 =item B<-y --proxy=>I<address>
 
-Use I<address> for HTTP proxy, e.g. http://foo:1234. If http_proxy
-environment variable is defined, it will be used.
+Use I<address> for HTTP proxy, e.g. http://foo:1234. If undefined,
+uses the http_proxy environment setting if present.
 
 =item B<-X --noproxy>
 
-Do not use the defined HTTP proxy (B<--proxy>, config or http_proxy).
+Do not use HTTP proxy.
 
 =back
 
@@ -1699,15 +1699,15 @@ B<Cache Options>
 
 =item B<-R --renew>
 
-Renew the cache entries for the input URLs. See L</CACHE> in the manual page.
+Renew cache entries for the re-visited URLs. See L</CACHE> in the manual page.
 
 =item B<-s --show>
 
-Print cache entries to standard output.
+Print all cache entries to standard output.
 
 =item B<-H --show-format=>I<string>
 
-Format printed entries using the I<string>. The default is '%D: "%t" | %mMB'.
+Format printed entries using the I<string>. Default is '%D: "%t" | %mMB'.
 The following specifiers are supported:
 
     %t = video page title
@@ -1721,8 +1721,8 @@ The following specifiers are supported:
 
 =item B<-g --grep=>I<pattern>
 
-Grep cache entries for I<pattern>. All cache entry values are included in
-the search.
+Grep cache entries for I<pattern>. Matching is B<not> restricted to any specific
+cache entry field (e.g. title or id).
 
     % clive --grep=git
     % clive --grep=^git --ignore-case
@@ -1734,14 +1734,12 @@ B<--show> option. For example:
 
 =item B<-i --ignore-case>
 
-When used with B<--grep>, causes clive to ignore case differences between
-the patterns.
+Causes clive to ignore case-differences with B<--grep>.
 
 =item B<-D --delete>
 
-When used with B<--grep>, deletes the matched entries from cache. If used
-together with the B<--show> option, causes clive to prompt to confirm delete.
-For example:
+Delete grep-matched entries from the cache. If used with the B<--show>
+option, clive will prompt before deleting, e.g.:
 
     % clive -siDg ^git
 
@@ -1762,13 +1760,13 @@ stdout and stderr.
 
 =item B<-a --append=>I<logfile>
 
-Append to I<logfile>. This is the same as B<--output> but it appends to
+Append to I<logfile>. This is the same as B<--output> but appends to
 I<logfile> instead of overwriting it. If the I<logfile> does not exist,
-the file is created.
+it is created.
 
 =item B<-d --debug>
 
-Causes the program to print debug messages.
+Causes the program to print Curl debug messages.
 
 =item B<-q --quiet>
 
@@ -1776,9 +1774,8 @@ Turn off all output.
 
 =item B<-r --recall>
 
-Recall the last URL batch. If this option is used, no URLs need to be present
-on the command-line. Note that clive overwrites the last recall batch on each
-time it's run.
+Recall the last URL batch from the previous runtime. Note that clive overwrites
+this information at every runtime. See also L</CACHE>.
 
 =item B<-T --savebatch=>I<file>
 
@@ -1786,8 +1783,8 @@ Save current URL batch to I<file>.
 
 =item B<-x --paste>
 
-Paste input from clipboard. If this option is used, no URLs need to be present
-on the command-line. The pasted URLs are expected to be separated with newlines.
+Paste input from clipboard. The pasted URLs are expected to be separated with
+newlines.
 
 =back
 
@@ -1812,8 +1809,8 @@ from Youtube, for example.
 
 =item B<-W --overwrite>
 
-Causes clive to overwrite any already existing video files. The default
-behaviour appends a numeric suffix to the output filename.
+Causes clive to overwrite already existing video files. By default clive
+appends a numeric suffix to the output filename.
 
 =item B<-G --progress=>I<type>
 
@@ -1822,7 +1819,7 @@ Select the I<type> of the progress indicator. Accepted types are "bar",
 
 The "bar" indicator is used by default. It spews out some details indicating
 the status of retrieval. If the output is not a TTY, the "dot" bar will be
-used by default.
+used instead.
 
 Use --progress=dot to switch to the "dot" display. It traces the retrieval
 by printing dots on the screen, each dot representing a fixed amount of
@@ -1838,20 +1835,21 @@ the I<type> as dot:style.
     --progress=dot:mega
         each dot 64K,  8-dots clusters, 48-dots lines
 
-The "none" disables the progress indicator.
+Progress indication can be disabled completely by setting I<type> to "none".
 
 =item B<-u --youtube-user=>I<username>
 
-Use I<username> for logging into Youtube.
+I<username> to log into Youtube. Typically needed only if you are planning
+to extract videos flagged as mature-content.
 
 =item B<-t --youtube-pass=>I<password>
 
-Use I<password> for logging into Youtube. Set I<password> to "-" to retrieve
-the login password for the I<username> from L<clivepass(1)>.
+I<password> to log into Youtube. If I<password> is "-", causes clive to
+retrieve the login password from the L<clivepass(1)> utility. See L</EXAMPLES>.
 
 =item B<-L --nologin>
 
-Do not log into Youtube if I<username> and I<password> are defined.
+Do not log into Youtube.
 
 =item B<-S --savedir=>I<dir>
 
@@ -1859,17 +1857,17 @@ Save extracted videos to I<dir>.
 
 =item B<-f --format=>I<format>
 
-Extract I<format> of the video. See L</FORMATS> in the manual page.
+Extract I<format> of the video. All supported websites have at least the flv
+format available. See L</FORMATS> for more.
 
 =item B<-l --cclass=>I<character-class>
 
-Use I<character-class> for tweaking video page titles. The default is B<\w>.
-This is used to filter out any unwanted characters from the video titles which
-are used to name the extracted videos.
+Use I<character-class> to filter the video page titles. Default is B<\w>.
+The filtered video page titles are used to name the extracted videos.
 
 =item B<-N --filename-format=>I<string>
 
-Use I<string> for naming the extracted videos. The default is
+Use I<string> to construct the name of the extracted video. Default is
 "%t-(%i)-[%d].%s". The following specifiers are supported:
 
     %t = video title (after applying --cclass)
@@ -1883,7 +1881,7 @@ Use I<string> for naming the extracted videos. The default is
 =item B<-p --play=>I<command>
 
 Play the extracted videos with I<command>. The I<command> must include
-the %i specifier for input file. For example:
+the %i (input file) specifier. For example:
 
     % clive --play="xine %i" URL
 
@@ -1905,7 +1903,7 @@ Disable subsequent re-encoding.
 
 =item B<-V --clivepass=>I<path>
 
-Set I<path> to L<clivepass(1)> utility. If CLIVEPASS_PATH environment
+I<path> to the L<clivepass(1)> utility. If CLIVEPASS_PATH environment
 variable is set, it will will used.
 
 =back
@@ -1916,57 +1914,53 @@ variable is set, it will will used.
 
 =item % clive "http://youtube.com/watch?v=3HD220e0bx4"
 
-Extracts the video from the specified URL.
+Extract the video from the specified URL.
 
 =item % cat E<gt>E<gt> url.lst
 
  http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
  http://youtube.com/watch?v=3HD220e0bx4
  http://break.com/index/beach-tackle-whip-lash.html
+ http://www.liveleak.com/view?i=704_1228511265
 
 =item % cat url.lst | clive
 
-Reads input from UNIX pipe. Separate each URL with a newline.
+Read input from UNIX pipe.
 
 =item % clive -x URL URL
 
-Combines input from the command-line and the clipboard (each URL separated
+Combine input from the command-line and the clipboard (each URL separated
 with a newline).
 
 =item % clive -rf mp4
 
-Recalls the last URL batch and extracts the mp4 format.
+Recall the last URL batch and extract the mp4 format of the video.
 
 =item % clive -g 3HD220e0bx4
 
-Greps the pattern from the cache and extracts the matched videos.
+Grep the pattern from the cache and extract the matched videos.
 
 =item % clive -iDg ^3hd2
 
-Same as above but I<deletes> the matched entries from the cache instead of
-extracting them.
+Same as above but I<delete> the matched entries from the cache instead.
 
 =item % clive -s
 
-Dumps the contents of the cache to stdout.
+Print the contents of the cache to stdout.
 
 =item % clive -sig ^3hd2
 
-Instead of displaying all of the cache entries, show only the matching ones.
+Show only matched cache entries.
 
 =item % clive -big ^3hd2 -o my.log
 
-Goes to background immediately after startup, redirects output to I<my.log>
-file, greps for the pattern and extracts the video.
-
-=item % clive -bqig ^3hd2
-
-Same as above but turns off all output.
+Grep for the pattern, go to background, redirect output to I<my.log> and
+extract the grep-matched videos.
 
 =item % clive --play="xine %i" --rencode="ffmpeg -i %i %o.mpg" URL
 
-Play the extracted video using L<xine(1)> and re-encode it to mpeg format
-using L<ffmpeg(1)>.
+Play the extracted video with L<xine(1)> and re-encode it to mpeg format
+with L<ffmpeg(1)>.
 
 =item % clivepass --create
 
@@ -1974,24 +1968,27 @@ using L<ffmpeg(1)>.
 
 =item % clive -u myusername -t - -V /usr/bin/clivepass URL
 
-Use the L<clivepass(1)> utility to create an encrypted login password for
-"myusername". Then have clive call L<clivepass(1)> utility to retrieve the
-password before logging into Youtube and extracting the video from the URL.
-L<clivepass(1)> is part of the B<clive-utils> project, see the L</SEE ALSO>
-section.
+Create a new L<clivepass(1)> passwd login password "repository" file.
+ 
+Add Youtube login "myusername" to the repo.
+
+Chain clive-clivepass (retrieve login password from the repo, extract video).
+
+The L<clivepass(1)> utility is part of the B<clive-utils> project, see the
+L</SEE ALSO> section.
 
 =back
 
 =head1 FORMATS
 
 clive defaults to extract the flv format unless the B<--format> option is
-used. The requested format may not always be available and in such case
-the server usually returns the HTTP/404 or the HTTP/403 error.
+used. The requested format may not always be available. The server typically
+returns one of the HTTP/40x errors if a format is not available.
 
 The quality of the video depends on the uploaded video quality. Each
 website typically recompresses the uploaded videos to 320x240 resolution
-(sometimes higher). As this varies per video and website, you should not
-read too much into the video quality information listed below.
+(sometimes higher). Because this varies per video and website, you should
+consider the list below only as a reference. It may provide inaccurate info.
 
 =over 4
 
@@ -1999,16 +1996,14 @@ read too much into the video quality information listed below.
 
 =item B<www.last.fm>
 
-Formats: flv | mp4 | 3gpp | xflv
+Formats: (flv|mp4|3gpp|xflv)  Continue: Yes (except flv)
 
 The flv format is usually available unless the video has been removed or
 set private. The mp4 and 3gpp formats are often, or will become, available.
 The xflv on the other hand appears to be very rarely available.
 
-Videos dating back to 2006 are usually available as flv only. The B<--continue>
-option should work with all other formats but flv.
-
-Lastfm wraps Youtube videos.
+Videos dating back to 2006 are usually available as flv only. Last.fm links
+some of the videos to Youtube videos.
 
 =back
 
@@ -2016,13 +2011,9 @@ Lastfm wraps Youtube videos.
 
 =item B<video.google.com>
 
-Formats: flv | mp4
+Formats: (flv|mp4)  Continue: Only mp4
 
 The mp4 may not always be available.
-
-The B<--continue> option does not work with the flv format. Streaming seems
-impossible with the mp4. For a comparison, this is possible with Youtube's
-mp4 videos which are compressed using a different mp4 codec.
 
 =back
 
@@ -2030,9 +2021,7 @@ mp4 videos which are compressed using a different mp4 codec.
 
 =item B<www.sevenload.com>
 
-Formats: flv
-
-The B<--continue> option works.
+Formats: flv  Continue: Yes
 
 =back
 
@@ -2040,9 +2029,7 @@ The B<--continue> option works.
 
 =item B<www.break.com>
 
-Formats: flv | wmv
-
-The B<--continue> option works.
+Formats: (flv|wmv)  Continue: Yes
 
 =back
 
@@ -2050,15 +2037,11 @@ The B<--continue> option works.
 
 =item B<www.liveleak.com>
 
-Formats: flv
-
-The B<--continue> option works.
+Formats: flv  Continue: Yes
 
 =item B<www.evisor.tv>
 
-Formats: flv
-
-The B<--continue> option works.
+Formats: flv  Continue: Yes
 
 =back
 
@@ -2086,13 +2069,12 @@ The cache has two purposes:
 
 =item 1.
 
-Gather reusable info for a fast re-extraction without having to fetch the
-same data again.
+Keep reusable video data available for fast re-extraction.
 
 =item 2.
 
-Keep a record of videos. The B<--grep> option can then later be used to
-extract the videos.
+Keep a record of extracted videos. Various other utility features such as the
+B<--grep> can be used to access this data.
 
 =back
 
@@ -2111,23 +2093,25 @@ the cache entry automatically. This is done for two reasons:
 
 =item 1.
 
-The cached extraction URL would point to a wrong file
+Cache extraction URL points to a different file
 
 =item 2.
 
-The file length would be incorrect
+Video file length would be incorrect
 
 =back
 
 =head1 UNICODE
 
-As long as the terminal can handle unicode, so should clive. Details of enabling
-unicode in your terminal falls outside the scope of this manual page.
-If you are running X, switching to a unicode capable terminal
-(e.g. L<uxterm(1)>) may also provide some remedy to this.
+As long as the terminal can handle unicode, so should clive. Details of
+enabling unicode in your terminal falls outside the scope of this manual
+page.
 
-If you are using a user-defined character class (B<--cclass>),
-make sure it is not dismissing unicode characters.
+If you are running X, switching to a unicode capable terminal
+(e.g. L<uxterm(1)>) may provide quick remedy to this.
+
+If you are using a user-defined character class (B<--cclass>), make sure
+it is not dismissing unicode characters.
 
 =head1 FILES
 

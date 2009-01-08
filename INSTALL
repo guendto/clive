@@ -16,8 +16,6 @@ Most distros should have the above versions available as packages.
 If not, you can still use CPAN to install the missing modules, e.g.:
     % cpan install WWW::Curl # as root
 
-FreeBSD and Ubuntu users see the details further down.
-
 
 Installation
 ------------------------------------------------------------------------------
@@ -87,13 +85,13 @@ around this:
     % cpan install WWW::Curl # as root
 
 
-Installation: Ubuntu (Hardy)
+Installation: Debian/Ubuntu et al
 ------------------------------------------------------------------------------
 
-TODO: Likely inaccurate. Anyone with time and familiar with Ubuntu
-      is most welcome to fill in.
+NOTE: This section is likely to be inaccurate. It is likely that these distros
+have the clive package available anyway.
 
-From apt: # Typically: "sudo apt-get install $module"
+From apt: # Typically: "sudo apt-get install $package"
   * libcurl4-openssl-dev # Required to build WWW::Curl 4.05 using CPAN
   * libhtml-parser-perl
   * libconfig-tiny-perl

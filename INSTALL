@@ -42,10 +42,8 @@ See also:
     configrc file for an example of a configuration file.
 
 
-Installation: FreeBSD 7.0
+Installation: FreeBSD
 ------------------------------------------------------------------------------
-
-Assumes the Ports collection is up-to-date.
 
 From the Ports:
 ---------------
@@ -62,11 +60,12 @@ From the Ports:
  * lang/p5-Expect    # --clivepass
  * devel/p5-IO-Pager # --show
 
-The last and the most frustrating prerequisite module is the WWW::Curl
-(www/p5-WWW-Curl) which is outdated (3.02) in the Ports at the time of
-writing this. There are three (3) ways to work around this:
+WWW::Curl (www/p5-WWW-Curl) module is outdated (3.02) in the Ports
+at the time of writing this. There are currently two ways to work
+around this:
 
-  1) Patch www/p5-WWW-Curl to 4.05. # For the adventurous
+  1) Patch www/p5-WWW-Curl to 4.05 # For the adventurous
+
     % cd /usr/ports/www/p5-WWW-Curl
       (backing up this directory is recommended)
     % fetch \
@@ -74,23 +73,18 @@ writing this. There are three (3) ways to work around this:
     % patch -p1 < patch.txt
     % make install clean
 
-  2) Use CPAN. Needless to say this complicates the installation because cpan
-  will install a plethora of other modules while at it. Some of them are 
-  available in the Ports, e.g.:
-    - devel/p5-ExtUtils-MakeMaker
-    - textproc/p5-XML-DOM
-    - devel/p5-Date-Manip
-    - devel/p5-Parse-Yapp
-    - devel/p5-IO-Tty
-    - www/p5-libwww
-    (probably missing some ports)
+  2) Install from CPAN. It's worth noting that this is likely to cause
+  cpan to install quite a few other (sometimes unnecessary) modules.
 
-  If you are lazy (like most of us), let cpan handle the deps. If you are
-  organized (like some of us), install the above ports first instead,
-  and then run:
-    % cpan install WWW::Curl
+    You can pre-install some of the modules from the Ports:
+      - devel/p5-ExtUtils-MakeMaker
+      - textproc/p5-XML-DOM
+      - devel/p5-Date-Manip
+      - devel/p5-Parse-Yapp
+      - devel/p5-IO-Tty
+      - www/p5-libwww
 
-  3) Just give up, grow old and die.
+    % cpan install WWW::Curl # as root
 
 
 Installation: Ubuntu (Hardy)

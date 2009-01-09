@@ -1,4 +1,5 @@
-Version 2.1.3-dev
+Version 2.1.3
+(January 9, 2009)
 
  User-visible changes:
   * Documented missing "%t" (--filename-format) in manual page

@@ -1972,7 +1972,9 @@ Create a new L<clivepass(1)> passwd login password "repository" file.
  
 Add Youtube login "myusername" to the repo.
 
-Chain clive-clivepass (retrieve login password from the repo, extract video).
+Chain clive-clivepass: retrieve login password from the repo, login to
+Youtube using the "myusername" ID and the decrypted password, then extract
+video.
 
 The L<clivepass(1)> utility is part of the B<clive-utils> project, see the
 L</SEE ALSO> section.
@@ -2002,8 +2004,8 @@ The flv format is usually available unless the video has been removed or
 set private. The mp4 and 3gpp formats are often, or will become, available.
 The xflv on the other hand appears to be very rarely available.
 
-Videos dating back to 2006 are usually available as flv only. Last.fm links
-some of the videos to Youtube videos.
+Videos from 2006 are usualy available only as flv. Most last.fm videos
+are actually Youtube videos.
 
 =back
 

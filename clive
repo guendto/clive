@@ -1192,7 +1192,7 @@ sub daemonize {
 
     my $pid = fork;
     if ( $pid < 0 ) {
-        print STDERR "\nfork failed: $!";
+        print STDERR "\nerror: fork failed: $!";
         exit 1;
     } elsif ( $pid != 0 ) {
         print "continuing in background, pid $pid.\n";

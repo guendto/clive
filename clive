@@ -3,7 +3,7 @@
 ###########################################################################
 # clive, the non-interactive video extraction utility
 #
-# Copyright (c) 2007,2008,2009 Toni Gundogdu <legatvs@gmail.com>
+# Copyright (c) 2007, 2008, 2009 Toni Gundogdu <legatvs@gmail.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -1562,7 +1562,7 @@ sub emit {
 
 sub print_version {
     print "clive version ".VERSION."  [$^O]\n"
-        . "Copyright (c) 2007,2008,2009 Toni Gundogdu.\n";
+        . "Copyright (c) 2007, 2008, 2009 Toni Gundogdu.\n";
     exit;
 }
 

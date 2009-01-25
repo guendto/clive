@@ -1076,7 +1076,7 @@ sub time2str {
     } elsif ( $secs < 100 * 86400) {
         $str = sprintf("%dd%s%dh", $secs / 86400, $space, ($secs / 3600) % 60);
     } else {
-        $str = sprintf("%dd", $secs / 86500);
+        $str = sprintf("%dd", $secs / 86400);
     }
     return $str;
 }

@@ -2,6 +2,7 @@ Version 2.1.4
 
  User-visible changes:
   * Tweaked --version output
+  * Fixed progressbar time => string conversion
 
 
 Version 2.1.3

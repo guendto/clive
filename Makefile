@@ -56,7 +56,7 @@ install:
 	$(INSTALL) -d $(DESTDIR)$(bindir)
 	$(INSTALL) -c clive $(DESTDIR)$(bindir)/clive
 ifeq ($(WITH_MAN),yes)
-	$(INSTALL) -d $(DESTDIR)$(mandir)
+	$(INSTALL) -d $(DESTDIR)$(man1dir)
 	$(INSTALL) -c -m 444 clive.1 $(DESTDIR)$(man1dir)/clive.1
 endif
 

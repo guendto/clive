@@ -52,7 +52,7 @@ checks:
 	@echo done. If all checked OK, run \"make install\". See INSTALL for notes.
 
 .PHONY: install uninstall
-install:
+install: all
 	$(INSTALL) -d $(DESTDIR)$(bindir)
 	$(INSTALL) -c clive $(DESTDIR)$(bindir)/clive
 ifeq ($(WITH_MAN),yes)

@@ -30,6 +30,7 @@ RELEASE := \
 all: checks
 
 checks:
+	@echo Checking for module deps...
 	@echo -n URI::Escape ...
 	@echo `$(PERL) -MURI::Escape -e "print 'OK'" 2>/dev/null || \
         echo 'no'`
@@ -48,7 +49,7 @@ checks:
 	@echo -n BerkeleyDB ...
 	@echo `$(PERL) -MBerkeleyDB -e "print 'OK'" 2>/dev/null || \
         echo 'no'`
-	@echo done.
+	@echo done. If all checked OK, run \"make install\". See INSTALL for notes.
 
 .PHONY: install uninstall
 install:

@@ -1,8 +1,9 @@
 
     clive installation
 
-Normally you can do "make install. This will install the clive in your own
-~/bin/ directory. If you want to do a global install, you can do (as root):
+Normally you can do "make" and then "make install. That will first check for
+the required Perl modules and then install the clive in your own ~/bin/
+directory. If you want to do a global install, you can do (as root):
 
  # make prefix=/usr install
 
@@ -13,11 +14,6 @@ The manual page is installed by default, if you do not need it:
 When you uninstall, be sure to use the same prefix. For example:
 
  # make prefix=/usr uninstall
-
-clive requires several Perl modules to be installed. There is a rudimentary
-way to check whether these are available in your system:
-
- # make checkmods
 
 Developers may also find the following make target useful:
 

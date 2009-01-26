@@ -19,7 +19,7 @@ TR          = tr
 WITH_MAN    = yes
 
 ifndef V
-QUIET_POD2MAN   = @echo '  ' POD2MAN clive.1;
+QUIET_POD2MAN   = @echo POD2MAN clive.1;
 endif
 
 RELEASE := \
@@ -27,7 +27,7 @@ RELEASE := \
         $(TR) -d '[\";]'")
 
 .PHONY: all checks
-all: checks
+all: man checks
 
 checks:
 	@echo Checking for module deps...
@@ -54,10 +54,10 @@ checks:
 .PHONY: install uninstall
 install:
 	$(INSTALL) -d $(DESTDIR)$(bindir)
-	$(INSTALL) -C clive $(DESTDIR)$(bindir)/clive
+	$(INSTALL) -c clive $(DESTDIR)$(bindir)/clive
 ifeq ($(WITH_MAN),yes)
 	$(INSTALL) -d $(DESTDIR)$(mandir)
-	$(INSTALL) -C -m 444 clive.1 $(DESTDIR)$(man1dir)/clive.1
+	$(INSTALL) -c -m 444 clive.1 $(DESTDIR)$(man1dir)/clive.1
 endif
 
 uninstall:

@@ -2180,38 +2180,25 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
 
 L<clivefeed(1)> L<clivescan(1)> L<clivepass(1)>
 
-=over 4
-
-=item Website:
-
-http://clive.sourceforge.net/
-
-=item Project:    
-
-http://code.google.com/p/clive/
-
-=item Issue Tracker:
-
-http://code.google.com/p/clive/issues/
-
-=item Mailing-lists:
-
- http://groups.google.com/group/clive-announce/
- http://groups.google.com/group/clive-users/
-
-=item Additional clive utilities (e.g. clivepass):
-
-http://code.google.com/p/clive-utils/
-
-=back
-
 =head1 OTHER
 
-A clive development repository can be obtained from:
+Homepage:
+  http://clive.sourceforge.net/
 
-    % git clone git://repo.or.cz/clive.git
+Project page:
+  http://code.google.com/p/clive/
 
-Patches welcome.
+Send questions, patches and bug reports to:
+  clive-list@googlegroups.com (moderated)
+
+To subscribe to the list, send an email to:
+  clive-list-subscribe@googlegroups.com
+
+You can obtain the development repository with:
+  % git clone git://repo.or.cz/clive.git
+
+Additional utilities (clive-utils):
+  http://code.google.com/p/clive-utils/
 
 =head1 AUTHOR
 

@@ -1,6 +1,7 @@
 Version 2.1.4
 
  User-visible changes:
+  * Updated mailing list details (clive-announce + clive-users = clive-list)
   * Tweaked --version output
   * Fixed progressbar time => string conversion
 

@@ -1,3 +1,5 @@
+# GNU Makefile
+
 SHELL = /bin/sh
 
 prefix      = $(HOME)

@@ -5,6 +5,9 @@ Version 2.1.4
   * Fixed progressbar time => string conversion
 
  Developer-visible changes:
+  * Updated INSTALL
+  * removed genman (obsoleted by "make man")
+  * Added a rudimentary (GNU) Makefile
   * Cleaned up: embed url => video page url
 
 

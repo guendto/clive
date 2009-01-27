@@ -172,14 +172,15 @@ sub init_curl {
 }
 
 sub auth_youtube { # Log into Youtube
-    print "[youtube] attempt log-in as $opts{ytuser} ..."
+    print "[youtube] attempt to login as $opts{ytuser} ..."
         unless $opts{quiet};
 
     my $response = "";
     open my $fh, ">", \$response;
 
     my $login_url = "http://uk.youtube.com/login?current_form=loginform"
-        ."&username=$opts{ytuser}&password=$opts{ytpass}&action_login=log+in";
+        ."&username=$opts{ytuser}&password=$opts{ytpass}"
+        ."&action_login=log+in&hl=en-GB";
 
     $curl->setopt(CURLOPT_URL, $login_url);
     $curl->setopt(CURLOPT_COOKIEFILE, ""); # Enable cookies from here on
@@ -191,10 +192,12 @@ sub auth_youtube { # Log into Youtube
 
     if ( $rc == 0 ) {
         $response =~ tr{\n}//d;
-        $errmsg = "error: incorrect login password for $opts{ytuser}"
-            if $response =~ /log-in was incorrect/i;
+        $errmsg = "error: login was incorrect"
+            if $response =~ /your log-in was incorrect/i;
+        $errmsg = "error: check your login password"
+            if $response =~ /check your password/i and !$errmsg;
         $errmsg = "error: too many login failures, try again later"
-            if $response =~ /too many login failures/i;
+            if $response =~ /too many login failures/i and !$errmsg;
     } else {
         $errmsg = "error: ".$curl->strerror($rc)." (http/$rc)";
     }
@@ -203,14 +206,11 @@ sub auth_youtube { # Log into Youtube
     print STDERR "\n$errmsg\n" and exit
         if $errmsg;
 
-    print "done.\n[youtube] bypass age check ..."
+    print "done.\n"
         unless $opts{quiet};
 
     $curl->setopt(CURLOPT_COOKIE, "is_adult="
         . uc( sha1_hex(rand()) ) );
-
-    print "done.\n"
-        unless $opts{quiet};
 
     $ytube_logged = 1;
 }
@@ -276,7 +276,7 @@ sub fetch_page {
     my ($url, $response, $from_cache, $rc) = (shift, "");
     open my $fh, ">", \$response;
 
-    # Youtube: log-in only if both username and password are defined
+    # Youtube: login only if both username and password are defined
     if ( $opts{ytuser} and $opts{ytpass} and $opts{login} ) {
         auth_youtube()
             if !$ytube_logged and $url =~ /$re_hosts{IsYoutube}/;

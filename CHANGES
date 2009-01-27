@@ -1,7 +1,9 @@
 Version 2.1.4
 
  User-visible changes:
-  * Updated mailing list details (clive-announce + clive-users = clive-list)
+  * Fixed Youtube login which sometimes reported failed attempts as OK
+    - Youtube defaults web interface language based on users geo ip
+    - clive looks for English words in the post-login page to confirm login
   * Tweaked --version output
   * Fixed progressbar time => string conversion
 
@@ -10,6 +12,15 @@ Version 2.1.4
   * removed genman (obsoleted by "make man")
   * Added a rudimentary (GNU) Makefile
   * Cleaned up: embed url => video page url
+
+ Other changes:
+  * Removed the clive-announce and clive-users mailing lists
+    - New release announcements will be posted via Freshmeat alone from now on
+    - Subscribe to the project at http://freshmeat.net/projects/clive
+  * Created the clive-list@googlegroups.com mailing-list
+    - For support questions, patches and bug reports
+    - Issue tracker will remain for tracking bugs
+    - Send an email to clive-list-subscribe@googlegroups.com to subscribe
 
 
 Version 2.1.3

@@ -1,17 +1,18 @@
 Version 2.1.4
+(February 1, 2009)
 
  User-visible changes:
   * Fixed Youtube login which sometimes reported failed attempts as OK
     - Youtube defaults web interface language based on users geo ip
     - clive looks for English words in the post-login page to confirm login
   * Tweaked --version output
-  * Fixed progressbar time => string conversion
 
  Developer-visible changes:
+  * Fixed progressbar time2str subroutine
   * Updated INSTALL
   * removed genman (obsoleted by "make man")
   * Added a rudimentary (GNU) Makefile
-  * Cleaned up: embed url => video page url
+  * Cleaned up translate_embed subroutine
 
  Other changes:
   * Removed the clive-announce and clive-users mailing lists

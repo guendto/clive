@@ -38,7 +38,7 @@ checks:
 	@echo `$(PERL) -MXML::Simple -e "print 'ok'" 2>/dev/null || \
         echo 'NO'`
 	@echo -n WWW::Curl 4.05+ ...
-	@echo `$(PERL) -e "use WWW::Curl 4.06; print 'ok'" 2>/dev/null || \
+	@echo `$(PERL) -e "use WWW::Curl 4.05; print 'ok'" 2>/dev/null || \
         echo 'NO'`
 	@echo -n HTML::TokeParser ...
 	@echo `$(PERL) -MHTML::TokeParser -e "print 'ok'" 2>/dev/null || \

@@ -8,6 +8,7 @@ Version 2.1.4
   * Tweaked --version output
 
  Developer-visible changes:
+  * Removed metacafe remnants
   * Fixed progressbar time2str subroutine
   * Updated INSTALL
   * removed genman (obsoleted by "make man")

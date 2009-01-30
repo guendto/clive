@@ -85,7 +85,6 @@ my %re_hosts = (    # Precompiled regex used to identify the host
     IsLastfm    => qr|\Qlast.fm\E|i,
     IsLiveleak  => qr|\Qliveleak.com\E|i,
     IsEvisor    => qr|\Qevisor.tv\E|i,
-    #IsMetacafe => qr|\Qmetacafe.com\E|i,
 );
 
 # Parse config
@@ -334,9 +333,6 @@ sub process_page {
     } elsif ( $url =~ /$re_hosts{IsEvisor}/ ) {
         ($xurl, $id) = handle_evisor($response_ref);
     }
-#    elsif ( $url =~ /$re_hosts{IsMetacafe}/ ) {
-#        ($xurl, $id) = handle_metacafe($response_ref);
-#    }
     return -1
         if !$xurl or !$id or !$title;
 
@@ -826,39 +822,6 @@ sub handle_evisor {
         unless $id and !$errmsg;
 
     print STDERR "error: $errmsg\n"
-        if $errmsg;
-
-    return ($xurl, $id);
-}
-
-sub handle_metacafe {
-    my $response_ref = shift;
-
-    my %re = (
-        GrabID        => qr|itemID=(.*?)&|,
-        GrabVideoCDN  => qr|videoCDNURL=(.*?)&|,
-        GrabMediaURL  => qr|mediaURL=(.*?)&|,
-    );
-
-    my $id       = $1 if $$response_ref =~ /$re{GrabID}/;
-    my $videocdn = $1 if $$response_ref =~ /$re{GrabVideoCDN}/;
-    my $mediaurl = $1 if $$response_ref =~ /$re{GrabMediaURL}/;
-
-    my ($xurl, $errmsg);
-    if ( $videocdn and $mediaurl ) {
-        $xurl = uri_unescape($videocdn .'/'. $mediaurl);
-    } else {
-        $errmsg = "failed to extract videoCDNURL"
-            if !$videocdn;
-
-        $errmsg = "failed to extract mediaURL"
-            if !$errmsg and !$mediaurl;
-    }
-
-    $errmsg = "failed to extract itemID"
-        if !$id and !$errmsg;
-
-    print STDERR "\nerror: $errmsg\n"
         if $errmsg;
 
     return ($xurl, $id);
@@ -1943,7 +1906,7 @@ with L<ffmpeg(1)>.
 =item % clive -u myusername -t - -V /usr/bin/clivepass URL
 
 Create a new L<clivepass(1)> passwd login password "repository" file.
- 
+
 Add Youtube login "myusername" to the repo.
 
 Chain clive-clivepass: retrieve login password from the repo, login to
@@ -2020,22 +1983,6 @@ Formats: flv  Continue: Yes
 Formats: flv  Continue: Yes
 
 =back
-
-=begin :comment
-
-NOTE: Support removed until fixed. From begin .. end :comment.
-
-=over 4
-
-=item B<www.metacafe.com>
-
-Formats: flv
-
-The B<--continue> option works.
-
-=back
-
-=end :comment
 
 =head1 CACHE
 

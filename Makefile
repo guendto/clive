@@ -30,25 +30,25 @@ RELEASE := \
 all: man checks
 
 checks:
-	@echo Checking for module deps...
+	@echo Check for required Perl modules...
 	@echo -n URI::Escape ...
-	@echo `$(PERL) -MURI::Escape -e "print 'OK'" 2>/dev/null || \
-        echo 'no'`
+	@echo `$(PERL) -MURI::Escape -e "print 'ok'" 2>/dev/null || \
+        echo 'NO'`
 	@echo -n XML::Simple ...
-	@echo `$(PERL) -MXML::Simple -e "print 'OK'" 2>/dev/null || \
-        echo 'no'`
+	@echo `$(PERL) -MXML::Simple -e "print 'ok'" 2>/dev/null || \
+        echo 'NO'`
 	@echo -n WWW::Curl 4.05+ ...
-	@echo `$(PERL) -e "use WWW::Curl 4.05; print 'OK'" 2>/dev/null || \
-        echo 'no'`
+	@echo `$(PERL) -e "use WWW::Curl 4.06; print 'ok'" 2>/dev/null || \
+        echo 'NO'`
 	@echo -n HTML::TokeParser ...
-	@echo `$(PERL) -MHTML::TokeParser -e "print 'OK'" 2>/dev/null || \
-        echo 'no'`
+	@echo `$(PERL) -MHTML::TokeParser -e "print 'ok'" 2>/dev/null || \
+        echo 'NO'`
 	@echo -n Config::Tiny ...
-	@echo `$(PERL) -MConfig::Tiny -e "print 'OK'" 2>/dev/null || \
-        echo 'no'`
+	@echo `$(PERL) -MConfig::Tiny -e "print 'ok'" 2>/dev/null || \
+        echo 'NO'`
 	@echo -n BerkeleyDB ...
-	@echo `$(PERL) -MBerkeleyDB -e "print 'OK'" 2>/dev/null || \
-        echo 'no'`
+	@echo `$(PERL) -MBerkeleyDB -e "print 'ok'" 2>/dev/null || \
+        echo 'NO'`
 	@echo done. If all checked OK, run \"make install\". See INSTALL for notes.
 
 .PHONY: install uninstall

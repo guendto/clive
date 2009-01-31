@@ -3,15 +3,15 @@ Version 2.1.4
 
  User-visible changes:
   * Fixed Youtube login which sometimes reported failed attempts as OK
-    - Youtube defaults web interface language based on users geo ip
+    - Youtube defaults web interface language based on users ip
     - clive looks for English words in the post-login page to confirm login
   * Tweaked --version output
 
  Developer-visible changes:
   * Removed metacafe remnants
-  * Fixed progressbar time2str subroutine
+  * Fixed bug in time2str subroutine which caused incorrect calculations
   * Updated INSTALL
-  * removed genman (obsoleted by "make man")
+  * removed genman script (obsoleted by "make man")
   * Added a rudimentary (GNU) Makefile
   * Cleaned up translate_embed subroutine
 

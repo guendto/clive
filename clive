@@ -1264,8 +1264,9 @@ sub fetch_sevenload_configxml {
         my $xml = XMLin($conf_xml);
         #use Data::Dumper; print Dumper($xml);
         $title  = $xml->{playlists}{playlist}{items}{item}{title};
-        $id     = $xml->{playlists}{playlist}{items}{item}{id}; # Monstrous.
-        $xurl   = $xml->{playlists}{playlist}{items}{item}{videos}{video}{url};
+        $id     = $xml->{playlists}{playlist}{items}{item}{id};
+        $xurl   = $xml->{playlists}{playlist}{items}{item} # Monstrous.
+                    {videos}{video}{streams}{stream}{locations}{location}{content};
     } else {
         print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
     }

@@ -1,7 +1,7 @@
 
             clive installation
 
- Normally you can do "make" and then "make install. That will first check for
+ Normally you can do "make" and then "make install". That will first check for
  the required Perl modules and then install the clive in your own ~/bin/
  directory. If you want to do a global install, you can do (as root):
 
@@ -30,7 +30,7 @@
  - URI::Escape (3.29+)
  - XML::Simple (2.18+)
 
- Optionally (clive runs without but some features will be disabled):
+ Optionally (clive runs without them but some features will be disabled):
  - Clipboard (0.09+) # --paste
  - IO::Pager (0.05+) # --show
  - Expect (1.21+)    # --clivepass

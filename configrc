@@ -51,12 +51,6 @@
     #pass = mypassword
 
 [commands]
-    ## Player command. Note the use of the %i (input) specifier.
-    #play = /usr/local/bin/xine -f %i
-    ## Re-encode command. Note the %i (input) and %o (output)
-    ## specifiers.
-    #rencode = /usr/local/bin/ffmpeg -i %i %o.mpg
-
     ## Path to clivepass(1) utility. If you are planning to use clivepass
     ## protected login passwords.
     #clivepass = /usr/local/bin/clivepass

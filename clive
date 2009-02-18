@@ -69,8 +69,7 @@ my $hash;           # sha1 hash of the current url used together with %cache
 my %entry;          # multi-purpose hash for caching
 my $ytube_logged=0; # youtube: whether logged-in
 my $time_started;   # time file transfer started
-my @play_queue;     # files to be played
-my @rencode_queue;  # files to be re-encoded
+my @exec_files;     # holds fnames for --exec
 my @emit_queue;     # videos to be emitted
 my $logfile;        # path to logfile (--output-file, --append-file)
 my %dp;             # dot progress data
@@ -101,8 +100,6 @@ my $c = Config::Tiny->read($CONFIGFILE);
     showfmt  => $c->{output}->{show},
     ytuser   => $c->{youtube}->{user},
     ytpass   => $c->{youtube}->{pass},
-    play     => $c->{commands}->{play},
-    rencode  => $c->{commands}->{rencode},
     clivepass=> $c->{commands}->{clivepass},
 );
 
@@ -115,20 +112,18 @@ $opts{case}         = 1;
 
 GetOptions(\%opts,
     'debug|d',      'help|h',     'manual|m',     'overwrite|W',
-    'paste|x',      'show|s',     'delete|D',     'clear|C',
+    'paste|p',      'show|s',     'delete|D',     'clear|C',
     'continue|c',   'renew|R',    'recall|r',     'format|f=s',
     'output|o=s',   'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',     'agent|U=s',  'proxy|y=s',    'savedir|S=s',
-    'cclass|l=s',   'play|p=s',   'progress|G=s', 'rencode|A=s',
-    'savebatch|T=s','clivepass|V=s',
+    'cclass|l=s',   'exec|x=s',   'progress|G=s', 'clivepass|V=s',
+    'savebatch|T=s',
     'version|v'     => \&print_version,
     'modversion|M', => \&print_version_mods,
     # Commented out until WWW::Curl is fixed:
     # 'maxspeed!', 'minspeed!',
     # Workarounds since $longopt!|$shortopt cannot be used.
     'noextract|n'         => sub { $opts{extract}   = 0 },
-    'noplay|P'            => sub { $opts{play}      = 0 },
-    'norencode|B'         => sub { $opts{rencode}   = 0 },
     'nologin|L'           => sub { $opts{login}     = 0 },
     'noproxy|X'           => sub { $opts{proxy}     = "" },
     # Workaround for options with dashes. There's likely a better way.
@@ -246,28 +241,7 @@ sub process_queue {
         print STDERR "\nerror: $errmsg\n"
             if $errmsg;
     }
-
-    foreach ( @play_queue ) {
-        print "play " .basename($_). "\n"
-            unless $opts{quiet};
-
-        my $cmd = $opts{play};
-        $cmd =~ s/%i/"$_"/;
-
-        system "$cmd";
-    }
-
-    foreach ( @rencode_queue ) {
-        print "re-encode " .basename($_). "\n"
-            unless $opts{quiet};
-
-        my $cmd = $opts{rencode};
-        $cmd =~ s/%i/"$_"/;
-        $cmd =~ s/%o/"$_"/;
-
-        system "$cmd";
-    }
-
+    exec_cmd();
     emit();
 }
 
@@ -435,11 +409,8 @@ sub extract_video {
             print "ignored: localfile_length == remotefile_length. "
                 . "refusing to proceed any further.\n";
 
-            push @play_queue,$path
-                if $opts{play};
-
-            push @rencode_queue,$path
-                if $opts{rencode};
+            push @exec_files,$path
+                if $opts{exec};
 
             return
                 unless $opts{emitcsv} or $opts{emitxml};
@@ -540,11 +511,8 @@ sub extract_video {
         print "\nclosed http/$rc.\n"
             unless $opts{quiet};
 
-        push @play_queue,$path
-            if $opts{play};
-
-        push @rencode_queue,$path
-            if $opts{rencode};
+        push @exec_files,$path
+            if $opts{exec};
     } else {
         print STDERR "\nerror: $errmsg\n";
     }
@@ -1065,6 +1033,8 @@ sub main {
     if      ( $opts{clear} ) { clear_cache(); }
     elsif   ( $opts{show} )  { show_cache(); }
 
+    verify_exec();
+
     grab_clivepass();
     get_queue();
 
@@ -1464,6 +1434,33 @@ sub translate_embed {
     $$url =~ s!/e/!/view?i=!i;               # liveleak
 }
 
+sub verify_exec {
+    return if !$opts{exec};
+    if ($opts{exec} !~ /[;+]$/) {
+        print "error: --exec expression must be terminated "
+            . "by either ';' or '+'\n";
+        exit;
+    }
+}
+
+sub exec_cmd {
+    if ($opts{exec} =~ /;$/) { # semi
+        foreach (@exec_files) {
+            my $cmd = sprintf("%s ",$opts{exec});
+            $cmd =~ s/%i/"$_"/g;
+            $cmd =~ tr{;}//d;
+            system("$cmd");
+        }
+    } else { # plus
+        my $cmd = sprintf("%s ",$opts{exec});
+        $cmd =~ tr{%i}//d;
+        $cmd =~ tr{+}//d;
+        $cmd .= sprintf('%s ',$_)
+            foreach (@exec_files);
+        system("$cmd");
+    }
+}
+
 sub emit {
     print "<?xml version=\"1.0\"?>\n<queue>\n"
         if $opts{emitxml} and @emit_queue;
@@ -1557,11 +1554,11 @@ option styles, or specify options after the command-line arguments. For example:
 You may also put several options together that do not require arguments.
 For example:
 
-    % clive -xcn URL
+    % clive -pcn URL
 
 Which is equivalent to:
 
-    % clive -x -c -n URL
+    % clive -p -c -n URL
 
 =back
 
@@ -1712,7 +1709,7 @@ this information at every runtime. See also L</CACHE>.
 
 Save current URL batch to I<file>. 
 
-=item B<-x --paste>
+=item B<-p --paste>
 
 Paste input from clipboard. The pasted URLs are expected to be separated with
 newlines.
@@ -1809,28 +1806,20 @@ Use I<string> to construct the name of the extracted video. Default is
     %T = current time
     %S = timestamp (same as %D %T)
 
-=item B<-p --play=>I<command>
+=item B<-x --exec=>I<command>B<;>
 
-Play the extracted videos with I<command>. The I<command> must include
-the %i (input file) specifier. For example:
+Execute I<command>. Optional arguments may be passed to the command.
+The expression must be terminated by a semicolon (";"). If the specifier
+"%i" appears anywhere in I<command> name or the arguments it is replaced
+by the pathname of the extracted video file.
 
-    % clive --play="xine %i" URL
+Example:
+  % clive --exec="mplayer %i;" URL
 
-=item B<-P --noplay>
+=item B<-x, --exec=>I<command>B<+>
 
-Disable subsequent play.
-
-=item B<-A --rencode=>I<command>
-
-Re-encode the extracted videos with I<command>. The I<command> must include
-at least the %i (input) specifier. Use the %o (output) specifier as needed.
-For example:
-
-    % clive --rencode="ffmpeg -i %i %o.mpg" URL
-
-=item B<-B --norencode>
-
-Disable subsequent re-encoding.
+Same as B<--exec>, except that "%i" is replaced with as many pathnames
+as possible for the invocation of I<command>.
 
 =item B<-V --clivepass=>I<path>
 
@@ -1858,7 +1847,7 @@ Extract the video from the specified URL.
 
 Read input from UNIX pipe.
 
-=item % clive -x URL URL
+=item % clive -p URL URL
 
 Combine input from the command-line and the clipboard (each URL separated
 with a newline).
@@ -1888,10 +1877,9 @@ Show only matched cache entries.
 Grep for the pattern, go to background, redirect output to I<my.log> and
 extract the grep-matched videos.
 
-=item % clive --play="xine %i" --rencode="ffmpeg -i %i %o.mpg" URL
+=item % clive --exec="ffmpeg -y -i %i %i.mpg;" URL
 
-Play the extracted video with L<xine(1)> and re-encode it to mpeg format
-with L<ffmpeg(1)>.
+Re-encode the extracted video to mpeg format with L<ffmpeg(1)>.
 
 =item % clivepass --create
 
@@ -1962,7 +1950,7 @@ Formats: flv  Continue: Yes
 
 =item B<www.break.com>
 
-Formats: (flv)  Continue: Yes
+Formats: flv  Continue: Yes
 
 =back
 
@@ -2105,12 +2093,8 @@ Contains the last URL batch. Can be recalled with the B<--recall> option.
    pass = mypassword
 
  [commands]
-   ## Player command. Note the use of the %i (input) specifier.
-   play = /usr/local/bin/xine -f %i
-
-   ## Re-encode command. Note the %i (input) and %o (output)
-   ## specifiers.
-   rencode = /usr/local/bin/ffmpeg -i %i %o.mpg
+   ## Note the use of the %i (input) specifier.
+   exec = /usr/local/bin/mplayer %i;
 
    ## Path to clivepass(1) utility. Optional.
    ## If you are planning to use clivepass

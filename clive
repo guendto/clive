@@ -41,7 +41,7 @@ use Cwd qw(getcwd);
 use File::Spec;
 use Encode;
 
-use constant VERSION             => "2.1.5";
+use constant VERSION             => "2.1.6";
 use constant MBDIV               => 0x100000;
 use constant BP_REFRESH_INTERVAL => 0.2;
 use constant SHOWFMT_DEFAULT     => qq/%D: "%t" | %mMB/;

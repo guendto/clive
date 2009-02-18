@@ -1,3 +1,10 @@
+Version 2.1.6
+
+ User-visible changes:
+  * Removed wmv format (breakcom)
+    - persistant HTTP/404 (not found) error
+
+
 Version 2.1.5
 (February 6, 2009)
 

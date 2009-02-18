@@ -744,14 +744,7 @@ sub handle_break {
 
     my ($xurl, $errmsg);
     if ( $fpath and $fname ) {
-        $xurl = "http://media1.break.com/dnet/media/$fpath/$fname";
-
-        my $fmt = $opts{format};
-
-        $fmt = 'flv'
-            if not grep /$opts{format}/, ('flv','wmv');
-
-        $xurl .= ".$fmt";
+        $xurl = "http://media1.break.com/dnet/media/$fpath/$fname.flv";
     } else {
         $errmsg = "failed to extract ContentFilePath"
             if !$fpath;
@@ -1969,7 +1962,7 @@ Formats: flv  Continue: Yes
 
 =item B<www.break.com>
 
-Formats: (flv|wmv)  Continue: Yes
+Formats: (flv)  Continue: Yes
 
 =back
 

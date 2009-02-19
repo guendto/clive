@@ -1,6 +1,10 @@
 Version 2.1.6
 
  User-visible changes:
+  * Butchered --help output
+    - much less verbose now
+    - relocated manual page data to clive.pod
+  * Removed --manual option
   * Obsoleted "play" and "rencode" config keys in "commands" section
   * Added --exec option which resembles cclive's --exec command
   * Removed --play, --noplay, --rencode and --norencode options

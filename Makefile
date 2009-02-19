@@ -27,7 +27,7 @@ RELEASE := \
         $(TR) -d '[\";]'")
 
 .PHONY: all checks
-all: man checks
+all: checks
 
 checks:
 	@echo Check for required Perl modules...

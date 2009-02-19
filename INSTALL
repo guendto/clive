@@ -29,6 +29,7 @@
  - BerkeleyDB (0.34+)
  - URI::Escape (3.29+)
  - XML::Simple (2.18+)
+ - Digest::SHA (5.47+)
 
  Optionally (clive runs without them but some features will be disabled):
  - Clipboard (0.09+) # --paste

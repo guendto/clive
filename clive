@@ -122,9 +122,9 @@ GetOptions(\%opts,
     # Commented out until WWW::Curl is fixed:
     # 'maxspeed!', 'minspeed!',
     # Workarounds since $longopt!|$shortopt cannot be used.
-    'noextract|n'         => sub { $opts{extract}   = 0 },
-    'nologin|L'           => sub { $opts{login}     = 0 },
-    'noproxy|X'           => sub { $opts{proxy}     = "" },
+    'no-extract|n'        => sub { $opts{extract}   = 0 },
+    'no-login|L'          => sub { $opts{login}     = 0 },
+    'no-proxy|X'          => sub { $opts{proxy}     = "" },
     # Workaround for options with dashes. There's likely a better way.
     'ignore-case|i'       => sub { $opts{case}      = 0 },
     'filename-format|N=s' => sub { $opts{fnfmt}     = $_[1] },
@@ -1529,7 +1529,7 @@ clive [options]... [URL]...
  -E, --emit-xml             emit video details as csv to stdout
  -U, --agent=STRING         identify as STRING to http server
  -y, --proxy=ADDR           use ADDR for http proxy
- -X, --noproxy              do not use http proxy
+ -X, --no-proxy             do not use http proxy
  -R, --renew                renew cache entry for visited url
  -s, --show                 dump cache entries to stdout
  -H, --show-format=STRING   format dumped cache entries
@@ -1544,13 +1544,13 @@ clive [options]... [URL]...
  -r, --recall               recall last url batch
  -T, --savebatch=FILE       save url batch to FILE
  -p, --paste                paste input from clipboard
- -n, --noextract            do not extract any videos
+ -n, --no-extract           do not extract any videos
  -c, --continue             continue partially downloaded file
  -W, --overwrite            overwrite existing video file
  -G, --progress=TYPE        use progress indicator TYPE
  -u, --youtube-user=UNAME   youtube username
  -t, --youtube-pass=PASSW   youtube password
- -L, --nologin              do not log into youtube
+ -L, --no-login             do not log into youtube
  -S, --savedir=DIR          save video files to DIR
  -f, --format=FORMAT        extract video FORMAT
  -l, --cclass=CLASS         use CLASS to filter titles

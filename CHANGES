@@ -1,6 +1,10 @@
 Version 2.1.6
 
  User-visible changes:
+  * Renamed the following options
+    - --noproxy => --no-proxy
+    - --noextract => --no-extract
+    - --nologin => --no-login
   * Butchered --help output
     - much less verbose now
     - relocated manual page data to clive.pod

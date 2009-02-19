@@ -90,7 +90,7 @@ Identify as I<string> to the HTTP server. Defaults is "Mozilla/5.0".
 Use I<address> for HTTP proxy, e.g. http://foo:1234. If undefined,
 uses the http_proxy environment setting if present.
 
-=item B<-X --noproxy>
+=item B<-X --no-proxy>
 
 Do not use HTTP proxy.
 
@@ -195,7 +195,7 @@ B<Download Options>
 
 =over 4
 
-=item B<-n --noextract>
+=item B<-n --no-extract>
 
 Do not actually extract any videos.
 
@@ -250,7 +250,7 @@ to extract videos flagged as mature-content.
 I<password> to log into Youtube. If I<password> is "-", causes clive to
 retrieve the login password from the L<clivepass(1)> utility. See L</EXAMPLES>.
 
-=item B<-L --nologin>
+=item B<-L --no-login>
 
 Do not log into Youtube.
 

@@ -1443,7 +1443,7 @@ sub verify_exec {
 sub exec_cmd {
     if ($opts{exec} =~ /;$/) { # semi
         foreach (@exec_files) {
-            my $cmd = sprintf("%s ",$opts{exec});
+            my $cmd = sprintf('"%s" ',$opts{exec});
             $cmd =~ s/%i/"$_"/g;
             $cmd =~ tr{;}//d;
             system("$cmd");
@@ -1452,7 +1452,7 @@ sub exec_cmd {
         my $cmd = sprintf("%s ",$opts{exec});
         $cmd =~ tr{%i}//d;
         $cmd =~ tr{+}//d;
-        $cmd .= sprintf('%s ',$_)
+        $cmd .= sprintf('"%s" ',$_)
             foreach (@exec_files);
         system("$cmd");
     }

@@ -12,13 +12,18 @@ Version 2.1.6
   * Obsoleted "play" and "rencode" config keys in "commands" section
   * Added --exec option which resembles cclive's --exec command
   * Removed --play, --noplay, --rencode and --norencode options
+    - use --exec instead
   * Changed --paste short option from 'x' to 'p'
   * Removed wmv format (breakcom)
     - persistant HTTP/404 (not found) error
 
  Developer-visible changes:
-  * Makefile: removed "man" from "all"
-  * Removed "clean" from Makefile (useless)
+  * Makefile changes
+    - additional INSTALL variables
+    - added WITH_CHECK
+    - can be used to disable module checks
+    - removed "man" from "all"
+    - removed "clean" (useless)
 
 
 Version 2.1.5

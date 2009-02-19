@@ -66,10 +66,7 @@ ifeq ($(WITH_MAN),yes)
 	$(RM) $(DESTDIR)$(man1dir)/clive.1
 endif
 
-.PHONY: man clean
+.PHONY: man
 man:
 	$(QUIET_POD2MAN)$(POD2MAN) -c "clive manual" -n clive \
 		-s 1 -r $(RELEASE) clive.pod clive.1
-
-clean:
-	@$(RM) clive.1 2>/dev/null

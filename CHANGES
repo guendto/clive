@@ -12,6 +12,9 @@ Version 2.1.6
   * Removed wmv format (breakcom)
     - persistant HTTP/404 (not found) error
 
+ Developer-visible changes:
+  * Removed "clean" from Makefile (useless)
+
 
 Version 2.1.5
 (February 6, 2009)

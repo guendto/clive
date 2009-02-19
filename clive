@@ -1441,6 +1441,7 @@ sub verify_exec {
 }
 
 sub exec_cmd {
+    return if !$opts{exec};
     if ($opts{exec} =~ /;$/) { # semi
         foreach (@exec_files) {
             my $cmd = sprintf('"%s" ',$opts{exec});

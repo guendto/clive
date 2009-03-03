@@ -526,15 +526,6 @@ Homepage:
 Project page:
   http://code.google.com/p/clive/
 
-Send questions, patches and bug reports to:
-  clive-list@googlegroups.com
-
-To subscribe to the list, send an email to:
-  clive-list-subscribe@googlegroups.com
-
-List archive:
-  http://groups.google.com/group/clive-list
-
 You can obtain the development repository with:
   % git clone git://repo.or.cz/clive.git
 

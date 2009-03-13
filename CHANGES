@@ -1,6 +1,8 @@
 Version 2.1.7
 
  User-visible changes:
+  * Add --stream-exec and --stream options
+    - Ported from cclive
   * Change default filename format to %t_%d_%i.%s
 
  Developer-visible changes:

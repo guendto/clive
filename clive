@@ -479,6 +479,8 @@ sub extract_video {
                         if ! -t STDOUT or ! -t STDERR;
                 }
 
+                $stream[0] = 0; # reset streaming flag
+
                 if ( $opts{progress} =~ /^bar/ ) {
                     bar_init($cont_from, $entry{file_length});
                 } elsif ( $opts{progress} =~ /^dot/ ) {

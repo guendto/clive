@@ -77,13 +77,13 @@ my %bp;             # bar progress data
 my $workdir=getcwd; # startup workdir
 
 my %re_hosts = (    # Precompiled regex used to identify the host
-    IsYoutube   => qr|\Qyoutube.com\E|i,
-    IsGoogle    => qr|\Qvideo.google.\E|i,
-    IsSevenload => qr|\Qsevenload.com\E|i,
-    IsBreak     => qr|\Qbreak.com\E|i,
-    IsLastfm    => qr|\Qlast.fm\E|i,
-    IsLiveleak  => qr|\Qliveleak.com\E|i,
-    IsEvisor    => qr|\Qevisor.tv\E|i,
+    IsYoutube   => qr|youtube.com|i,
+    IsGoogle    => qr|video.google.|i,
+    IsSevenload => qr|sevenload.com|i,
+    IsBreak     => qr|break.com|i,
+    IsLastfm    => qr|last.fm|i,
+    IsLiveleak  => qr|liveleak.com|i,
+    IsEvisor    => qr|evisor.tv|i,
 );
 
 # Parse config
@@ -586,7 +586,7 @@ sub parse_input {
 
     # Last.fm wraps Youtube videos as their own
     if ( $url =~ /$re_hosts{IsLastfm}/ ) {
-        $url =~ /\Q+1-\E(.+)/;
+        $url =~ /\+1\-(.+)/;
 
         print STDERR "error: nosupport: $url\n" and return -1
             unless defined($1);
@@ -644,9 +644,9 @@ sub handle_google {
 
     my %re = (
         #GrabRedirect => qr|lfRedirect\('(.*?)'|,
-        GrabVideoURL => qr|\Qgoogleplayer.swf?videoUrl\x3d\E(.*?)\Q\x26|,
+        GrabVideoURL => qr|videoUrl\\x3d(.*?)\\x26|,
         GrabID       => qr|docid: '(.*?)'|,
-        GrabMP4      => qr|\Qhref="http://vp.\E(.*?)"|,
+        GrabMP4      => qr|href="http://vp\.(.*?)"|,
     );
 
     #my $redir  = $1 if $$response_ref =~ /$re{GrabRedirect}/;
@@ -1250,7 +1250,7 @@ sub title_to_filename {
 
     $title =~ s/youtube - //i;  # Remove host specific strings from title
     $title =~ s/ video//i;      # Break
-    $title =~ s/\Qliveleak.com - \E//i;
+    $title =~ s/liveleak.com - //i;
 
     my $r = $opts{cclass} || qr|\w|;
     $title = join('',$title =~ /$r/g);

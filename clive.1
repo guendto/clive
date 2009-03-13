@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-03-03" "2.1.6" "clive manual"
+.TH clive 1 "2009-03-13" "2.1.6" "clive manual"
 .SH "NAME"
 clive \- the non\-interactive video extraction utility
 .SH "SYNOPSIS"
@@ -361,7 +361,7 @@ The filtered video page titles are used to name the extracted videos.
 .IP "\fB\-N \-\-filename\-format=\fR\fIstring\fR" 4
 .IX Item "-N --filename-format=string"
 Use \fIstring\fR to construct the name of the extracted video. Default is
-\&\*(L"%t\-(%i)\-[%d].%s\*(R". The following specifiers are supported:
+\&\*(L"%t_%d_%i.%s\*(R". The following specifiers are supported:
 .Sp
 .Vb 7
 \&    %t = video title (after applying --cclass)

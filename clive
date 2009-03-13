@@ -1262,7 +1262,7 @@ sub title_to_filename {
     # Extract the domain from the URL.
     my @a = split(/\./,$authority);
 
-    my $fn          = $opts{fnfmt} || "%t-(%i)-[%d].%s";
+    my $fn          = $opts{fnfmt} || "%t_%d_%i.%s";
     my $timestamp   = strftime("%F %T",localtime);
 
     my %h = (

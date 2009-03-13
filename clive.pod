@@ -296,6 +296,34 @@ Example:
 Same as B<--exec>, except that "%i" is replaced with as many pathnames
 as possible for the invocation of I<command>.
 
+=item B<--stream-exec=>I<command>
+
+Execute I<command> when file transfer progress reaches I<percent> as defined
+with the B<--stream> option. The "%i" specifier for video pathname is expected
+to appear somewhere in the I<command> expression.
+
+Unlike the B<--exec> option which is executed subsequently after each file
+transfer, B<clive> forks the streaming process and continues with the file
+transfer -- and will not continue to download another file until the child
+process terminates.
+
+It should also be noted that B<clive> makes no effort to check whether there
+is enough data to be streamed. It assumes the user knows how much data needs
+to be buffered before starting the child process. Similarly, if the transfer
+rate drops significantly after starting the process and it runs out of data,
+B<clive> simply ignores that.
+
+Some players and formats may not work properly with this feature. Try
+L<mplayer(1)> and choose flv if you are unsure.
+
+=item B<--stream=>I<percent>
+
+Execute the I<command> defined with the B<--stream-exec> option when the file
+transfer progress reaches I<percent>.
+
+Example:
+  % clive --stream-exec="mplayer -really-quiet %i" --stream=20 URL
+
 =item B<-V --clivepass=>I<path>
 
 I<path> to the L<clivepass(1)> utility. If CLIVEPASS_PATH environment

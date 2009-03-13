@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-03-13" "2.1.6" "clive manual"
+.TH clive 1 "2009-03-13" "2.1.7" "clive manual"
 .SH "NAME"
 clive \- the non\-interactive video extraction utility
 .SH "SYNOPSIS"
@@ -385,6 +385,32 @@ Example:
 .IX Item "-x, --exec=command+"
 Same as \fB\-\-exec\fR, except that \*(L"%i\*(R" is replaced with as many pathnames
 as possible for the invocation of \fIcommand\fR.
+.IP "\fB\-\-stream\-exec=\fR\fIcommand\fR" 4
+.IX Item "--stream-exec=command"
+Execute \fIcommand\fR when file transfer progress reaches \fIpercent\fR as defined
+with the \fB\-\-stream\fR option. The \*(L"%i\*(R" specifier for video pathname is expected
+to appear somewhere in the \fIcommand\fR expression.
+.Sp
+Unlike the \fB\-\-exec\fR option which is executed subsequently after each file
+transfer, \fBclive\fR forks the streaming process and continues with the file
+transfer \*(-- and will not continue to download another file until the child
+process terminates.
+.Sp
+It should also be noted that \fBclive\fR makes no effort to check whether there
+is enough data to be streamed. It assumes the user knows how much data needs
+to be buffered before starting the child process. Similarly, if the transfer
+rate drops significantly after starting the process and it runs out of data,
+\&\fBclive\fR simply ignores that.
+.Sp
+Some players and formats may not work properly with this feature. Try
+\&\fImplayer\fR\|(1) and choose flv if you are unsure.
+.IP "\fB\-\-stream=\fR\fIpercent\fR" 4
+.IX Item "--stream=percent"
+Execute the \fIcommand\fR defined with the \fB\-\-stream\-exec\fR option when the file
+transfer progress reaches \fIpercent\fR.
+.Sp
+Example:
+  % clive \-\-stream\-exec=\*(L"mplayer \-really\-quiet \f(CW%i\fR\*(R" \-\-stream=20 \s-1URL\s0
 .IP "\fB\-V \-\-clivepass=\fR\fIpath\fR" 4
 .IX Item "-V --clivepass=path"
 \&\fIpath\fR to the \fIclivepass\fR\|(1) utility. If \s-1CLIVEPASS_PATH\s0 environment

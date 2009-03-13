@@ -75,6 +75,8 @@ my $logfile;        # path to logfile (--output-file, --append-file)
 my %dp;             # dot progress data
 my %bp;             # bar progress data
 my $workdir=getcwd; # startup workdir
+my @stream=(0,-1);  # 0=stream flag, 1=stream pid
+my $curr_fpath;     # current video output filepath
 
 my %re_hosts = (    # Precompiled regex used to identify the host
     IsYoutube   => qr|youtube.com|i,
@@ -89,18 +91,19 @@ my %re_hosts = (    # Precompiled regex used to identify the host
 # Parse config
 my $c = Config::Tiny->read($CONFIGFILE);
 %opts = (
-    progress => $c->{_}->{progress},
-    agent    => $c->{http}->{agent},
-    proxy    => $c->{http}->{proxy},
-    maxspeed => $c->{http}->{maxspeed},
-    minspeed => $c->{http}->{minspeed},
-    savedir  => $c->{output}->{savedir},
-    cclass   => $c->{output}->{cclass},
-    fnfmt    => $c->{output}->{file},
-    showfmt  => $c->{output}->{show},
-    ytuser   => $c->{youtube}->{user},
-    ytpass   => $c->{youtube}->{pass},
-    clivepass=> $c->{commands}->{clivepass},
+    progress    => $c->{_}->{progress},
+    agent       => $c->{http}->{agent},
+    proxy       => $c->{http}->{proxy},
+    maxspeed    => $c->{http}->{maxspeed},
+    minspeed    => $c->{http}->{minspeed},
+    savedir     => $c->{output}->{savedir},
+    cclass      => $c->{output}->{cclass},
+    fnfmt       => $c->{output}->{file},
+    showfmt     => $c->{output}->{show},
+    ytuser      => $c->{youtube}->{user},
+    ytpass      => $c->{youtube}->{pass},
+    clivepass   => $c->{commands}->{clivepass},
+    streamexec  => $c->{commands}->{stream},
 );
 
 $opts{clivepass}    = $ENV{CLIVEPASS_PATH} unless $opts{clivepass};
@@ -117,6 +120,7 @@ GetOptions(\%opts,
     'output|o=s',   'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',     'agent|U=s',  'proxy|y=s',    'savedir|S=s',
     'cclass|l=s',   'exec|x=s',   'progress|G=s', 'clivepass|V=s',
+    'stream=i',
     'version|v'     => \&print_version,
     'modversion|M', => \&print_version_mods,
     # Commented out until WWW::Curl is fixed:
@@ -133,6 +137,7 @@ GetOptions(\%opts,
     'youtube-pass|t=s',   => sub { $opts{ytpass}    = $_[1] },
     'emit-csv|e',         => sub { $opts{emitcsv}   = 1 },
     'emit-xml|E',         => sub { $opts{emitxml}   = 1 },
+    'stream-exec=s',      => sub { $opts{streamexec}= $_[1] },
 ) or exit(1);
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
 
@@ -451,6 +456,8 @@ sub extract_video {
             unless $opts{extract};
 
         if ( open my $fh, "$filemode$path" ) {
+            $curr_fpath = $path;
+
             # Disable: encoding, header
             $curl->setopt(CURLOPT_HEADER, 0);
             $curl->setopt(CURLOPT_ENCODING, "identity");
@@ -486,6 +493,7 @@ sub extract_video {
                 if ( $rc == 200 or $rc == 206 ) {
                     if    ( $opts{progress} =~ /^bar/ ) { bar_finish() }
                     elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
+                    waitpid($stream[1],0)  if $stream[0];
                 } else {
                     $errmsg = $curl->strerror($rc)." (http/$rc)";
                 }
@@ -790,8 +798,17 @@ sub handle_evisor {
 # NOTE: the 'dot' progress copies much from wget.
 
 sub progress_callback {
-    if    ( $opts{progress} =~ /^dot/ ) { dot_update(@_); }
-    elsif ( $opts{progress} =~ /^bar/ ) { bar_update(@_); }
+    my $percent = 0;
+
+    if    ( $opts{progress} =~ /^dot/ ) { $percent = dot_update(@_); }
+    elsif ( $opts{progress} =~ /^bar/ ) { $percent = bar_update(@_); }
+
+    if ($opts{stream}
+        && $opts{streamexec}
+        && !$stream[0])
+    {
+        fork_streamer()  if $percent >= $opts{stream};
+    }
     return 0;
 }
 
@@ -853,6 +870,7 @@ sub dot_update {
             dot_print_row_stats($percent, $elapsed, $eta, $rate, 0);
         }
     }
+    return $percent;
 }
 
 sub dot_finish {
@@ -905,7 +923,7 @@ sub bar_update { # See no bar, hear no bar, speak no bar.
     my $elapsed = time - $time_started;
 
     if ( !$done ) {
-        return
+        return 0
             if ( $elapsed - $bp{last_update} < BP_REFRESH_INTERVAL);
     } else {
         $dlnow = $bp{total};
@@ -916,8 +934,9 @@ sub bar_update { # See no bar, hear no bar, speak no bar.
     my $size = $bp{initial} + $dlnow;
     my $bar = "";
 
+    my $percent = 0;
     if ( $bp{total} > 0 ) {
-        my $percent = 100.0 * $size / $bp{total};
+        $percent = 100.0 * $size / $bp{total};
         if ( $percent < 100 ) {
             $bar .= sprintf("%2d%% ",$percent);
         } else {
@@ -934,6 +953,7 @@ sub bar_update { # See no bar, hear no bar, speak no bar.
         $bar .= sprintf(" | %8.2fMB ", $size/MBDIV);
         $bar .= sprintf(" | %8.2f%s/s",$rate{rate},$rate{units});
         $bar .= sprintf(" | ETA %-8s", $eta);
+        $percent = $percent_;
     } else {
         $bar .= sprintf(" | %6.2fMB ",$dlnow/MBDIV);
         $bar .= sprintf(" | %8.2f%s/s",0,"K");
@@ -942,6 +962,8 @@ sub bar_update { # See no bar, hear no bar, speak no bar.
 
     $bp{count} = $dlnow;
     print "\r".$bar;
+
+    return $percent;
 }
 
 sub bar_finish { # Never again.
@@ -1134,6 +1156,22 @@ sub daemonize {
 
     open STDERR, ">&STDOUT"
         or die "error: cannot dup STDOUT: $!";
+}
+
+sub fork_streamer {
+    $stream[0] = 1; # set flag
+    my $child  = fork;
+
+    if ($child < 0) {
+        print STDERR "error: fork failed: $!\n";
+    } elsif ($child == 0) {
+        my $cmd = $opts{streamexec};
+        $cmd =~ s/%i/"$curr_fpath"/g;
+        system("$cmd");
+        exit(0);
+    }
+
+    $stream[1] = $child;
 }
 
 sub fetch_liveleak_playlist {
@@ -1557,4 +1595,6 @@ clive [options]... [URL]...
  -l, --cclass=CLASS         use CLASS to filter titles
  -N, --filename-format=STR  use STR to construct output filename
  -x, --exec=COMMAND         execute COMMAND subsequently
+     --stream-exec=COMMAND  stream COMMAND to be executed
+     --stream=PERCENT       execute stream command when transfer reaches %
  -V, --clivepass=PATH       path to clivepass

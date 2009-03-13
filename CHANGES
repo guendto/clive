@@ -1,8 +1,14 @@
 Version 2.1.7
 
+ User-visible changes:
+  * Change default filename format to %t_%d_%i.%s
+
+ Developer-visible changes:
+  * Clean up regexps
+
  Other
   * Buried clive-list, grew weary of fighting spam with bare fists
-    - email author directly or use the issue tracker, thanks
+    - email the author directly or use the issue tracker, thanks
 
 
 Version 2.1.6

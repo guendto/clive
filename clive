@@ -102,8 +102,9 @@ my $c = Config::Tiny->read($CONFIGFILE);
     showfmt     => $c->{output}->{show},
     ytuser      => $c->{youtube}->{user},
     ytpass      => $c->{youtube}->{pass},
-    clivepass   => $c->{commands}->{clivepass},
+    exec        => $c->{commands}->{exec},
     streamexec  => $c->{commands}->{stream},
+    clivepass   => $c->{commands}->{clivepass},
 );
 
 $opts{clivepass}    = $ENV{CLIVEPASS_PATH} unless $opts{clivepass};
@@ -1482,14 +1483,14 @@ sub exec_cmd {
     return if !$opts{exec};
     if ($opts{exec} =~ /;$/) { # semi
         foreach (@exec_files) {
-            my $cmd = sprintf('"%s" ',$opts{exec});
+            my $cmd = $opts{exec};
             $cmd =~ s/%i/"$_"/g;
             $cmd =~ tr{;}//d;
             system("$cmd");
         }
     } else { # plus
         my $cmd = sprintf("%s ",$opts{exec});
-        $cmd =~ tr{%i}//d;
+        $cmd =~ s/%i//g;
         $cmd =~ tr{+}//d;
         $cmd .= sprintf('"%s" ',$_)
             foreach (@exec_files);

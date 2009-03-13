@@ -1,6 +1,9 @@
 Version 2.1.7
 
  User-visible changes:
+  * Fix --exec
+    Symptom: not found errors
+  * Add support for config file [commands] exec (see configrc for an example)
   * Add --stream-exec and --stream options
     - Ported from cclive
   * Change default filename format to %t_%d_%i.%s

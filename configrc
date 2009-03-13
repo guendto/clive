@@ -52,7 +52,7 @@
 
 [commands]
     ## Command to be executed subsequently after each file transfer (--exec).
-    #exec = /usr/local/bin/ffmpeg -y -i %i %i.mp3
+    #exec = /usr/local/bin/ffmpeg -y -i %i %i.mp3;
 
     ## Stream command to be executed (--stream-exec).
     #stream = /usr/local/bin/mplayer -really-quiet %i

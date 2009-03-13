@@ -1,17 +1,21 @@
 Version 2.1.7
 
  User-visible changes:
-  * Fix --exec
-    Symptom: not found errors
-  * Add support for config file [commands] exec (see configrc for an example)
   * Add --stream-exec and --stream options
     - Ported from cclive
-  * Change default filename format to %t_%d_%i.%s
+  * Config file: add support for
+    - [commands]:exec (--exec)
+    - [commands]:stream (--stream-exec)
+    - See configrc for an example
+  * Fix --exec
+    - Should fix the "not found" errors
+  * Change default filename format to "%t_%d_%i.%s"
 
  Developer-visible changes:
+  * Touch cclive.1 and cclive.pod
   * Clean up regexps
 
- Other
+ Other changes:
   * Buried clive-list, grew weary of fighting spam with bare fists
     - email the author directly or use the issue tracker, thanks
 

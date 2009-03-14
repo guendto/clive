@@ -12,6 +12,7 @@ Version 2.1.7
   * Change default filename format to "%t_%d_%i.%s"
 
  Developer-visible changes:
+  * Add tests/lastfm.url
   * Touch cclive.1 and cclive.pod
   * Clean up regexps
 

@@ -46,11 +46,12 @@ use constant MBDIV               => 0x100000;
 use constant SHOWFMT_DEFAULT     => qq/%D: "%t" | %mMB/;
 
 # Non-essential modules: set flags indicating availability
-my %opted_mods = (Clipboard => 1, Expect => 1, IOPager => 1);
-eval "use Clipboard;"; $opted_mods{Clipboard}   = 0 if $@;
-eval "use IO::Pager;"; $opted_mods{IOPager}     = 0 if $@;
+my %opted_mods = (Clipboard => 1, Expect => 1, IOPager => 1, ReadKey => 1);
+eval "use Clipboard;";      $opted_mods{Clipboard}  = 0 if $@;
+eval "use IO::Pager;";      $opted_mods{IOPager}    = 0 if $@;
 sub exp_continue() {}; # Satisfies: "Bareword "exp_continue" not allowed while"
-eval "use Expect;"; $opted_mods{Expect}         = 0 if $@;
+eval "use Expect;";         $opted_mods{Expect}     = 0 if $@;
+eval "use Term::ReadKey;";  $opted_mods{ReadKey}    = 0 if $@;
 
 my $CONFIGDIR   = $ENV{CLIVE_HOME}
     || File::Spec->catfile($ENV{HOME}, ".config/clive");
@@ -76,6 +77,8 @@ my %bp;             # bar progress data
 my $workdir=getcwd; # startup workdir
 my @stream=(0,-1);  # 0=stream flag, 1=stream pid
 my $curr_fpath;     # current video output filepath
+my $recv_sigwinch=0;# whether SIGWINCH was received
+my $term_width;     # current terminal width
 
 my %re_hosts = (    # Precompiled regex used to identify the host
     IsYoutube   => qr|youtube.com|i,
@@ -142,6 +145,15 @@ GetOptions(\%opts,
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
 
 main();
+
+
+## Subroutines: Signal handlers
+
+sub handle_sigwinch {
+#    my $sign = shift;
+    $recv_sigwinch = 1;
+}
+
 
 ## Subroutines: Connection
 
@@ -907,11 +919,20 @@ sub dot_print_row_stats {
 
 use constant DEFAULT_TERM_WIDTH => 80;
 
+sub get_term_width {
+    return DEFAULT_TERM_WIDTH
+        unless $opted_mods{ReadKey};
+    my ($width) = GetTerminalSize();
+    return $width;
+}
+
 sub bar_init {
     my ($initial, $total) = @_;
 
     $total = $initial
         if $initial > $total;
+
+    $term_width  = get_term_width();
 
     $bp{initial} = $initial; # bytes dl previously
     $bp{total}   = $total;   # expected bytes
@@ -926,9 +947,19 @@ use constant REFRESH_INTERVAL => 0.2;
 sub bar_update {
     my ($clientp, $total, $now, $ultotal, $ulnow) = @_;
 
+    my $force_update = 0;
+    if ($recv_sigwinch) {
+        my $old_width = $term_width;
+        $term_width = get_term_width();
+        if ($term_width != $old_width) {
+            $bp{width} = $term_width - 1;
+            $force_update = 1;
+        }
+        $recv_sigwinch = 0;
+    }
+
     my $tnow        = time;
     my $elapsed     = $tnow - $bp{started};
-    my $force_update= 0;
 
     if (!$bp{done}) {
         return 0
@@ -1063,6 +1094,7 @@ sub get_units {
 # Subroutines: LittleHelpers
 
 sub main {
+    $SIG{WINCH} = \&handle_sigwinch;
     init_cache();
 
     if      ( $opts{clear} ) { clear_cache(); }
@@ -1548,9 +1580,10 @@ sub print_version {
 
 sub print_version_mods {
     my $perl_v      = sprintf "%vd", $^V;
-    my $clipboard_v = $opted_mods{Clipboard} ? $Clipboard::VERSION  : "-";
-    my $expect_v    = $opted_mods{Expect}    ? $Expect::VERSION     : "-";
-    my $iopager_v   = $opted_mods{IOPager}   ? $IO::Pager::VERSION  : "-";
+    my $clipboard_v = $opted_mods{Clipboard} ? $Clipboard::VERSION      : "-";
+    my $expect_v    = $opted_mods{Expect}    ? $Expect::VERSION         : "-";
+    my $iopager_v   = $opted_mods{IOPager}   ? $IO::Pager::VERSION      : "-";
+    my $readkey_v   = $opted_mods{ReadKey}   ? $Term::ReadKey::VERSION  : "-";
 print
 " * Perl/$perl_v
 Modules:
@@ -1558,7 +1591,7 @@ Modules:
  * WWW::Curl/$WWW::Curl::VERSION\t\t* Expect/$expect_v
  * HTML::TokeParser/$HTML::TokeParser::VERSION\t* Clipboard/$clipboard_v
  * XML::Simple/$XML::Simple::VERSION\t\t* IO::Pager/$iopager_v
- * URI::Escape/$URI::Escape::VERSION
+ * URI::Escape/$URI::Escape::VERSION\t\t* Term::ReadKey/$readkey_v
 Core modules:
  * POSIX/$POSIX::VERSION\t\t\t* Cwd/$Cwd::VERSION
  * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION

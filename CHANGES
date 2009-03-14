@@ -12,6 +12,10 @@ Version 2.1.7
   * Change default filename format to "%t_%d_%i.%s"
   * Change to "file is already fully retrieved" error message
   * Port progressbar from cclive
+  * Port SIGWINCH handling from cclive
+    - progressbar resizes matching terminal width
+    - besides OS must support SIGWINCH, the Term::ReadKey module is required
+    - progressbar defaults to 80 (chars)
 
  Developer-visible changes:
   * Add tests/lastfm.url and tests/multi.lst

@@ -899,9 +899,9 @@ sub dot_finish {
 
 sub dot_print_row_stats {
     my ($percent, $elapsed, $eta, $rate, $last) = @_;
-    my %rate = normalize_rate($rate);
+    my ($unit,$_rate) = get_units($rate);
 
-    printf "%3d%% %4.1f%s", $percent, $rate{rate}, $rate{units};
+    printf "%3d%% %4.1f%s", $percent, $_rate, $unit;
     printf "%s%s", $last ? "=":" ", $eta;
 }
 
@@ -1057,25 +1057,6 @@ sub get_units {
         $i = 2;
     }
     return ($units[$i],$rate);
-}
-
-sub normalize_rate {
-    my $rate = shift;
-
-    my @names = qw/KB MB GB/;
-    my $units;
-
-    if ( $rate < 1024*1024 ) {
-        $units = 0;
-        $rate /= 1024;
-    } elsif ( $rate < 1024*1024 ) {
-        $units = 1;
-        $rate /= 1024*1024;
-    } else {
-        $units = 2;
-        $rate /= 1024*1024*1024;
-    }
-    return (rate => $rate, units => $names[$units]);
 }
 
 

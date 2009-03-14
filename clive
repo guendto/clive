@@ -1333,10 +1333,7 @@ sub fetch_sevenload_configxml {
 
 sub title_to_filename {
     my $title = shift;
-
-    $title =~ s/youtube - //i;  # Remove host specific strings from title
-    $title =~ s/ video//i;      # Break
-    $title =~ s/liveleak.com - //i;
+    $title =~ s/(youtube|video|liveleak.com)//i;
 
     my $r = $opts{cclass} || qr|\w|;
     $title = join('',$title =~ /$r/g);

@@ -313,7 +313,7 @@ sub process_page {
     } elsif ( $url =~ /$re_hosts{IsGoogle}/ ) {
         ($xurl, $id) = handle_google($response_ref);
     } elsif ( $url =~ /$re_hosts{IsSevenload}/ ) {
-        ($xurl, $id, $title) = handle_sevenload($response_ref, $response_fh);
+        ($xurl, $id) = handle_sevenload($response_ref, $response_fh);
     } elsif ( $url =~ /$re_hosts{IsBreak}/ ) {
         ($xurl, $id, $title) = handle_break($response_ref);
     } elsif ( $url =~ /$re_hosts{IsLiveleak}/ ) {
@@ -699,19 +699,22 @@ sub handle_google {
 sub handle_sevenload {
     my ($response_ref, $response_fh) = @_;
 
-    my %re       = ( GrabConfigPath => qr|configPath=(.*?)"| );
+    my %re = ( GrabConfigPath => qr|configPath=(.*?)"| );
 
-    my $confpath = uri_unescape($1)
+    my $conf_path = uri_unescape($1)
         if $$response_ref =~ /$re{GrabConfigPath}/;
 
-    my ($id, $xurl, $title);
-    if ( $confpath ) {
-        ($xurl, $id, $title) =
-            fetch_sevenload_configxml($confpath, $response_fh);
+    my ($xurl,$id,$errmsg);
+    if ($conf_path) {
+        ($xurl,$id) =
+            fetch_sevenload_configxml($conf_path, $response_fh);
     } else {
-        print STDERR "\nerror: configPath not found\n";
+        $errmsg = "configPath not found";
     }
-    return ($xurl, $id, $title);
+    $errmsg = "item id not found"           if !$errmsg && !$id;
+    $errmsg = "extraction url not found"    if !$errmsg && !$xurl;
+    print STDERR "\nerror: $errmsg\n"       if $errmsg;
+    return ($xurl,$id);
 }
 
 sub handle_break {
@@ -1304,36 +1307,29 @@ sub fetch_sevenload_configxml {
     $curl->setopt(CURLOPT_HEADER, 1);
     $curl->setopt(CURLOPT_WRITEDATA, $response_fh);
 
-    my ($id, $xurl, $title);
-
+    my ($xurl,$id);
     if ( $rc == 0 ) {
-        my $xml = XMLin($conf_xml);
-        #use Data::Dumper; print Dumper($xml);
-        $title  = $xml->{playlists}{playlist}{items}{item}{title};
-        $id     = $xml->{playlists}{playlist}{items}{item}{id};
-        $xurl   = $xml->{playlists}{playlist}{items}{item} # Monstrous.
-                    {videos}{video}{streams}{stream}{locations}{location}{content};
+        my %re = (
+            GrabXurl => qr|<location seeking="yes">(.*?)</location>|,
+            GrabID   => qr|item id="(.*?)"|,
+        );
+        $id = $1
+            if $conf_xml =~ /$re{GrabID}/;
+        $xurl = $1
+            if $conf_xml =~ /$re{GrabXurl}/;
     } else {
-        print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
+        print STDERR
+            "\nerror: " .$curl->strerror($rc). " (http/$rc)\n";
     }
-
-    my $errmsg;
-
-    $errmsg = "failed to extract item title"
-        if !$title;
-
-    $errmsg = "failed to extract item id"
-        if !$id and !$errmsg;
-
-    print STDERR "\nerror: $errmsg\n"
-        if $errmsg;
-
-    return ($xurl, $id, $title);
+    return ($xurl,$id);
 }
 
 sub title_to_filename {
     my $title = shift;
-    $title =~ s/(youtube|video|liveleak.com)//i;
+
+    $title =~ s/(youtube|video|liveleak.com|sevenload)//gi;
+    $title =~ s/^\s+//;
+    $title =~ s/\s+$//;
 
     my $r = $opts{cclass} || qr|\w|;
     $title = join('',$title =~ /$r/g);

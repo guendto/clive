@@ -19,7 +19,7 @@ Version 2.1.7
 
  Developer-visible changes:
   * Add tests/lastfm.url and tests/multi.lst
-  * Touch cclive.1 and cclive.pod
+  * Touch cclive.1, cclive.pod and INSTALL files
   * Clean up regexps
 
  Other changes:

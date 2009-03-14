@@ -43,7 +43,6 @@ use Encode;
 
 use constant VERSION             => "2.1.7";
 use constant MBDIV               => 0x100000;
-use constant BP_REFRESH_INTERVAL => 0.2;
 use constant SHOWFMT_DEFAULT     => qq/%D: "%t" | %mMB/;
 
 # Non-essential modules: set flags indicating availability
@@ -845,7 +844,7 @@ sub dot_update {
     my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
 
     my ($percent, $elapsed, $rate, $eta) =
-        calc_progress($dlnow, $dltotal, 1);
+        calc_progress($dlnow, $dltotal);
 
     return 0
         if $elapsed < 1.0;
@@ -906,7 +905,9 @@ sub dot_print_row_stats {
     printf "%s%s", $last ? "=":" ", $eta;
 }
 
-sub bar_init { # A lazy man's progressbar
+use constant DEFAULT_TERM_WIDTH => 80;
+
+sub bar_init {
     my ($initial, $total) = @_;
 
     $total = $initial
@@ -914,62 +915,79 @@ sub bar_init { # A lazy man's progressbar
 
     $bp{initial} = $initial; # bytes dl previously
     $bp{total}   = $total;   # expected bytes
-
-    $bp{last_update} = 0;
-
-    bar_update(-1, $total, 0);
+    $bp{width}   = DEFAULT_TERM_WIDTH-1;
+    $bp{started} = time;
+    $bp{lastupd} = 0;
+    $bp{done}    = 0;
 }
 
-sub bar_update { # See no bar, hear no bar, speak no bar.
-    my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow, $done) = @_;
+use constant REFRESH_INTERVAL => 0.2;
 
-    my $elapsed = time - $time_started;
+sub bar_update {
+    my ($clientp, $total, $now, $ultotal, $ulnow) = @_;
 
-    if ( !$done ) {
+    my $tnow        = time;
+    my $elapsed     = $tnow - $bp{started};
+    my $force_update= 0;
+
+    if (!$bp{done}) {
         return 0
-            if ( $elapsed - $bp{last_update} < BP_REFRESH_INTERVAL);
+            if ( ($elapsed - $bp{lastupd}) < REFRESH_INTERVAL
+                && !$force_update)
     } else {
-        $dlnow = $bp{total};
+        $now = $bp{total};
     }
 
-    $bp{last_update} = $elapsed;
+    $bp{lastupd} = $elapsed;
+    my $size = $bp{initial} + $now;
 
-    my $size = $bp{initial} + $dlnow;
-    my $bar = "";
+    my $fname_len = 32;
+    if ($bp{width} > DEFAULT_TERM_WIDTH) {
+        $fname_len += $bp{width} - DEFAULT_TERM_WIDTH;
+    }
+    my $buffer = substr(basename($curr_fpath), 0, $fname_len);
 
     my $percent = 0;
-    if ( $bp{total} > 0 ) {
+    if ($bp{total} > 0) {
+        my $_size = !$bp{done} ? $size:$now;
         $percent = 100.0 * $size / $bp{total};
-        if ( $percent < 100 ) {
-            $bar .= sprintf("%2d%% ",$percent);
+        if ($percent < 100) {
+            $buffer .= sprintf("  %2d%% ", $percent);
         } else {
-            $bar .= "100%";
+            $buffer .= sprintf("  100%%");
         }
+        $buffer .= sprintf("  %4.1fM / %4.1fM",
+            $_size/MBDIV, $bp{total}/MBDIV);
     }
 
-    if ( !$done ) {
-        my ($percent_, $elapsed_, $rate, $eta) = 
-            calc_progress($dlnow, $dltotal, 1);
-
-        my %rate = normalize_rate($rate);
-
-        $bar .= sprintf(" | %8.2fMB ", $size/MBDIV);
-        $bar .= sprintf(" | %8.2f%s/s",$rate{rate},$rate{units});
-        $bar .= sprintf(" | ETA %-8s", $eta);
-        $percent = $percent_;
+    my $rate = $elapsed ? ($now/$elapsed):0;
+    my $tmp  = "";
+    if ($rate > 0) {
+        my $eta;
+        if (!$bp{done}) {
+            my $left = ($total-$now)/$rate;
+            $eta = time2str($left);
+        } else {
+            $eta = time2str($elapsed);
+        }
+        my ($unit,$_rate) = get_units($rate);
+        $tmp = sprintf("  %4.1f%s  %6s", $_rate, $unit, $eta);
     } else {
-        $bar .= sprintf(" | %6.2fMB ",$dlnow/MBDIV);
-        $bar .= sprintf(" | %8.2f%s/s",0,"K");
-        $bar .= sprintf(" | ETA %-8s","0s");
+        $tmp = "  --.-K/s  --:--";
     }
 
-    $bp{count} = $dlnow;
-    print "\r".$bar;
+    # pad to max. width leaving enough space for rate+eta
+    my $pad = $bp{width} - length($tmp) - length($buffer);
+    $buffer .= sprintf("%${pad}s"," ");
+    $buffer .= $tmp; # append rate+eta
+
+    printf("\r%s",$buffer);
+    $bp{count} = $now;
 
     return $percent;
 }
 
-sub bar_finish { # Never again.
+sub bar_finish {
     return if $opts{quiet};
 
     if ( $bp{total} > 0
@@ -977,11 +995,12 @@ sub bar_finish { # Never again.
         $bp{total} = $bp{initial} + $bp{count};
     }
 
-    bar_update(-1,-1,-1,-1,-1, 1);
+    $bp{done} = 1;
+    bar_update(-1,-1,-1,-1,-1);
 }
 
 sub calc_progress {
-    my ($dlnow, $dltotal, $condensed, $elapsed) = @_;
+    my ($dlnow, $dltotal, $elapsed) = @_;
 
     my $percent = 0;
 
@@ -999,32 +1018,45 @@ sub calc_progress {
 
     if ( $rate > 0 ) {
         my $left = ( $dltotal - $dlnow ) / $rate;
-        $eta     = time2str($left, $condensed);
+        $eta     = time2str($left);
     }
 
     return ($percent, $elapsed, $rate, $eta);
 }
 
 sub time2str {
-    my ($secs, $condensed) = @_;
-
-    my $space =
-        $condensed ? ""
-                   : " ";
+    my ($secs) = @_;
 
     my $str;
     if ( $secs < 100 ) {
         $str = sprintf("%ds", $secs);
     } elsif ( $secs < 100 * 60 ) {
-        $str = sprintf("%dm%s%ds", $secs / 60, $space, $secs % 60);
+        $str = sprintf("%dm%ds", $secs / 60, $secs % 60);
     } elsif ( $secs < 48 * 3600) {
-        $str = sprintf("%dh%s%dm", $secs / 3600, $space, ($secs / 60) % 60);
+        $str = sprintf("%dh%dm", $secs / 3600, ($secs / 60) % 60);
     } elsif ( $secs < 100 * 86400) {
-        $str = sprintf("%dd%s%dh", $secs / 86400, $space, ($secs / 3600) % 60);
+        $str = sprintf("%dd%dh", $secs / 86400, ($secs / 3600) % 60);
     } else {
         $str = sprintf("%dd", $secs / 86400);
     }
     return $str;
+}
+
+sub get_units {
+    my ($rate) = @_;
+    my @units = qw|K/s M/s G/s|;
+
+    my $i = 0;
+    if ($rate < 1024*1024) {
+        $rate /= 1024;
+    } elsif ($rate < 1024*1024) {
+        $rate /= 1024*1024;
+        $i = 1;
+    } elsif ($rate < 1024*1024*1024) {
+        $rate /= 1024*1024*1024;
+        $i = 2;
+    }
+    return ($units[$i],$rate);
 }
 
 sub normalize_rate {

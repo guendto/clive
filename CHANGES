@@ -10,6 +10,7 @@ Version 2.1.7
   * Fix --exec
     - Should fix the "not found" errors
   * Change default filename format to "%t_%d_%i.%s"
+  * Port progressbar from cclive
 
  Developer-visible changes:
   * Add tests/lastfm.url

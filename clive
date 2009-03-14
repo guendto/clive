@@ -24,7 +24,6 @@ use strict;
 binmode(STDOUT, ":utf8");
 
 use URI::Escape qw(uri_escape uri_unescape);
-use XML::Simple qw(XMLin);
 use WWW::Curl::Easy 4.05;
 use HTML::TokeParser;
 use Config::Tiny;
@@ -769,7 +768,7 @@ sub handle_liveleak {
     my $conf_url = uri_unescape($1)
         if $$response_ref =~ /$re{GrabConfigURL}/;
 
-    my $xurl;
+    my ($xurl,$errmsg);
     if ( $conf_url ) {
         $xurl = fetch_liveleak_config($conf_url);
         # Re-enable: header, reset WRITEDATA, the above overrides the
@@ -777,8 +776,12 @@ sub handle_liveleak {
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_WRITEDATA, $response_fh);
     } else {
-        print STDERR "error: config url not found\n";
+        $errmsg = "config url not found";
     }
+
+    $errmsg = "id not found" if !$id && !$errmsg;
+    print "error: $errmsg\n" if $errmsg;
+
     return ($xurl, $id);
 }
 
@@ -1240,19 +1243,19 @@ sub fetch_liveleak_playlist {
     my $rc = $curl->perform;
     close $fh;
 
-    my $xurl;
+    my ($xurl,$errmsg);
     if ( $rc ==  0 ) {
         # NOTE: XML::XSPF exists in CPAN but this should work just as well.
         # Parsing with XML::Simple results in errors due unescaped values.
         $playlist =~ tr{\n}//d;
-        my $re = qr|<location>(.*?)</location>|;
-        $xurl = $1 if $playlist =~ /$re/;
+        $xurl = $1
+            if $playlist =~ /<location>(.*?)<\/location>/;
     } else {
-        print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
+        $errmsg = $curl->strerror($rc). " (http/$rc)";
     }
 
-    print STDERR "\nerror: track <location> not found\n"
-        unless $xurl;
+    $errmsg = "location tag not found"  if !$xurl && !$errmsg;
+    print STDERR "\nerror: $errmsg\n"   if $errmsg;
 
     return $xurl;
 }
@@ -1274,14 +1277,18 @@ sub fetch_liveleak_config {
     my $rc = $curl->perform;
     close $fh;
 
-    my $xurl;
+    my ($xurl,$errmsg);
     if ( $rc == 0 ) {
-        my $xml = XMLin($config);
-        #use Data::Dumper; print Dumper($xml);
-        $xurl = fetch_liveleak_playlist($xml->{file});
+        if ($config =~ /<file>(.*?)<\/file>/) {
+            $xurl = fetch_liveleak_playlist($1)
+        } else {
+            $errmsg = "playlist url not found";
+        }
     } else {
-        print STDERR "\nerror: " . $curl->strerror($rc) . " (http/$rc)\n";
+        $errmsg = $curl->strerror($rc). " (http/$rc)\n";
     }
+
+    print STDERR "\nerror: $errmsg\n"   if $errmsg;
 
     return $xurl;
 }
@@ -1583,8 +1590,8 @@ Modules:
  * Config::Tiny/$Config::Tiny::VERSION\t\t* BerkeleyDB/$BerkeleyDB::VERSION
  * WWW::Curl/$WWW::Curl::VERSION\t\t* Expect/$expect_v
  * HTML::TokeParser/$HTML::TokeParser::VERSION\t* Clipboard/$clipboard_v
- * XML::Simple/$XML::Simple::VERSION\t\t* IO::Pager/$iopager_v
  * URI::Escape/$URI::Escape::VERSION\t\t* Term::ReadKey/$readkey_v
+ * IO::Pager/$iopager_v
 Core modules:
  * POSIX/$POSIX::VERSION\t\t\t* Cwd/$Cwd::VERSION
  * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION

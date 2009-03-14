@@ -13,7 +13,7 @@ Version 2.1.7
   * Port progressbar from cclive
 
  Developer-visible changes:
-  * Add tests/lastfm.url
+  * Add tests/lastfm.url and tests/multi.lst
   * Touch cclive.1 and cclive.pod
   * Clean up regexps
 

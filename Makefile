@@ -38,9 +38,6 @@ ifeq ($(WITH_CHECK),yes)
 	@echo -n URI::Escape ...
 	@echo `$(PERL) -MURI::Escape -e "print 'yes'" 2>/dev/null || \
         echo 'no'`
-	@echo -n XML::Simple ...
-	@echo `$(PERL) -MXML::Simple -e "print 'yes'" 2>/dev/null || \
-        echo 'no'`
 	@echo -n WWW::Curl 4.05+ ...
 	@echo `$(PERL) -e "use WWW::Curl 4.05; print 'yes'" 2>/dev/null || \
         echo 'no'`

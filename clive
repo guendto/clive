@@ -1612,6 +1612,7 @@ clive [options]... [URL]...
  -b, --background           go to background after startup
  -e, --emit-csv             emit video details as csv to stdout
  -E, --emit-xml             emit video details as csv to stdout
+ -V, --clivepass=PATH       path to clivepass
 HTTP Options:
  -U, --agent=STRING         identify as STRING to http server
  -y, --proxy=ADDR           use ADDR for http proxy
@@ -1647,4 +1648,3 @@ Download Options:
  -x, --exec=COMMAND         execute COMMAND subsequently
      --stream-exec=COMMAND  stream COMMAND to be executed
      --stream=PERCENT       execute stream command when transfer reaches %
- -V, --clivepass=PATH       path to clivepass

@@ -75,6 +75,11 @@ Ignores B<--quiet> for the CSV data.
 Equivalent to B<--emit-csv> in every way but the output is XML. Negates
 B<--emit-csv>.
 
+=item B<-V --clivepass=>I<path>
+
+I<path> to the L<clivepass(1)> utility. If CLIVEPASS_PATH environment
+variable is set, it will will used.
+
 =back
 
 B<HTTP options>
@@ -323,11 +328,6 @@ transfer progress reaches I<percent>.
 
 Example:
   % clive --stream-exec="mplayer -really-quiet %i" --stream=20 URL
-
-=item B<-V --clivepass=>I<path>
-
-I<path> to the L<clivepass(1)> utility. If CLIVEPASS_PATH environment
-variable is set, it will will used.
 
 =back
 

@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-03-13" "2.1.7" "clive manual"
+.TH clive 1 "2009-03-14" "2.1.7" "clive manual"
 .SH "NAME"
 clive \- the non\-interactive video extraction utility
 .SH "SYNOPSIS"
@@ -198,6 +198,10 @@ Ignores \fB\-\-quiet\fR for the \s-1CSV\s0 data.
 .IX Item "-E --emit-xml"
 Equivalent to \fB\-\-emit\-csv\fR in every way but the output is \s-1XML\s0. Negates
 \&\fB\-\-emit\-csv\fR.
+.IP "\fB\-V \-\-clivepass=\fR\fIpath\fR" 4
+.IX Item "-V --clivepass=path"
+\&\fIpath\fR to the \fIclivepass\fR\|(1) utility. If \s-1CLIVEPASS_PATH\s0 environment
+variable is set, it will will used.
 .PP
 \&\fB\s-1HTTP\s0 options\fR
 .IP "\fB\-U \-\-agent=\fR\fIstring\fR" 4
@@ -411,10 +415,6 @@ transfer progress reaches \fIpercent\fR.
 .Sp
 Example:
   % clive \-\-stream\-exec=\*(L"mplayer \-really\-quiet \f(CW%i\fR\*(R" \-\-stream=20 \s-1URL\s0
-.IP "\fB\-V \-\-clivepass=\fR\fIpath\fR" 4
-.IX Item "-V --clivepass=path"
-\&\fIpath\fR to the \fIclivepass\fR\|(1) utility. If \s-1CLIVEPASS_PATH\s0 environment
-variable is set, it will will used.
 .SH "EXAMPLES"
 .IX Header "EXAMPLES"
 .ie n .IP "% clive ""http://youtube.com/watch?v=3HD220e0bx4""" 4

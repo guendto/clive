@@ -1,6 +1,7 @@
 Version 2.1.7
 
  User-visible changes:
+  * Add options groups to --help output
   * Add --stream-exec and --stream options
     - Ported from cclive
   * Config file: add support for

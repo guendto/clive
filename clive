@@ -1612,9 +1612,11 @@ clive [options]... [URL]...
  -b, --background           go to background after startup
  -e, --emit-csv             emit video details as csv to stdout
  -E, --emit-xml             emit video details as csv to stdout
+HTTP Options:
  -U, --agent=STRING         identify as STRING to http server
  -y, --proxy=ADDR           use ADDR for http proxy
  -X, --no-proxy             do not use http proxy
+Cache Options:
  -R, --renew                renew cache entry for visited url
  -s, --show                 dump cache entries to stdout
  -H, --show-format=STRING   format dumped cache entries
@@ -1622,6 +1624,7 @@ clive [options]... [URL]...
  -i, --ignore-case          ignore case-differences with --grep
  -D, --delete               delete matched entries from cache
  -C, --clear                clear cache of all entries
+Logging and Input Options:
  -o, --output=LOGFILE       log messages to LOGFILE
  -a, --append=LOGFILE       append to LOGFILE
  -d, --debug                print libcurl debug messages
@@ -1629,6 +1632,7 @@ clive [options]... [URL]...
  -r, --recall               recall last url batch
  -T, --savebatch=FILE       save url batch to FILE
  -p, --paste                paste input from clipboard
+Download Options:
  -n, --no-extract           do not extract any videos
  -c, --continue             continue partially downloaded file
  -W, --overwrite            overwrite existing video file

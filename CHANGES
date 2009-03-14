@@ -16,13 +16,15 @@ Version 2.1.7
   * Port progressbar resize matching to terminal width from cclive
 
  Developer-visible changes:
+  * Add tests/lastfm.url and tests/multi.lst
+  * Remove XML::Simple dependency
+    - Use regex instead
   * Implement SIGWINCH handling
     - Progressbar resizes matching terminal width
     - Progressbar width defaults to 80 (chars)
     - OS must support SIGWINCH
     - Term::ReadKey module must be installed
-  * Add tests/lastfm.url and tests/multi.lst
-  * Touch cclive.1, cclive.pod and INSTALL files
+  * Touch cclive.1, cclive.pod, INSTALL and Makefile files
   * Clean up regexps
 
  Other changes:

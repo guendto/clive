@@ -128,18 +128,19 @@ GetOptions(\%opts,
     # Commented out until WWW::Curl is fixed:
     # 'maxspeed!', 'minspeed!',
     # Workarounds since $longopt!|$shortopt cannot be used.
-    'no-extract|n'        => sub { $opts{extract}   = 0 },
-    'no-login|L'          => sub { $opts{login}     = 0 },
-    'no-proxy|X'          => sub { $opts{proxy}     = "" },
+    'no-extract|n'          => sub { $opts{extract}     = 0 },
+    'no-login|L'            => sub { $opts{login}       = 0 },
+    'no-proxy|X'            => sub { $opts{proxy}       = "" },
     # Workaround for options with dashes. There's likely a better way.
-    'ignore-case|i'       => sub { $opts{case}      = 0 },
-    'filename-format|N=s' => sub { $opts{fnfmt}     = $_[1] },
-    'show-format|H=s'     => sub { $opts{showfmt}   = $_[1] },
-    'youtube-user|u=s',   => sub { $opts{ytuser}    = $_[1] },
-    'youtube-pass|t=s',   => sub { $opts{ytpass}    = $_[1] },
-    'emit-csv|e',         => sub { $opts{emitcsv}   = 1 },
-    'emit-xml|E',         => sub { $opts{emitxml}   = 1 },
-    'stream-exec=s',      => sub { $opts{streamexec}= $_[1] },
+    'ignore-case|i'         => sub { $opts{case}        = 0 },
+    'filename-format|N=s'   => sub { $opts{fnfmt}       = $_[1] },
+    'show-format|H=s'       => sub { $opts{showfmt}     = $_[1] },
+    'youtube-user|u=s'      => sub { $opts{ytuser}      = $_[1] },
+    'youtube-pass|t=s'      => sub { $opts{ytpass}      = $_[1] },
+    'emit-csv|e'            => sub { $opts{emitcsv}     = 1 },
+    'emit-xml|E'            => sub { $opts{emitxml}     = 1 },
+    'stream-exec=s'         => sub { $opts{streamexec}  = $_[1] },
+    'output-video|O=s'      => sub { $opts{outputfname} = $_[1] },
 ) or exit(1);
 pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
 
@@ -407,13 +408,12 @@ sub extract_video {
     return
         if $rc != 0 or !defined $content_type;
 
-    my $fn          = title_to_filename($entry{page_title});
-    my $path        = File::Spec->catfile( $opts{savedir} || $workdir, $fn );
+    my $fn = $opts{outputfname} || title_to_filename($entry{page_title});
+    my $path        = File::Spec->catfile($opts{savedir} || $workdir, $fn);
     my $filemode    = ">";
     my $remaining   = $entry{file_length};
     my $size        = -s $path || 0;
     my $cont_from   = 0;
-    my $errmsg;
 
     save_entry($hash);
 
@@ -462,6 +462,7 @@ sub extract_video {
         print "\n";
     }
 
+    my $errmsg;
     if ( $rc == 0 ) {
         return
             unless $opts{extract};
@@ -1637,6 +1638,7 @@ Logging and Input Options:
  -T, --savebatch=FILE       save url batch to FILE
  -p, --paste                paste input from clipboard
 Download Options:
+ -O, --output-video=FNAME   write video to file
  -n, --no-extract           do not extract any videos
  -c, --continue             continue partially downloaded file
  -W, --overwrite            overwrite existing video file

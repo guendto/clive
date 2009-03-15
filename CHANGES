@@ -1,6 +1,7 @@
 Version 2.1.7
 
  User-visible changes:
+  * Add --output-video option
   * Add option groups to --help output
   * Add --stream-exec and --stream options
     - Ported from cclive

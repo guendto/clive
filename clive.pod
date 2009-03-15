@@ -200,6 +200,10 @@ B<Download Options>
 
 =over 4
 
+=item B<-O --output-video=>I<file>
+
+Write video to I<file>.
+
 =item B<-n --no-extract>
 
 Do not actually extract any videos.

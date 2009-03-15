@@ -1,31 +1,31 @@
 Version 2.1.7
 
  User-visible changes:
-  * Add options groups to --help output
+  * Add option groups to --help output
   * Add --stream-exec and --stream options
     - Ported from cclive
   * Config file: add support for
     - [commands]:exec (--exec)
     - [commands]:stream (--stream-exec)
     - See configrc for an example
-  * Fix --exec
-    - Should fix the "not found" errors
+  * Fix --exec; should no longer spew out "not found" shell errors
   * Change default filename format to "%t_%d_%i.%s"
-  * Change to "file is already fully retrieved" error message
+  * Change to use "file is already fully retrieved" error message
   * Port progressbar from cclive
-  * Port progressbar resize matching to terminal width from cclive
+  * Port resizing progressbar from cclive
 
  Developer-visible changes:
   * Add tests/lastfm.url and tests/multi.lst
   * Remove XML::Simple dependency
     - Use regex instead
   * Implement SIGWINCH handling
-    - Progressbar resizes matching terminal width
+    - Resize progressbar to match terminal width
     - Progressbar width defaults to 80 (chars)
     - OS must support SIGWINCH
-    - Term::ReadKey module must be installed
+    - Requires Term::ReadKey module
+      - clive works without the module but will ignore any SIGWINCH events
   * Touch cclive.1, cclive.pod, INSTALL and Makefile files
-  * Clean up regexps
+  * Clean up regexs
 
  Other changes:
   * Buried clive-list, grew weary of fighting spam with bare fists

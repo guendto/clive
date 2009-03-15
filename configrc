@@ -21,7 +21,7 @@
     #cclass = [A-Za-z0-9]
     #cclass = .
 
-    ## Extracted video filename format (default: %t-(%i)-[%d].%s).
+    ## Extracted video filename format (default: %t_%d_%i.%s).
     ## %t = video name after applying the character class regex
     ## %s = video file suffix (e.g. flv)
     ## %d = video domain

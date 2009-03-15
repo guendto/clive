@@ -11,7 +11,6 @@ Version 2.1.7
   * Fix --exec; should no longer spew out "not found" shell errors
   * Change default filename format to "%t_%d_%i.%s"
   * Change to use "file is already fully retrieved" error message
-  * Port progressbar from cclive
   * Port resizing progressbar from cclive
 
  Developer-visible changes:
@@ -25,7 +24,7 @@ Version 2.1.7
     - Requires Term::ReadKey module
       - clive works without the module but will ignore any SIGWINCH events
   * Touch cclive.1, cclive.pod, INSTALL and Makefile files
-  * Clean up regexs
+  * Clean up regex
 
  Other changes:
   * Buried clive-list, grew weary of fighting spam with bare fists

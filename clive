@@ -87,6 +87,7 @@ my %re_hosts = (    # Precompiled regex used to identify the host
     IsLastfm    => qr|last.fm|i,
     IsLiveleak  => qr|liveleak.com|i,
     IsEvisor    => qr|evisor.tv|i,
+    IsDmotion   => qr|dailymotion.com|i,
 );
 
 # Parse config
@@ -320,6 +321,8 @@ sub process_page {
         ($xurl, $id) = handle_liveleak($response_ref, $response_fh);
     } elsif ( $url =~ /$re_hosts{IsEvisor}/ ) {
         ($xurl, $id) = handle_evisor($response_ref);
+    } elsif ($url =~ /$re_hosts{IsDmotion}/) {
+        ($xurl, $id) = handle_dmotion($response_ref);
     }
     return -1
         if !$xurl or !$id or !$title;
@@ -812,6 +815,46 @@ sub handle_evisor {
         if $errmsg;
 
     return ($xurl, $id);
+}
+
+sub handle_dmotion {
+    my $resp = shift;
+    my %re = (
+        GrabID => qr|/swf/(.*?)\?|,
+        GrabPaths => qr|"video", "(.*?)"|
+    );
+
+    my ($id,@paths);
+    $id     = $1
+        if $$resp =~ /$re{GrabID}/;
+    my $paths = uri_unescape($1)
+        if $$resp =~ /$re{GrabPaths}/;
+
+    use constant ADDR => "http://dailymotion.com";
+
+    my $xurl;
+    if ($id && $paths) {
+        foreach (split(/\|\|/,$paths)) {
+            my ($path,$type) = split(/@@/,$_);
+            if ($type eq "spark") { # same as regular flv
+                $xurl = ADDR.$path;
+            }
+            if ($type eq $opts{format}) {
+                $xurl = ADDR.$path;
+                last;
+            }
+        }
+    }
+
+    my $errmsg;
+    $errmsg = "id not found"             if !$id;
+    $errmsg = "paths not found"          if !$paths && !$errmsg;
+    $errmsg = "failed to construct xurl" if !$xurl  && !$errmsg;
+
+    print STDERR "\nerror: $errmsg\n"
+        if $errmsg;
+
+    return ($xurl,$id);
 }
 
 
@@ -1335,7 +1378,7 @@ sub fetch_sevenload_configxml {
 sub title_to_filename {
     my $title = shift;
 
-    $title =~ s/(youtube|video|liveleak.com|sevenload)//gi;
+    $title =~ s/(youtube|video|liveleak.com|sevenload|dailymotion)//gi;
     $title =~ s/^\s+//;
     $title =~ s/\s+$//;
 

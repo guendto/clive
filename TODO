@@ -2,4 +2,3 @@ repo: git://repo.or.cz/clive.git
 web : http://repo.or.cz/w/clive.git
 
 2.1.8
- * port dailymotion support from cclive

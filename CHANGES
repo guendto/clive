@@ -3,6 +3,9 @@ Version 2.1.8
  User-visible changes:
   * Port dailymotion support from cclive
 
+ Developer-visible changes:
+  * Add tests/dmotion.url
+
 
 Version 2.1.7
 (March 15, 2009)

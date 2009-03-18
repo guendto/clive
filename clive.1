@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-03-15" "2.1.7" "clive manual"
+.TH clive 1 "2009-03-18" "2.1.8" "clive manual"
 .SH "NAME"
 clive \- the non\-interactive video extraction utility
 .SH "SYNOPSIS"
@@ -521,6 +521,12 @@ Formats: flv  Continue: Yes
 .IP "\fBwww.evisor.tv\fR" 4
 .IX Item "www.evisor.tv"
 Formats: flv  Continue: Yes
+.IP "\fBwww.dailymotion.com\fR" 4
+.IX Item "www.dailymotion.com"
+Formats: (spark|spak\-mini|vp6\-hq|vp6\-hd|vp6|h264)  Continue: Yes
+.Sp
+spark is the \*(L"regular\*(R" 320x240 flv. \fBclive\fR defaults to spark
+if requested format is not available.
 .SH "CACHE"
 .IX Header "CACHE"
 The cache has two purposes:

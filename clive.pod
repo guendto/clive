@@ -471,6 +471,13 @@ Formats: flv  Continue: Yes
 
 Formats: flv  Continue: Yes
 
+=item B<www.dailymotion.com>
+
+Formats: (spark|spak-mini|vp6-hq|vp6-hd|vp6|h264)  Continue: Yes
+
+spark is the "regular" 320x240 flv. B<clive> defaults to spark
+if requested format is not available.
+
 =back
 
 =head1 CACHE

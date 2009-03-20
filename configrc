@@ -13,6 +13,9 @@
     #proxy = http://foo:1234
 
 [output]
+    ## Download video format. See the manual page for available formats.
+    #format = mp4
+
     ## Save videos to directory (default: cwd).
     #savedir = /home/user/videos
 

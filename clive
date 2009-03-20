@@ -98,6 +98,7 @@ my $c = Config::Tiny->read($CONFIGFILE);
     proxy       => $c->{http}->{proxy},
     maxspeed    => $c->{http}->{maxspeed},
     minspeed    => $c->{http}->{minspeed},
+    format      => $c->{output}->{format},
     savedir     => $c->{output}->{savedir},
     cclass      => $c->{output}->{cclass},
     fnfmt       => $c->{output}->{file},
@@ -111,7 +112,7 @@ my $c = Config::Tiny->read($CONFIGFILE);
 
 $opts{clivepass}    = $ENV{CLIVEPASS_PATH} unless $opts{clivepass};
 $opts{progress}     = 'bar' unless $opts{progress};
-$opts{format}       = 'flv';
+$opts{format}       = $opts{format} || 'flv';
 $opts{extract}      = 1;
 $opts{login}        = 1;
 $opts{case}         = 1;

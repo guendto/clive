@@ -1,9 +1,11 @@
 Version 2.1.8
 
  User-visible changes:
+  * Config file: add support for [output]:format (--format)
   * Port dailymotion support from cclive
 
  Developer-visible changes:
+  * Touch configrc
   * Add tests/dmotion.url
 
 

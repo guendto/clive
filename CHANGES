@@ -6,6 +6,9 @@ Version 2.1.8
   * Port dailymotion support from cclive
 
  Developer-visible changes:
+  * Optimize script start
+    - Replace "use $module" with "require $module" where possible
+    - Should speed up start a bit
   * Touch LICENSE
   * Touch manual page files (clive.1, clive.pod)
     - Rewrite EXAMPLES section

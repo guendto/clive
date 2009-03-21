@@ -23,19 +23,12 @@ use strict;
 
 binmode(STDOUT, ":utf8");
 
-use URI::Escape qw(uri_escape uri_unescape);
+# NOTE: Using "require" instead of "use" causes "Can't locate
+# auto/WWW/Curl/CURLOPT_USE.al in @INC".
 use WWW::Curl::Easy 4.05;
-use HTML::TokeParser;
-use Config::Tiny;
-use BerkeleyDB;
 
 # Core modules:
 use Getopt::Long qw(:config bundling);
-use File::Basename qw(basename);
-use Digest::SHA qw(sha1_hex);
-use Pod::Usage qw(pod2usage);
-use File::Path qw(mkpath);
-use POSIX qw(strftime);
 use Cwd qw(getcwd);
 use File::Spec;
 use Encode;
@@ -91,6 +84,8 @@ my %re_hosts = (    # Precompiled regex used to identify the host
 );
 
 # Parse config
+require Config::Tiny;
+
 my $c = Config::Tiny->read($CONFIGFILE);
 %opts = (
     progress    => $c->{_}->{progress},
@@ -144,7 +139,11 @@ GetOptions(\%opts,
     'stream-exec=s'         => sub { $opts{streamexec}  = $_[1] },
     'output-video|O=s'      => sub { $opts{outputfname} = $_[1] },
 ) or exit(1);
-pod2usage(-exitstatus => 0, -verbose => 1) if $opts{help};
+
+if ($opts{help}) {
+    require Pod::Usage;
+    Pod::Usage::pod2usage(-exitstatus => 0, -verbose => 1)
+}
 
 main();
 
@@ -220,7 +219,7 @@ sub auth_youtube { # Log into Youtube
         unless $opts{quiet};
 
     $curl->setopt(CURLOPT_COOKIE, "is_adult="
-        . uc( sha1_hex(rand()) ) );
+        . uc( Digest::SHA::sha1_hex(rand()) ) );
 
     $ytube_logged = 1;
 }
@@ -231,8 +230,10 @@ sub auth_youtube { # Log into Youtube
 sub process_queue {
     init_curl();
 
+    require Digest::SHA;
+
     foreach ( @queue ) {
-        $hash = sha1_hex($_);
+        $hash = Digest::SHA::sha1_hex($_);
 
         my $errmsg;
         my ($rc, $rfh, $response) = fetch_page($_);
@@ -305,9 +306,13 @@ sub process_page {
 
     $$response_ref =~ tr{\n}//d;
 
+    require HTML::TokeParser;
+
     my $p = HTML::TokeParser->new($response_ref);
     $p->get_tag("title");
     my $title = $p->get_trimmed_text;
+
+    require URI::Escape;
 
     my ($xurl, $id);
     if      ( $url =~ /$re_hosts{IsYoutube}/ ) {
@@ -595,12 +600,14 @@ sub parse_input {
 
     chomp $url;
 
+    require URI::Escape;
+
     if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects
         printf "found redirect ...%s\n=> %s\n",
             (split(/&/,$url))[0],
-            (split(/&/,uri_unescape($1)))[0]
+            (split(/&/,URI::Escape::uri_unescape($1)))[0]
                 unless $opts{quiet};
-        $url = uri_unescape($1);
+        $url = URI::Escape::uri_unescape($1);
     }
 
     # Insert http:// if not found
@@ -676,7 +683,7 @@ sub handle_google {
     );
 
     #my $redir  = $1 if $$response_ref =~ /$re{GrabRedirect}/;
-    my $xurl   = uri_unescape($1)
+    my $xurl   = URI::Escape::uri_unescape($1)
         if $$response_ref =~ /$re{GrabVideoURL}/;
 
     my $id     = $1 if $$response_ref =~ /$re{GrabID}/;
@@ -705,7 +712,7 @@ sub handle_sevenload {
 
     my %re = ( GrabConfigPath => qr|configPath=(.*?)"| );
 
-    my $conf_path = uri_unescape($1)
+    my $conf_path = URI::Escape::uri_unescape($1)
         if $$response_ref =~ /$re{GrabConfigPath}/;
 
     my ($xurl,$id,$errmsg);
@@ -770,7 +777,7 @@ sub handle_liveleak {
     my $id = $1
         if $$response_ref =~ /$re{GrabID}/;
 
-    my $conf_url = uri_unescape($1)
+    my $conf_url = URI::Escape::uri_unescape($1)
         if $$response_ref =~ /$re{GrabConfigURL}/;
 
     my ($xurl,$errmsg);
@@ -826,9 +833,8 @@ sub handle_dmotion {
     );
 
     my ($id,@paths);
-    $id     = $1
-        if $$resp =~ /$re{GrabID}/;
-    my $paths = uri_unescape($1)
+    $id         = $1 if $$resp =~ /$re{GrabID}/;
+    my $paths   = URI::Escape::uri_unescape($1)
         if $$resp =~ /$re{GrabPaths}/;
 
     use constant ADDR => "http://dailymotion.com";
@@ -1027,7 +1033,10 @@ sub bar_update {
     if ($bp{width} > DEFAULT_TERM_WIDTH) {
         $fname_len += $bp{width} - DEFAULT_TERM_WIDTH;
     }
-    my $buffer = substr(basename($curr_fpath), 0, $fname_len);
+
+    require File::Basename;
+    my $buffer =
+        substr(File::Basename::basename($curr_fpath), 0, $fname_len);
 
     my $percent = 0;
     if ($bp{total} > 0) {
@@ -1394,7 +1403,9 @@ sub title_to_filename {
     my @a = split(/\./,$authority);
 
     my $fn          = $opts{fnfmt} || "%t_%d_%i.%s";
-    my $timestamp   = strftime("%F %T",localtime);
+
+    require POSIX;
+    my $timestamp   = POSIX::strftime("%F %T",localtime);
 
     my %h = (
         "%t" => $title,
@@ -1451,11 +1462,13 @@ sub format_show {
 }
 
 sub init_cache {
-    mkpath( [$CONFIGDIR], 0, 0700 );
+    require File::Path;
+    File::Path::mkpath([$CONFIGDIR], 0, 0700);
+    require BerkeleyDB;
     $cache_db = tie %cache, "BerkeleyDB::Hash",
         -Filename => $CACHEFILE,
-        -Flags => DB_CREATE
-        or die "error: cannot open $CACHEFILE: $! $BerkeleyDB::Error\n";
+        -Flags => BerkeleyDB->DB_CREATE
+        or die "error: cannot open $CACHEFILE: $!\n";
 }
 
 sub show_cache {
@@ -1465,9 +1478,11 @@ sub show_cache {
     my $fmt = $opts{showfmt} || SHOWFMT_DEFAULT;
     my @entries = ();
 
+    require Digest::SHA;
+
     if ( $opts{grep} ) {
         grep_cache(); # Stores matches => @queue
-        push @entries, format_show( $fmt, sha1_hex($_) )
+        push @entries, format_show( $fmt, Digest::SHA::sha1_hex($_) )
             foreach ( @queue );
     } else {
         push @entries, format_show( $fmt, $_ )
@@ -1485,7 +1500,7 @@ sub show_cache {
         $_ = lc <STDIN>;
         chomp;
         if ( lc $_ eq "y" ) {
-            delete $cache{sha1_hex($_)}
+            delete $cache{Digest::SHA::sha1_hex($_)}
                 foreach ( @queue );
         }
     }
@@ -1594,11 +1609,13 @@ sub emit {
     print "<?xml version=\"1.0\"?>\n<queue>\n"
         if $opts{emitxml} and @emit_queue;
 
+    require URI::Escape;
+
     foreach ( @emit_queue ) {
         if ( $opts{emitxml} ) {
             print "  <video>\n";
             while ( my ($key,$value) = each (%$_) ) {
-                $value = uri_escape($value)
+                $value = URI::Escape::uri_escape($value)
                     if $key eq 'xurl' or $key eq 'page_url';
                 print "    <$key>$value</$key>\n";
             }

@@ -6,6 +6,7 @@ Version 2.1.8
   * Port dailymotion support from cclive
 
  Developer-visible changes:
+  * Touch LICENSE
   * Touch manual page files (clive.1, clive.pod)
     - Rewrite EXAMPLES section
     - Cleanup other sections

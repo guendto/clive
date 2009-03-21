@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-03-18" "2.1.8" "clive manual"
+.TH clive 1 "2009-03-21" "2.1.8" "clive manual"
 .SH "NAME"
 clive \- the non\-interactive video extraction utility
 .SH "SYNOPSIS"
@@ -139,39 +139,28 @@ clive [option]... [\s-1URL\s0]...
 .IX Header "DESCRIPTION"
 clive is a command line utility for extracting videos from Youtube and other
 video sharing Web sites. It was originally written to bypass the Adobe Flash
-requirement needed to view the hosted videos. It is non\-interactive, meaning
-it can work in the background while the user is not logged on. This allows
-the user to start an extraction and disconnect from the system, letting clive
-finish the work.
+requirement needed to view the hosted videos.
+.PP
+clive can be non\-interactive. This means it can work in the background
+while the user is not logged on, allowing the user to start an extraction
+and disconnect from the system and letting clive finish the work.
 .PP
 clive was influenced by the \s-1GNU\s0 \fIwget\fR\|(1) utility. Kudos to the wget team
 for their original work.
-.SH "OPTIONS"
-.IX Header "OPTIONS"
-.IP "\fBOption Syntax\fR" 4
-.IX Item "Option Syntax"
-Every option has a long form along with the short one. Long options are more
-convenient to remember but take time to type. You may freely mix different
-option styles, or specify options after the command-line arguments. For example:
-.Sp
-.Vb 1
-\&    % clive -c --format=mp4 URL -n
-.Ve
-.Sp
+.SH "OPTION SYNTAX"
+.IX Header "OPTION SYNTAX"
+You may freely mix different option styles, or specify options after the
+command-line arguments. For example:
+  % clive \-c \-\-format=mp4 \s-1URL\s0 \-n
+.PP
 You may also put several options together that do not require arguments.
 For example:
-.Sp
-.Vb 1
-\&    % clive -pcn URL
-.Ve
-.Sp
-Which is equivalent to:
-.Sp
-.Vb 1
-\&    % clive -p -c -n URL
-.Ve
+  % clive \-pcn \s-1URL\s0
 .PP
-\&\fBBasic Options\fR
+Which is equivalent to:
+  % clive \-p \-c \-n \s-1URL\s0
+.SH "OPTIONS"
+.IX Header "OPTIONS"
 .IP "\fB\-h \-\-help\fR" 4
 .IX Item "-h --help"
 Print this help and exit.
@@ -189,11 +178,7 @@ file. Implies \fB\-\-progress=\fR\fIdot\fR.
 .IP "\fB\-e \-\-emit\-csv\fR" 4
 .IX Item "-e --emit-csv"
 Do not extract any videos, instead print the video details as \s-1CSV\s0 to stdout.
-Ignores \fB\-\-quiet\fR for the \s-1CSV\s0 data.
-.Sp
-.Vb 1
-\&    % clive -eq URL # Would still print the CSV content
-.Ve
+Ignores the \fB\-\-quiet\fR option for \s-1CSV\s0.
 .IP "\fB\-E \-\-emit\-xml\fR" 4
 .IX Item "-E --emit-xml"
 Equivalent to \fB\-\-emit\-csv\fR in every way but the output is \s-1XML\s0. Negates
@@ -226,33 +211,24 @@ Print all cache entries to standard output.
 .IX Item "-H --show-format=string"
 Format printed entries using the \fIstring\fR. Default is '%D: \*(L"%t\*(R" | \f(CW%mMB\fR'.
 The following specifiers are supported:
-.Sp
-.Vb 8
-\&    %t = video page title
-\&    %i = video id
-\&    %l = video file length (bytes)
-\&    %u = video page url
-\&    %x = video extraction url
-\&    %D = video extraction date
-\&    %T = video extraction time
-\&    %S = video extraction timestamp (same as: %D %T)
-.Ve
+  \f(CW%t\fR = video page title
+  \f(CW%i\fR = video id
+  \f(CW%l\fR = video file length (bytes)
+  \f(CW%u\fR = video page url
+  \f(CW%x\fR = video extraction url
+  \f(CW%D\fR = video extraction date
+  \f(CW%T\fR = video extraction time
+  \f(CW%S\fR = video extraction timestamp (same as: \f(CW%D\fR \f(CW%T\fR)
 .IP "\fB\-g \-\-grep=\fR\fIpattern\fR" 4
 .IX Item "-g --grep=pattern"
-Grep cache entries for \fIpattern\fR. Matching is \fBnot\fR restricted to any specific
-cache entry field (e.g. title or id).
-.Sp
-.Vb 2
-\&    % clive --grep=git
-\&    % clive --grep=^git --ignore-case
-.Ve
+Grep cache entries for \fIpattern\fR. Matching is \fBnot\fR restricted to any
+specific cache entry field (e.g. title or id).
+  % clive \-\-grep=git
+  % clive \-\-grep=^git \-\-ignore\-case
 .Sp
 The matched entries are then extracted. To only show the matches, use the
 \&\fB\-\-show\fR option. For example:
-.Sp
-.Vb 1
-\&    % clive -sg ^git
-.Ve
+  % clive \-sg ^git
 .IP "\fB\-i \-\-ignore\-case\fR" 4
 .IX Item "-i --ignore-case"
 Causes clive to ignore case-differences with \fB\-\-grep\fR.
@@ -260,10 +236,7 @@ Causes clive to ignore case-differences with \fB\-\-grep\fR.
 .IX Item "-D --delete"
 Delete grep-matched entries from the cache. If used with the \fB\-\-show\fR
 option, clive will prompt before deleting, e.g.:
-.Sp
-.Vb 1
-\&    % clive -siDg ^git
-.Ve
+  % clive \-siDg ^git
 .IP "\fB\-C \-\-clear\fR" 4
 .IX Item "-C --clear"
 Clear cache and exit.
@@ -332,15 +305,12 @@ downloaded data.
 .Sp
 When using the dotted retrieval, you may also set the style by specifying
 the \fItype\fR as dot:style.
-.Sp
-.Vb 6
-\&    --progress=dot:default
-\&        each dot 1K, 10-dots clusters, 50-dots lines
-\&    --progress=dot:binary
-\&        each dot  8K, 16-dots clusters, 48-dots lines
-\&    --progress=dot:mega
-\&        each dot 64K,  8-dots clusters, 48-dots lines
-.Ve
+  \-\-progress=dot:default
+    each dot 1K, 10\-dots clusters, 50\-dots lines
+  \-\-progress=dot:binary
+    each dot  8K, 16\-dots clusters, 48\-dots lines
+  \-\-progress=dot:mega
+    each dot 64K,  8\-dots clusters, 48\-dots lines
 .Sp
 Progress indication can be disabled completely by setting \fItype\fR to \*(L"none\*(R".
 .IP "\fB\-u \-\-youtube\-user=\fR\fIusername\fR" 4
@@ -369,16 +339,13 @@ The filtered video page titles are used to name the extracted videos.
 .IX Item "-N --filename-format=string"
 Use \fIstring\fR to construct the name of the extracted video. Default is
 \&\*(L"%t_%d_%i.%s\*(R". The following specifiers are supported:
-.Sp
-.Vb 7
-\&    %t = video title (after applying --cclass)
-\&    %i = video id
-\&    %d = video domain
-\&    %s = video suffix
-\&    %D = current date
-\&    %T = current time
-\&    %S = timestamp (same as %D %T)
-.Ve
+  \f(CW%t\fR = video title (after applying \-\-cclass)
+  \f(CW%i\fR = video id
+  \f(CW%d\fR = video domain
+  \f(CW%s\fR = video suffix
+  \f(CW%D\fR = current date
+  \f(CW%T\fR = current time
+  \f(CW%S\fR = timestamp (same as \f(CW%D\fR \f(CW%T\fR)
 .IP "\fB\-x \-\-exec=\fR\fIcommand\fR\fB;\fR" 4
 .IX Item "-x --exec=command;"
 Execute \fIcommand\fR. Optional arguments may be passed to the command.
@@ -420,76 +387,82 @@ Example:
   % clive \-\-stream\-exec=\*(L"mplayer \-really\-quiet \f(CW%i\fR\*(R" \-\-stream=20 \s-1URL\s0
 .SH "EXAMPLES"
 .IX Header "EXAMPLES"
-.ie n .IP "% clive ""http://youtube.com/watch?v=3HD220e0bx4""" 4
-.el .IP "% clive ``http://youtube.com/watch?v=3HD220e0bx4''" 4
-.IX Item "% clive http://youtube.com/watch?v=3HD220e0bx4"
-Extract the video from the specified \s-1URL\s0.
-.IP "% cat >> url.lst" 4
-.IX Item "% cat >> url.lst"
-.Vb 4
-\& http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
-\& http://youtube.com/watch?v=3HD220e0bx4
-\& http://break.com/index/beach-tackle-whip-lash.html
-\& http://www.liveleak.com/view?i=704_1228511265
-.Ve
-.IP "% cat url.lst | clive" 4
-.IX Item "% cat url.lst | clive"
-Read input from \s-1UNIX\s0 pipe.
-.IP "% clive \-p \s-1URL\s0 \s-1URL\s0" 4
-.IX Item "% clive -p URL URL"
-Combine input from the command-line and the clipboard (each \s-1URL\s0 separated
-with a newline).
-.IP "% clive \-rf mp4" 4
-.IX Item "% clive -rf mp4"
-Recall the last \s-1URL\s0 batch and extract the mp4 format of the video.
-.IP "% clive \-g 3HD220e0bx4" 4
-.IX Item "% clive -g 3HD220e0bx4"
-Grep the pattern from the cache and extract the matched videos.
-.IP "% clive \-iDg ^3hd2" 4
-.IX Item "% clive -iDg ^3hd2"
-Same as above but \fIdelete\fR the matched entries from the cache instead.
-.IP "% clive \-s" 4
-.IX Item "% clive -s"
-Print the contents of the cache to stdout.
-.IP "% clive \-sig ^3hd2" 4
-.IX Item "% clive -sig ^3hd2"
-Show only matched cache entries.
-.IP "% clive \-big ^3hd2 \-o my.log" 4
-.IX Item "% clive -big ^3hd2 -o my.log"
-Grep for the pattern, go to background, redirect output to \fImy.log\fR and
-extract the grep-matched videos.
-.ie n .IP "% clive \-\-exec=""ffmpeg \-y \-i %i\fR \f(CW%i.mpg;"" \s-1URL\s0" 4
-.el .IP "% clive \-\-exec=``ffmpeg \-y \-i \f(CW%i\fR \f(CW%i\fR.mpg;'' \s-1URL\s0" 4
-.IX Item "% clive --exec=ffmpeg -y -i %i %i.mpg; URL"
-Re-encode the extracted video to mpeg format with \fIffmpeg\fR\|(1).
-.IP "% clivepass \-\-create" 4
-.IX Item "% clivepass --create"
-.PD 0
-.IP "% clivepass \-\-add myusername" 4
-.IX Item "% clivepass --add myusername"
-.IP "% clive \-u myusername \-t \- \-V /usr/bin/clivepass \s-1URL\s0" 4
-.IX Item "% clive -u myusername -t - -V /usr/bin/clivepass URL"
-.PD
-Create a new \fIclivepass\fR\|(1) passwd login password \*(L"repository\*(R" file.
+.IP "Typical use:" 4
+.IX Item "Typical use:"
+% clive \*(L"http://youtube.com/watch?v=3HD220e0bx4\*(R"
+.IP "Multiple video URLs:" 4
+.IX Item "Multiple video URLs:"
+% cat >> url.lst
+  http://en.sevenload.com/videos/IUL3gda\-Funny\-Football\-Clips
+  http://youtube.com/watch?v=3HD220e0bx4
+  http://break.com/index/beach\-tackle\-whip\-lash.html
+  http://www.liveleak.com/view?i=704_1228511265
 .Sp
-Add Youtube login \*(L"myusername\*(R" to the repo.
+% cat url.lst | clive
+.IP "Combine input from multiple sources:" 4
+.IX Item "Combine input from multiple sources:"
+% clive \-p \s-1URL\s0 \s-1URL2\s0
+.IP "Recall the last \s-1URL\s0 batch, extract mp4 video format:" 4
+.IX Item "Recall the last URL batch, extract mp4 video format:"
+% clive \-rf mp4
+.IP "Grep for the pattern in cache, extract matched videos:" 4
+.IX Item "Grep for the pattern in cache, extract matched videos:"
+% clive \-g 3HD220e0bx4
+.IP "Same as above but \fIdelete\fR the matched entries from cache:" 4
+.IX Item "Same as above but delete the matched entries from cache:"
+% clive \-iDg ^3hd2
 .Sp
-Chain clive\-clivepass: retrieve login password from the repo, login to
-Youtube using the \*(L"myusername\*(R" \s-1ID\s0 and the decrypted password, then extract
-video.
+Note the use of \-i (\-\-ignore\-case).
+.IP "Print cache contents to stdout:" 4
+.IX Item "Print cache contents to stdout:"
+% clive \-s
+.IP "Combine matching and printing cache entries:" 4
+.IX Item "Combine matching and printing cache entries:"
+% clive \-sig ^3hd2
 .Sp
-The \fIclivepass\fR\|(1) utility is part of the \fBclive-utils\fR project, see the
-\&\*(L"\s-1SEE\s0 \s-1ALSO\s0\*(R" section.
+Note that \-s negates video extraction.
+.IP "Match, redirect output to \fImy.log\fR, go to background:" 4
+.IX Item "Match, redirect output to my.log, go to background:"
+% clive \-big ^3hd2 \-o my.log
+.IP "Extract video from \s-1URL\s0, re-encode audio to mp3:" 4
+.IX Item "Extract video from URL, re-encode audio to mp3:"
+% clive \-\-exec=\*(L"ffmpeg \-y \-i \f(CW%i\fR \f(CW%i\fR.mpg;\*(R" \s-1URL\s0
+.IP "Login to Youtube to extract a video:" 4
+.IX Item "Login to Youtube to extract a video:"
+% clive \-u myusername \-t mypassword \s-1URL\s0
+.Sp
+This isn't typically needed unless you are trying to extract videos flagged
+as mature content.
+.IP "Use protected login password:" 4
+.IX Item "Use protected login password:"
+Otherwise same as above but the login info is saved to a clivepass password
+repository file. The saved passwords are encrypted.
+.Sp
+Note that you will need to install the clive-utils for this. See the \*(L"\s-1OTHER\s0\*(R"
+section for details.
+.Sp
+Create new password repository:
+  % clivepass \-\-create
+.Sp
+Add new login name \*(L"myusername\*(R":
+  % clivepass \-\-add myusername
+.Sp
+Use the created login info from clive:
+  % clive \-u myusername \-t \- \-V /usr/bin/clivepass \s-1URL\s0
+.Sp
+This causes \fBclive\fR to request for the login password for \*(L"myusername\*(R" from
+\&\fIclivepass\fR\|(1). The password is then used to login to Youtube before extracting
+the video from the \s-1URL\s0.
 .SH "FORMATS"
 .IX Header "FORMATS"
 clive defaults to extract the flv format unless the \fB\-\-format\fR option is
 used. The requested format may not always be available. The server typically
-returns one of the HTTP/40x errors if a format is not available.
+returns one of the HTTP/40x errors if the requested format is not available.
 .PP
-The quality of the video depends on the uploaded video quality. Each
-website typically recompresses the uploaded videos to 320x240 resolution
-(sometimes higher). Because this varies per video and website, you should
-consider the list below only as a reference. It may provide inaccurate info.
+The quality of the video depends on the uploaded video quality. Each website
+typically recompresses the uploaded videos to 320x240 resolution (sometimes
+higher). Because this varies per video and website, you should treat the
+list below only as a rough reference of what formats should be available.
 .IP "\fBwww.youtube.com\fR" 4
 .IX Item "www.youtube.com"
 .PD 0
@@ -498,17 +471,20 @@ consider the list below only as a reference. It may provide inaccurate info.
 .PD
 Formats: (flv|mp4|3gpp|xflv)  Continue: Yes (except flv)
 .Sp
-The flv format is usually available unless the video has been removed or
-set private. The mp4 and 3gpp formats are often, or will become, available.
-The xflv on the other hand appears to be very rarely available.
+mp4 and 3gpp formats are typically, or will become later, available.
+xflv appears to be very rare. Videos dating back to 2006 may only be
+available as flv.
 .Sp
-Videos from 2006 are usualy available only as flv. Most last.fm videos
-are actually Youtube videos.
+Some of the videos displayed on last.fm site are actually Youtube videos.
+You can pass the lastfm'ed video URLs to \fBclive\fR.
 .IP "\fBvideo.google.com\fR" 4
 .IX Item "video.google.com"
 Formats: (flv|mp4)  Continue: Only mp4
 .Sp
-The mp4 may not always be available.
+The mp4 may not always be available. GoogleVideo mp4 are encoded using a
+different codec than Youtube mp4 videos. You can typically \fB\-\-stream\-exec\fR
+Youtube mp4 videos but this is not case with GoogleVideo mp4 videos. If you
+find a way, drop an email.
 .IP "\fBwww.sevenload.com\fR" 4
 .IX Item "www.sevenload.com"
 Formats: flv  Continue: Yes
@@ -533,34 +509,33 @@ The cache has two purposes:
 .IP "1." 4
 Keep reusable video data available for fast re\-extraction.
 .IP "2." 4
-Keep a record of extracted videos. Various other utility features such as the
-\&\fB\-\-grep\fR can be used to access this data.
+Keep a record of extracted videos.
 .PP
 Each cache entry contains information about a video, including, but not limited
-to, page title, file length and extraction \s-1URL\s0.
+to, page title, file length and extraction \s-1URL\s0. You can use the \fB\-\-grep\fR option
+to match these details when you are searching for videos from the cache. See
+the \*(L"\s-1EXAMPLES\s0\*(R" section for examples of how to do this.
 .PP
-Some entries may need to be renewed from time to time as some websites have
+Some entries may need to be renewed from time to time as certain websites have
 their extraction URLs expire after awhile. Youtube is an example of this.
 Youtube servers usually return the \s-1HTTP/410\s0 error if the extraction \s-1URL\s0 has
 expired. You can use the \fB\-\-renew\fR option to fix this.
 .PP
-Note that if you use a different \fB\-\-format\fR than previously, clive will renew
-the cache entry automatically. This is done for two reasons:
+Note that \fBclive\fR renews the cache entry automatically if the video format
+does not match the cached video format string. This is done for two reasons:
 .IP "1." 4
-Cache extraction \s-1URL\s0 points to a different file
+Cached video extraction \s-1URL\s0 points to a different location
 .IP "2." 4
-Video file length would be incorrect
+Cached video file length is likely to be incorrect
 .SH "UNICODE"
 .IX Header "UNICODE"
-As long as the terminal can handle unicode, so should clive. Details of
-enabling unicode in your terminal falls outside the scope of this manual
-page.
+The author has had some success with \fIuxterm\fR\|(1) previously. Truth to be told,
+this is by far one of the least favorite topics of mine. I blame Python (partly)
+for this. See your local unicode-expert on this.
 .PP
-If you are running X, switching to a unicode capable terminal
-(e.g. \fIuxterm\fR\|(1)) may provide quick remedy to this.
-.PP
-If you are using a user-defined character class (\fB\-\-cclass\fR), make sure
-it is not dismissing unicode characters.
+My two cents: As long as the terminal is unicode capable and the used terminal
+font supports the characters, this shouldn't be a problem. You may want to use
+\&\fB\-\-cclass\fR=. when you are running tests. That disables video title filtering.
 .SH "FILES"
 .IX Header "FILES"
 clive searches the ~/.config/clive directory for the config file. You can
@@ -573,27 +548,26 @@ Configuration file for clive.
 Contains the cache entries of the visited URLs. A Berkeley \s-1DB\s0 (Hash) file.
 .IP "~/.config/clive/recall" 4
 .IX Item "~/.config/clive/recall"
-Contains the last \s-1URL\s0 batch. Can be recalled with the \fB\-\-recall\fR option.
+Contains the last \s-1URL\s0 batch. You can \fB\-\-recall\fR this file.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 \&\fIclivefeed\fR\|(1) \fIclivescan\fR\|(1) \fIclivepass\fR\|(1)
 .SH "OTHER"
 .IX Header "OTHER"
 Homepage:
-  http://clive.sourceforge.net/
+  <http://clive.sourceforge.net/>
 .PP
 Project page:
-  http://code.google.com/p/clive/
+  <http://code.google.com/p/clive/>
 .PP
-You can obtain the development repository with:
+Development repository can be cloned with:
   % git clone git://repo.or.cz/clive.git
 .PP
-For release announcements, subscribe to the
-project at:
-  http://freshmeat.net/projects/clive
+For release announcements, subscribe to the project at:
+  <http://freshmeat.net/projects/clive/>
 .PP
 Additional utilities (clive\-utils):
-  http://code.google.com/p/clive\-utils/
+  <http://code.google.com/p/clive\-utils/>
 .SH "AUTHOR"
 .IX Header "AUTHOR"
 Written by Toni Gundogdu <legatvs@gmail.com>.

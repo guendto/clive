@@ -1,10 +1,14 @@
 Version 2.1.8
 
  User-visible changes:
+  * Touch manual page (clive.1)
   * Config file: add support for [output]:format (--format)
   * Port dailymotion support from cclive
 
  Developer-visible changes:
+  * Touch manual page files (clive.1, clive.pod)
+    - Rewrite EXAMPLES section
+    - Cleanup other sections
   * Touch configrc
   * Add tests/dmotion.url
 

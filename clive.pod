@@ -10,38 +10,29 @@ clive [option]... [URL]...
 
 clive is a command line utility for extracting videos from Youtube and other
 video sharing Web sites. It was originally written to bypass the Adobe Flash
-requirement needed to view the hosted videos. It is non-interactive, meaning
-it can work in the background while the user is not logged on. This allows
-the user to start an extraction and disconnect from the system, letting clive
-finish the work.
+requirement needed to view the hosted videos.
+
+clive can be non-interactive. This means it can work in the background
+while the user is not logged on, allowing the user to start an extraction
+and disconnect from the system and letting clive finish the work.
 
 clive was influenced by the GNU L<wget(1)> utility. Kudos to the wget team
 for their original work.
 
-=head1 OPTIONS
+=head1 OPTION SYNTAX
 
-=over 4
-
-=item B<Option Syntax>
-
-Every option has a long form along with the short one. Long options are more
-convenient to remember but take time to type. You may freely mix different
-option styles, or specify options after the command-line arguments. For example:
-
-    % clive -c --format=mp4 URL -n
+You may freely mix different option styles, or specify options after the
+command-line arguments. For example:
+  % clive -c --format=mp4 URL -n
 
 You may also put several options together that do not require arguments.
 For example:
-
-    % clive -pcn URL
+  % clive -pcn URL
 
 Which is equivalent to:
+  % clive -p -c -n URL
 
-    % clive -p -c -n URL
-
-=back
-
-B<Basic Options>
+=head1 OPTIONS
 
 =over 4
 
@@ -66,9 +57,7 @@ file. Implies B<--progress=>I<dot>.
 =item B<-e --emit-csv>
 
 Do not extract any videos, instead print the video details as CSV to stdout.
-Ignores B<--quiet> for the CSV data.
-
-    % clive -eq URL # Would still print the CSV content
+Ignores the B<--quiet> option for CSV.
 
 =item B<-E --emit-xml>
 
@@ -117,28 +106,25 @@ Print all cache entries to standard output.
 
 Format printed entries using the I<string>. Default is '%D: "%t" | %mMB'.
 The following specifiers are supported:
-
-    %t = video page title
-    %i = video id
-    %l = video file length (bytes)
-    %u = video page url
-    %x = video extraction url
-    %D = video extraction date
-    %T = video extraction time
-    %S = video extraction timestamp (same as: %D %T)
+  %t = video page title
+  %i = video id
+  %l = video file length (bytes)
+  %u = video page url
+  %x = video extraction url
+  %D = video extraction date
+  %T = video extraction time
+  %S = video extraction timestamp (same as: %D %T)
 
 =item B<-g --grep=>I<pattern>
 
-Grep cache entries for I<pattern>. Matching is B<not> restricted to any specific
-cache entry field (e.g. title or id).
-
-    % clive --grep=git
-    % clive --grep=^git --ignore-case
+Grep cache entries for I<pattern>. Matching is B<not> restricted to any
+specific cache entry field (e.g. title or id).
+  % clive --grep=git
+  % clive --grep=^git --ignore-case
 
 The matched entries are then extracted. To only show the matches, use the
 B<--show> option. For example:
-
-    % clive -sg ^git
+  % clive -sg ^git
 
 =item B<-i --ignore-case>
 
@@ -148,8 +134,7 @@ Causes clive to ignore case-differences with B<--grep>.
 
 Delete grep-matched entries from the cache. If used with the B<--show>
 option, clive will prompt before deleting, e.g.:
-
-    % clive -siDg ^git
+  % clive -siDg ^git
 
 =item B<-C --clear>
 
@@ -239,13 +224,12 @@ downloaded data.
 
 When using the dotted retrieval, you may also set the style by specifying
 the I<type> as dot:style.
-
-    --progress=dot:default
-        each dot 1K, 10-dots clusters, 50-dots lines
-    --progress=dot:binary
-        each dot  8K, 16-dots clusters, 48-dots lines
-    --progress=dot:mega
-        each dot 64K,  8-dots clusters, 48-dots lines
+  --progress=dot:default
+    each dot 1K, 10-dots clusters, 50-dots lines
+  --progress=dot:binary
+    each dot  8K, 16-dots clusters, 48-dots lines
+  --progress=dot:mega
+    each dot 64K,  8-dots clusters, 48-dots lines
 
 Progress indication can be disabled completely by setting I<type> to "none".
 
@@ -281,14 +265,13 @@ The filtered video page titles are used to name the extracted videos.
 
 Use I<string> to construct the name of the extracted video. Default is
 "%t_%d_%i.%s". The following specifiers are supported:
-
-    %t = video title (after applying --cclass)
-    %i = video id
-    %d = video domain
-    %s = video suffix
-    %D = current date
-    %T = current time
-    %S = timestamp (same as %D %T)
+  %t = video title (after applying --cclass)
+  %i = video id
+  %d = video domain
+  %s = video suffix
+  %D = current date
+  %T = current time
+  %S = timestamp (same as %D %T)
 
 =item B<-x --exec=>I<command>B<;>
 
@@ -339,71 +322,83 @@ Example:
 
 =over 4
 
-=item % clive "http://youtube.com/watch?v=3HD220e0bx4"
+=item Typical use:
 
-Extract the video from the specified URL.
+% clive "http://youtube.com/watch?v=3HD220e0bx4"
 
-=item % cat E<gt>E<gt> url.lst
+=item Multiple video URLs:
 
- http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
- http://youtube.com/watch?v=3HD220e0bx4
- http://break.com/index/beach-tackle-whip-lash.html
- http://www.liveleak.com/view?i=704_1228511265
+% cat E<gt>E<gt> url.lst
+  http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
+  http://youtube.com/watch?v=3HD220e0bx4
+  http://break.com/index/beach-tackle-whip-lash.html
+  http://www.liveleak.com/view?i=704_1228511265
 
-=item % cat url.lst | clive
+% cat url.lst | clive
 
-Read input from UNIX pipe.
+=item Combine input from multiple sources:
 
-=item % clive -p URL URL
+% clive -p URL URL2
 
-Combine input from the command-line and the clipboard (each URL separated
-with a newline).
+=item Recall the last URL batch, extract mp4 video format:
 
-=item % clive -rf mp4
+% clive -rf mp4
 
-Recall the last URL batch and extract the mp4 format of the video.
+=item Grep for the pattern in cache, extract matched videos:
 
-=item % clive -g 3HD220e0bx4
+% clive -g 3HD220e0bx4
 
-Grep the pattern from the cache and extract the matched videos.
+=item Same as above but I<delete> the matched entries from cache:
 
-=item % clive -iDg ^3hd2
+% clive -iDg ^3hd2
 
-Same as above but I<delete> the matched entries from the cache instead.
+Note the use of -i (--ignore-case).
 
-=item % clive -s
+=item Print cache contents to stdout:
 
-Print the contents of the cache to stdout.
+% clive -s
 
-=item % clive -sig ^3hd2
+=item Combine matching and printing cache entries:
 
-Show only matched cache entries.
+% clive -sig ^3hd2
 
-=item % clive -big ^3hd2 -o my.log
+Note that -s negates video extraction.
 
-Grep for the pattern, go to background, redirect output to I<my.log> and
-extract the grep-matched videos.
+=item Match, redirect output to I<my.log>, go to background:
 
-=item % clive --exec="ffmpeg -y -i %i %i.mpg;" URL
+% clive -big ^3hd2 -o my.log
 
-Re-encode the extracted video to mpeg format with L<ffmpeg(1)>.
+=item Extract video from URL, re-encode audio to mp3:
 
-=item % clivepass --create
+% clive --exec="ffmpeg -y -i %i %i.mpg;" URL
 
-=item % clivepass --add myusername
+=item Login to Youtube to extract a video:
 
-=item % clive -u myusername -t - -V /usr/bin/clivepass URL
+% clive -u myusername -t mypassword URL
 
-Create a new L<clivepass(1)> passwd login password "repository" file.
+This isn't typically needed unless you are trying to extract videos flagged
+as mature content.
 
-Add Youtube login "myusername" to the repo.
+=item Use protected login password:
 
-Chain clive-clivepass: retrieve login password from the repo, login to
-Youtube using the "myusername" ID and the decrypted password, then extract
-video.
+Otherwise same as above but the login info is saved to a clivepass password
+repository file. The saved passwords are encrypted.
 
-The L<clivepass(1)> utility is part of the B<clive-utils> project, see the
-L</SEE ALSO> section.
+Note that you will need to install the clive-utils for this. See the L</OTHER>
+section for details.
+
+Create new password repository:
+  % clivepass --create
+
+Add new login name "myusername":
+  % clivepass --add myusername
+
+Use the created login info from clive:
+  % clive -u myusername -t - -V /usr/bin/clivepass URL
+
+This causes B<clive> to request for the login password for "myusername" from
+L<clivepass(1)>. The password is then used to login to Youtube before extracting
+the video from the URL.
 
 =back
 
@@ -411,12 +406,12 @@ L</SEE ALSO> section.
 
 clive defaults to extract the flv format unless the B<--format> option is
 used. The requested format may not always be available. The server typically
-returns one of the HTTP/40x errors if a format is not available.
+returns one of the HTTP/40x errors if the requested format is not available.
 
-The quality of the video depends on the uploaded video quality. Each
-website typically recompresses the uploaded videos to 320x240 resolution
-(sometimes higher). Because this varies per video and website, you should
-consider the list below only as a reference. It may provide inaccurate info.
+The quality of the video depends on the uploaded video quality. Each website
+typically recompresses the uploaded videos to 320x240 resolution (sometimes
+higher). Because this varies per video and website, you should treat the
+list below only as a rough reference of what formats should be available.
 
 =over 4
 
@@ -426,12 +421,12 @@ consider the list below only as a reference. It may provide inaccurate info.
 
 Formats: (flv|mp4|3gpp|xflv)  Continue: Yes (except flv)
 
-The flv format is usually available unless the video has been removed or
-set private. The mp4 and 3gpp formats are often, or will become, available.
-The xflv on the other hand appears to be very rarely available.
+mp4 and 3gpp formats are typically, or will become later, available.
+xflv appears to be very rare. Videos dating back to 2006 may only be
+available as flv.
 
-Videos from 2006 are usualy available only as flv. Most last.fm videos
-are actually Youtube videos.
+Some of the videos displayed on last.fm site are actually Youtube videos.
+You can pass the lastfm'ed video URLs to B<clive>.
 
 =back
 
@@ -441,7 +436,10 @@ are actually Youtube videos.
 
 Formats: (flv|mp4)  Continue: Only mp4
 
-The mp4 may not always be available.
+The mp4 may not always be available. GoogleVideo mp4 are encoded using a
+different codec than Youtube mp4 videos. You can typically B<--stream-exec>
+Youtube mp4 videos but this is not case with GoogleVideo mp4 videos. If you
+find a way, drop an email.
 
 =back
 
@@ -492,45 +490,44 @@ Keep reusable video data available for fast re-extraction.
 
 =item 2.
 
-Keep a record of extracted videos. Various other utility features such as the
-B<--grep> can be used to access this data.
+Keep a record of extracted videos.
 
 =back
 
 Each cache entry contains information about a video, including, but not limited
-to, page title, file length and extraction URL.
+to, page title, file length and extraction URL. You can use the B<--grep> option
+to match these details when you are searching for videos from the cache. See
+the L</EXAMPLES> section for examples of how to do this.
 
-Some entries may need to be renewed from time to time as some websites have
+Some entries may need to be renewed from time to time as certain websites have
 their extraction URLs expire after awhile. Youtube is an example of this.
 Youtube servers usually return the HTTP/410 error if the extraction URL has
 expired. You can use the B<--renew> option to fix this.
 
-Note that if you use a different B<--format> than previously, clive will renew
-the cache entry automatically. This is done for two reasons:
+Note that B<clive> renews the cache entry automatically if the video format
+does not match the cached video format string. This is done for two reasons:
 
 =over 4
 
 =item 1.
 
-Cache extraction URL points to a different file
+Cached video extraction URL points to a different location
 
 =item 2.
 
-Video file length would be incorrect
+Cached video file length is likely to be incorrect
 
 =back
 
 =head1 UNICODE
 
-As long as the terminal can handle unicode, so should clive. Details of
-enabling unicode in your terminal falls outside the scope of this manual
-page.
+The author has had some success with L<uxterm(1)> previously. Truth to be told,
+this is by far one of the least favorite topics of mine. I blame Python (partly)
+for this. See your local unicode-expert on this.
 
-If you are running X, switching to a unicode capable terminal
-(e.g. L<uxterm(1)>) may provide quick remedy to this.
-
-If you are using a user-defined character class (B<--cclass>), make sure
-it is not dismissing unicode characters.
+My two cents: As long as the terminal is unicode capable and the used terminal
+font supports the characters, this shouldn't be a problem. You may want to use
+B<--cclass>=. when you are running tests. That disables video title filtering.
 
 =head1 FILES
 
@@ -549,7 +546,7 @@ Contains the cache entries of the visited URLs. A Berkeley DB (Hash) file.
 
 =item ~/.config/clive/recall
 
-Contains the last URL batch. Can be recalled with the B<--recall> option.
+Contains the last URL batch. You can B<--recall> this file.
 
 =back
 
@@ -560,20 +557,19 @@ L<clivefeed(1)> L<clivescan(1)> L<clivepass(1)>
 =head1 OTHER
 
 Homepage:
-  http://clive.sourceforge.net/
+  <http://clive.sourceforge.net/>
 
 Project page:
-  http://code.google.com/p/clive/
+  <http://code.google.com/p/clive/>
 
-You can obtain the development repository with:
+Development repository can be cloned with:
   % git clone git://repo.or.cz/clive.git
 
-For release announcements, subscribe to the
-project at:
-  http://freshmeat.net/projects/clive
+For release announcements, subscribe to the project at:
+  <http://freshmeat.net/projects/clive/>
 
 Additional utilities (clive-utils):
-  http://code.google.com/p/clive-utils/
+  <http://code.google.com/p/clive-utils/>
 
 =head1 AUTHOR
 

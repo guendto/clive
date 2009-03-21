@@ -44,10 +44,6 @@ Print this help and exit.
 
 Print version and exit.
 
-=item B<-M --modversion>
-
-Print installed Perl and module version details.
-
 =item B<-b --background>
 
 Go to background immediately after startup. If no output file is specified

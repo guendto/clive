@@ -121,7 +121,6 @@ GetOptions(\%opts,
     'cclass|l=s',   'exec|x=s',   'progress|G=s', 'clivepass|V=s',
     'stream=i',
     'version|v'     => \&print_version,
-    'modversion|M', => \&print_version_mods,
     # Commented out until WWW::Curl is fixed:
     # 'maxspeed!', 'minspeed!',
     # Workarounds since $longopt!|$shortopt cannot be used.
@@ -1634,33 +1633,19 @@ sub emit {
 }
 
 sub print_version {
-    print "clive ".VERSION.". Copyright (c) 2007-2009 Toni Gundogdu.\n"
-        . "clive is licensed under the ISC license which is functionally\n"
+    printf("clive %s.  Copyright (c) 2007-2009 Toni Gundogdu.\n",VERSION);
+
+    my $perl_v      = sprintf "%vd", $^V;
+    printf("--with-perl=%s-%s ",$perl_v,$^O);
+    my $i = 0;
+    foreach (sort keys %opted_mods) {
+        printf("--with-$_=%s ", $opted_mods{$_} ? "yes":"no");
+        print "\n"
+            if (++$i % 2 == 0)
+    }
+    print "\nclive is licensed under the ISC license which is functionally\n"
         . "equivalent to the 2-clause BSD licence.\n";
     exit;
-}
-
-sub print_version_mods {
-    my $perl_v      = sprintf "%vd", $^V;
-    my $clipboard_v = $opted_mods{Clipboard} ? $Clipboard::VERSION      : "-";
-    my $expect_v    = $opted_mods{Expect}    ? $Expect::VERSION         : "-";
-    my $iopager_v   = $opted_mods{IOPager}   ? $IO::Pager::VERSION      : "-";
-    my $readkey_v   = $opted_mods{ReadKey}   ? $Term::ReadKey::VERSION  : "-";
-print
-" * Perl/$perl_v
-Modules:
- * Config::Tiny/$Config::Tiny::VERSION\t\t* BerkeleyDB/$BerkeleyDB::VERSION
- * WWW::Curl/$WWW::Curl::VERSION\t\t* Expect/$expect_v
- * HTML::TokeParser/$HTML::TokeParser::VERSION\t* Clipboard/$clipboard_v
- * URI::Escape/$URI::Escape::VERSION\t\t* Term::ReadKey/$readkey_v
- * IO::Pager/$iopager_v
-Core modules:
- * POSIX/$POSIX::VERSION\t\t\t* Cwd/$Cwd::VERSION
- * Getopt::Long/$Getopt::Long::VERSION\t\t* Pod::Usage/$Pod::Usage::VERSION
- * File::Path/$File::Path::VERSION\t\t* File::Spec/$File::Spec::VERSION
- * Digest::SHA/$Digest::SHA::VERSION\t\t* Encode/$Encode::VERSION
- * File::Basename/$File::Basename::VERSION
-"; exit;
 }
 
 __END__
@@ -1673,7 +1658,6 @@ clive [options]... [URL]...
 
  -h, --help                 print help and exit
  -v, --version              print version and exit
- -M, --modversion           print perl and module versions and exit
  -b, --background           go to background after startup
  -e, --emit-csv             emit video details as csv to stdout
  -E, --emit-xml             emit video details as csv to stdout

@@ -1,6 +1,7 @@
 Version 2.1.8
 
  User-visible changes:
+  * Remove --modver, change --version output
   * Touch manual page (clive.1)
   * Config file: add support for [output]:format (--format)
   * Port dailymotion support from cclive

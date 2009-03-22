@@ -1638,9 +1638,10 @@ sub print_version {
                     . "Copyright (c) 2007-2009 Toni Gundogdu "
                     . "<legatvs\@gmail.com>.\n",VERSION);
     my $i       = 0;
+    $str .= "$perl_v ";
     foreach (sort keys %opted_mods) {
         $str .= sprintf("--with-$_=%s ", $opted_mods{$_} ? "yes":"no");
-        $str .= "\n"  if (++$i % 4 == 0);
+        $str .= "\n"  if (++$i % 2 == 0);
     }
     $str .= "\nclive is licensed under the ISC license which is functionally\n"
         . "equivalent to the 2-clause BSD licence.\n"

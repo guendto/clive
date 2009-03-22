@@ -2,7 +2,7 @@ Version 2.1.8
 
  User-visible changes:
   * Remove --modver, change --version output
-  * Touch manual page (clive.1, clive.pod)
+  * Update manual page (clive.1, clive.pod)
     - Rewrite EXAMPLES section
     - Cleanup other sections
   * Config file: add support for [output]:format (--format)
@@ -12,7 +12,9 @@ Version 2.1.8
   * Optimize script start
     - Replace "use $module" with "require $module" where possible
     - Should improve script start time
-  * Touch LICENSE, configrc
+  * Update LICENSE, configrc
+    - Cosmetic changes
+    - Add [output]:format to configrc
   * Add tests/dmotion.url
 
 

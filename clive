@@ -1633,18 +1633,19 @@ sub emit {
 }
 
 sub print_version {
-    printf("clive %s.  Copyright (c) 2007-2009 Toni Gundogdu.\n",VERSION);
-    my $perl_v      = sprintf "%vd", $^V;
-    printf("--with-perl=%s-%s ",$perl_v,$^O);
-    my $i = 0;
+    my $perl_v  = sprintf("--with-perl=%vd-%s",$^V,$^O);
+    my $str     = sprintf("clive %s.  "
+                    . "Copyright (c) 2007-2009 Toni Gundogdu "
+                    . "<legatvs\@gmail.com>.\n",VERSION);
+    my $i       = 0;
     foreach (sort keys %opted_mods) {
-        printf("--with-$_=%s ", $opted_mods{$_} ? "yes":"no");
-        print "\n"
-            if (++$i % 2 == 0)
+        $str .= sprintf("--with-$_=%s ", $opted_mods{$_} ? "yes":"no");
+        $str .= "\n"  if (++$i % 4 == 0);
     }
-    print "\nclive is licensed under the ISC license which is functionally\n"
+    $str .= "\nclive is licensed under the ISC license which is functionally\n"
         . "equivalent to the 2-clause BSD licence.\n"
         . "\tReport bugs to <http://code.google.com/p/clive/issues/>.\n";
+    print "$str";
     exit;
 }
 

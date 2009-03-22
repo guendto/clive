@@ -21,29 +21,27 @@
 use warnings;
 use strict;
 
-binmode(STDOUT, ":utf8");
-
-# NOTE: Using "require" instead of "use" causes "Can't locate
-# auto/WWW/Curl/CURLOPT_USE.al in @INC".
-use WWW::Curl::Easy 4.05;
-
-# Core modules:
-use Getopt::Long qw(:config bundling);
-use Cwd qw(getcwd);
-use File::Spec;
-use Encode;
-
 use constant VERSION             => "2.1.8";
 use constant MBDIV               => 0x100000;
 use constant SHOWFMT_DEFAULT     => qq/%D: "%t" | %mMB/;
 
+binmode(STDOUT, ":utf8");
+# NOTE: Using "require" instead of "use" causes "Can't locate
+# auto/WWW/Curl/CURLOPT_USE.al in @INC".
+use WWW::Curl::Easy 4.05;
+use Getopt::Long qw(:config bundling);
+use Cwd qw(getcwd);
+use Config::Tiny;
+use File::Spec;
+use Encode;
+
 # Non-essential modules: set flags indicating availability
 my %opted_mods = (Clipboard => 1, Expect => 1, IOPager => 1, ReadKey => 1);
-eval "use Clipboard;";      $opted_mods{Clipboard}  = 0 if $@;
-eval "use IO::Pager;";      $opted_mods{IOPager}    = 0 if $@;
+eval "use Clipboard";      $opted_mods{Clipboard}  = 0 if $@;
+eval "use IO::Pager";      $opted_mods{IOPager}    = 0 if $@;
 sub exp_continue() {}; # Satisfies: "Bareword "exp_continue" not allowed while"
-eval "use Expect;";         $opted_mods{Expect}     = 0 if $@;
-eval "use Term::ReadKey;";  $opted_mods{ReadKey}    = 0 if $@;
+eval "use Expect";         $opted_mods{Expect}     = 0 if $@;
+eval "use Term::ReadKey";  $opted_mods{ReadKey}    = 0 if $@;
 
 my $CONFIGDIR   = $ENV{CLIVE_HOME}
     || File::Spec->catfile($ENV{HOME}, ".config/clive");
@@ -84,8 +82,6 @@ my %re_hosts = (    # Precompiled regex used to identify the host
 );
 
 # Parse config
-require Config::Tiny;
-
 my $c = Config::Tiny->read($CONFIGFILE);
 %opts = (
     progress    => $c->{_}->{progress},
@@ -230,6 +226,10 @@ sub process_queue {
     init_curl();
 
     require Digest::SHA;
+    require HTML::TokeParser;
+    require URI::Escape;
+    require File::Basename;
+    require POSIX;
 
     foreach ( @queue ) {
         $hash = Digest::SHA::sha1_hex($_);
@@ -305,13 +305,9 @@ sub process_page {
 
     $$response_ref =~ tr{\n}//d;
 
-    require HTML::TokeParser;
-
     my $p = HTML::TokeParser->new($response_ref);
     $p->get_tag("title");
     my $title = $p->get_trimmed_text;
-
-    require URI::Escape;
 
     my ($xurl, $id);
     if      ( $url =~ /$re_hosts{IsYoutube}/ ) {
@@ -598,8 +594,6 @@ sub parse_input {
     return if $url =~ /^#/;
 
     chomp $url;
-
-    require URI::Escape;
 
     if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects
         printf "found redirect ...%s\n=> %s\n",
@@ -1033,7 +1027,6 @@ sub bar_update {
         $fname_len += $bp{width} - DEFAULT_TERM_WIDTH;
     }
 
-    require File::Basename;
     my $buffer =
         substr(File::Basename::basename($curr_fpath), 0, $fname_len);
 
@@ -1402,8 +1395,6 @@ sub title_to_filename {
     my @a = split(/\./,$authority);
 
     my $fn          = $opts{fnfmt} || "%t_%d_%i.%s";
-
-    require POSIX;
     my $timestamp   = POSIX::strftime("%F %T",localtime);
 
     my %h = (
@@ -1538,7 +1529,7 @@ sub fetch_entry {
 sub save_entry {
     my @values;
 
-    $entry{time_stamp} = strftime("%F %T",localtime);
+    $entry{time_stamp} = POSIX::strftime("%F %T",localtime);
 
     push @values,$entry{$_}
         foreach sort keys %entry;

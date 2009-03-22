@@ -2,7 +2,9 @@ Version 2.1.8
 
  User-visible changes:
   * Remove --modver, change --version output
-  * Touch manual page (clive.1)
+  * Touch manual page (clive.1, clive.pod)
+    - Rewrite EXAMPLES section
+    - Cleanup other sections
   * Config file: add support for [output]:format (--format)
   * Port dailymotion support from cclive
 
@@ -11,9 +13,6 @@ Version 2.1.8
     - Replace "use $module" with "require $module" where possible
     - Should speed up start a bit
   * Touch LICENSE
-  * Touch manual page files (clive.1, clive.pod)
-    - Rewrite EXAMPLES section
-    - Cleanup other sections
   * Touch configrc
   * Add tests/dmotion.url
 

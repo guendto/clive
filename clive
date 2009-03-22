@@ -820,14 +820,14 @@ sub handle_evisor {
 
 sub handle_dmotion {
     my $resp = shift;
+
     my %re = (
-        GrabID => qr|/swf/(.*?)"|,
+        GrabID => qr|swf%2F(.*?)"|,
         GrabPaths => qr|"video", "(.*?)"|
     );
 
     my ($id,@paths);
     $id         = $1 if $$resp =~ /$re{GrabID}/;
-    die $id;
     my $paths   = URI::Escape::uri_unescape($1)
         if $$resp =~ /$re{GrabPaths}/;
 

@@ -567,9 +567,6 @@ sub get_queue {
     grep_cache() if $opts{grep};
     unless ( @queue ) { parse_input($_) while ( <STDIN> ); }
 
-    my %h = map { $_, 1 } @queue; # Remove duplicates from the URL queue
-    @queue = keys %h;
-
     if ( open my $fh, ">$RECALLFILE" ) {
         print $fh "$_\n" foreach @queue;
         close $fh;

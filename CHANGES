@@ -11,6 +11,8 @@ Version 2.1.8
   * Port dailymotion support from cclive
 
  Developer-visible changes:
+  * Makefile changes:
+    - Replaced Perl module checking with for-loops (incl. optional)
   * Optimize script start time
     - Replace "use $module" with "require $module" where possible
   * Update LICENSE, configrc

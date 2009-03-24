@@ -1,6 +1,7 @@
 Version 2.1.8
 
  User-visible changes:
+  * Keep URL queue order
   * Remove --modver, change --version output
   * Update manual page (clive.1, clive.pod)
     - Rewrite EXAMPLES section

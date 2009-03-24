@@ -1,4 +1,5 @@
 Version 2.1.8
+(March 24, 2009)
 
  User-visible changes:
   * Keep URL queue order
@@ -12,7 +13,7 @@ Version 2.1.8
 
  Developer-visible changes:
   * Makefile changes:
-    - Replaced Perl module checking with for-loops (incl. optional)
+    - Replace Perl module checking with for-loops (incl. optional)
   * Optimize script start time
     - Replace "use $module" with "require $module" where possible
   * Update LICENSE, configrc

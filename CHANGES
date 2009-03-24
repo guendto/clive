@@ -2,6 +2,7 @@ Version 2.1.8
 
  User-visible changes:
   * Keep URL queue order
+    - Remove duplicate URL checking
   * Remove --modver, change --version output
   * Update manual page (clive.1, clive.pod)
     - Rewrite EXAMPLES section
@@ -10,9 +11,8 @@ Version 2.1.8
   * Port dailymotion support from cclive
 
  Developer-visible changes:
-  * Optimize script start
+  * Optimize script start time
     - Replace "use $module" with "require $module" where possible
-    - Should improve script start time
   * Update LICENSE, configrc
     - Cosmetic changes
     - Add [output]:format to configrc

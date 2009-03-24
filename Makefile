@@ -32,26 +32,29 @@ RELEASE := \
 .PHONY: all checks
 all: checks
 
+MODULES = \
+ Config::Tiny  WWW::Curl  HTML::TokeParser  BerkeleyDB \
+ URI::Escape  Digest::SHA \
+
+MODULES_OPTIONAL = \
+ Clipboard  IO::Pager  Expect  Term::ReadKey
+
 checks:
 ifeq ($(WITH_CHECK),yes)
-	@echo Check for required Perl modules...
-	@echo -n URI::Escape ...
-	@echo `$(PERL) -MURI::Escape -e "print 'yes'" 2>/dev/null || \
-        echo 'no'`
-	@echo -n WWW::Curl 4.05+ ...
-	@echo `$(PERL) -e "use WWW::Curl 4.05; print 'yes'" 2>/dev/null || \
-        echo 'no'`
-	@echo -n HTML::TokeParser ...
-	@echo `$(PERL) -MHTML::TokeParser -e "print 'yes'" 2>/dev/null || \
-        echo 'no'`
-	@echo -n Config::Tiny ...
-	@echo `$(PERL) -MConfig::Tiny -e "print 'yes'" 2>/dev/null || \
-        echo 'no'`
-	@echo -n BerkeleyDB ...
-	@echo `$(PERL) -MBerkeleyDB -e "print 'yes'" 2>/dev/null || \
-        echo 'no'`
+	@echo == Required Perl modules:
+	@for m in $(MODULES); \
+	do \
+        result=`$(PERL) -M$$m -e "print 'yes'" 2>/dev/null || echo no`;\
+		echo "$$m ...$$result"; \
+	done
+	@echo == Optional Perl modules:
+	@for m in $(MODULES_OPTIONAL); \
+	do \
+        result=`$(PERL) -M$$m -e "print 'yes'" 2>/dev/null || echo no`;\
+		echo "$$m ...$$result"; \
+	done
 else
-	@echo 'Skip checks.'
+	@echo Disable module checks.
 endif
 
 .PHONY: install uninstall

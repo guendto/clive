@@ -790,7 +790,7 @@ sub handle_google
     my %re = (
 
         GrabVideoURL => qr|videoUrl\\x3d(.*?)\\x26|,
-        GrabID       => qr|docid: '(.*?)'|,
+        GrabID       => qr|docid:'(.*?)'|,
         GrabMP4      => qr|href="http://vp\.(.*?)"|,
     );
 

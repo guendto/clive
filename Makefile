@@ -44,14 +44,14 @@ ifeq ($(WITH_CHECK),yes)
 	@echo == Required Perl modules:
 	@for m in $(MODULES); \
 	do \
-        result=`$(PERL) -M$$m -e "print 'yes'" 2>/dev/null || echo no`;\
-		echo "$$m ...$$result"; \
+        	result=`$(PERL) -M$$m -e "print 'yes'" 2>/dev/null || echo no`;\
+			echo "$$m ...$$result"; \
 	done
 	@echo == Optional Perl modules:
 	@for m in $(MODULES_OPTIONAL); \
 	do \
-        result=`$(PERL) -M$$m -e "print 'yes'" 2>/dev/null || echo no`;\
-		echo "$$m ...$$result"; \
+        	result=`$(PERL) -M$$m -e "print 'yes'" 2>/dev/null || echo no`;\
+			echo "$$m ...$$result"; \
 	done
 else
 	@echo Disable module checks.

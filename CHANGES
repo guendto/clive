@@ -2,6 +2,8 @@ Version 2.1.9
 
  User-visible changes:
   * Fix GoogleVideo "id not found" handling
+  * Fix GoogleVideo support (reason: id not found)
+    - Symptom: exit after "process page..." message
   * Fix URI::Escape import for GoogleVideo redirects
   * Fix Break support (content-type changes)
 

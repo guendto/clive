@@ -1,5 +1,8 @@
 Version 2.1.9
 
+ User-visible changes:
+  * Fix Break support (content-type changes)
+
  Developer-visible changes:
   * Code cleanup (perltidy -gnu -l=72)
 

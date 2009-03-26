@@ -8,7 +8,7 @@
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -21,11 +21,12 @@
 use warnings;
 use strict;
 
-use constant VERSION             => "2.1.8";
-use constant MBDIV               => 0x100000;
-use constant SHOWFMT_DEFAULT     => qq/%D: "%t" | %mMB/;
+use constant VERSION         => "2.1.8";
+use constant MBDIV           => 0x100000;
+use constant SHOWFMT_DEFAULT => qq/%D: "%t" | %mMB/;
 
 binmode(STDOUT, ":utf8");
+
 # NOTE: Using "require" instead of "use" causes "Can't locate
 # auto/WWW/Curl/CURLOPT_USE.al in @INC".
 use WWW::Curl::Easy 4.05;
@@ -36,193 +37,208 @@ use File::Spec;
 use Encode;
 
 # Non-essential modules: set flags indicating availability
-my %opted_mods = (Clipboard => 1, Expect => 1, IOPager => 1, ReadKey => 1);
-eval "use Clipboard";      $opted_mods{Clipboard}  = 0 if $@;
-eval "use IO::Pager";      $opted_mods{IOPager}    = 0 if $@;
-sub exp_continue() {}; # Satisfies: "Bareword "exp_continue" not allowed while"
-eval "use Expect";         $opted_mods{Expect}     = 0 if $@;
-eval "use Term::ReadKey";  $opted_mods{ReadKey}    = 0 if $@;
+my %opted_mods =
+  (Clipboard => 1, Expect => 1, IOPager => 1, ReadKey => 1);
+eval "use Clipboard";
+$opted_mods{Clipboard} = 0 if $@;
+eval "use IO::Pager";
+$opted_mods{IOPager} = 0 if $@;
+sub exp_continue() { }; # Satisfies: "Bareword "exp_continue" not allowed while"
+eval "use Expect";
+$opted_mods{Expect} = 0 if $@;
+eval "use Term::ReadKey";
+$opted_mods{ReadKey} = 0 if $@;
 
-my $CONFIGDIR   = $ENV{CLIVE_HOME}
-    || File::Spec->catfile($ENV{HOME}, ".config/clive");
+my $CONFIGDIR = $ENV{CLIVE_HOME}
+  || File::Spec->catfile($ENV{HOME}, ".config/clive");
 
-my $CONFIGFILE  = File::Spec->catfile($CONFIGDIR, "config");
-my $CACHEFILE   = File::Spec->catfile($CONFIGDIR, "cache");
-my $RECALLFILE  = File::Spec->catfile($CONFIGDIR, "recall");
+my $CONFIGFILE = File::Spec->catfile($CONFIGDIR, "config");
+my $CACHEFILE  = File::Spec->catfile($CONFIGDIR, "cache");
+my $RECALLFILE = File::Spec->catfile($CONFIGDIR, "recall");
 
-my %opts;           # runtime options
-my @queue;          # input URLs
-my $curl;           # curl handle, reused throughout lifespan
-my $cache_db;       # handle to cache BDB
-my %cache;          # handle to cache BDB (tied hash)
-my $hash;           # sha1 hash of the current url used together with %cache
-my %entry;          # multi-purpose hash for caching
-my $ytube_logged=0; # youtube: whether logged-in
-my $time_started;   # time file transfer started
-my @exec_files;     # holds fnames for --exec
-my @emit_queue;     # videos to be emitted
-my $logfile;        # path to logfile (--output-file, --append-file)
-my %dp;             # dot progress data
-my %bp;             # bar progress data
-my $workdir=getcwd; # startup workdir
-my @stream=(0,-1);  # 0=stream flag, 1=stream pid
-my $curr_fpath;     # current video output filepath
-my $recv_sigwinch=0;# whether SIGWINCH was received
-my $term_width;     # current terminal width
+my %opts;       # runtime options
+my @queue;      # input URLs
+my $curl;       # curl handle, reused throughout lifespan
+my $cache_db;   # handle to cache BDB
+my %cache;      # handle to cache BDB (tied hash)
+my $hash;       # sha1 hash of the current url used together with %cache
+my %entry;      # multi-purpose hash for caching
+my $ytube_logged = 0;   # youtube: whether logged-in
+my $time_started;       # time file transfer started
+my @exec_files;         # holds fnames for --exec
+my @emit_queue;         # videos to be emitted
+my $logfile;            # path to logfile (--output-file, --append-file)
+my %dp;                 # dot progress data
+my %bp;                 # bar progress data
+my $workdir = getcwd;   # startup workdir
+my @stream = (0, -1);   # 0=stream flag, 1=stream pid
+my $curr_fpath;         # current video output filepath
+my $recv_sigwinch = 0;  # whether SIGWINCH was received
+my $term_width;         # current terminal width
 
-my %re_hosts = (    # Precompiled regex used to identify the host
-    IsYoutube   => qr|youtube.com|i,
-    IsGoogle    => qr|video.google.|i,
-    IsSevenload => qr|sevenload.com|i,
-    IsBreak     => qr|break.com|i,
-    IsLastfm    => qr|last.fm|i,
-    IsLiveleak  => qr|liveleak.com|i,
-    IsEvisor    => qr|evisor.tv|i,
-    IsDmotion   => qr|dailymotion.com|i,
-);
+my %re_hosts = (        # Precompiled regex used to identify the host
+                 IsYoutube   => qr|youtube.com|i,
+                 IsGoogle    => qr|video.google.|i,
+                 IsSevenload => qr|sevenload.com|i,
+                 IsBreak     => qr|break.com|i,
+                 IsLastfm    => qr|last.fm|i,
+                 IsLiveleak  => qr|liveleak.com|i,
+                 IsEvisor    => qr|evisor.tv|i,
+                 IsDmotion   => qr|dailymotion.com|i,
+               );
 
 # Parse config
 my $c = Config::Tiny->read($CONFIGFILE);
 %opts = (
-    progress    => $c->{_}->{progress},
-    agent       => $c->{http}->{agent},
-    proxy       => $c->{http}->{proxy},
-    maxspeed    => $c->{http}->{maxspeed},
-    minspeed    => $c->{http}->{minspeed},
-    format      => $c->{output}->{format},
-    savedir     => $c->{output}->{savedir},
-    cclass      => $c->{output}->{cclass},
-    fnfmt       => $c->{output}->{file},
-    showfmt     => $c->{output}->{show},
-    ytuser      => $c->{youtube}->{user},
-    ytpass      => $c->{youtube}->{pass},
-    exec        => $c->{commands}->{exec},
-    streamexec  => $c->{commands}->{stream},
-    clivepass   => $c->{commands}->{clivepass},
-);
+         progress   => $c->{_}->{progress},
+         agent      => $c->{http}->{agent},
+         proxy      => $c->{http}->{proxy},
+         maxspeed   => $c->{http}->{maxspeed},
+         minspeed   => $c->{http}->{minspeed},
+         format     => $c->{output}->{format},
+         savedir    => $c->{output}->{savedir},
+         cclass     => $c->{output}->{cclass},
+         fnfmt      => $c->{output}->{file},
+         showfmt    => $c->{output}->{show},
+         ytuser     => $c->{youtube}->{user},
+         ytpass     => $c->{youtube}->{pass},
+         exec       => $c->{commands}->{exec},
+         streamexec => $c->{commands}->{stream},
+         clivepass  => $c->{commands}->{clivepass},
+        );
 
-$opts{clivepass}    = $ENV{CLIVEPASS_PATH} unless $opts{clivepass};
-$opts{progress}     = 'bar' unless $opts{progress};
-$opts{format}       = $opts{format} || 'flv';
-$opts{extract}      = 1;
-$opts{login}        = 1;
-$opts{case}         = 1;
+$opts{clivepass} = $ENV{CLIVEPASS_PATH} unless $opts{clivepass};
+$opts{progress} = 'bar' unless $opts{progress};
+$opts{format}  = $opts{format} || 'flv';
+$opts{extract} = 1;
+$opts{login}   = 1;
+$opts{case}    = 1;
 
-GetOptions(\%opts,
-    'debug|d',      'help|h',     'overwrite|W',  'savebatch|T=s',
-    'paste|p',      'show|s',     'delete|D',     'clear|C',
-    'continue|c',   'renew|R',    'recall|r',     'format|f=s',
-    'output|o=s',   'append|a=s', 'background|b', 'quiet|q',
-    'grep|g=s',     'agent|U=s',  'proxy|y=s',    'savedir|S=s',
-    'cclass|l=s',   'exec|x=s',   'progress|G=s', 'clivepass|V=s',
+GetOptions(
+    \%opts,
+    'debug|d',    'help|h',     'overwrite|W',  'savebatch|T=s',
+    'paste|p',    'show|s',     'delete|D',     'clear|C',
+    'continue|c', 'renew|R',    'recall|r',     'format|f=s',
+    'output|o=s', 'append|a=s', 'background|b', 'quiet|q',
+    'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
+    'cclass|l=s', 'exec|x=s',   'progress|G=s', 'clivepass|V=s',
     'stream=i',
-    'version|v'     => \&print_version,
+    'version|v' => \&print_version,
+
     # Commented out until WWW::Curl is fixed:
     # 'maxspeed!', 'minspeed!',
     # Workarounds since $longopt!|$shortopt cannot be used.
-    'no-extract|n'          => sub { $opts{extract}     = 0 },
-    'no-login|L'            => sub { $opts{login}       = 0 },
-    'no-proxy|X'            => sub { $opts{proxy}       = "" },
-    # Workaround for options with dashes. There's likely a better way.
-    'ignore-case|i'         => sub { $opts{case}        = 0 },
-    'filename-format|N=s'   => sub { $opts{fnfmt}       = $_[1] },
-    'show-format|H=s'       => sub { $opts{showfmt}     = $_[1] },
-    'youtube-user|u=s'      => sub { $opts{ytuser}      = $_[1] },
-    'youtube-pass|t=s'      => sub { $opts{ytpass}      = $_[1] },
-    'emit-csv|e'            => sub { $opts{emitcsv}     = 1 },
-    'emit-xml|E'            => sub { $opts{emitxml}     = 1 },
-    'stream-exec=s'         => sub { $opts{streamexec}  = $_[1] },
-    'output-video|O=s'      => sub { $opts{outputfname} = $_[1] },
-) or exit(1);
+    'no-extract|n' => sub { $opts{extract} = 0 },
+    'no-login|L'   => sub { $opts{login}   = 0 },
+    'no-proxy|X'   => sub { $opts{proxy}   = "" },
 
-if ($opts{help}) {
+    # Workaround for options with dashes. There's likely a better way.
+    'ignore-case|i'       => sub { $opts{case}        = 0 },
+    'filename-format|N=s' => sub { $opts{fnfmt}       = $_[1] },
+    'show-format|H=s'     => sub { $opts{showfmt}     = $_[1] },
+    'youtube-user|u=s'    => sub { $opts{ytuser}      = $_[1] },
+    'youtube-pass|t=s'    => sub { $opts{ytpass}      = $_[1] },
+    'emit-csv|e'          => sub { $opts{emitcsv}     = 1 },
+    'emit-xml|E'          => sub { $opts{emitxml}     = 1 },
+    'stream-exec=s'       => sub { $opts{streamexec}  = $_[1] },
+    'output-video|O=s'    => sub { $opts{outputfname} = $_[1] },
+          ) or exit(1);
+
+if ($opts{help})
+{
     require Pod::Usage;
-    Pod::Usage::pod2usage(-exitstatus => 0, -verbose => 1)
+    Pod::Usage::pod2usage(-exitstatus => 0, -verbose => 1);
 }
 
 main();
 
-
 ## Subroutines: Signal handlers
 
-sub handle_sigwinch {
-#    my $sign = shift;
+sub handle_sigwinch
+{
+
+    # my $sig_name = shift;
     $recv_sigwinch = 1;
 }
 
-
 ## Subroutines: Connection
 
-sub init_curl {
+sub init_curl
+{
     $curl = WWW::Curl::Easy->new;
 
     $curl->setopt(CURLOPT_USERAGENT, $opts{agent} || "Mozilla/5.0");
     $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
-    $curl->setopt(CURLOPT_AUTOREFERER, 1);
-    $curl->setopt(CURLOPT_HEADER, 1);
-    $curl->setopt(CURLOPT_NOBODY, 0);
+    $curl->setopt(CURLOPT_AUTOREFERER,    1);
+    $curl->setopt(CURLOPT_HEADER,         1);
+    $curl->setopt(CURLOPT_NOBODY,         0);
 
     $curl->setopt(CURLOPT_VERBOSE, 1)
-        if $opts{debug};
+      if $opts{debug};
 
     $curl->setopt(CURLOPT_PROXY, $opts{proxy})
-        if defined $opts{proxy};
+      if defined $opts{proxy};
 
     $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE, $opts{maxspeed})
-        if $opts{maxpseed}; # NOTE: No effect. Bug in WWW::Curl::Easy?
+      if $opts{maxpseed};    # NOTE: No effect. Bug in WWW::Curl::Easy?
 
     $curl->setopt(CURLOPT_LOW_SPEED_LIMIT, $opts{minspeed})
-        if $opts{minspeed}; # Ditto.
+      if $opts{minspeed};    # Ditto.
 }
 
-sub auth_youtube { # Log into Youtube
+sub auth_youtube
+{                            # Log into Youtube
     print "[youtube] attempt to login as $opts{ytuser} ..."
-        unless $opts{quiet};
+      unless $opts{quiet};
 
     my $response = "";
     open my $fh, ">", \$response;
 
-    my $login_url = "http://uk.youtube.com/login?current_form=loginform"
-        ."&username=$opts{ytuser}&password=$opts{ytpass}"
-        ."&action_login=log+in&hl=en-GB";
+    my $login_url =
+        "http://uk.youtube.com/login?current_form=loginform"
+      . "&username=$opts{ytuser}&password=$opts{ytpass}"
+      . "&action_login=log+in&hl=en-GB";
 
     $curl->setopt(CURLOPT_URL, $login_url);
     $curl->setopt(CURLOPT_COOKIEFILE, ""); # Enable cookies from here on
-    $curl->setopt(CURLOPT_ENCODING, ""); # Supported encodings
-    $curl->setopt(CURLOPT_WRITEDATA, $fh);
+    $curl->setopt(CURLOPT_ENCODING,   ""); # Supported encodings
+    $curl->setopt(CURLOPT_WRITEDATA,  $fh);
 
     my $rc = $curl->perform;
     my $errmsg;
 
-    if ( $rc == 0 ) {
+    if ($rc == 0)
+    {
         $response =~ tr{\n}//d;
         $errmsg = "error: login was incorrect"
-            if $response =~ /your log-in was incorrect/i;
+          if $response =~ /your log-in was incorrect/i;
         $errmsg = "error: check your login password"
-            if $response =~ /check your password/i and !$errmsg;
+          if $response =~ /check your password/i and !$errmsg;
         $errmsg = "error: too many login failures, try again later"
-            if $response =~ /too many login failures/i and !$errmsg;
-    } else {
-        $errmsg = "error: ".$curl->strerror($rc)." (http/$rc)";
+          if $response =~ /too many login failures/i and !$errmsg;
+    }
+    else
+    {
+        $errmsg = "error: " . $curl->strerror($rc) . " (http/$rc)";
     }
     close $fh;
 
     print STDERR "\n$errmsg\n" and exit
-        if $errmsg;
+      if $errmsg;
 
     print "done.\n"
-        unless $opts{quiet};
+      unless $opts{quiet};
 
-    $curl->setopt(CURLOPT_COOKIE, "is_adult="
-        . uc( Digest::SHA::sha1_hex(rand()) ) );
+    $curl->setopt(CURLOPT_COOKIE,
+                  "is_adult=" . uc(Digest::SHA::sha1_hex(rand())));
 
     $ytube_logged = 1;
 }
 
-
 # Subroutines: Queue
 
-sub process_queue {
+sub process_queue
+{
     init_curl();
 
     require Digest::SHA;
@@ -231,65 +247,77 @@ sub process_queue {
     require File::Basename;
     require POSIX;
 
-    foreach ( @queue ) {
+    foreach (@queue)
+    {
         $hash = Digest::SHA::sha1_hex($_);
 
         my $errmsg;
         my ($rc, $rfh, $response) = fetch_page($_);
 
-        if ( $rc == 0 or $rc == 0xff ) {
+        if ($rc == 0 or $rc == 0xff)
+        {
             $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE)
-                unless $rc == 0xff; # read from cache
+              unless $rc == 0xff;    # read from cache
 
-            if ( $rc == 200 or $rc == 0xff ) {
-                if ( !defined( $entry{page_url} ) ) {
+            if ($rc == 200 or $rc == 0xff)
+            {
+                if (!defined($entry{page_url}))
+                {
                     next if process_page($_, \$response, $rfh) == -1;
                 }
                 extract_video() if $entry{xurl};
-            } else {
-                $errmsg = $curl->strerror($rc)." (http/$rc)";
             }
-        } else {
-            $errmsg = $curl->strerror($rc)." (http/$rc)";
+            else
+            {
+                $errmsg = $curl->strerror($rc) . " (http/$rc)";
+            }
+        }
+        else
+        {
+            $errmsg = $curl->strerror($rc) . " (http/$rc)";
         }
         close $rfh;
 
         print STDERR "\nerror: $errmsg\n"
-            if $errmsg;
+          if $errmsg;
     }
     exec_cmd();
     emit();
 }
 
-sub fetch_page {
+sub fetch_page
+{
     my ($url, $response, $from_cache, $rc) = (shift, "");
     open my $fh, ">", \$response;
 
     # Youtube: login only if both username and password are defined
-    if ( $opts{ytuser} and $opts{ytpass} and $opts{login} ) {
+    if ($opts{ytuser} and $opts{ytpass} and $opts{login})
+    {
         auth_youtube()
-            if !$ytube_logged and $url =~ /$re_hosts{IsYoutube}/;
+          if !$ytube_logged and $url =~ /$re_hosts{IsYoutube}/;
     }
 
-    if ( $cache{$hash} ) {
-        fetch_entry($hash); # Make sure cached "format" matches with options
+    if ($cache{$hash})
+    {
+        fetch_entry($hash)
+          ;    # Make sure cached "format" matches with options
         $from_cache = 1
-            if $opts{format} eq $entry{file_format};
+          if $opts{format} eq $entry{file_format};
     }
 
     $from_cache = 0
-        if $opts{renew};
+      if $opts{renew};
 
-    printf "%s $url ...",
-        $from_cache ? "cache" : "fetch" 
-            unless $opts{quiet};
+    printf "%s $url ...", $from_cache ? "cache" : "fetch"
+      unless $opts{quiet};
 
-    $rc = 0xff; # flag: read cache entry
+    $rc = 0xff;    # flag: read cache entry
 
-    unless ( $from_cache ) {
+    unless ($from_cache)
+    {
         %entry = ();
-        $curl->setopt(CURLOPT_URL, $url);
-        $curl->setopt(CURLOPT_ENCODING, "");
+        $curl->setopt(CURLOPT_URL,       $url);
+        $curl->setopt(CURLOPT_ENCODING,  "");
         $curl->setopt(CURLOPT_WRITEDATA, $fh);
         $rc = $curl->perform;
     }
@@ -297,11 +325,12 @@ sub fetch_page {
     return ($rc, $fh, decode_utf8($response));
 }
 
-sub process_page {
+sub process_page
+{
     my ($url, $response_ref, $response_fh) = @_;
 
     print "done.\nprocess page ..."
-        unless $opts{quiet};
+      unless $opts{quiet};
 
     $$response_ref =~ tr{\n}//d;
 
@@ -310,233 +339,303 @@ sub process_page {
     my $title = $p->get_trimmed_text;
 
     my ($xurl, $id);
-    if      ( $url =~ /$re_hosts{IsYoutube}/ ) {
+    if ($url =~ /$re_hosts{IsYoutube}/)
+    {
         ($xurl, $id) = handle_youtube($response_ref);
-    } elsif ( $url =~ /$re_hosts{IsGoogle}/ ) {
+    }
+    elsif ($url =~ /$re_hosts{IsGoogle}/)
+    {
         ($xurl, $id) = handle_google($response_ref);
-    } elsif ( $url =~ /$re_hosts{IsSevenload}/ ) {
+    }
+    elsif ($url =~ /$re_hosts{IsSevenload}/)
+    {
         ($xurl, $id) = handle_sevenload($response_ref, $response_fh);
-    } elsif ( $url =~ /$re_hosts{IsBreak}/ ) {
+    }
+    elsif ($url =~ /$re_hosts{IsBreak}/)
+    {
         ($xurl, $id, $title) = handle_break($response_ref);
-    } elsif ( $url =~ /$re_hosts{IsLiveleak}/ ) {
+    }
+    elsif ($url =~ /$re_hosts{IsLiveleak}/)
+    {
         ($xurl, $id) = handle_liveleak($response_ref, $response_fh);
-    } elsif ( $url =~ /$re_hosts{IsEvisor}/ ) {
+    }
+    elsif ($url =~ /$re_hosts{IsEvisor}/)
+    {
         ($xurl, $id) = handle_evisor($response_ref);
-    } elsif ($url =~ /$re_hosts{IsDmotion}/) {
+    }
+    elsif ($url =~ /$re_hosts{IsDmotion}/)
+    {
         ($xurl, $id) = handle_dmotion($response_ref);
     }
     return -1
-        if !$xurl or !$id or !$title;
+      if !$xurl
+          or !$id
+          or !$title;
 
-    $title =~ tr{;}//d; # Cache values cannot contain ';'
+    $title =~ tr{;}//d;    # Cache values cannot contain ';'
 
-    $entry{page_url}      = $url;
-    $entry{xurl}          = $xurl;
-    $entry{page_title}    = $title;
-    $entry{video_id}      = $id;
-    $entry{file_format}   = $opts{format};
+    $entry{page_url}    = $url;
+    $entry{xurl}        = $xurl;
+    $entry{page_title}  = $title;
+    $entry{video_id}    = $id;
+    $entry{file_format} = $opts{format};
 
     return 0;
 }
 
-sub query_video_length {
+sub query_video_length
+{
     my ($content_type, $errmsg);
 
-    unless ( $entry{file_length} ) {
+    unless ($entry{file_length})
+    {
         print "done.\nquery length ..."
-            unless $opts{quiet};
+          unless $opts{quiet};
 
         $curl->setopt(CURLOPT_URL, $entry{xurl});
+
         # Do not download: GET => HEAD request.
         $curl->setopt(CURLOPT_NOBODY, 1);
         my $rc = $curl->perform;
+
         # Reset back: HEAD => GET
         $curl->setopt(CURLOPT_HTTPGET, 1);
 
         $entry{file_length} =
-            $curl->getinfo(CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+          $curl->getinfo(CURLINFO_CONTENT_LENGTH_DOWNLOAD);
 
-        $content_type           =
-            $entry{file_suffix} =
-            $curl->getinfo(CURLINFO_CONTENT_TYPE);
+        $content_type = $entry{file_suffix} =
+          $curl->getinfo(CURLINFO_CONTENT_TYPE);
 
         $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
 
-        if ( $rc == 200 ) {
+        if ($rc == 200)
+        {
             my $content_ok = 0;
-            if ( $content_type =~ m{video/(.*)} ) {
+            if ($content_type =~ m{video/(.*)})
+            {
                 $entry{file_suffix} = $1;
-                if ( $content_type =~ /(.*)-(.*)$/ ) {
+                if ($content_type =~ /(.*)-(.*)$/)
+                {
                     $entry{file_suffix} = $2;
-                } $content_ok = 1;
+                }
+                $content_ok = 1;
+            }
+
             # Break, Evisor and Metacafe return "text/plain" for Content-Type
-            } elsif ( $content_type =~ m{text/plain} ) {
-                if ( $opts{format} eq "flv" ) {
-                    if ( $entry{page_url} =~ /$re_hosts{IsBreak}/
-                      or $entry{page_url} =~ /$re_hosts{IsEvisor}/ ) {
-                     #or $entry{page_url} =~ /$re_hosts{IsMetacafe}/ ) {
+            elsif ($content_type =~ m{text/plain})
+            {
+                if ($opts{format} eq "flv")
+                {
+                    if (   $entry{page_url} =~ /$re_hosts{IsBreak}/
+                        or $entry{page_url} =~ /$re_hosts{IsEvisor}/)
+                    {
+
+                        #or $entry{page_url} =~ /$re_hosts{IsMetacafe}/ ) {
                         $entry{file_suffix} = "flv";
                         $content_ok = 1;
                     }
                 }
+            }
+
             # Liveleak returns "flv-application/octet-stream"
-            } elsif ( $content_type =~ m{flv-application/octet-stream} ) {
-                if ( $entry{page_url} =~ /$re_hosts{IsLiveleak}/ ) {
-                    if ( $opts{format} eq "flv" ) {
+            elsif ($content_type =~ m{flv-application/octet-stream})
+            {
+                if ($entry{page_url} =~ /$re_hosts{IsLiveleak}/)
+                {
+                    if ($opts{format} eq "flv")
+                    {
                         $entry{file_suffix} = 'flv';
                         $content_ok = 1;
                     }
                 }
             }
-            $errmsg = "expected different content-type, "
-                    . "received \"$content_type\""
-                        unless $content_ok;
-        } else {
+            $errmsg =
+                "expected different content-type, "
+              . "received \"$content_type\""
+              unless $content_ok;
+        }
+        else
+        {
             $errmsg = "server returned http/$rc";
         }
-    } else { # Construct content-type from cache
+    }
+    else
+    {    # Construct content-type from cache
         $content_type = "video/$entry{file_suffix}";
     }
 
-    unless ( $opts{quiet} ) {
-        if ( !$errmsg ) { print "done.\n"; } 
-        else { print STDERR "\nerror: $errmsg\n"; }
+    unless ($opts{quiet})
+    {
+        if   (!$errmsg) { print "done.\n"; }
+        else            { print STDERR "\nerror: $errmsg\n"; }
     }
 
-    return ($errmsg ? -1:0, $content_type);
+    return ($errmsg ? -1 : 0, $content_type);
 }
 
-sub extract_video {
+sub extract_video
+{
     my ($rc, $content_type) = query_video_length();
 
     return
-        if $rc != 0 or !defined $content_type;
+      if $rc != 0 or !defined $content_type;
 
-    my $fn = $opts{outputfname} || title_to_filename($entry{page_title});
-    my $path        = File::Spec->catfile($opts{savedir} || $workdir, $fn);
-    my $filemode    = ">";
-    my $remaining   = $entry{file_length};
-    my $size        = -s $path || 0;
-    my $cont_from   = 0;
+    my $fn = $opts{outputfname}
+      || title_to_filename($entry{page_title});
+    my $path = File::Spec->catfile($opts{savedir} || $workdir, $fn);
+    my $filemode = ">";
+    my $remaining = $entry{file_length};
+    my $size      = -s $path || 0;
+    my $cont_from = 0;
 
     save_entry($hash);
 
-    if ( $size > 0 and !$opts{overwrite} ) {
-        if ( $size == $entry{file_length} and $opts{extract} ) {
+    if ($size > 0 and !$opts{overwrite})
+    {
+        if ($size == $entry{file_length} and $opts{extract})
+        {
             print STDERR
-                "error: file is already fully retrieved; nothing to do\n";
+              "error: file is already fully retrieved; nothing to do\n";
 
-            push @exec_files,$path
-                if $opts{exec};
+            push @exec_files, $path
+              if $opts{exec};
 
             return
-                unless $opts{emitcsv} or $opts{emitxml};
+              unless $opts{emitcsv} or $opts{emitxml};
 
-        } elsif ( $size < $entry{file_length} and $opts{continue} ) {
-            $cont_from  = $size;
-            $filemode   = ">>";
-            $remaining  = ($entry{file_length} - $cont_from);
-        } else {
-            ($path,$fn) =
-                newname_if_exists( $opts{savedir} || $workdir, $fn );
+        }
+        elsif ($size < $entry{file_length} and $opts{continue})
+        {
+            $cont_from = $size;
+            $filemode  = ">>";
+            $remaining = ($entry{file_length} - $cont_from);
+        }
+        else
+        {
+            ($path, $fn) =
+              newname_if_exists($opts{savedir} || $workdir, $fn);
         }
     }
 
-    if ( $opts{emitcsv} or $opts{emitxml} ) {
-        $entry{fn}          = $fn;
-        $entry{remaining}   = $remaining;
-        $entry{cont_from}   = $cont_from;
+    if ($opts{emitcsv} or $opts{emitxml})
+    {
+        $entry{fn}        = $fn;
+        $entry{remaining} = $remaining;
+        $entry{cont_from} = $cont_from;
         push @emit_queue, {%entry};
         return;
     }
 
-    unless ( $opts{quiet} ) {
+    unless ($opts{quiet})
+    {
         print "file: $fn\n";
         print "length: $entry{file_length} ";
 
-        printf"(%.2fMB)  ",$entry{file_length}/MBDIV
-            if $entry{file_length};
+        printf "(%.2fMB)  ", $entry{file_length} / MBDIV
+          if $entry{file_length};
 
         printf "from: %u (left: %u)  ", $cont_from, $remaining
-            if $cont_from;
+          if $cont_from;
 
         printf "[$content_type]"
-            if $content_type;
+          if $content_type;
 
         print "\n";
     }
 
     my $errmsg;
-    if ( $rc == 0 ) {
+    if ($rc == 0)
+    {
         return
-            unless $opts{extract};
+          unless $opts{extract};
 
-        if ( open my $fh, "$filemode$path" ) {
+        if (open my $fh, "$filemode$path")
+        {
             $curr_fpath = $path;
 
             # Disable: encoding, header
-            $curl->setopt(CURLOPT_HEADER, 0);
-            $curl->setopt(CURLOPT_ENCODING, "identity");
-            $curl->setopt(CURLOPT_URL, $entry{xurl});
+            $curl->setopt(CURLOPT_HEADER,    0);
+            $curl->setopt(CURLOPT_ENCODING,  "identity");
+            $curl->setopt(CURLOPT_URL,       $entry{xurl});
             $curl->setopt(CURLOPT_WRITEDATA, $fh);
 
             $curl->setopt(CURLOPT_RESUME_FROM, $cont_from)
-                if $cont_from;
+              if $cont_from;
 
-            unless ( $opts{quiet} ) {
-                $curl->setopt(CURLOPT_PROGRESSFUNCTION, \&progress_callback);
+            unless ($opts{quiet})
+            {
+                $curl->setopt(CURLOPT_PROGRESSFUNCTION,
+                              \&progress_callback);
                 $curl->setopt(CURLOPT_NOPROGRESS, 0);
-                $time_started   = time;
+                $time_started = time;
 
                 # Use 'dot' progress if the output is not a TTY
-                if ( $opts{progress} !~ /^dot/ and $opts{progress} ne 'none' ) {
+                if (    $opts{progress} !~ /^dot/
+                    and $opts{progress} ne 'none')
+                {
                     $opts{progress} = 'dot'
-                        if ! -t STDOUT or ! -t STDERR;
+                      if !-t STDOUT or !-t STDERR;
                 }
 
-                $stream[0] = 0; # reset streaming flag
+                $stream[0] = 0;    # reset streaming flag
 
-                if ( $opts{progress} =~ /^bar/ ) {
+                if ($opts{progress} =~ /^bar/)
+                {
                     bar_init($cont_from, $entry{file_length});
-                } elsif ( $opts{progress} =~ /^dot/ ) {
-                    dot_init()
+                }
+                elsif ($opts{progress} =~ /^dot/)
+                {
+                    dot_init();
                 }
             }
 
             $rc = $curl->perform;
             close $fh;
 
-            if ( $rc == 0 ) {
+            if ($rc == 0)
+            {
                 $rc = $curl->getinfo(CURLINFO_RESPONSE_CODE);
-                if ( $rc == 200 or $rc == 206 ) {
-                    if    ( $opts{progress} =~ /^bar/ ) { bar_finish() }
-                    elsif ( $opts{progress} =~ /^dot/ ) { dot_finish() }
-                    waitpid($stream[1],0)  if $stream[0];
-                } else {
-                    $errmsg = $curl->strerror($rc)." (http/$rc)";
+                if ($rc == 200 or $rc == 206)
+                {
+                    if    ($opts{progress} =~ /^bar/) { bar_finish() }
+                    elsif ($opts{progress} =~ /^dot/) { dot_finish() }
+                    waitpid($stream[1], 0) if $stream[0];
+                }
+                else
+                {
+                    $errmsg = $curl->strerror($rc) . " (http/$rc)";
                 }
             }
-            else {
-                $errmsg = $curl->strerror($rc)." (http/$rc)";
+            else
+            {
+                $errmsg = $curl->strerror($rc) . " (http/$rc)";
             }
 
             # Reset
             $curl->setopt(CURLOPT_RESUME_FROM, 0);
-            $curl->setopt(CURLOPT_HEADER, 1);
-        } else {
+            $curl->setopt(CURLOPT_HEADER,      1);
+        }
+        else
+        {
             $errmsg = "$path: $!";
         }
-    } else {
-        $errmsg = $curl->strerror($rc)." (http/$rc)";
+    }
+    else
+    {
+        $errmsg = $curl->strerror($rc) . " (http/$rc)";
     }
 
-    if ( ! $errmsg ) {
+    if (!$errmsg)
+    {
         print "\nclosed http/$rc.\n"
-            unless $opts{quiet};
+          unless $opts{quiet};
 
-        push @exec_files,$path
-            if $opts{exec};
-    } else {
+        push @exec_files, $path
+          if $opts{exec};
+    }
+    else
+    {
         print STDERR "\nerror: $errmsg\n";
     }
 
@@ -544,47 +643,62 @@ sub extract_video {
     $curl->setopt(CURLOPT_NOPROGRESS, 1);
 }
 
-sub get_queue {
-    if ( $opts{recall} and -e $RECALLFILE ) {
-        if ( open my $fh, "<$RECALLFILE" ) {
-            parse_input($_) while ( <$fh> );
+sub get_queue
+{
+    if ($opts{recall} and -e $RECALLFILE)
+    {
+        if (open my $fh, "<$RECALLFILE")
+        {
+            parse_input($_) while (<$fh>);
             close $fh;
-        } else {
+        }
+        else
+        {
             print STDERR "error: $RECALLFILE: $!";
         }
     }
 
-    if ( $opts{paste} ) {
+    if ($opts{paste})
+    {
         print STDERR "error: Clipboard module not found\n" and exit
-            unless $opted_mods{Clipboard};
-        my $data = Clipboard->paste();            
-        if ( $data ) {
-            parse_input($_) foreach split(/\n/,$data);
+          unless $opted_mods{Clipboard};
+        my $data = Clipboard->paste();
+        if ($data)
+        {
+            parse_input($_) foreach split(/\n/, $data);
         }
     }
 
     parse_input($_) foreach @ARGV;
     grep_cache() if $opts{grep};
-    unless ( @queue ) { parse_input($_) while ( <STDIN> ); }
+    unless (@queue) { parse_input($_) while (<STDIN>); }
 
-    if ( open my $fh, ">$RECALLFILE" ) {
+    if (open my $fh, ">$RECALLFILE")
+    {
         print $fh "$_\n" foreach @queue;
         close $fh;
-    } else {
+    }
+    else
+    {
         print STDERR "error: $RECALLFILE: $!";
     }
 
-    if ( $opts{savebatch} ) {
-        if ( open my $fh, ">", $opts{savebatch} ) {
+    if ($opts{savebatch})
+    {
+        if (open my $fh, ">", $opts{savebatch})
+        {
             print $fh "$_\n" foreach @queue;
             close $fh;
-        } else {
+        }
+        else
+        {
             print STDERR "error: $opts{savebatch}: $!";
         }
     }
 }
 
-sub parse_input {
+sub parse_input
+{
     my $url = shift;
 
     return if $url =~ /^$/;
@@ -592,37 +706,40 @@ sub parse_input {
 
     chomp $url;
 
-    if ( $url =~ /&srcurl=(.*?)&/ ) { # GVideo: one of many redirects
+    if ($url =~ /&srcurl=(.*?)&/)
+    {    # GVideo: one of many redirects
         printf "found redirect ...%s\n=> %s\n",
-            (split(/&/,$url))[0],
-            (split(/&/,URI::Escape::uri_unescape($1)))[0]
-                unless $opts{quiet};
+          (split(/&/, $url))[0],
+          (split(/&/, URI::Escape::uri_unescape($1)))[0]
+          unless $opts{quiet};
         $url = URI::Escape::uri_unescape($1);
     }
 
     # Insert http:// if not found
     $url = "http://$url"
-        if $url !~ m{^http://}i;
+      if $url !~ m{^http://}i;
 
     # Translate embedded URL to video page URL
     translate_embed(\$url);
 
     # Last.fm wraps Youtube videos as their own
-    if ( $url =~ /$re_hosts{IsLastfm}/ ) {
+    if ($url =~ /$re_hosts{IsLastfm}/)
+    {
         $url =~ /\+1\-(.+)/;
 
         print STDERR "error: nosupport: $url\n" and return -1
-            unless defined($1);
+          unless defined($1);
 
         $url = "http://youtube.com/watch?v=$1";
     }
 
     # Remove params from the URL
-    ($url) = split(/&/,$url);
+    ($url) = split(/&/, $url);
 
-    foreach my $re ( %re_hosts ) {
-        push @queue,$url and return 0
-            if $url =~ /$re/;
+    foreach my $re (%re_hosts)
+    {
+        push @queue, $url and return 0
+          if $url =~ /$re/;
     }
 
     print STDERR "error: nosupport: $url\n";
@@ -630,42 +747,47 @@ sub parse_input {
     return -1;
 }
 
-
 # Subroutines: Video page handlers
 
-sub handle_youtube {
+sub handle_youtube
+{
     my ($response_ref, $xurl) = (shift);
 
     my %re = (
-        GrabID  => qr/"video_id": "(.*?)"/,
-        GrabT   => qr/"t": "(.*?)"/
-    );
+              GrabID => qr/"video_id": "(.*?)"/,
+              GrabT  => qr/"t": "(.*?)"/
+             );
 
     my $id = $1 if $$response_ref =~ /$re{GrabID}/;
     my $t  = $1 if $$response_ref =~ /$re{GrabT}/;
 
-    if ( $id and $t ) {
+    if ($id and $t)
+    {
         $xurl = "http://youtube.com/get_video?video_id=$id&t=$t";
 
         my $fmt;
-        if      ( $opts{format} eq  "mp4" ) { $fmt = 18; }
-        elsif   ( $opts{format} eq "3gpp" ) { $fmt = 17; }
-        elsif   ( $opts{format} eq "xflv" ) { $fmt =  6; }
+        if    ($opts{format} eq "mp4")  { $fmt = 18; }
+        elsif ($opts{format} eq "3gpp") { $fmt = 17; }
+        elsif ($opts{format} eq "xflv") { $fmt = 6; }
 
         $xurl .= "&fmt=$fmt"
-            if $fmt;
-    } else {
-        printf STDERR "\nerror: failed to extract &%s\n",
-            $id ? "t"
-                : "video_id";
+          if $fmt;
+    }
+    else
+    {
+        printf STDERR "\nerror: failed to extract &%s\n", $id
+          ? "t"
+          : "video_id";
     }
     return ($xurl, $id);
 }
 
-sub handle_google {
+sub handle_google
+{
     my $response_ref = shift;
 
     my %re = (
+
         #GrabRedirect => qr|lfRedirect\('(.*?)'|,
         GrabVideoURL => qr|videoUrl\\x3d(.*?)\\x26|,
         GrabID       => qr|docid: '(.*?)'|,
@@ -673,111 +795,125 @@ sub handle_google {
     );
 
     #my $redir  = $1 if $$response_ref =~ /$re{GrabRedirect}/;
-    my $xurl   = URI::Escape::uri_unescape($1)
-        if $$response_ref =~ /$re{GrabVideoURL}/;
+    my $xurl = URI::Escape::uri_unescape($1)
+      if $$response_ref =~ /$re{GrabVideoURL}/;
 
-    my $id     = $1 if $$response_ref =~ /$re{GrabID}/;
-    my $mp4    = $1 if $$response_ref =~ /$re{GrabMP4}/;
+    my $id  = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $mp4 = $1 if $$response_ref =~ /$re{GrabMP4}/;
 
-#    if ( $redir ) {
-# video.google.* http/302 redirects to the actual video hosts again.
-# Leaving this commented out until they decide to flip it back on
-# again after some mind-boggling brainstorming.
-#        $redir =~ s{\\x3d}{=};
-#        push @queue, $redir;
-#        print "Found a redirect to another host. Pushed into queue.\n"
-#            unless $opts{quiet};
-#    } else {
-        $xurl = "http://vp.$mp4"
-            if $mp4 and $opts{format} eq "mp4";
+    #    if ( $redir ) {
+    # video.google.* http/302 redirects to the actual video hosts again.
+    # Leaving this commented out until they decide to flip it back on
+    # again after some mind-boggling brainstorming.
+    #        $redir =~ s{\\x3d}{=};
+    #        push @queue, $redir;
+    #        print "Found a redirect to another host. Pushed into queue.\n"
+    #            unless $opts{quiet};
+    #    } else {
+    $xurl = "http://vp.$mp4"
+      if $mp4 and $opts{format} eq "mp4";
 
-        print STDERR "\nerror: extraction url not found\n"
-            unless $xurl;
-#    }
+    print STDERR "\nerror: extraction url not found\n"
+      unless $xurl;
+
+    #    }
     return ($xurl, $id);
 }
 
-sub handle_sevenload {
+sub handle_sevenload
+{
     my ($response_ref, $response_fh) = @_;
 
-    my %re = ( GrabConfigPath => qr|configPath=(.*?)"| );
+    my %re = (GrabConfigPath => qr|configPath=(.*?)"|);
 
     my $conf_path = URI::Escape::uri_unescape($1)
-        if $$response_ref =~ /$re{GrabConfigPath}/;
+      if $$response_ref =~ /$re{GrabConfigPath}/;
 
-    my ($xurl,$id,$errmsg);
-    if ($conf_path) {
-        ($xurl,$id) =
-            fetch_sevenload_configxml($conf_path, $response_fh);
-    } else {
+    my ($xurl, $id, $errmsg);
+    if ($conf_path)
+    {
+        ($xurl, $id) =
+          fetch_sevenload_configxml($conf_path, $response_fh);
+    }
+    else
+    {
         $errmsg = "configPath not found";
     }
-    $errmsg = "item id not found"           if !$errmsg && !$id;
-    $errmsg = "extraction url not found"    if !$errmsg && !$xurl;
-    print STDERR "\nerror: $errmsg\n"       if $errmsg;
-    return ($xurl,$id);
+    $errmsg = "item id not found"        if !$errmsg && !$id;
+    $errmsg = "extraction url not found" if !$errmsg && !$xurl;
+    print STDERR "\nerror: $errmsg\n" if $errmsg;
+    return ($xurl, $id);
 }
 
-sub handle_break {
+sub handle_break
+{
     my $response_ref = shift;
 
     my %re = (
-        GrabTitle    => qr|id="vid_title" content="(.*?)"|,
-        GrabID       => qr|ContentID='(.*?)'|,
-        GrabFilePath => qr|ContentFilePath='(.*?)'|,
-        GrabFileName => qr|FileName='(.*?)'|
-    );
+              GrabTitle    => qr|id="vid_title" content="(.*?)"|,
+              GrabID       => qr|ContentID='(.*?)'|,
+              GrabFilePath => qr|ContentFilePath='(.*?)'|,
+              GrabFileName => qr|FileName='(.*?)'|
+             );
 
-    my $title   = $1 if $$response_ref =~ /$re{GrabTitle}/;
-    my $id      = $1 if $$response_ref =~ /$re{GrabID}/;
-    my $fpath   = $1 if $$response_ref =~ /$re{GrabFilePath}/;
-    my $fname   = $1 if $$response_ref =~ /$re{GrabFileName}/;
+    my $title = $1 if $$response_ref =~ /$re{GrabTitle}/;
+    my $id    = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $fpath = $1 if $$response_ref =~ /$re{GrabFilePath}/;
+    my $fname = $1 if $$response_ref =~ /$re{GrabFileName}/;
 
     my ($xurl, $errmsg);
-    if ( $fpath and $fname ) {
+    if ($fpath and $fname)
+    {
         $xurl = "http://media1.break.com/dnet/media/$fpath/$fname.flv";
-    } else {
+    }
+    else
+    {
         $errmsg = "failed to extract ContentFilePath"
-            if !$fpath;
+          if !$fpath;
 
         $errmsg = "failed to extract FileName"
-            if !$fname and !$errmsg;
+          if !$fname and !$errmsg;
     }
 
     $errmsg = "failed to extract title"
-        if !$title and !$errmsg;
+      if !$title and !$errmsg;
 
     $errmsg = "failed to extract id"
-        if !$id and !$errmsg;
+      if !$id and !$errmsg;
 
     print STDERR "\nerror: $errmsg\n"
-        if $errmsg;
+      if $errmsg;
 
     return ($xurl, $id, $title);
 }
 
-sub handle_liveleak {
+sub handle_liveleak
+{
     my ($response_ref, $response_fh) = @_;
 
     my %re = (
-        GrabID          => qr|token=(.*?)&|,
-        GrabConfigURL   => qr|'config','(.*?)'|,
-    );
+              GrabID        => qr|token=(.*?)&|,
+              GrabConfigURL => qr|'config','(.*?)'|,
+             );
 
     my $id = $1
-        if $$response_ref =~ /$re{GrabID}/;
+      if $$response_ref =~ /$re{GrabID}/;
 
     my $conf_url = URI::Escape::uri_unescape($1)
-        if $$response_ref =~ /$re{GrabConfigURL}/;
+      if $$response_ref =~ /$re{GrabConfigURL}/;
 
-    my ($xurl,$errmsg);
-    if ( $conf_url ) {
+    my ($xurl, $errmsg);
+    if ($conf_url)
+    {
         $xurl = fetch_liveleak_config($conf_url);
+
         # Re-enable: header, reset WRITEDATA, the above overrides the
         # original settings.
-        $curl->setopt(CURLOPT_HEADER, 0);
+        $curl->setopt(CURLOPT_HEADER,    0);
         $curl->setopt(CURLOPT_WRITEDATA, $response_fh);
-    } else {
+    }
+    else
+    {
         $errmsg = "config url not found";
     }
 
@@ -787,58 +923,64 @@ sub handle_liveleak {
     return ($xurl, $id);
 }
 
-sub handle_evisor {
+sub handle_evisor
+{
     my $respr = shift;
 
     my %re = (
-        GrabXurl    => qr|file=(.*?)"|,
-        GrabID      => qr|.+/(.*?).flv|,
-    );
+              GrabXurl => qr|file=(.*?)"|,
+              GrabID   => qr|.+/(.*?).flv|,
+             );
 
     my ($xurl, $id, $errmsg);
 
     $xurl = $1
-        if $$respr =~ /$re{GrabXurl}/;
+      if $$respr =~ /$re{GrabXurl}/;
 
     $id = $1
-        if $xurl and $xurl =~ /$re{GrabID}/;
+      if $xurl and $xurl =~ /$re{GrabID}/;
 
     $errmsg = "video extraction url not found"
-        unless $xurl;
+      unless $xurl;
 
     $errmsg = "video id not found"
-        unless $id and !$errmsg;
+      unless $id and !$errmsg;
 
     print STDERR "error: $errmsg\n"
-        if $errmsg;
+      if $errmsg;
 
     return ($xurl, $id);
 }
 
-sub handle_dmotion {
+sub handle_dmotion
+{
     my $resp = shift;
 
     my %re = (
-        GrabID => qr|swf%2F(.*?)"|,
-        GrabPaths => qr|"video", "(.*?)"|
-    );
+              GrabID    => qr|swf%2F(.*?)"|,
+              GrabPaths => qr|"video", "(.*?)"|
+             );
 
-    my ($id,@paths);
-    $id         = $1 if $$resp =~ /$re{GrabID}/;
-    my $paths   = URI::Escape::uri_unescape($1)
-        if $$resp =~ /$re{GrabPaths}/;
+    my ($id, @paths);
+    $id = $1 if $$resp =~ /$re{GrabID}/;
+    my $paths = URI::Escape::uri_unescape($1)
+      if $$resp =~ /$re{GrabPaths}/;
 
     use constant ADDR => "http://dailymotion.com";
 
     my $xurl;
-    if ($id && $paths) {
-        foreach (split(/\|\|/,$paths)) {
-            my ($path,$type) = split(/@@/,$_);
-            if ($type eq "spark") { # same as regular flv
-                $xurl = ADDR.$path;
+    if ($id && $paths)
+    {
+        foreach (split(/\|\|/, $paths))
+        {
+            my ($path, $type) = split(/@@/, $_);
+            if ($type eq "spark")
+            {    # same as regular flv
+                $xurl = ADDR . $path;
             }
-            if ($type eq $opts{format}) {
-                $xurl = ADDR.$path;
+            if ($type eq $opts{format})
+            {
+                $xurl = ADDR . $path;
                 last;
             }
         }
@@ -847,52 +989,57 @@ sub handle_dmotion {
     my $errmsg;
     $errmsg = "id not found"             if !$id;
     $errmsg = "paths not found"          if !$paths && !$errmsg;
-    $errmsg = "failed to construct xurl" if !$xurl  && !$errmsg;
+    $errmsg = "failed to construct xurl" if !$xurl && !$errmsg;
 
     print STDERR "\nerror: $errmsg\n"
-        if $errmsg;
+      if $errmsg;
 
-    return ($xurl,$id);
+    return ($xurl, $id);
 }
-
 
 # Subroutines: Progress
 # NOTE: the 'dot' progress copies much from wget.
 
-sub progress_callback {
+sub progress_callback
+{
     my $percent = 0;
 
-    if    ( $opts{progress} =~ /^dot/ ) { $percent = dot_update(@_); }
-    elsif ( $opts{progress} =~ /^bar/ ) { $percent = bar_update(@_); }
+    if    ($opts{progress} =~ /^dot/) { $percent = dot_update(@_); }
+    elsif ($opts{progress} =~ /^bar/) { $percent = bar_update(@_); }
 
-    if ($opts{stream}
+    if (   $opts{stream}
         && $opts{streamexec}
         && !$stream[0])
     {
-        fork_streamer()  if $percent >= $opts{stream};
+        fork_streamer() if $percent >= $opts{stream};
     }
     return 0;
 }
 
-sub dot_init {
-    $dp{dots}     = 0;
-    $dp{rows}     = 0;
-    $dp{dlthen}   = 0;
-    $dp{accum}    = 0;
+sub dot_init
+{
+    $dp{dots}   = 0;
+    $dp{rows}   = 0;
+    $dp{dlthen} = 0;
+    $dp{accum}  = 0;
 
     # Default style
     $dp{dot_bytes}    = 1024;
     $dp{dot_spacing}  = 10;
     $dp{dots_in_line} = 50;
 
-    my ($type,$style) = split(/:/,$opts{progress});
+    my ($type, $style) = split(/:/, $opts{progress});
 
-    if ( $style ) {
-        if ( $style eq 'binary' ) {
+    if ($style)
+    {
+        if ($style eq 'binary')
+        {
             $dp{dot_bytes}    = 8192;
             $dp{dot_spacing}  = 16;
             $dp{dots_in_line} = 48;
-        } elsif ( $style eq 'mega' ) {
+        }
+        elsif ($style eq 'mega')
+        {
             $dp{dot_bytes}    = 65536;
             $dp{dot_spacing}  = 8;
             $dp{dots_in_line} = 48;
@@ -900,32 +1047,35 @@ sub dot_init {
     }
 }
 
-sub dot_update {
+sub dot_update
+{
     my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow) = @_;
 
     my ($percent, $elapsed, $rate, $eta) =
-        calc_progress($dlnow, $dltotal);
+      calc_progress($dlnow, $dltotal);
 
     return 0
-        if $elapsed < 1.0;
+      if $elapsed < 1.0;
 
-    my $row_bytes   = $dp{dot_bytes} * $dp{dots_in_line};
+    my $row_bytes = $dp{dot_bytes} * $dp{dots_in_line};
 
-    $dp{accum}   += $dlnow - $dp{dlthen};
-    $dp{dlthen}   = $dlnow;
+    $dp{accum} += $dlnow - $dp{dlthen};
+    $dp{dlthen} = $dlnow;
 
-    for (; $dp{accum} >= $dp{dot_bytes}; $dp{accum} -= $dp{dot_bytes}) {
+    for (; $dp{accum} >= $dp{dot_bytes} ; $dp{accum} -= $dp{dot_bytes})
+    {
 
         printf "\n%6dK", $dp{rows} * $row_bytes / 1024
-            if $dp{dots} == 0;
+          if $dp{dots} == 0;
 
         print " "
-            if $dp{dots} % $dp{dot_spacing} == 0;
+          if $dp{dots} % $dp{dot_spacing} == 0;
 
         ++$dp{dots};
         print ".";
 
-        if ( $dp{dots} >= $dp{dots_in_line} ) {
+        if ($dp{dots} >= $dp{dots_in_line})
+        {
             ++$dp{rows};
             $dp{dots} = 0;
 
@@ -935,17 +1085,19 @@ sub dot_update {
     return $percent;
 }
 
-sub dot_finish {
+sub dot_finish
+{
     return if $opts{quiet};
 
     my $row_bytes = $dp{dot_bytes} * $dp{dots_in_line};
 
     printf "\n%6dK", $dp{rows} * $row_bytes / 1024
-        if $dp{dots} == 0;
+      if $dp{dots} == 0;
 
-    for (my $i=$dp{dots}; $i<$dp{dots_in_line}; $i++) {
+    for (my $i = $dp{dots} ; $i < $dp{dots_in_line} ; $i++)
+    {
         print " "
-            if $i % $dp{dot_spacing} == 0;
+          if $i % $dp{dot_spacing} == 0;
 
         print " ";
     }
@@ -957,34 +1109,37 @@ sub dot_finish {
     dot_print_row_stats(100, $elapsed, $eta, $rate, 1);
 }
 
-sub dot_print_row_stats {
+sub dot_print_row_stats
+{
     my ($percent, $elapsed, $eta, $rate, $last) = @_;
-    my ($unit,$_rate) = get_units($rate);
+    my ($unit, $_rate) = get_units($rate);
 
     printf "%3d%% %4.1f%s", $percent, $_rate, $unit;
-    printf "%s%s", $last ? "=":" ", $eta;
+    printf "%s%s", $last ? "=" : " ", $eta;
 }
 
 use constant DEFAULT_TERM_WIDTH => 80;
 
-sub get_term_width {
+sub get_term_width
+{
     return DEFAULT_TERM_WIDTH
-        unless $opted_mods{ReadKey};
+      unless $opted_mods{ReadKey};
     my ($width) = GetTerminalSize();
     return $width;
 }
 
-sub bar_init {
+sub bar_init
+{
     my ($initial, $total) = @_;
 
     $total = $initial
-        if $initial > $total;
+      if $initial > $total;
 
-    $term_width  = get_term_width();
+    $term_width = get_term_width();
 
-    $bp{initial} = $initial; # bytes dl previously
-    $bp{total}   = $total;   # expected bytes
-    $bp{width}   = DEFAULT_TERM_WIDTH-1;
+    $bp{initial} = $initial;                 # bytes dl previously
+    $bp{total}   = $total;                   # expected bytes
+    $bp{width}   = DEFAULT_TERM_WIDTH - 1;
     $bp{started} = time;
     $bp{lastupd} = 0;
     $bp{done}    = 0;
@@ -992,28 +1147,34 @@ sub bar_init {
 
 use constant REFRESH_INTERVAL => 0.2;
 
-sub bar_update {
+sub bar_update
+{
     my ($clientp, $total, $now, $ultotal, $ulnow) = @_;
 
     my $force_update = 0;
-    if ($recv_sigwinch) {
+    if ($recv_sigwinch)
+    {
         my $old_width = $term_width;
         $term_width = get_term_width();
-        if ($term_width != $old_width) {
+        if ($term_width != $old_width)
+        {
             $bp{width} = $term_width - 1;
             $force_update = 1;
         }
         $recv_sigwinch = 0;
     }
 
-    my $tnow        = time;
-    my $elapsed     = $tnow - $bp{started};
+    my $tnow    = time;
+    my $elapsed = $tnow - $bp{started};
 
-    if (!$bp{done}) {
+    if (!$bp{done})
+    {
         return 0
-            if ( ($elapsed - $bp{lastupd}) < REFRESH_INTERVAL
-                && !$force_update)
-    } else {
+          if (($elapsed - $bp{lastupd}) < REFRESH_INTERVAL
+              && !$force_update);
+    }
+    else
+    {
         $now = $bp{total};
     }
 
@@ -1021,205 +1182,259 @@ sub bar_update {
     my $size = $bp{initial} + $now;
 
     my $fname_len = 32;
-    if ($bp{width} > DEFAULT_TERM_WIDTH) {
+    if ($bp{width} > DEFAULT_TERM_WIDTH)
+    {
         $fname_len += $bp{width} - DEFAULT_TERM_WIDTH;
     }
 
     my $buffer =
-        substr(File::Basename::basename($curr_fpath), 0, $fname_len);
+      substr(File::Basename::basename($curr_fpath), 0, $fname_len);
 
     my $percent = 0;
-    if ($bp{total} > 0) {
-        my $_size = !$bp{done} ? $size:$now;
+    if ($bp{total} > 0)
+    {
+        my $_size = !$bp{done} ? $size : $now;
         $percent = 100.0 * $size / $bp{total};
-        if ($percent < 100) {
+        if ($percent < 100)
+        {
             $buffer .= sprintf("  %2d%% ", $percent);
-        } else {
+        }
+        else
+        {
             $buffer .= sprintf("  100%%");
         }
         $buffer .= sprintf("  %4.1fM / %4.1fM",
-            $_size/MBDIV, $bp{total}/MBDIV);
+                           $_size / MBDIV, $bp{total} / MBDIV);
     }
 
-    my $rate = $elapsed ? ($now/$elapsed):0;
-    my $tmp  = "";
-    if ($rate > 0) {
+    my $rate = $elapsed ? ($now / $elapsed) : 0;
+    my $tmp = "";
+    if ($rate > 0)
+    {
         my $eta;
-        if (!$bp{done}) {
-            my $left = ($total-$now)/$rate;
+        if (!$bp{done})
+        {
+            my $left = ($total - $now) / $rate;
             $eta = time2str($left);
-        } else {
+        }
+        else
+        {
             $eta = time2str($elapsed);
         }
-        my ($unit,$_rate) = get_units($rate);
+        my ($unit, $_rate) = get_units($rate);
         $tmp = sprintf("  %4.1f%s  %6s", $_rate, $unit, $eta);
-    } else {
+    }
+    else
+    {
         $tmp = "  --.-K/s  --:--";
     }
 
     # pad to max. width leaving enough space for rate+eta
     my $pad = $bp{width} - length($tmp) - length($buffer);
-    $buffer .= sprintf("%${pad}s"," ");
-    $buffer .= $tmp; # append rate+eta
+    $buffer .= sprintf("%${pad}s", " ");
+    $buffer .= $tmp;    # append rate+eta
 
-    printf("\r%s",$buffer);
+    printf("\r%s", $buffer);
     $bp{count} = $now;
 
     return $percent;
 }
 
-sub bar_finish {
+sub bar_finish
+{
     return if $opts{quiet};
 
-    if ( $bp{total} > 0
-         && $bp{count} + $bp{initial} > $bp{total} ) {
+    if (   $bp{total} > 0
+        && $bp{count} + $bp{initial} > $bp{total})
+    {
         $bp{total} = $bp{initial} + $bp{count};
     }
 
     $bp{done} = 1;
-    bar_update(-1,-1,-1,-1,-1);
+    bar_update(-1, -1, -1, -1, -1);
 }
 
-sub calc_progress {
+sub calc_progress
+{
     my ($dlnow, $dltotal, $elapsed) = @_;
 
     my $percent = 0;
 
-    $percent = int ($dlnow / $dltotal * 100)
-        if $dltotal;
+    $percent = int($dlnow / $dltotal * 100)
+      if $dltotal;
 
     $elapsed = time - $time_started
-        unless $elapsed;
+      unless $elapsed;
 
-    my $eta     = '--:--';
-    my $rate    = 0;
+    my $eta  = '--:--';
+    my $rate = 0;
 
     $rate = $dlnow / $elapsed
-        if $elapsed;
+      if $elapsed;
 
-    if ( $rate > 0 ) {
-        my $left = ( $dltotal - $dlnow ) / $rate;
-        $eta     = time2str($left);
+    if ($rate > 0)
+    {
+        my $left = ($dltotal - $dlnow) / $rate;
+        $eta = time2str($left);
     }
 
     return ($percent, $elapsed, $rate, $eta);
 }
 
-sub time2str {
+sub time2str
+{
     my ($secs) = @_;
 
     my $str;
-    if ( $secs < 100 ) {
+    if ($secs < 100)
+    {
         $str = sprintf("%ds", $secs);
-    } elsif ( $secs < 100 * 60 ) {
+    }
+    elsif ($secs < 100 * 60)
+    {
         $str = sprintf("%dm%ds", $secs / 60, $secs % 60);
-    } elsif ( $secs < 48 * 3600) {
+    }
+    elsif ($secs < 48 * 3600)
+    {
         $str = sprintf("%dh%dm", $secs / 3600, ($secs / 60) % 60);
-    } elsif ( $secs < 100 * 86400) {
+    }
+    elsif ($secs < 100 * 86400)
+    {
         $str = sprintf("%dd%dh", $secs / 86400, ($secs / 3600) % 60);
-    } else {
+    }
+    else
+    {
         $str = sprintf("%dd", $secs / 86400);
     }
     return $str;
 }
 
-sub get_units {
+sub get_units
+{
     my ($rate) = @_;
     my @units = qw|K/s M/s G/s|;
 
     my $i = 0;
-    if ($rate < 1024*1024) {
+    if ($rate < 1024 * 1024)
+    {
         $rate /= 1024;
-    } elsif ($rate < 1024*1024) {
-        $rate /= 1024*1024;
+    }
+    elsif ($rate < 1024 * 1024)
+    {
+        $rate /= 1024 * 1024;
         $i = 1;
-    } elsif ($rate < 1024*1024*1024) {
-        $rate /= 1024*1024*1024;
+    }
+    elsif ($rate < 1024 * 1024 * 1024)
+    {
+        $rate /= 1024 * 1024 * 1024;
         $i = 2;
     }
-    return ($units[$i],$rate);
+    return ($units[$i], $rate);
 }
-
 
 # Subroutines: LittleHelpers
 
-sub main {
+sub main
+{
     $SIG{WINCH} = \&handle_sigwinch;
     init_cache();
 
-    if      ( $opts{clear} ) { clear_cache(); }
-    elsif   ( $opts{show} )  { show_cache(); }
+    if    ($opts{clear}) { clear_cache(); }
+    elsif ($opts{show})  { show_cache(); }
 
     verify_exec();
 
     grab_clivepass();
     get_queue();
 
-    select STDERR; $| = 1; # => unbuffered
-    select STDOUT; $| = 1;
+    select STDERR;
+    $| = 1;    # => unbuffered
+    select STDOUT;
+    $| = 1;
 
     daemonize()
-        if $opts{background};
+      if $opts{background};
 
     process_queue();
 
     free_cache();
 }
 
-sub grab_clivepass {
+sub grab_clivepass
+{
+
     # TODO: Supports only Youtube. Expand to support other websites as needed.
     return
-        unless $opts{login} and $opts{ytuser} and $opts{ytpass} eq "-";
+      unless $opts{login}
+          and $opts{ytuser}
+          and $opts{ytpass} eq "-";
 
-    print STDERR "error: no path to clivepass, use --clivepass\n" and exit
-        unless $opts{clivepass};
+    print STDERR "error: no path to clivepass, use --clivepass\n"
+      and exit
+      unless $opts{clivepass};
 
     print STDERR "error: Expect module not found\n" and exit
-        unless $opted_mods{Expect};
+      unless $opted_mods{Expect};
 
     my $phrase;
     $phrase = getpass("Enter passphrase for clivepass: ")
-        while ( ! $phrase );
+      while (!$phrase);
 
     my $e = Expect->new;
     $e->log_stdout(0);
     $e->spawn($opts{clivepass}, "-g", $opts{ytuser})
-        or print STDERR "error: could not spawn: $!\n" and exit;
+      or print STDERR "error: could not spawn: $!\n" and exit;
 
     my ($spawned, $pwd);
-    $e->expect(10, [
-        qr'Enter passphrase: $',
-        sub {
-            my $fh = shift;
-            $fh->send("$phrase\n");
-            $spawned = 1;
-            exp_continue;
-        }
-    ],
-    [ eof => sub {
-        if ( $spawned ) {
-            my $fh = shift;
-            $pwd = $fh->before();
-            if ( $pwd =~ /error: (.*?)$/ ) {
-                print STDERR "clivepass: error: $1\n";
-                exit;
-            } else {
-                $pwd = $1 if ( $pwd =~ /login: $opts{ytuser}=(.*?)$/ );
-            }
-        } else {
-            print STDERR "error: could not spawn $opts{clivepass}\n";
-            exit;
-        }
-    }],
-    [ timeout => sub {
-        print STDERR "error: clivepass: expect timed out\n";
-        exit;
-    }]);
+    $e->expect(
+        10,
+        [
+         qr'Enter passphrase: $',
+         sub {
+             my $fh = shift;
+             $fh->send("$phrase\n");
+             $spawned = 1;
+             exp_continue;
+           }
+        ],
+        [
+         eof => sub {
+             if ($spawned)
+             {
+                 my $fh = shift;
+                 $pwd = $fh->before();
+                 if ($pwd =~ /error: (.*?)$/)
+                 {
+                     print STDERR "clivepass: error: $1\n";
+                     exit;
+                 }
+                 else
+                 {
+                     $pwd = $1
+                       if ($pwd =~ /login: $opts{ytuser}=(.*?)$/);
+                 }
+             }
+             else
+             {
+                 print STDERR
+                   "error: could not spawn $opts{clivepass}\n";
+                 exit;
+             }
+           }
+        ],
+        [
+         timeout => sub {
+             print STDERR "error: clivepass: expect timed out\n";
+             exit;
+           }
+        ]
+    );
 
     $opts{ytpass} = $pwd;
 }
 
-sub getpass {
+sub getpass
+{
     system "stty -echo";
     print shift;
     chomp(my $pwd = <STDIN>);
@@ -1228,19 +1443,24 @@ sub getpass {
     return $pwd;
 }
 
-sub daemonize {
-    $logfile = $opts{append}
-        || $opts{output}
-        || File::Spec->catfile( $workdir, "clive-log" );
+sub daemonize
+{
+    $logfile =
+         $opts{append}
+      || $opts{output}
+      || File::Spec->catfile($workdir, "clive-log");
 
     my $pid = fork;
-    if ( $pid < 0 ) {
+    if ($pid < 0)
+    {
         print STDERR "\nerror: fork failed: $!";
         exit 1;
-    } elsif ( $pid != 0 ) {
+    }
+    elsif ($pid != 0)
+    {
         print "continuing in background, pid $pid.\n";
         print "output will be written to $logfile.\n"
-            unless $opts{quiet};
+          unless $opts{quiet};
         exit 0;
     }
 
@@ -1250,19 +1470,23 @@ sub daemonize {
     $logfile = "/dev/null" if $opts{quiet};
 
     open STDOUT, "$mode", "$logfile"
-        or die "error: cannot redirect STDOUT: $!";
+      or die "error: cannot redirect STDOUT: $!";
 
     open STDERR, ">&STDOUT"
-        or die "error: cannot dup STDOUT: $!";
+      or die "error: cannot dup STDOUT: $!";
 }
 
-sub fork_streamer {
-    $stream[0] = 1; # set flag
-    my $child  = fork;
+sub fork_streamer
+{
+    $stream[0] = 1;    # set flag
+    my $child = fork;
 
-    if ($child < 0) {
+    if ($child < 0)
+    {
         print STDERR "error: fork failed: $!\n";
-    } elsif ($child == 0) {
+    }
+    elsif ($child == 0)
+    {
         my $cmd = $opts{streamexec};
         $cmd =~ s/%i/"$curr_fpath"/g;
         system("$cmd");
@@ -1272,110 +1496,128 @@ sub fork_streamer {
     $stream[1] = $child;
 }
 
-sub fetch_liveleak_playlist {
+sub fetch_liveleak_playlist
+{
     my $playlist_url = shift;
 
     print "done.\nfetch playlist xspf ..."
-        unless $opts{quiet};
+      unless $opts{quiet};
 
     my $playlist = "";
     open my $fh, ">", \$playlist;
 
-    $curl->setopt(CURLOPT_URL, $playlist_url);
+    $curl->setopt(CURLOPT_URL,       $playlist_url);
     $curl->setopt(CURLOPT_WRITEDATA, $fh);
 
     my $rc = $curl->perform;
     close $fh;
 
-    my ($xurl,$errmsg);
-    if ( $rc ==  0 ) {
+    my ($xurl, $errmsg);
+    if ($rc == 0)
+    {
+
         # NOTE: XML::XSPF exists in CPAN but this should work just as well.
         # Parsing with XML::Simple results in errors due unescaped values.
         $playlist =~ tr{\n}//d;
         $xurl = $1
-            if $playlist =~ /<location>(.*?)<\/location>/;
-    } else {
-        $errmsg = $curl->strerror($rc). " (http/$rc)";
+          if $playlist =~ /<location>(.*?)<\/location>/;
+    }
+    else
+    {
+        $errmsg = $curl->strerror($rc) . " (http/$rc)";
     }
 
-    $errmsg = "location tag not found"  if !$xurl && !$errmsg;
-    print STDERR "\nerror: $errmsg\n"   if $errmsg;
+    $errmsg = "location tag not found" if !$xurl && !$errmsg;
+    print STDERR "\nerror: $errmsg\n" if $errmsg;
 
     return $xurl;
 }
 
-sub fetch_liveleak_config {
+sub fetch_liveleak_config
+{
     my $config_url = shift;
 
     print "done.\nfetch config xml ..."
-        unless $opts{quiet};
+      unless $opts{quiet};
 
     my $config = "";
     open my $fh, ">", \$config;
 
     # Disable: header
-    $curl->setopt(CURLOPT_HEADER, 0);
-    $curl->setopt(CURLOPT_URL, $config_url);
+    $curl->setopt(CURLOPT_HEADER,    0);
+    $curl->setopt(CURLOPT_URL,       $config_url);
     $curl->setopt(CURLOPT_WRITEDATA, $fh);
 
     my $rc = $curl->perform;
     close $fh;
 
-    my ($xurl,$errmsg);
-    if ( $rc == 0 ) {
-        if ($config =~ /<file>(.*?)<\/file>/) {
-            $xurl = fetch_liveleak_playlist($1)
-        } else {
+    my ($xurl, $errmsg);
+    if ($rc == 0)
+    {
+        if ($config =~ /<file>(.*?)<\/file>/)
+        {
+            $xurl = fetch_liveleak_playlist($1);
+        }
+        else
+        {
             $errmsg = "playlist url not found";
         }
-    } else {
-        $errmsg = $curl->strerror($rc). " (http/$rc)\n";
+    }
+    else
+    {
+        $errmsg = $curl->strerror($rc) . " (http/$rc)\n";
     }
 
-    print STDERR "\nerror: $errmsg\n"   if $errmsg;
+    print STDERR "\nerror: $errmsg\n" if $errmsg;
 
     return $xurl;
 }
 
-sub fetch_sevenload_configxml {
+sub fetch_sevenload_configxml
+{
     my ($conf_url, $response_fh) = @_;
 
     print "done.\nfetch config xml..."
-        unless $opts{quiet};
+      unless $opts{quiet};
 
     my $conf_xml = "";
     open my $conf_fh, ">", \$conf_xml;
 
     # Disable: header
-    $curl->setopt(CURLOPT_HEADER, 0); 
-    $curl->setopt(CURLOPT_URL, $conf_url);
+    $curl->setopt(CURLOPT_HEADER,    0);
+    $curl->setopt(CURLOPT_URL,       $conf_url);
     $curl->setopt(CURLOPT_WRITEDATA, $conf_fh);
 
     my $rc = $curl->perform;
     close $conf_fh;
 
     # Re-enable: header
-    $curl->setopt(CURLOPT_HEADER, 1);
+    $curl->setopt(CURLOPT_HEADER,    1);
     $curl->setopt(CURLOPT_WRITEDATA, $response_fh);
 
-    my ($xurl,$id);
-    if ( $rc == 0 ) {
+    my ($xurl, $id);
+    if ($rc == 0)
+    {
         my %re = (
-            GrabXurl => qr|<location seeking="yes">(.*?)</location>|,
-            GrabID   => qr|item id="(.*?)"|,
+               GrabXurl => qr|<location seeking="yes">(.*?)</location>|,
+               GrabID   => qr|item id="(.*?)"|,
         );
         $id = $1
-            if $conf_xml =~ /$re{GrabID}/;
+          if $conf_xml =~ /$re{GrabID}/;
         $xurl = $1
-            if $conf_xml =~ /$re{GrabXurl}/;
-    } else {
-        print STDERR
-            "\nerror: " .$curl->strerror($rc). " (http/$rc)\n";
+          if $conf_xml =~ /$re{GrabXurl}/;
     }
-    return ($xurl,$id);
+    else
+    {
+        print STDERR "\nerror: "
+          . $curl->strerror($rc)
+          . " (http/$rc)\n";
+    }
+    return ($xurl, $id);
 }
 
-sub title_to_filename {
+sub title_to_filename
+{
     my $title = shift;
 
     $title =~ s/(youtube|video|liveleak.com|sevenload|dailymotion)//gi;
@@ -1383,258 +1625,297 @@ sub title_to_filename {
     $title =~ s/\s+$//;
 
     my $r = $opts{cclass} || qr|\w|;
-    $title = join('',$title =~ /$r/g);
+    $title = join('', $title =~ /$r/g);
 
     # Courtesy of:
     #   http://search.cpan.org/~gaas/URI-1.37/URI.pm#PARSING_URIs_WITH_REGEXP
     my ($scheme, $authority, $path, $query, $fragment) =
-        m{(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?}o;
-    # Extract the domain from the URL.
-    my @a = split(/\./,$authority);
+      m{(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?}o;
 
-    my $fn          = $opts{fnfmt} || "%t_%d_%i.%s";
-    my $timestamp   = POSIX::strftime("%F %T",localtime);
+    # Extract the domain from the URL.
+    my @a = split(/\./, $authority);
+
+    my $fn = $opts{fnfmt} || "%t_%d_%i.%s";
+    my $timestamp = POSIX::strftime("%F %T", localtime);
 
     my %h = (
-        "%t" => $title,
-        "%s" => $entry{file_suffix},
-        "%d" => $a[scalar @a-2], # Without the TLD.
-        "%i" => $entry{video_id},
-        "%D" => (split(/ /,$timestamp))[0],
-        "%T" => (split(/ /,$timestamp))[1],
-        "%S" => $timestamp,
-    );
+             "%t" => $title,
+             "%s" => $entry{file_suffix},
+             "%d" => $a[scalar @a - 2],             # Without the TLD.
+             "%i" => $entry{video_id},
+             "%D" => (split(/ /, $timestamp))[0],
+             "%T" => (split(/ /, $timestamp))[1],
+             "%S" => $timestamp,
+            );
 
-    my $m = join('|',keys %h);
+    my $m = join('|', keys %h);
     $fn =~ s/($m)/$h{$1}/ig;
 
     return $fn;
 }
 
-sub newname_if_exists {
+sub newname_if_exists
+{
     my ($path, $orig, $new) = (shift, shift);
 
-    for ( my $i=1;; $i++ ) {
-        $new = File::Spec->catfile( $path, "$orig.$i" );
-        last if ! -e $new;
+    for (my $i = 1 ; ; $i++)
+    {
+        $new = File::Spec->catfile($path, "$orig.$i");
+        last if !-e $new;
     }
 
     my ($vol, $dir, $fn) = File::Spec->splitpath($new);
     return ($new, $fn);
 }
 
-sub format_show {
-    my $s   = shift;
-    my %e   = map_entry(shift);
+sub format_show
+{
+    my $s = shift;
+    my %e = map_entry(shift);
 
-    my $t = $opted_mods{IOPager}
-        ? $e{page_title}
-        : decode_utf8($e{page_title});
+    my $t =
+        $opted_mods{IOPager}
+      ? $e{page_title}
+      : decode_utf8($e{page_title});
 
-    my %h   = (
-        "%t" => $t,
-        "%i" => $e{video_id},
-        "%l" => $e{file_length},
-        "%m" => sprintf("%.2f", $e{file_length}/MBDIV),
-        "%u" => $e{page_url},
-        "%x" => $e{xurl},
-        "%D" => (split(/ /,$e{time_stamp}))[0],
-        "%T" => (split(/ /,$e{time_stamp}))[1],
-        "%S" => $e{time_stamp},
-    );
+    my %h = (
+             "%t" => $t,
+             "%i" => $e{video_id},
+             "%l" => $e{file_length},
+             "%m" => sprintf("%.2f", $e{file_length} / MBDIV),
+             "%u" => $e{page_url},
+             "%x" => $e{xurl},
+             "%D" => (split(/ /, $e{time_stamp}))[0],
+             "%T" => (split(/ /, $e{time_stamp}))[1],
+             "%S" => $e{time_stamp},
+            );
 
-    my $m = join('|',keys %h);
+    my $m = join('|', keys %h);
     $s =~ s/($m)/$h{$1}/ig;
 
     return $s;
 }
 
-sub init_cache {
+sub init_cache
+{
     require File::Path;
     File::Path::mkpath([$CONFIGDIR], 0, 0700);
     require BerkeleyDB;
     $cache_db = tie %cache, "BerkeleyDB::Hash",
-        -Filename => $CACHEFILE,
-        -Flags => BerkeleyDB->DB_CREATE
-        or die "error: cannot open $CACHEFILE: $!\n";
+      -Filename => $CACHEFILE,
+      -Flags    => BerkeleyDB->DB_CREATE
+      or die "error: cannot open $CACHEFILE: $!\n";
 }
 
-sub show_cache {
+sub show_cache
+{
     IO::Pager->new(*STDOUT)
-        if $opted_mods{IOPager};
+      if $opted_mods{IOPager};
 
     my $fmt = $opts{showfmt} || SHOWFMT_DEFAULT;
     my @entries = ();
 
     require Digest::SHA;
 
-    if ( $opts{grep} ) {
-        grep_cache(); # Stores matches => @queue
-        push @entries, format_show( $fmt, Digest::SHA::sha1_hex($_) )
-            foreach ( @queue );
-    } else {
-        push @entries, format_show( $fmt, $_ )
-            foreach ( sort keys %cache );
+    if ($opts{grep})
+    {
+        grep_cache();    # Stores matches => @queue
+        push @entries, format_show($fmt, Digest::SHA::sha1_hex($_))
+          foreach (@queue);
+    }
+    else
+    {
+        push @entries, format_show($fmt, $_) foreach (sort keys %cache);
     }
 
-    print STDOUT "$_\n"
-        foreach sort @entries;
+    print STDOUT "$_\n" foreach sort @entries;
 
     close STDOUT
-        if $opted_mods{IOPager};
+      if $opted_mods{IOPager};
 
-    if ( $opts{grep} and $opts{delete} and scalar @queue > 0 ) {
+    if ($opts{grep} and $opts{delete} and scalar @queue > 0)
+    {
         print "Confirm delete (y/N):";
         $_ = lc <STDIN>;
         chomp;
-        if ( lc $_ eq "y" ) {
-            delete $cache{Digest::SHA::sha1_hex($_)}
-                foreach ( @queue );
+        if (lc $_ eq "y")
+        {
+            delete $cache{Digest::SHA::sha1_hex($_)} foreach (@queue);
         }
     }
     exit;
 }
 
-sub clear_cache {
+sub clear_cache
+{
     unlink $CACHEFILE if -e $CACHEFILE;
     exit;
 }
 
-sub free_cache {
+sub free_cache
+{
     undef $cache_db;
     untie %cache;
 }
 
-sub map_entry {
-    my $key     = shift;
-    my @values  = split(/;/,$cache{$key});
+sub map_entry
+{
+    my $key = shift;
+    my @values = split(/;/, $cache{$key});
 
     my @keys = qw(
-        file_suffix file_length file_format page_title
-        page_url    time_stamp  video_id    xurl
-    ); # Order matters. See also save_entry.
+      file_suffix file_length file_format page_title
+      page_url    time_stamp  video_id    xurl
+      );    # Order matters. See also save_entry.
 
     my $i = 0;
     return map { $_ => $values[$i++] } @keys;
 }
 
-sub fetch_entry {
+sub fetch_entry
+{
     %entry = map_entry($hash);
     $entry{page_title} = decode_utf8($entry{page_title});
+
     #while (my ($key, $value) = each(%entry)) { print "$key => $value\n"; } die;
 }
 
-sub save_entry {
+sub save_entry
+{
     my @values;
 
-    $entry{time_stamp} = POSIX::strftime("%F %T",localtime);
+    $entry{time_stamp} = POSIX::strftime("%F %T", localtime);
 
-    push @values,$entry{$_}
-        foreach sort keys %entry;
+    push @values, $entry{$_} foreach sort keys %entry;
 
-    $cache{$hash} = join(';',@values);
+    $cache{$hash} = join(';', @values);
     $cache_db->db_sync();
 }
 
-sub grep_cache {
-    my $g   =
-        $opts{case} ? qr|$opts{grep}|
-                    : qr|$opts{grep}|i;
+sub grep_cache
+{
+    my $g =
+      $opts{case}
+      ? qr|$opts{grep}|
+      : qr|$opts{grep}|i;
 
     my $fmt = $opts{showfmt} || SHOWFMT_DEFAULT;
 
-    foreach ( sort keys %cache ) {
-        my @e = split(/;/,$cache{$_});
-        if ( grep /$g/, @e ) {
-            if   ( $opts{delete} ) {
-                if ( $opts{show} ) { push @queue,$e[4]; }
-                else { delete $cache{$_}; }
+    foreach (sort keys %cache)
+    {
+        my @e = split(/;/, $cache{$_});
+        if (grep /$g/, @e)
+        {
+            if ($opts{delete})
+            {
+                if ($opts{show}) { push @queue, $e[4]; }
+                else             { delete $cache{$_}; }
             }
-            else { push @queue,$e[4]; } # 4=URL
+            else { push @queue, $e[4]; }    # 4=URL
         }
     }
     exit
-        if $opts{delete} and not $opts{show};
+      if $opts{delete} and not $opts{show};
 }
 
-sub translate_embed {
+sub translate_embed
+{
     my ($url) = @_;
-    $$url =~ s!/v/!/watch?v=!i;              # youtube
-    $$url =~ s!googleplayer.swf!videoplay!i; # googlevideo
-    $$url =~ s!/pl/!/videos/!i;              # sevenload
-    $$url =~ s!/e/!/view?i=!i;               # liveleak
+    $$url =~ s!/v/!/watch?v=!i;                 # youtube
+    $$url =~ s!googleplayer.swf!videoplay!i;    # googlevideo
+    $$url =~ s!/pl/!/videos/!i;                 # sevenload
+    $$url =~ s!/e/!/view?i=!i;                  # liveleak
 }
 
-sub verify_exec {
+sub verify_exec
+{
     return if !$opts{exec};
-    if ($opts{exec} !~ /[;+]$/) {
+    if ($opts{exec} !~ /[;+]$/)
+    {
         print "error: --exec expression must be terminated "
-            . "by either ';' or '+'\n";
+          . "by either ';' or '+'\n";
         exit;
     }
 }
 
-sub exec_cmd {
+sub exec_cmd
+{
     return if !$opts{exec};
-    if ($opts{exec} =~ /;$/) { # semi
-        foreach (@exec_files) {
+    if ($opts{exec} =~ /;$/)
+    {    # semi
+        foreach (@exec_files)
+        {
             my $cmd = $opts{exec};
             $cmd =~ s/%i/"$_"/g;
             $cmd =~ tr{;}//d;
             system("$cmd");
         }
-    } else { # plus
-        my $cmd = sprintf("%s ",$opts{exec});
+    }
+    else
+    {    # plus
+        my $cmd = sprintf("%s ", $opts{exec});
         $cmd =~ s/%i//g;
         $cmd =~ tr{+}//d;
-        $cmd .= sprintf('"%s" ',$_)
-            foreach (@exec_files);
+        $cmd .= sprintf('"%s" ', $_) foreach (@exec_files);
         system("$cmd");
     }
 }
 
-sub emit {
+sub emit
+{
     print "<?xml version=\"1.0\"?>\n<queue>\n"
-        if $opts{emitxml} and @emit_queue;
+      if $opts{emitxml} and @emit_queue;
 
     require URI::Escape;
 
-    foreach ( @emit_queue ) {
-        if ( $opts{emitxml} ) {
+    foreach (@emit_queue)
+    {
+        if ($opts{emitxml})
+        {
             print "  <video>\n";
-            while ( my ($key,$value) = each (%$_) ) {
+            while (my ($key, $value) = each(%$_))
+            {
                 $value = URI::Escape::uri_escape($value)
-                    if $key eq 'xurl' or $key eq 'page_url';
+                  if $key eq 'xurl'
+                      or $key eq 'page_url';
                 print "    <$key>$value</$key>\n";
             }
             print "  </video>\n";
-        } elsif ( $opts{emitcsv} ) {
+        }
+        elsif ($opts{emitcsv})
+        {
             printf qq/csv:"%s","%s","%s","%.2fMB",/
-                 . qq/"%s","%s","%s","%s","%s","%s"\n/,
-                $_->{page_url}, $_->{xurl}, $_->{fn},
-                $_->{file_length}/MBDIV, $_->{file_length},
-                $_->{video_id}, $_->{time_stamp}, $_->{page_title}, 
-                $_->{cont_from}, $_->{remaining};
+              . qq/"%s","%s","%s","%s","%s","%s"\n/,
+              $_->{page_url}, $_->{xurl}, $_->{fn},
+              $_->{file_length} / MBDIV, $_->{file_length},
+              $_->{video_id}, $_->{time_stamp}, $_->{page_title},
+              $_->{cont_from}, $_->{remaining};
         }
     }
     print "</queue>\n"
-        if $opts{emitxml} and @emit_queue;
+      if $opts{emitxml} and @emit_queue;
 }
 
-sub print_version {
-    my $perl_v  = sprintf("--with-perl=%vd-%s",$^V,$^O);
-    my $str     = sprintf("clive %s.  "
-                    . "Copyright (c) 2007-2009 Toni Gundogdu "
-                    . "<legatvs\@gmail.com>.\n",VERSION);
+sub print_version
+{
+    my $perl_v = sprintf("--with-perl=%vd-%s", $^V, $^O);
+    my $str = sprintf(
+                      "clive %s.  "
+                        . "Copyright (c) 2007-2009 Toni Gundogdu "
+                        . "<legatvs\@gmail.com>.\n",
+                      VERSION
+                     );
     $str .= "$perl_v ";
     my $i = 0;
-    while (my ($key,$value) = each(%opted_mods)) {
-        $str .= sprintf("--with-$key=%s ",$value ? "yes":"no");
-        $str .= "\n"  if (++$i % 2 == 0);
+    while (my ($key, $value) = each(%opted_mods))
+    {
+        $str .= sprintf("--with-$key=%s ", $value ? "yes" : "no");
+        $str .= "\n" if (++$i % 2 == 0);
     }
-    $str .= "clive is licensed under the ISC license which is functionally\n"
-        . "equivalent to the 2-clause BSD licence.\n"
-        . "\tReport bugs to <http://code.google.com/p/clive/issues/>.\n";
+    $str .=
+      "clive is licensed under the ISC license which is functionally\n"
+      . "equivalent to the 2-clause BSD licence.\n"
+      . "\tReport bugs to <http://code.google.com/p/clive/issues/>.\n";
     print "$str";
     exit;
 }

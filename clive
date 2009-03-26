@@ -708,6 +708,7 @@ sub parse_input
 
     if ($url =~ /&srcurl=(.*?)&/)
     {    # GVideo: one of many redirects
+        require URI::Escape;
         printf "found redirect ...%s\n=> %s\n",
           (split(/&/, $url))[0],
           (split(/&/, URI::Escape::uri_unescape($1)))[0]
@@ -788,35 +789,27 @@ sub handle_google
 
     my %re = (
 
-        #GrabRedirect => qr|lfRedirect\('(.*?)'|,
         GrabVideoURL => qr|videoUrl\\x3d(.*?)\\x26|,
         GrabID       => qr|docid: '(.*?)'|,
         GrabMP4      => qr|href="http://vp\.(.*?)"|,
     );
 
-    #my $redir  = $1 if $$response_ref =~ /$re{GrabRedirect}/;
+    my $id  = $1 if $$response_ref =~ /$re{GrabID}/;
+
     my $xurl = URI::Escape::uri_unescape($1)
       if $$response_ref =~ /$re{GrabVideoURL}/;
 
-    my $id  = $1 if $$response_ref =~ /$re{GrabID}/;
     my $mp4 = $1 if $$response_ref =~ /$re{GrabMP4}/;
 
-    #    if ( $redir ) {
-    # video.google.* http/302 redirects to the actual video hosts again.
-    # Leaving this commented out until they decide to flip it back on
-    # again after some mind-boggling brainstorming.
-    #        $redir =~ s{\\x3d}{=};
-    #        push @queue, $redir;
-    #        print "Found a redirect to another host. Pushed into queue.\n"
-    #            unless $opts{quiet};
-    #    } else {
+    my $errmsg;
+    $errmsg = "video id not found" if !$id;
+    $errmsg = "extraction url not found" if !$xurl && !$errmsg;
+
+    print STDERR "\nerror: $errmsg\n" if $errmsg;
+
     $xurl = "http://vp.$mp4"
-      if $mp4 and $opts{format} eq "mp4";
+      if $mp4 && $opts{format} eq "mp4" && $xurl;
 
-    print STDERR "\nerror: extraction url not found\n"
-      unless $xurl;
-
-    #    }
     return ($xurl, $id);
 }
 

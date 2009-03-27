@@ -3,16 +3,16 @@ Version 2.1.9
  User-visible changes:
   * Fix GoogleVideo "id not found" handling
     - Symptom: exit after "process page..." message
-    - Reason: no checking for undefined value
+    - Cause: no check for undefined id value
   * Fix GoogleVideo support
     - Symptom: see above fix
-    - Reason: HTML changes to the video pages
+    - Cause: HTML changes to the video pages
   * Fix URI::Escape import for GoogleVideo redirects
     - Symptom: crash with "Undefined subroutine &URI::Escape::uri_unescape"
-    - Reason: recent script start optimizations
+    - Cause: recent script start optimizations; a missing 'require'
   * Fix Break support
     - Symptom: "expected different content-type"
-    - Reason: website content-type changes to streamed video files
+    - Cause: website content-type changes
 
  Developer-visible changes:
   * Cleanup code

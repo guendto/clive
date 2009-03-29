@@ -132,7 +132,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-03-29" "2.1.10" "clive manual"
+.TH clive 1 "2009-03-30" "2.1.10" "clive manual"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -275,6 +275,9 @@ Save current \s-1URL\s0 batch to \fIfile\fR.
 .IX Item "-p --paste"
 Paste input from clipboard. The pasted URLs are expected to be separated with
 newlines.
+.IP "\fB\-\-stderr\fR" 4
+.IX Item "--stderr"
+Redirect all input to stderr, even if no \s-1TTY\s0 is available.
 .PP
 \&\fBDownload Options\fR
 .IP "\fB\-O \-\-output\-video=\fR\fIfile\fR" 4

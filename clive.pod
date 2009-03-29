@@ -179,6 +179,10 @@ Save current URL batch to I<file>.
 Paste input from clipboard. The pasted URLs are expected to be separated with
 newlines.
 
+=item B<--stderr>
+
+Redirect all input to stderr, even if no TTY is available.
+
 =back
 
 B<Download Options>

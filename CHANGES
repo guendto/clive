@@ -2,7 +2,9 @@ Version 2.1.10
 
  User-visible changes:
   * Add Cctv support
+    - Thanks to suntong001 for data mining
   * Add --hosts for printing supported hosts
+  * Change --version output
 
  Developer-visible changes:
   * Replace if-elsif $host block with a loop

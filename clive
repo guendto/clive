@@ -370,7 +370,8 @@ sub process_page
     }
     elsif ($url =~ /$re_hosts{IsCctv}/)
     {
-        ($xurl, $id) = handle_cctv_space($response_ref, $response_fh, $url);
+        ($xurl, $id) =
+          handle_cctv_space($response_ref, $response_fh, $url);
     }
     return -1
       if !$xurl
@@ -1004,7 +1005,7 @@ sub handle_cctv_space
 
     if ($id)
     {
-        my $domain = join('.',strdomain($page_url));
+        my $domain = join('.', strdomain($page_url));
         my $conf_url =
           "http://$domain/playcfg/flv_info_new.jsp?videoId=$id";
         $xurl = fetch_cctv_space_config($conf_url, $resp_fh);
@@ -1015,52 +1016,6 @@ sub handle_cctv_space
     }
 
     return ($xurl, $id);
-}
-
-sub fetch_cctv_space_config
-{
-    my ($conf_url, $resp_fh) = @_;
-
-    print "done.\nfetch config file ..."
-      unless $opts{quiet};
-
-    my $conf = "";
-    open my $fh, ">", \$conf;
-
-    # Disable: header
-    $curl->setopt(CURLOPT_HEADER,    0);
-    $curl->setopt(CURLOPT_URL,       $conf_url);
-    $curl->setopt(CURLOPT_WRITEDATA, $fh);
-
-    my $rc = $curl->perform;
-    close $fh;
-
-    my ($xurl, $errmsg);
-    if ($rc == 0)
-    {
-        my $re = qr|"url":"(.*?)"|;
-        if ($conf =~ /$re/)
-        {
-            $xurl = "http://v.cctv.com/flash/$1";
-        }
-        else
-        {
-            $errmsg = "extraction url not found";
-        }
-    }
-    else
-    {
-        $errmsg = $curl->strerror($rc) . " http/$rc\n";
-    }
-
-    print STDERR "\nerror: $errmsg\n" if $errmsg;
-
-    # Re-enable: header, reset WRITEDATA, the above overrides the
-    # original settings.
-    $curl->setopt(CURLOPT_HEADER,    0);
-    $curl->setopt(CURLOPT_WRITEDATA, $resp_fh);
-
-    return $xurl;
 }
 
 # Subroutines: Progress
@@ -1680,6 +1635,52 @@ sub fetch_sevenload_configxml
           . " (http/$rc)\n";
     }
     return ($xurl, $id);
+}
+
+sub fetch_cctv_space_config
+{
+    my ($conf_url, $resp_fh) = @_;
+
+    print "done.\nfetch config file ..."
+      unless $opts{quiet};
+
+    my $conf = "";
+    open my $fh, ">", \$conf;
+
+    # Disable: header
+    $curl->setopt(CURLOPT_HEADER,    0);
+    $curl->setopt(CURLOPT_URL,       $conf_url);
+    $curl->setopt(CURLOPT_WRITEDATA, $fh);
+
+    my $rc = $curl->perform;
+    close $fh;
+
+    my ($xurl, $errmsg);
+    if ($rc == 0)
+    {
+        my $re = qr|"url":"(.*?)"|;
+        if ($conf =~ /$re/)
+        {
+            $xurl = "http://v.cctv.com/flash/$1";
+        }
+        else
+        {
+            $errmsg = "extraction url not found";
+        }
+    }
+    else
+    {
+        $errmsg = $curl->strerror($rc) . " http/$rc\n";
+    }
+
+    print STDERR "\nerror: $errmsg\n" if $errmsg;
+
+    # Re-enable: header, reset WRITEDATA, the above overrides the
+    # original settings.
+    $curl->setopt(CURLOPT_HEADER,    0);
+    $curl->setopt(CURLOPT_WRITEDATA, $resp_fh);
+
+    return $xurl;
 }
 
 sub strdomain

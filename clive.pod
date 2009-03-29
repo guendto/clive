@@ -44,6 +44,10 @@ Print this help and exit.
 
 Print version and exit.
 
+=item B<--hosts>
+
+Print supported hosts and exit.
+
 =item B<-b --background>
 
 Go to background immediately after startup. If no output file is specified
@@ -471,6 +475,10 @@ Formats: (spark|spak-mini|vp6-hq|vp6-hd|vp6|h264)  Continue: Yes
 
 spark is the "regular" 320x240 flv. B<clive> defaults to spark
 if requested format is not available.
+
+=item B<tv.cctv.com>
+
+Formats: flv  Continue: Yes
 
 =back
 

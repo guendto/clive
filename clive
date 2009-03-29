@@ -85,6 +85,7 @@ my %re_hosts = (        # Precompiled regex used to identify the host
                  IsLiveleak  => qr|liveleak.com|i,
                  IsEvisor    => qr|evisor.tv|i,
                  IsDmotion   => qr|dailymotion.com|i,
+                 IsCctv      => qr|tv.cctv.com|i,
                );
 
 # Parse config
@@ -332,7 +333,7 @@ sub process_page
     print "done.\nprocess page ..."
       unless $opts{quiet};
 
-    $$response_ref =~ tr{\n}//d;
+    #$$response_ref =~ tr{\n}//d;
 
     my $p = HTML::TokeParser->new($response_ref);
     $p->get_tag("title");
@@ -366,6 +367,10 @@ sub process_page
     elsif ($url =~ /$re_hosts{IsDmotion}/)
     {
         ($xurl, $id) = handle_dmotion($response_ref);
+    }
+    elsif ($url =~ /$re_hosts{IsCctv}/)
+    {
+        ($xurl, $id) = handle_cctv_space($response_ref, $response_fh, $url);
     }
     return -1
       if !$xurl
@@ -427,10 +432,9 @@ sub query_video_length
             {
                 if ($opts{format} eq "flv")
                 {
-                    if ($entry{page_url} =~ /$re_hosts{IsEvisor}/)
+                    if (   $entry{page_url} =~ /$re_hosts{IsEvisor}/
+                        or $entry{page_url} =~ /$re_hosts{IsCctv}/)
                     {
-
-                        #or $entry{page_url} =~ /$re_hosts{IsMetacafe}/ ) {
                         $entry{file_suffix} = "flv";
                         $content_ok = 1;
                     }
@@ -794,7 +798,7 @@ sub handle_google
         GrabMP4      => qr|href="http://vp\.(.*?)"|,
     );
 
-    my $id  = $1 if $$response_ref =~ /$re{GrabID}/;
+    my $id = $1 if $$response_ref =~ /$re{GrabID}/;
 
     my $xurl = URI::Escape::uri_unescape($1)
       if $$response_ref =~ /$re{GrabVideoURL}/;
@@ -988,6 +992,75 @@ sub handle_dmotion
       if $errmsg;
 
     return ($xurl, $id);
+}
+
+sub handle_cctv_space
+{
+    my ($resp, $resp_fh, $page_url) = @_;
+    my $re = qr|videoId=(.*?)&|;
+
+    my ($id, $xurl);
+    $id = $1 if $$resp =~ /$re/;
+
+    if ($id)
+    {
+        my $domain = join('.',strdomain($page_url));
+        my $conf_url =
+          "http://$domain/playcfg/flv_info_new.jsp?videoId=$id";
+        $xurl = fetch_cctv_space_config($conf_url, $resp_fh);
+    }
+    else
+    {
+        print STDERR "\nerror: id not found\n";
+    }
+
+    return ($xurl, $id);
+}
+
+sub fetch_cctv_space_config
+{
+    my ($conf_url, $resp_fh) = @_;
+
+    print "done.\nfetch config file ..."
+      unless $opts{quiet};
+
+    my $conf = "";
+    open my $fh, ">", \$conf;
+
+    # Disable: header
+    $curl->setopt(CURLOPT_HEADER,    0);
+    $curl->setopt(CURLOPT_URL,       $conf_url);
+    $curl->setopt(CURLOPT_WRITEDATA, $fh);
+
+    my $rc = $curl->perform;
+    close $fh;
+
+    my ($xurl, $errmsg);
+    if ($rc == 0)
+    {
+        my $re = qr|"url":"(.*?)"|;
+        if ($conf =~ /$re/)
+        {
+            $xurl = "http://v.cctv.com/flash/$1";
+        }
+        else
+        {
+            $errmsg = "extraction url not found";
+        }
+    }
+    else
+    {
+        $errmsg = $curl->strerror($rc) . " http/$rc\n";
+    }
+
+    print STDERR "\nerror: $errmsg\n" if $errmsg;
+
+    # Re-enable: header, reset WRITEDATA, the above overrides the
+    # original settings.
+    $curl->setopt(CURLOPT_HEADER,    0);
+    $curl->setopt(CURLOPT_WRITEDATA, $resp_fh);
+
+    return $xurl;
 }
 
 # Subroutines: Progress
@@ -1609,27 +1682,35 @@ sub fetch_sevenload_configxml
     return ($xurl, $id);
 }
 
+sub strdomain
+{
+    my $uri = shift;
+
+    my ($scheme, $authority, $path, $query, $fragment) = $uri =~
+      m{(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?}o;
+
+    # Extract the domain from the URL.
+    my @a = split(/\./, $authority);
+
+    return @a;
+}
+
 sub title_to_filename
 {
     my $title = shift;
 
-    $title =~ s/(youtube|video|liveleak.com|sevenload|dailymotion)//gi;
+    $title =~
+      s/(youtube|video|liveleak.com|sevenload|dailymotion|cctv.com)//gi;
     $title =~ s/^\s+//;
     $title =~ s/\s+$//;
 
     my $r = $opts{cclass} || qr|\w|;
     $title = join('', $title =~ /$r/g);
 
-    # Courtesy of:
-    #   http://search.cpan.org/~gaas/URI-1.37/URI.pm#PARSING_URIs_WITH_REGEXP
-    my ($scheme, $authority, $path, $query, $fragment) =
-      m{(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?}o;
-
-    # Extract the domain from the URL.
-    my @a = split(/\./, $authority);
-
     my $fn = $opts{fnfmt} || "%t_%d_%i.%s";
     my $timestamp = POSIX::strftime("%F %T", localtime);
+
+    my @a = strdomain($entry{page_url});
 
     my %h = (
              "%t" => $title,

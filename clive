@@ -136,6 +136,7 @@ GetOptions(
     'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
     'cclass|l=s', 'exec|x=s',   'progress|G=s', 'clivepass|V=s',
     'stream=i',
+    'hosts'     => \&print_hosts,
     'version|v' => \&print_version,
 
     # Commented out until WWW::Curl is fixed:
@@ -1966,6 +1967,12 @@ sub emit
       if $opts{emitxml} and @emit_queue;
 }
 
+sub print_hosts
+{
+    print "$re_hosts{$_}\n" foreach (keys %re_hosts);
+    exit;
+}
+
 sub print_version
 {
     my $perl_v = sprintf("--with-perl=%vd-%s", $^V, $^O);
@@ -2000,6 +2007,7 @@ clive [options]... [URL]...
 
  -h, --help                 print help and exit
  -v, --version              print version and exit
+     --hosts                print supported hosts and exit
  -b, --background           go to background after startup
  -e, --emit-csv             emit video details as csv to stdout
  -E, --emit-xml             emit video details as csv to stdout

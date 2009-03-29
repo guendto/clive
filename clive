@@ -88,6 +88,18 @@ my %re_hosts = (        # Precompiled regex used to identify the host
                  IsCctv      => qr|tv.cctv.com|i,
                );
 
+my @re_hosts_arr = (
+                    [$re_hosts{IsYoutube},   \&handle_youtube],
+                    [$re_hosts{IsGoogle},    \&handle_google],
+                    [$re_hosts{IsSevenload}, \&handle_sevenload],
+                    [$re_hosts{IsBreak},     \&handle_break],
+                    [$re_hosts{IsLastfm},    \&handle_lastfm],
+                    [$re_hosts{IsLiveleak},  \&handle_liveleak],
+                    [$re_hosts{IsEvisor},    \&handle_evisor],
+                    [$re_hosts{IsDmotion},   \&handle_dmotion],
+                    [$re_hosts{IsCctv},      \&handle_cctv],
+                   );
+
 # Parse config
 my $c = Config::Tiny->read($CONFIGFILE);
 %opts = (
@@ -339,40 +351,23 @@ sub process_page
     $p->get_tag("title");
     my $title = $p->get_trimmed_text;
 
-    my ($xurl, $id);
-    if ($url =~ /$re_hosts{IsYoutube}/)
+    my ($xurl, $id, $_title, $supported);
+    $supported = 0;
+    foreach (@re_hosts_arr)
     {
-        ($xurl, $id) = handle_youtube($response_ref);
+        my ($re, $handler) = @{$_};
+        if ($url =~ /$re/)
+        {
+            $supported = 1;
+            ($xurl, $id, $_title) =
+              &$handler($response_ref, $response_fh, $url);
+            $title = $_title || $title;
+            last;
+        }
     }
-    elsif ($url =~ /$re_hosts{IsGoogle}/)
-    {
-        ($xurl, $id) = handle_google($response_ref);
-    }
-    elsif ($url =~ /$re_hosts{IsSevenload}/)
-    {
-        ($xurl, $id) = handle_sevenload($response_ref, $response_fh);
-    }
-    elsif ($url =~ /$re_hosts{IsBreak}/)
-    {
-        ($xurl, $id, $title) = handle_break($response_ref);
-    }
-    elsif ($url =~ /$re_hosts{IsLiveleak}/)
-    {
-        ($xurl, $id) = handle_liveleak($response_ref, $response_fh);
-    }
-    elsif ($url =~ /$re_hosts{IsEvisor}/)
-    {
-        ($xurl, $id) = handle_evisor($response_ref);
-    }
-    elsif ($url =~ /$re_hosts{IsDmotion}/)
-    {
-        ($xurl, $id) = handle_dmotion($response_ref);
-    }
-    elsif ($url =~ /$re_hosts{IsCctv}/)
-    {
-        ($xurl, $id) =
-          handle_cctv_space($response_ref, $response_fh, $url);
-    }
+    die "error: lookup array missing handler; should never get here\n"
+      if !$supported;
+
     return -1
       if !$xurl
           or !$id
@@ -757,7 +752,7 @@ sub parse_input
 
 sub handle_youtube
 {
-    my ($response_ref, $xurl) = (shift);
+    my ($response_ref, $xurl) = @_;
 
     my %re = (
               GrabID => qr/"video_id": "(.*?)"/,
@@ -790,7 +785,7 @@ sub handle_youtube
 
 sub handle_google
 {
-    my $response_ref = shift;
+    my ($response_ref) = @_;
 
     my %re = (
 
@@ -845,7 +840,7 @@ sub handle_sevenload
 
 sub handle_break
 {
-    my $response_ref = shift;
+    my ($response_ref) = @_;
 
     my %re = (
               GrabTitle    => qr|id="vid_title" content="(.*?)"|,
@@ -923,7 +918,7 @@ sub handle_liveleak
 
 sub handle_evisor
 {
-    my $respr = shift;
+    my ($respr) = @_;
 
     my %re = (
               GrabXurl => qr|file=(.*?)"|,
@@ -952,7 +947,7 @@ sub handle_evisor
 
 sub handle_dmotion
 {
-    my $resp = shift;
+    my ($resp) = @_;
 
     my %re = (
               GrabID    => qr|swf%2F(.*?)"|,
@@ -995,7 +990,7 @@ sub handle_dmotion
     return ($xurl, $id);
 }
 
-sub handle_cctv_space
+sub handle_cctv
 {
     my ($resp, $resp_fh, $page_url) = @_;
     my $re = qr|videoId=(.*?)&|;

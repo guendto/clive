@@ -1977,9 +1977,10 @@ sub print_version
 {
     my $perl_v = sprintf("--with-perl=%vd-%s", $^V, $^O);
     my $str = sprintf(
-                      "clive %s.  "
+                      "clive version %s with WWW::Curl version "
+                        . "$WWW::Curl::VERSION.\n"
                         . "Copyright (c) 2007-2009 Toni Gundogdu "
-                        . "<legatvs\@gmail.com>.\n",
+                        . "<legatvs\@gmail.com>.\n\n",
                       VERSION
                      );
     $str .= "$perl_v ";
@@ -1990,9 +1991,9 @@ sub print_version
         $str .= "\n" if (++$i % 2 == 0);
     }
     $str .=
-      "clive is licensed under the ISC license which is functionally\n"
+      "\nclive is licensed under the ISC license which is functionally\n"
       . "equivalent to the 2-clause BSD licence.\n"
-      . "\tReport bugs to <http://code.google.com/p/clive/issues/>.\n";
+      . "\tReport bugs: <http://code.google.com/p/clive/issues/>\n";
     print "$str";
     exit;
 }

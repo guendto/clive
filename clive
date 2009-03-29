@@ -135,7 +135,7 @@ GetOptions(
     'output|o=s', 'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
     'cclass|l=s', 'exec|x=s',   'progress|G=s', 'clivepass|V=s',
-    'stream=i',
+    'stream=i',   'stderr',
     'hosts'     => \&print_hosts,
     'version|v' => \&print_version,
 
@@ -343,9 +343,6 @@ sub process_page
 {
     my ($url, $response_ref, $response_fh) = @_;
 
-    print "done.\nprocess page ..."
-      unless $opts{quiet};
-
     #$$response_ref =~ tr{\n}//d;
 
     my $p = HTML::TokeParser->new($response_ref);
@@ -391,7 +388,7 @@ sub query_video_length
 
     unless ($entry{file_length})
     {
-        print "done.\nquery length ..."
+        print "done.\nverify video link ..."
           unless $opts{quiet};
 
         $curl->setopt(CURLOPT_URL, $entry{xurl});
@@ -530,17 +527,14 @@ sub extract_video
 
     unless ($opts{quiet})
     {
-        print "file: $fn\n";
-        print "length: $entry{file_length} ";
+        print "file: $fn";
 
-        printf "(%.2fMB)  ", $entry{file_length} / MBDIV
-          if $entry{file_length};
-
-        printf "from: %u (left: %u)  ", $cont_from, $remaining
-          if $cont_from;
-
-        printf "[$content_type]"
-          if $content_type;
+        if ($cont_from)
+        {
+            printf("\nfrom: $cont_from (%.1fMB)  "
+                     . "remaining: $remaining (%.1fMB)",
+                   $cont_from / MBDIV, $remaining / MBDIV);
+        }
 
         print "\n";
     }
@@ -573,7 +567,8 @@ sub extract_video
 
                 # Use 'dot' progress if the output is not a TTY
                 if (    $opts{progress} !~ /^dot/
-                    and $opts{progress} ne 'none')
+                    and $opts{progress} ne 'none'
+                    and !$opts{stderr})
                 {
                     $opts{progress} = 'dot'
                       if !-t STDOUT or !-t STDERR;
@@ -629,9 +624,8 @@ sub extract_video
 
     if (!$errmsg)
     {
-        print "\nclosed http/$rc.\n"
+        print "\n"
           unless $opts{quiet};
-
         push @exec_files, $path
           if $opts{exec};
     }
@@ -1369,11 +1363,22 @@ sub main
     select STDOUT;
     $| = 1;
 
-    daemonize()
-      if $opts{background};
+    if ($opts{background})
+    {
+        daemonize();
+    }
+    else
+    {
+        if ($opts{stderr})
+        {
+
+            # redirect stdout to stderr
+            open STDOUT, ">&STDERR"
+              or die "error: cannot dup STDOUT: $!";
+        }
+    }
 
     process_queue();
-
     free_cache();
 }
 
@@ -1976,13 +1981,12 @@ sub print_hosts
 sub print_version
 {
     my $perl_v = sprintf("--with-perl=%vd-%s", $^V, $^O);
-    my $str = sprintf(
-                      "clive version %s with WWW::Curl version "
+    my $str =
+      sprintf("clive version %s with WWW::Curl version "
                         . "$WWW::Curl::VERSION  [%s].\n"
                         . "Copyright (c) 2007-2009 Toni Gundogdu "
                         . "<legatvs\@gmail.com>.\n\n",
-                      VERSION, $^O
-                     );
+              VERSION, $^O);
     $str .= "$perl_v ";
     my $i = 0;
     while (my ($key, $value) = each(%opted_mods))
@@ -2033,6 +2037,7 @@ Logging and Input Options:
  -r, --recall               recall last url batch
  -T, --savebatch=FILE       save url batch to FILE
  -p, --paste                paste input from clipboard
+     --stderr               redirect all output to stderr even when no tty
 Download Options:
  -O, --output-video=FNAME   write video to file
  -n, --no-extract           do not extract any videos

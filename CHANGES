@@ -1,10 +1,13 @@
 Version 2.1.10
 
  User-visible changes:
+  * Change closer to cclive output
+    - Paving the way for abby (front-end)
   * Add Cctv support
     - Thanks to suntong001 for data mining
   * Add --hosts for printing supported hosts
   * Change --version output
+  * Add --stderr option
 
  Developer-visible changes:
   * Replace if-elsif $host block with a loop

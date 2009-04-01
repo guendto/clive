@@ -1,16 +1,18 @@
 Version 2.1.10
 
  User-visible changes:
-  * Change closer to cclive output
-    - Paving the way for abby (front-end)
-  * Add Cctv support
-    - Thanks to suntong001 for data mining
-  * Add --hosts for printing supported hosts
+  * Add abby (front-end) compatibility
+    - Change output similar to cclive
+    - http://code.google.com/p/abby/
+  * Add new website support
+    - tv.cctv.com (thanks to suntong001 for the initial data mining) [issue #6]
+  * Add new options
+    - --hosts (print supported hosts to stdout)
+    - --stderr (redirect all output to stderr instead of stdout)
   * Change --version output
-  * Add --stderr option
 
  Developer-visible changes:
-  * Replace if-elsif $host block with a loop
+  * Replace the monstrous if-elsif-$host code block with a loop
 
 
 Version 2.1.9

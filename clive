@@ -527,12 +527,13 @@ sub extract_video
 
     unless ($opts{quiet})
     {
-        print "file: $fn";
+        printf("file: $fn  %.1fM  [%s]",
+               $entry{file_length} / MBDIV, $content_type);
 
         if ($cont_from)
         {
-            printf("\nfrom: $cont_from (%.1fMB)  "
-                     . "remaining: $remaining (%.1fMB)",
+            printf("\nfrom: $cont_from (%.1fM)  "
+                     . "remaining: $remaining (%.1fM)",
                    $cont_from / MBDIV, $remaining / MBDIV);
         }
 

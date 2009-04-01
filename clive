@@ -1983,9 +1983,9 @@ sub print_version
     my $perl_v = sprintf("--with-perl=%vd-%s", $^V, $^O);
     my $str =
       sprintf("clive version %s with WWW::Curl version "
-                        . "$WWW::Curl::VERSION  [%s].\n"
-                        . "Copyright (c) 2007-2009 Toni Gundogdu "
-                        . "<legatvs\@gmail.com>.\n\n",
+                . "$WWW::Curl::VERSION  [%s].\n"
+                . "Copyright (c) 2007-2009 Toni Gundogdu "
+                . "<legatvs\@gmail.com>.\n\n",
               VERSION, $^O);
     $str .= "$perl_v ";
     my $i = 0;

@@ -1,5 +1,10 @@
 Version 2.1.10
 
+NOTE: This release changes the clive output messages. This is likely to
+break compatibility with utilities that depend on these messages. These
+changes were made to enable using abby (0.2.0+) as a front-end for
+clive (2.1.10+).
+
  User-visible changes:
   * Add abby (front-end) compatibility
     - Change output similar to cclive

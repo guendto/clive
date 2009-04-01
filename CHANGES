@@ -6,6 +6,8 @@ changes were made to enable using abby (0.2.0+) as a front-end for
 clive (2.1.10+).
 
  User-visible changes:
+  * Youtube HD support (--format=mp4_hd)
+    - Thanks to bf for the patch
   * Add abby (front-end) compatibility
     - Change output similar to cclive
     - http://code.google.com/p/abby/

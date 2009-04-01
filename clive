@@ -762,9 +762,10 @@ sub handle_youtube
         $xurl = "http://youtube.com/get_video?video_id=$id&t=$t";
 
         my $fmt;
-        if    ($opts{format} eq "mp4")  { $fmt = 18; }
-        elsif ($opts{format} eq "3gpp") { $fmt = 17; }
-        elsif ($opts{format} eq "xflv") { $fmt = 6; }
+        if    ($opts{format} eq "mp4")    { $fmt = 18; }
+        elsif ($opts{format} eq "mp4_hd") { $fmt = 22; }
+        elsif ($opts{format} eq "3gpp")   { $fmt = 17; }
+        elsif ($opts{format} eq "xflv")   { $fmt = 6; }
 
         $xurl .= "&fmt=$fmt"
           if $fmt;

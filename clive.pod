@@ -423,11 +423,13 @@ list below only as a rough reference of what formats should be available.
 
 =item B<www.last.fm>
 
-Formats: (flv|mp4|3gpp|xflv)  Continue: Yes (except flv)
+Formats: (flv|mp4|mp4_hd|3gpp|xflv)  Continue: Yes (except flv)
 
-mp4 and 3gpp formats are typically, or will become later, available.
+mp4 and 3gpp formats are typically, or will soon become, available.
 xflv appears to be very rare. Videos dating back to 2006 may only be
-available as flv.
+available as flv. The high-definition mp4_hd format is currently available
+for a limited number of videos, which are usually explicitly marked as "HD"
+or "720p".
 
 Some of the videos displayed on last.fm site are actually Youtube videos.
 You can pass the lastfm'ed video URLs to B<clive>.

@@ -12,6 +12,7 @@ Version 2.1.10
   * Change --version output
 
  Developer-visible changes:
+  * Rename: configrc -> examples/config
   * Replace the monstrous if-elsif-$host code block with a loop
 
 

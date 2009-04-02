@@ -1716,6 +1716,9 @@ sub title_to_filename
 
     my @a = strdomain($entry{page_url});
 
+    $entry{file_suffix} =~ s/\-/_/g;
+    $entry{video_id} =~ s/\-/_/g;
+
     my %h = (
              "%t" => $title,
              "%s" => $entry{file_suffix},

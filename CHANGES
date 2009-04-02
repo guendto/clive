@@ -9,6 +9,10 @@ clive (2.1.10+).
   * Add abby (front-end) compatibility
     - Change output similar to cclive
     - http://code.google.com/p/abby/
+  * Improve file suffix parsing from content-type
+    - Rewrite the content-type handling block in query_video_length
+    - Use whatever is found after slash in the content-type string
+    - Use "flv" for exceptions (e.g. octet-*, x-flv, etc.)
   * Replace dashes in filenames (id, suffix) with underscores
   * Youtube HD support (--format=mp4_hd)
     - Thanks to bf for the patch

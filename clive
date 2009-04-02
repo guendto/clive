@@ -410,48 +410,29 @@ sub query_video_length
 
         if ($rc == 200)
         {
-            my $content_ok = 0;
-            if ($content_type =~ m{video/(.*)})
-            {
-                $entry{file_suffix} = $1;
-                if ($content_type =~ /(.*)-(.*)$/)
-                {
-                    $entry{file_suffix} = $2;
-                }
-                $content_ok = 1;
-            }
 
-            # Evisor and Metacafe return "text/plain" for Content-Type
-            elsif ($content_type =~ m{text/plain})
+            # Figure out file suffix.
+            if ($content_type =~ /\/(.*)/)
             {
-                if ($opts{format} eq "flv")
+                if (   $1 =~ /octet/
+                    || $1 =~ /x\-flv/
+                    || $1 =~ /plain/)
                 {
-                    if (   $entry{page_url} =~ /$re_hosts{IsEvisor}/
-                        or $entry{page_url} =~ /$re_hosts{IsCctv}/)
-                    {
-                        $entry{file_suffix} = "flv";
-                        $content_ok = 1;
-                    }
-                }
-            }
 
-            # Liveleak and Break return "(flv-)application/octet-stream"
-            elsif ($content_type =~ m{application/octet-stream})
-            {
-                if ($opts{format} eq "flv")
+                    # Use "flv" for these exceptions.
+                    $entry{file_suffix} = "flv";
+                }
+                else
                 {
-                    if (   $entry{page_url} =~ /$re_hosts{IsBreak}/
-                        or $entry{page_url} =~ /$re_hosts{IsLiveleak}/)
-                    {
-                        $entry{file_suffix} = 'flv';
-                        $content_ok = 1;
-                    }
+
+                    # Otherwise use whatever was found in content-type string.
+                    $entry{file_suffix} = $1;
                 }
             }
-            $errmsg =
-                "expected different content-type, "
-              . "received \"$content_type\""
-              unless $content_ok;
+            else
+            {
+                $errmsg = "$content_type: unexpected content-type";
+            }
         }
         else
         {
@@ -1717,7 +1698,7 @@ sub title_to_filename
     my @a = strdomain($entry{page_url});
 
     $entry{file_suffix} =~ s/\-/_/g;
-    $entry{video_id} =~ s/\-/_/g;
+    $entry{video_id}    =~ s/\-/_/g;
 
     my %h = (
              "%t" => $title,

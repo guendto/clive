@@ -646,7 +646,11 @@ sub get_queue
 
     parse_input($_) foreach @ARGV;
     grep_cache() if $opts{grep};
-    unless (@queue) { parse_input($_) while (<STDIN>); }
+
+    if (scalar(@queue) == 0 && scalar(@ARGV == 0))
+    {
+        parse_input($_) while <STDIN>;
+    }
 
     if (open my $fh, ">$RECALLFILE")
     {
@@ -1700,7 +1704,7 @@ sub title_to_filename
     my %h = (
              "%t" => $title,
              "%s" => $entry{file_suffix},
-             "%d" => $a[scalar @a - 2],             # Without the TLD.
+             "%d" => $a[scalar(@a - 2)],            # Without the TLD.
              "%i" => $entry{video_id},
              "%D" => (split(/ /, $timestamp))[0],
              "%T" => (split(/ /, $timestamp))[1],
@@ -1792,7 +1796,7 @@ sub show_cache
     close STDOUT
       if $opted_mods{IOPager};
 
-    if ($opts{grep} and $opts{delete} and scalar @queue > 0)
+    if ($opts{grep} and $opts{delete} and scalar(@queue > 0))
     {
         print "Confirm delete (y/N):";
         $_ = lc <STDIN>;

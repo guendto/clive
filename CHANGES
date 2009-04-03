@@ -13,7 +13,7 @@ clive (2.1.10+).
     - Rewrite the content-type handling block in query_video_length
     - Use whatever is found after slash in the content-type string
     - Use "flv" for exceptions (e.g. octet-*, x-flv, etc.)
-  * Replace dashes in filenames (id, suffix) with underscores
+  * Replace dashes in video ID with underscores
   * Youtube HD support (--format=mp4_hd)
     - Thanks to bf for the patch
   * Add new website support

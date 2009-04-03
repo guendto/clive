@@ -153,7 +153,7 @@ GetOptions(
     'emit-xml|E'          => sub { $opts{emitxml}     = 1 },
     'stream-exec=s'       => sub { $opts{streamexec}  = $_[1] },
     'output-video|O=s'    => sub { $opts{outputfname} = $_[1] },
-    'limit-rate=i',       => sub { $opts{limitrate} = $_[1] },
+    'limit-rate=i',       => sub { $opts{limitrate}   = $_[1] },
           ) or exit(1);
 
 if ($opts{help})
@@ -193,7 +193,7 @@ sub init_curl
 }
 
 sub auth_youtube
-{                            # Log into Youtube
+{    # Log into Youtube
     print "[youtube] attempt to login as $opts{ytuser} ..."
       unless $opts{quiet};
 
@@ -560,8 +560,9 @@ sub extract_video
                 }
             }
 
-            $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE, $opts{limitrate}*1024)
-                if defined $opts{limitrate};
+            $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE,
+                          $opts{limitrate} * 1024)
+              if defined $opts{limitrate};
 
             $rc = $curl->perform;
             close $fh;
@@ -1694,7 +1695,7 @@ sub title_to_filename
 
     my @a = strdomain($entry{page_url});
 
-    $entry{video_id}    =~ s/\-/_/g;
+    $entry{video_id} =~ s/\-/_/g;
 
     my %h = (
              "%t" => $title,

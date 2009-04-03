@@ -12,6 +12,9 @@
     ## HTTP proxy. Overrides http_proxy env. variable.
     #proxy = http://foo:1234
 
+    ## Limit video download rate to amount KB/s.
+    #limit_rate = 100
+
 [output]
     ## Download video format. See the manual page for available formats.
     #format = mp4

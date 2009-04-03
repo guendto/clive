@@ -9,6 +9,8 @@ clive (2.1.10+).
   * Add abby (front-end) compatibility
     - Change output similar to cclive
     - http://code.google.com/p/abby/
+  * Add --limit-rate option
+    - config: [http]:limit_rate
   * Improve file suffix parsing from content-type
     - Rewrite the content-type handling block in query_video_length
     - Use whatever is found after slash in the content-type string

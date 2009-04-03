@@ -320,6 +320,10 @@ transfer progress reaches I<percent>.
 Example:
   % clive --stream-exec="mplayer -really-quiet %i" --stream=20 URL
 
+=item B<--limit-rate=>I<amount>
+
+Limit video download rate to I<amount> KB/s.
+
 =back
 
 =head1 EXAMPLES

@@ -106,8 +106,7 @@ my $c = Config::Tiny->read($CONFIGFILE);
          progress   => $c->{_}->{progress},
          agent      => $c->{http}->{agent},
          proxy      => $c->{http}->{proxy},
-         maxspeed   => $c->{http}->{maxspeed},
-         minspeed   => $c->{http}->{minspeed},
+         limitrate  => $c->{http}->{limit_rate},
          format     => $c->{output}->{format},
          savedir    => $c->{output}->{savedir},
          cclass     => $c->{output}->{cclass},
@@ -139,8 +138,6 @@ GetOptions(
     'hosts'     => \&print_hosts,
     'version|v' => \&print_version,
 
-    # Commented out until WWW::Curl is fixed:
-    # 'maxspeed!', 'minspeed!',
     # Workarounds since $longopt!|$shortopt cannot be used.
     'no-extract|n' => sub { $opts{extract} = 0 },
     'no-login|L'   => sub { $opts{login}   = 0 },
@@ -156,6 +153,7 @@ GetOptions(
     'emit-xml|E'          => sub { $opts{emitxml}     = 1 },
     'stream-exec=s'       => sub { $opts{streamexec}  = $_[1] },
     'output-video|O=s'    => sub { $opts{outputfname} = $_[1] },
+    'limit-rate=i',       => sub { $opts{limitrate} = $_[1] },
           ) or exit(1);
 
 if ($opts{help})
@@ -192,12 +190,6 @@ sub init_curl
 
     $curl->setopt(CURLOPT_PROXY, $opts{proxy})
       if defined $opts{proxy};
-
-    $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE, $opts{maxspeed})
-      if $opts{maxpseed};    # NOTE: No effect. Bug in WWW::Curl::Easy?
-
-    $curl->setopt(CURLOPT_LOW_SPEED_LIMIT, $opts{minspeed})
-      if $opts{minspeed};    # Ditto.
 }
 
 sub auth_youtube
@@ -568,8 +560,13 @@ sub extract_video
                 }
             }
 
+            $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE, $opts{limitrate}*1024)
+                if defined $opts{limitrate};
+
             $rc = $curl->perform;
             close $fh;
+
+            $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE, 0);
 
             if ($rc == 0)
             {
@@ -2039,3 +2036,4 @@ Download Options:
  -x, --exec=COMMAND         execute COMMAND subsequently
      --stream-exec=COMMAND  stream COMMAND to be executed
      --stream=PERCENT       execute stream command when transfer reaches %
+     --limit-rate=AMOUNT    limit video download rate to amount KB/s

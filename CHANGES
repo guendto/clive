@@ -1,31 +1,31 @@
 Version 2.1.10
 
-NOTE: This release changes the clive output messages. This is likely to
-break compatibility with utilities that depend on these messages. These
-changes were made to enable using abby (0.2.0+) as a front-end for
-clive (2.1.10+).
+NOTE: This release changes the clive status messages. This will likely
+break compatibility with utilities that depend on these messages.
+The changes were made to enable using abby (0.2.0+) as a front-end
+for clive.
 
  User-visible changes:
   * Add abby (front-end) compatibility
     - Change output similar to cclive
     - http://code.google.com/p/abby/
-  * Add --limit-rate option
-    - config: [http]:limit_rate
+  * Add Youtube HD support (--format=mp4_hd)
+    - Thanks to bf for the patch (via FreeBSD ports)
+  * Add tv.cctv.com support [issue #6]
+    - Thanks to suntong001 for data mining
+  * Add new options
+    - --limit-rate (config: [http]:limit_rate)
+    - --hosts (print supported hosts to stdout)
+    - --stderr (redirect all output to stderr instead of stdout)
   * Improve file suffix parsing from content-type
     - Rewrite the content-type handling block in query_video_length
     - Use whatever is found after slash in the content-type string
     - Use "flv" for exceptions (e.g. octet-*, x-flv, etc.)
   * Replace dashes in video ID with underscores
-  * Youtube HD support (--format=mp4_hd)
-    - Thanks to bf for the patch
-  * Add new website support
-    - tv.cctv.com (thanks to suntong001 for the initial data mining) [issue #6]
-  * Add new options
-    - --hosts (print supported hosts to stdout)
-    - --stderr (redirect all output to stderr instead of stdout)
   * Change --version output
 
  Developer-visible changes:
+  * Update examples/config with limit_rate
   * Rename: configrc -> examples/config
   * Replace the monstrous if-elsif-$host code block with a loop
 

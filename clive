@@ -75,6 +75,7 @@ my @stream = (0, -1);   # 0=stream flag, 1=stream pid
 my $curr_fpath;         # current video output filepath
 my $recv_sigwinch = 0;  # whether SIGWINCH was received
 my $term_width;         # current terminal width
+my $err_flag = 0;       # whether an error occurred
 
 my %re_hosts = (        # Precompiled regex used to identify the host
                  IsYoutube   => qr|youtube.com|i,
@@ -194,7 +195,7 @@ sub init_curl
 
 sub auth_youtube
 {    # Log into Youtube
-    print "[youtube] attempt to login as $opts{ytuser} ..."
+    c_log("[youtube] attempt to login as $opts{ytuser} ...")
       unless $opts{quiet};
 
     my $response = "";
@@ -229,10 +230,10 @@ sub auth_youtube
     }
     close $fh;
 
-    print STDERR "\n$errmsg\n" and exit
+    c_log("\n$errmsg\n", 1) and exit(1)
       if $errmsg;
 
-    print "done.\n"
+    c_log("done.\n")
       unless $opts{quiet};
 
     $curl->setopt(CURLOPT_COOKIE,
@@ -284,7 +285,7 @@ sub process_queue
         }
         close $rfh;
 
-        print STDERR "\nerror: $errmsg\n"
+        c_log("\nerror: $errmsg\n", 1)
           if $errmsg;
     }
     exec_cmd();
@@ -314,7 +315,7 @@ sub fetch_page
     $from_cache = 0
       if $opts{renew};
 
-    printf "%s $url ...", $from_cache ? "cache" : "fetch"
+    c_log(sprintf("%s $url ...", $from_cache ? "cache" : "fetch"))
       unless $opts{quiet};
 
     $rc = 0xff;    # flag: read cache entry
@@ -380,7 +381,7 @@ sub query_video_length
 
     unless ($entry{file_length})
     {
-        print "done.\nverify video link ..."
+        c_log("done.\nverify video link ...")
           unless $opts{quiet};
 
         $curl->setopt(CURLOPT_URL, $entry{xurl});
@@ -438,8 +439,8 @@ sub query_video_length
 
     unless ($opts{quiet})
     {
-        if   (!$errmsg) { print "done.\n"; }
-        else            { print STDERR "\nerror: $errmsg\n"; }
+        if   (!$errmsg) { c_log("done.\n") }
+        else            { c_log("\nerror: $errmsg\n", 1) }
     }
 
     return ($errmsg ? -1 : 0, $content_type);
@@ -466,8 +467,10 @@ sub extract_video
     {
         if ($size == $entry{file_length} and $opts{extract})
         {
-            print STDERR
-              "error: file is already fully retrieved; nothing to do\n";
+            c_log(
+                "error: file is already fully retrieved; nothing to do\n",
+                1
+            );
 
             push @exec_files, $path
               if $opts{exec};
@@ -500,17 +503,27 @@ sub extract_video
 
     unless ($opts{quiet})
     {
-        printf("file: $fn  %.1fM  [%s]",
-               $entry{file_length} / MBDIV, $content_type);
+        c_log(
+              sprintf(
+                      "file: $fn  %.1fM  [%s]",
+                      $entry{file_length} / MBDIV,
+                      $content_type
+                     )
+             );
 
         if ($cont_from)
         {
-            printf("\nfrom: $cont_from (%.1fM)  "
-                     . "remaining: $remaining (%.1fM)",
-                   $cont_from / MBDIV, $remaining / MBDIV);
+            c_log(
+                  sprintf(
+                          "\nfrom: $cont_from (%.1fM)  "
+                            . "remaining: $remaining (%.1fM)",
+                          $cont_from / MBDIV,
+                          $remaining / MBDIV
+                         )
+                 );
         }
 
-        print "\n";
+        c_log("\n");
     }
 
     my $errmsg;
@@ -604,14 +617,14 @@ sub extract_video
 
     if (!$errmsg)
     {
-        print "\n"
+        c_log("\n")
           unless $opts{quiet};
         push @exec_files, $path
           if $opts{exec};
     }
     else
     {
-        print STDERR "\nerror: $errmsg\n";
+        c_log("\nerror: $errmsg\n", 1);
     }
 
     # Disable: progress
@@ -629,13 +642,13 @@ sub get_queue
         }
         else
         {
-            print STDERR "error: $RECALLFILE: $!";
+            c_log("error: $RECALLFILE: $!", 1);
         }
     }
 
     if ($opts{paste})
     {
-        print STDERR "error: Clipboard module not found\n" and exit
+        c_log("error: Clipboard module not found\n", 1) and exit(1)
           unless $opted_mods{Clipboard};
         my $data = Clipboard->paste();
         if ($data)
@@ -654,24 +667,24 @@ sub get_queue
 
     if (open my $fh, ">$RECALLFILE")
     {
-        print $fh "$_\n" foreach @queue;
-        close $fh;
+        print($fh "$_\n") foreach @queue;
+        close($fh);
     }
     else
     {
-        print STDERR "error: $RECALLFILE: $!";
+        c_log("error: $RECALLFILE: $!", 1);
     }
 
     if ($opts{savebatch})
     {
         if (open my $fh, ">", $opts{savebatch})
         {
-            print $fh "$_\n" foreach @queue;
-            close $fh;
+            print($fh "$_\n") foreach @queue;
+            close($fh);
         }
         else
         {
-            print STDERR "error: $opts{savebatch}: $!";
+            c_log("error: $opts{savebatch}: $!", 1);
         }
     }
 }
@@ -688,9 +701,9 @@ sub parse_input
     if ($url =~ /&srcurl=(.*?)&/)
     {    # GVideo: one of many redirects
         require URI::Escape;
-        printf "found redirect ...%s\n=> %s\n",
-          (split(/&/, $url))[0],
-          (split(/&/, URI::Escape::uri_unescape($1)))[0]
+        c_log(sprintf "found redirect ...%s\n=> %s\n",
+              (split(/&/, $url))[0],
+              (split(/&/, URI::Escape::uri_unescape($1)))[0])
           unless $opts{quiet};
         $url = URI::Escape::uri_unescape($1);
     }
@@ -707,7 +720,7 @@ sub parse_input
     {
         $url =~ /\+1\-(.+)/;
 
-        print STDERR "error: nosupport: $url\n" and return -1
+        c_log("error: no support: $url\n", 1) and return -1
           unless defined($1);
 
         $url = "http://youtube.com/watch?v=$1";
@@ -722,7 +735,7 @@ sub parse_input
           if $url =~ /$re/;
     }
 
-    print STDERR "error: nosupport: $url\n";
+    c_log("error: no support: $url\n", 1);
 
     return -1;
 }
@@ -756,9 +769,13 @@ sub handle_youtube
     }
     else
     {
-        printf STDERR "\nerror: failed to extract &%s\n", $id
-          ? "t"
-          : "video_id";
+        c_log(
+              sprintf("\nerror: failed to extract &%s\n",
+                      $id
+                      ? "t"
+                      : "video_id"),
+              1
+             );
     }
     return ($xurl, $id);
 }
@@ -785,7 +802,7 @@ sub handle_google
     $errmsg = "video id not found" if !$id;
     $errmsg = "extraction url not found" if !$xurl && !$errmsg;
 
-    print STDERR "\nerror: $errmsg\n" if $errmsg;
+    c_log("\nerror: $errmsg\n", 1) if $errmsg;
 
     $xurl = "http://vp.$mp4"
       if $mp4 && $opts{format} eq "mp4" && $xurl;
@@ -814,7 +831,7 @@ sub handle_sevenload
     }
     $errmsg = "item id not found"        if !$errmsg && !$id;
     $errmsg = "extraction url not found" if !$errmsg && !$xurl;
-    print STDERR "\nerror: $errmsg\n" if $errmsg;
+    c_log("\nerror: $errmsg\n", 1) if $errmsg;
     return ($xurl, $id);
 }
 
@@ -854,7 +871,7 @@ sub handle_break
     $errmsg = "failed to extract id"
       if !$id and !$errmsg;
 
-    print STDERR "\nerror: $errmsg\n"
+    c_log("\nerror: $errmsg\n", 1)
       if $errmsg;
 
     return ($xurl, $id, $title);
@@ -891,7 +908,7 @@ sub handle_liveleak
     }
 
     $errmsg = "id not found" if !$id && !$errmsg;
-    print "error: $errmsg\n" if $errmsg;
+    c_log("error: $errmsg\n", 1) if $errmsg;
 
     return ($xurl, $id);
 }
@@ -919,7 +936,7 @@ sub handle_evisor
     $errmsg = "video id not found"
       unless $id and !$errmsg;
 
-    print STDERR "error: $errmsg\n"
+    c_log("error: $errmsg\n", 1)
       if $errmsg;
 
     return ($xurl, $id);
@@ -964,7 +981,7 @@ sub handle_dmotion
     $errmsg = "paths not found"          if !$paths && !$errmsg;
     $errmsg = "failed to construct xurl" if !$xurl && !$errmsg;
 
-    print STDERR "\nerror: $errmsg\n"
+    c_log("\nerror: $errmsg\n", 1)
       if $errmsg;
 
     return ($xurl, $id);
@@ -987,7 +1004,7 @@ sub handle_cctv
     }
     else
     {
-        print STDERR "\nerror: id not found\n";
+        c_log("\nerror: id not found\n", 1);
     }
 
     return ($xurl, $id);
@@ -1061,14 +1078,14 @@ sub dot_update
     for (; $dp{accum} >= $dp{dot_bytes} ; $dp{accum} -= $dp{dot_bytes})
     {
 
-        printf "\n%6dK", $dp{rows} * $row_bytes / 1024
+        c_log(sprintf("\n%6dK", $dp{rows} * $row_bytes / 1024))
           if $dp{dots} == 0;
 
-        print " "
+        c_log(" ")
           if $dp{dots} % $dp{dot_spacing} == 0;
 
         ++$dp{dots};
-        print ".";
+        c_log(".");
 
         if ($dp{dots} >= $dp{dots_in_line})
         {
@@ -1087,15 +1104,15 @@ sub dot_finish
 
     my $row_bytes = $dp{dot_bytes} * $dp{dots_in_line};
 
-    printf "\n%6dK", $dp{rows} * $row_bytes / 1024
+    c_log(sprintf("\n%6dK", $dp{rows} * $row_bytes / 1024))
       if $dp{dots} == 0;
 
     for (my $i = $dp{dots} ; $i < $dp{dots_in_line} ; $i++)
     {
-        print " "
+        c_log(" ")
           if $i % $dp{dot_spacing} == 0;
 
-        print " ";
+        c_log(" ");
     }
 
     my $elapsed = time - $time_started;
@@ -1110,8 +1127,8 @@ sub dot_print_row_stats
     my ($percent, $elapsed, $eta, $rate, $last) = @_;
     my ($unit, $_rate) = get_units($rate);
 
-    printf "%3d%% %4.1f%s", $percent, $_rate, $unit;
-    printf "%s%s", $last ? "=" : " ", $eta;
+    c_log(sprintf("%3d%% %4.1f%s", $percent, $_rate, $unit));
+    c_log(sprintf("%s%s", $last ? "=" : " ", $eta));
 }
 
 use constant DEFAULT_TERM_WIDTH => 80;
@@ -1230,7 +1247,7 @@ sub bar_update
     $buffer .= sprintf("%${pad}s", " ");
     $buffer .= $tmp;    # append rate+eta
 
-    printf("\r%s", $buffer);
+    c_log(sprintf("\r%s", $buffer));
     $bp{count} = $now;
 
     return $percent;
@@ -1365,6 +1382,8 @@ sub main
 
     process_queue();
     free_cache();
+
+    exit($err_flag);
 }
 
 sub grab_clivepass
@@ -1376,11 +1395,11 @@ sub grab_clivepass
           and $opts{ytuser}
           and $opts{ytpass} eq "-";
 
-    print STDERR "error: no path to clivepass, use --clivepass\n"
-      and exit
+    c_log("error: no path to clivepass, use --clivepass\n", 1)
+      and exit(1)
       unless $opts{clivepass};
 
-    print STDERR "error: Expect module not found\n" and exit
+    c_log("error: Expect module not found\n", 1) and exit(1)
       unless $opted_mods{Expect};
 
     my $phrase;
@@ -1390,7 +1409,8 @@ sub grab_clivepass
     my $e = Expect->new;
     $e->log_stdout(0);
     $e->spawn($opts{clivepass}, "-g", $opts{ytuser})
-      or print STDERR "error: could not spawn: $!\n" and exit;
+      or c_log("error: could not spawn: $!\n", 1)
+      and exit(1);
 
     my ($spawned, $pwd);
     $e->expect(
@@ -1412,8 +1432,8 @@ sub grab_clivepass
                  $pwd = $fh->before();
                  if ($pwd =~ /error: (.*?)$/)
                  {
-                     print STDERR "clivepass: error: $1\n";
-                     exit;
+                     c_log("clivepass: error: $1\n", 1);
+                     exit(1);
                  }
                  else
                  {
@@ -1423,16 +1443,15 @@ sub grab_clivepass
              }
              else
              {
-                 print STDERR
-                   "error: could not spawn $opts{clivepass}\n";
-                 exit;
+                 c_log("error: could not spawn $opts{clivepass}\n", 1);
+                 exit(1);
              }
            }
         ],
         [
          timeout => sub {
-             print STDERR "error: clivepass: expect timed out\n";
-             exit;
+             c_log("error: clivepass: expect timed out\n", 1);
+             exit(1);
            }
         ]
     );
@@ -1443,9 +1462,9 @@ sub grab_clivepass
 sub getpass
 {
     system "stty -echo";
-    print shift;
+    c_log(shift);
     chomp(my $pwd = <STDIN>);
-    print "\n";
+    c_log("\n");
     system "stty echo";
     return $pwd;
 }
@@ -1460,15 +1479,15 @@ sub daemonize
     my $pid = fork;
     if ($pid < 0)
     {
-        print STDERR "\nerror: fork failed: $!";
-        exit 1;
+        c_log("\nerror: fork: $!", 1);
+        exit(1);
     }
     elsif ($pid != 0)
     {
-        print "continuing in background, pid $pid.\n";
-        print "output will be written to $logfile.\n"
+        c_log("continuing in background, pid $pid.\n");
+        c_log("output will be written to $logfile.\n")
           unless $opts{quiet};
-        exit 0;
+        exit(0);
     }
 
     chdir $workdir;
@@ -1490,7 +1509,7 @@ sub fork_streamer
 
     if ($child < 0)
     {
-        print STDERR "error: fork failed: $!\n";
+        c_log("error: fork: $!\n", 1);
     }
     elsif ($child == 0)
     {
@@ -1507,7 +1526,7 @@ sub fetch_liveleak_playlist
 {
     my $playlist_url = shift;
 
-    print "done.\nfetch playlist xspf ..."
+    c_log("done.\nfetch playlist xspf ...")
       unless $opts{quiet};
 
     my $playlist = "";
@@ -1535,7 +1554,7 @@ sub fetch_liveleak_playlist
     }
 
     $errmsg = "location tag not found" if !$xurl && !$errmsg;
-    print STDERR "\nerror: $errmsg\n" if $errmsg;
+    c_log("\nerror: $errmsg\n", 1) if $errmsg;
 
     return $xurl;
 }
@@ -1544,7 +1563,7 @@ sub fetch_liveleak_config
 {
     my $config_url = shift;
 
-    print "done.\nfetch config xml ..."
+    c_log("done.\nfetch config xml ...")
       unless $opts{quiet};
 
     my $config = "";
@@ -1575,7 +1594,7 @@ sub fetch_liveleak_config
         $errmsg = $curl->strerror($rc) . " (http/$rc)\n";
     }
 
-    print STDERR "\nerror: $errmsg\n" if $errmsg;
+    c_log("\nerror: $errmsg\n", 1) if $errmsg;
 
     return $xurl;
 }
@@ -1584,7 +1603,7 @@ sub fetch_sevenload_configxml
 {
     my ($conf_url, $response_fh) = @_;
 
-    print "done.\nfetch config xml..."
+    c_log("done.\nfetch config xml...")
       unless $opts{quiet};
 
     my $conf_xml = "";
@@ -1616,9 +1635,7 @@ sub fetch_sevenload_configxml
     }
     else
     {
-        print STDERR "\nerror: "
-          . $curl->strerror($rc)
-          . " (http/$rc)\n";
+        c_log("\nerror: " . $curl->strerror($rc) . " (http/$rc)\n", 1);
     }
     return ($xurl, $id);
 }
@@ -1627,7 +1644,7 @@ sub fetch_cctv_space_config
 {
     my ($conf_url, $resp_fh) = @_;
 
-    print "done.\nfetch config file ..."
+    c_log("done.\nfetch config file ...")
       unless $opts{quiet};
 
     my $conf = "";
@@ -1659,7 +1676,7 @@ sub fetch_cctv_space_config
         $errmsg = $curl->strerror($rc) . " http/$rc\n";
     }
 
-    print STDERR "\nerror: $errmsg\n" if $errmsg;
+    c_log("\nerror: $errmsg\n", 1) if $errmsg;
 
     # Re-enable: header, reset WRITEDATA, the above overrides the
     # original settings.
@@ -1791,14 +1808,14 @@ sub show_cache
         push @entries, format_show($fmt, $_) foreach (sort keys %cache);
     }
 
-    print STDOUT "$_\n" foreach sort @entries;
+    print(STDOUT "$_\n") foreach sort @entries;
 
-    close STDOUT
+    close(STDOUT)
       if $opted_mods{IOPager};
 
     if ($opts{grep} and $opts{delete} and scalar(@queue > 0))
     {
-        print "Confirm delete (y/N):";
+        c_log("Confirm delete (y/N):");
         $_ = lc <STDIN>;
         chomp;
         if (lc $_ eq "y")
@@ -1806,13 +1823,13 @@ sub show_cache
             delete $cache{Digest::SHA::sha1_hex($_)} foreach (@queue);
         }
     }
-    exit;
+    exit(0);
 }
 
 sub clear_cache
 {
     unlink $CACHEFILE if -e $CACHEFILE;
-    exit;
+    exit(0);
 }
 
 sub free_cache
@@ -1877,7 +1894,7 @@ sub grep_cache
             else { push @queue, $e[4]; }    # 4=URL
         }
     }
-    exit
+    exit(0)
       if $opts{delete} and not $opts{show};
 }
 
@@ -1895,9 +1912,12 @@ sub verify_exec
     return if !$opts{exec};
     if ($opts{exec} !~ /[;+]$/)
     {
-        print "error: --exec expression must be terminated "
-          . "by either ';' or '+'\n";
-        exit;
+        c_log(
+              "error: --exec expression must be terminated "
+                . "by either ';' or '+'\n",
+              1
+             );
+        exit(1);
     }
 }
 
@@ -1959,10 +1979,24 @@ sub emit
       if $opts{emitxml} and @emit_queue;
 }
 
+sub c_log
+{
+    my ($msg, $err) = @_;
+    if (!$err)
+    {
+        print $msg;
+    }
+    else
+    {
+        print STDERR $msg;
+        $err_flag = 1;
+    }
+}
+
 sub print_hosts
 {
-    print "$re_hosts{$_}\n" foreach (keys %re_hosts);
-    exit;
+    print("$re_hosts{$_}\n") foreach (keys %re_hosts);
+    exit(0);
 }
 
 sub print_version
@@ -1985,8 +2019,8 @@ sub print_version
       "\nclive is licensed under the ISC license which is functionally\n"
       . "equivalent to the 2-clause BSD licence.\n"
       . "\tReport bugs: <http://code.google.com/p/clive/issues/>\n";
-    print "$str";
-    exit;
+    print("$str");
+    exit(0);
 }
 
 __END__

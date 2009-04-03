@@ -568,6 +568,10 @@ Contains the last URL batch. You can B<--recall> this file.
 
 L<clivefeed(1)> L<clivescan(1)> L<clivepass(1)>
 
+=head1 EXIT STATUS
+
+clive exits 0 on success, and >0 if an error occurs.
+
 =head1 OTHER
 
 Homepage:

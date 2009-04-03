@@ -25,6 +25,8 @@ for clive.
   * Change --version output
   * Fix reading from stdin (closes Debian #522422)
     - Assume reading from stdin only if queue and argv arrays are empty
+  * Fix exit with status code
+    - Exit 0 on success, and >0 if an error occurs
 
  Developer-visible changes:
   * Update examples/config with limit_rate

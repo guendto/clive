@@ -1,4 +1,5 @@
 Version 2.1.10
+(April 4, 2009)
 
 NOTE: This release changes the clive status messages. This will likely
 break compatibility with utilities that depend on these messages.
@@ -21,7 +22,7 @@ for clive.
     - Rewrite the content-type handling block in query_video_length
     - Use whatever is found after slash in the content-type string
     - Use "flv" for exceptions (e.g. octet-*, x-flv, etc.)
-  * Replace dashes in video ID with underscores
+  * Replace dashes in video IDs with underscores before using them in fnames
   * Change --version output
   * Fix reading from stdin (closes Debian #522422)
     - Assume reading from stdin only if queue and argv arrays are empty

@@ -78,6 +78,7 @@ my $term_width;         # current terminal width
 my $err_flag = 0;       # whether an error occurred
 
 my %re_hosts = (        # Precompiled regex used to identify the host
+                 Is192       => qr|192.168.1.35|i,
                  IsYoutube   => qr|youtube.com|i,
                  IsGoogle    => qr|video.google.|i,
                  IsSevenload => qr|sevenload.com|i,
@@ -104,20 +105,22 @@ my @re_hosts_arr = (
 # Parse config
 my $c = Config::Tiny->read($CONFIGFILE);
 %opts = (
-         progress   => $c->{_}->{progress},
-         agent      => $c->{http}->{agent},
-         proxy      => $c->{http}->{proxy},
-         limitrate  => $c->{http}->{limit_rate},
-         format     => $c->{output}->{format},
-         savedir    => $c->{output}->{savedir},
-         cclass     => $c->{output}->{cclass},
-         fnfmt      => $c->{output}->{file},
-         showfmt    => $c->{output}->{show},
-         ytuser     => $c->{youtube}->{user},
-         ytpass     => $c->{youtube}->{pass},
-         exec       => $c->{commands}->{exec},
-         streamexec => $c->{commands}->{stream},
-         clivepass  => $c->{commands}->{clivepass},
+         progress            => $c->{_}->{progress},
+         connecttimeout      => $c->{http}->{connect_timeout},
+         connecttimeoutsocks => $c->{http}->{connect_timeout_socks},
+         agent               => $c->{http}->{agent},
+         proxy               => $c->{http}->{proxy},
+         limitrate           => $c->{http}->{limit_rate},
+         format              => $c->{output}->{format},
+         savedir             => $c->{output}->{savedir},
+         cclass              => $c->{output}->{cclass},
+         fnfmt               => $c->{output}->{file},
+         showfmt             => $c->{output}->{show},
+         ytuser              => $c->{youtube}->{user},
+         ytpass              => $c->{youtube}->{pass},
+         exec                => $c->{commands}->{exec},
+         streamexec          => $c->{commands}->{stream},
+         clivepass           => $c->{commands}->{clivepass},
         );
 
 $opts{clivepass} = $ENV{CLIVEPASS_PATH} unless $opts{clivepass};
@@ -145,17 +148,20 @@ GetOptions(
     'no-proxy|X'   => sub { $opts{proxy}   = "" },
 
     # Workaround for options with dashes. There's likely a better way.
-    'ignore-case|i'       => sub { $opts{case}        = 0 },
-    'filename-format|N=s' => sub { $opts{fnfmt}       = $_[1] },
-    'show-format|H=s'     => sub { $opts{showfmt}     = $_[1] },
-    'youtube-user|u=s'    => sub { $opts{ytuser}      = $_[1] },
-    'youtube-pass|t=s'    => sub { $opts{ytpass}      = $_[1] },
-    'emit-csv|e'          => sub { $opts{emitcsv}     = 1 },
-    'emit-xml|E'          => sub { $opts{emitxml}     = 1 },
-    'stream-exec=s'       => sub { $opts{streamexec}  = $_[1] },
-    'output-video|O=s'    => sub { $opts{outputfname} = $_[1] },
-    'limit-rate=i',       => sub { $opts{limitrate}   = $_[1] },
-          ) or exit(1);
+    'ignore-case|i'       => sub { $opts{case}           = 0 },
+    'filename-format|N=s' => sub { $opts{fnfmt}          = $_[1] },
+    'show-format|H=s'     => sub { $opts{showfmt}        = $_[1] },
+    'youtube-user|u=s'    => sub { $opts{ytuser}         = $_[1] },
+    'youtube-pass|t=s'    => sub { $opts{ytpass}         = $_[1] },
+    'emit-csv|e'          => sub { $opts{emitcsv}        = 1 },
+    'emit-xml|E'          => sub { $opts{emitxml}        = 1 },
+    'stream-exec=s'       => sub { $opts{streamexec}     = $_[1] },
+    'output-video|O=s'    => sub { $opts{outputfname}    = $_[1] },
+    'limit-rate=i',       => sub { $opts{limitrate}      = $_[1] },
+    'connect-timeout=i',  => sub { $opts{connecttimeout} = $_[1] },
+    'connect-timeout-socks=i', =>
+      sub { $opts{connecttimeoutsocks} = $_[1] },
+) or exit(1);
 
 if ($opts{help})
 {
@@ -193,6 +199,20 @@ sub init_curl
       if defined $opts{proxy};
 }
 
+sub set_timeout
+{
+    my ($socks) = @_;
+
+    $curl->setopt(CURLOPT_CONNECTTIMEOUT, $opts{connecttimeout} || 0);
+    $curl->setopt(CURLOPT_TIMEOUT, $opts{connecttimeoutsocks} || 0)
+      unless $socks;
+}
+
+sub reset_timeout
+{
+    $curl->setopt(CURLOPT_TIMEOUT, 0);
+}
+
 sub auth_youtube
 {    # Log into Youtube
     c_log("[youtube] attempt to login as $opts{ytuser} ...")
@@ -210,6 +230,8 @@ sub auth_youtube
     $curl->setopt(CURLOPT_COOKIEFILE, ""); # Enable cookies from here on
     $curl->setopt(CURLOPT_ENCODING,   ""); # Supported encodings
     $curl->setopt(CURLOPT_WRITEDATA,  $fh);
+
+    set_timeout();
 
     my $rc = $curl->perform;
     my $errmsg;
@@ -229,6 +251,8 @@ sub auth_youtube
         $errmsg = "error: " . $curl->strerror($rc) . " (http/$rc)";
     }
     close $fh;
+
+    reset_timeout();
 
     c_log("\n$errmsg\n", 1) and exit(1)
       if $errmsg;
@@ -326,7 +350,9 @@ sub fetch_page
         $curl->setopt(CURLOPT_URL,       $url);
         $curl->setopt(CURLOPT_ENCODING,  "");
         $curl->setopt(CURLOPT_WRITEDATA, $fh);
+        set_timeout();
         $rc = $curl->perform;
+        reset_timeout();
     }
 
     return ($rc, $fh, decode_utf8($response));
@@ -385,10 +411,12 @@ sub query_video_length
           unless $opts{quiet};
 
         $curl->setopt(CURLOPT_URL, $entry{xurl});
+        set_timeout();
 
         # Do not download: GET => HEAD request.
         $curl->setopt(CURLOPT_NOBODY, 1);
         my $rc = $curl->perform;
+        reset_timeout();
 
         # Reset back: HEAD => GET
         $curl->setopt(CURLOPT_HTTPGET, 1);
@@ -576,6 +604,8 @@ sub extract_video
             $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE,
                           $opts{limitrate} * 1024)
               if defined $opts{limitrate};
+
+            set_timeout(0);
 
             $rc = $curl->perform;
             close $fh;
@@ -1535,8 +1565,12 @@ sub fetch_liveleak_playlist
     $curl->setopt(CURLOPT_URL,       $playlist_url);
     $curl->setopt(CURLOPT_WRITEDATA, $fh);
 
+    set_timeout();
+
     my $rc = $curl->perform;
     close $fh;
+
+    reset_timeout();
 
     my ($xurl, $errmsg);
     if ($rc == 0)
@@ -1574,8 +1608,12 @@ sub fetch_liveleak_config
     $curl->setopt(CURLOPT_URL,       $config_url);
     $curl->setopt(CURLOPT_WRITEDATA, $fh);
 
+    set_timeout();
+
     my $rc = $curl->perform;
     close $fh;
+
+    reset_timeout();
 
     my ($xurl, $errmsg);
     if ($rc == 0)
@@ -1614,8 +1652,12 @@ sub fetch_sevenload_configxml
     $curl->setopt(CURLOPT_URL,       $conf_url);
     $curl->setopt(CURLOPT_WRITEDATA, $conf_fh);
 
+    set_timeout();
+
     my $rc = $curl->perform;
     close $conf_fh;
+
+    reset_timeout();
 
     # Re-enable: header
     $curl->setopt(CURLOPT_HEADER,    1);
@@ -1655,8 +1697,12 @@ sub fetch_cctv_space_config
     $curl->setopt(CURLOPT_URL,       $conf_url);
     $curl->setopt(CURLOPT_WRITEDATA, $fh);
 
+    set_timeout();
+
     my $rc = $curl->perform;
     close $fh;
+
+    reset_timeout();
 
     my ($xurl, $errmsg);
     if ($rc == 0)
@@ -2031,48 +2077,50 @@ clive [options]... [URL]...
 
 =head1 OPTIONS
 
- -h, --help                 print help and exit
- -v, --version              print version and exit
-     --hosts                print supported hosts and exit
- -b, --background           go to background after startup
- -e, --emit-csv             emit video details as csv to stdout
- -E, --emit-xml             emit video details as csv to stdout
- -V, --clivepass=PATH       path to clivepass
+ -h, --help                     print help and exit
+ -v, --version                  print version and exit
+     --hosts                    print supported hosts and exit
+ -b, --background               go to background after startup
+ -e, --emit-csv                 emit video details as csv to stdout
+ -E, --emit-xml                 emit video details as csv to stdout
+ -V, --clivepass=PATH           path to clivepass
 HTTP Options:
- -U, --agent=STRING         identify as STRING to http server
- -y, --proxy=ADDR           use ADDR for http proxy
- -X, --no-proxy             do not use http proxy
+ -U, --agent=STRING             identify as STRING to http server
+     --connect-timeout=SECS     max time allowed connection to take
+     --connect-timeout-socks=S  same as above but with SOCKS workaround
+ -y, --proxy=ADDR               use ADDR for http proxy
+ -X, --no-proxy                 do not use http proxy
 Cache Options:
- -R, --renew                renew cache entry for visited url
- -s, --show                 dump cache entries to stdout
- -H, --show-format=STRING   format dumped cache entries
- -g, --grep=PATTERN         grep cache entries for PATTERN
- -i, --ignore-case          ignore case-differences with --grep
- -D, --delete               delete matched entries from cache
- -C, --clear                clear cache of all entries
+ -R, --renew                    renew cache entry for visited url
+ -s, --show                     dump cache entries to stdout
+ -H, --show-format=STRING       format dumped cache entries
+ -g, --grep=PATTERN             grep cache entries for PATTERN
+ -i, --ignore-case              ignore case-differences with --grep
+ -D, --delete                   delete matched entries from cache
+ -C, --clear                    clear cache of all entries
 Logging and Input Options:
- -o, --output=LOGFILE       log messages to LOGFILE
- -a, --append=LOGFILE       append to LOGFILE
- -d, --debug                print libcurl debug messages
- -q, --quiet                turn off all output
- -r, --recall               recall last url batch
- -T, --savebatch=FILE       save url batch to FILE
- -p, --paste                paste input from clipboard
-     --stderr               redirect all output to stderr even when no tty
+ -o, --output=LOGFILE           log messages to LOGFILE
+ -a, --append=LOGFILE           append to LOGFILE
+ -d, --debug                    print libcurl debug messages
+ -q, --quiet                    turn off all output
+ -r, --recall                   recall last url batch
+ -T, --savebatch=FILE           save url batch to FILE
+ -p, --paste                    paste input from clipboard
+     --stderr                   redirect all output to stderr
 Download Options:
- -O, --output-video=FNAME   write video to file
- -n, --no-extract           do not extract any videos
- -c, --continue             continue partially downloaded file
- -W, --overwrite            overwrite existing video file
- -G, --progress=TYPE        use progress indicator TYPE
- -u, --youtube-user=UNAME   youtube username
- -t, --youtube-pass=PASSW   youtube password
- -L, --no-login             do not log into youtube
- -S, --savedir=DIR          save video files to DIR
- -f, --format=FORMAT        extract video FORMAT
- -l, --cclass=CLASS         use CLASS to filter titles
- -N, --filename-format=STR  use STR to construct output filename
- -x, --exec=COMMAND         execute COMMAND subsequently
-     --stream-exec=COMMAND  stream COMMAND to be executed
-     --stream=PERCENT       execute stream command when transfer reaches %
-     --limit-rate=AMOUNT    limit video download rate to amount KB/s
+ -O, --output-video=FNAME       write video to file
+ -n, --no-extract               do not extract any videos
+ -c, --continue                 continue partially downloaded file
+ -W, --overwrite                overwrite existing video file
+ -G, --progress=TYPE            use progress indicator TYPE
+ -u, --youtube-user=UNAME       youtube username
+ -t, --youtube-pass=PASSW       youtube password
+ -L, --no-login                 do not log into youtube
+ -S, --savedir=DIR              save video files to DIR
+ -f, --format=FORMAT            extract video FORMAT
+ -l, --cclass=CLASS             use CLASS to filter titles
+ -N, --filename-format=STR      use STR to construct output filename
+ -x, --exec=COMMAND             execute COMMAND subsequently
+     --stream-exec=COMMAND      stream COMMAND to be executed
+     --stream=PERCENT           execute stream cmd when transfer reaches %
+     --limit-rate=AMOUNT        limit video download rate to amount KB/s

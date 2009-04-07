@@ -132,7 +132,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-04-04" "2.1.10" "clive manual"
+.TH clive 1 "2009-04-07" "2.1.10" "clive manual"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -206,6 +206,34 @@ uses the http_proxy environment setting if present.
 .IP "\fB\-X \-\-no\-proxy\fR" 4
 .IX Item "-X --no-proxy"
 Do not use \s-1HTTP\s0 proxy.
+.IP "\fB\-\-connect\-timeout=\fR\fIseconds\fR" 4
+.IX Item "--connect-timeout=seconds"
+Maximum time in \fIseconds\fR allowed the connection to the server to take.
+This limits only the connection phase. \fBclive\fR will only timeout
+on the system's internal timeouts by default.
+.Sp
+http://curl.haxx.se/docs/knownbugs.html:
+.Sp
+.Vb 4
+\&  "34. The SOCKS4 connection codes don\*(Aqt properly acknowledge
+\&  (connect) timeouts. Also see #12. According to bug #1556528,
+\&  even the SOCKS5 connect code does not do it right:
+\&    http://curl.haxx.se/bug/view.cgi?id=1556528"
+\&
+\&  "12. When connecting to a SOCKS proxy, the (connect) timeout
+\&  is not properly acknowledged after the actual TCP connect
+\&  (during the SOCKS \*(Aqnegotiate\*(Aq phase)."
+.Ve
+.Sp
+See also \fB\-\-connect\-timeout\-socks\fR.
+.IP "\fB\-\-connect\-timeout\-socks=\fR\fI\s-1SECONDS\s0\fR" 4
+.IX Item "--connect-timeout-socks=SECONDS"
+Same as above but works around the \s-1SOCKS\s0 proxy bug by using \s-1CURLOPT_TIMEOUT\s0
+instead of \s-1CURLOPT_CONNECTIMEOUT\s0. Ignored for file transfers, otherwise
+curl could interrupt already started transfers.
+.Sp
+More about these two options:
+  http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
 .PP
 \&\fBCache Options\fR
 .IP "\fB\-R \-\-renew\fR" 4

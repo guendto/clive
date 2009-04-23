@@ -1,9 +1,11 @@
 Version 2.1.11
 
  User-visible changes:
+  * Fix: "Use of uninitialized value $opts{"ytpass"} ..."
+    ** Caused by undefined youtube password
   * Add new options:
-    - --connect-timeout
-    - --connect-timeout-socks
+    ** --connect-timeout
+    ** --connect-timeout-socks
 
 
 Version 2.1.10

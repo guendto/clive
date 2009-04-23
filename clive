@@ -1422,6 +1422,7 @@ sub grab_clivepass
     return
       unless $opts{login}
           and $opts{ytuser}
+          and $opts{ytpass}
           and $opts{ytpass} eq "-";
 
     c_log("error: no path to clivepass, use --clivepass\n", 1)

@@ -1,2 +1,9 @@
 repo: git://repo.or.cz/clive.git
 web : http://repo.or.cz/w/clive.git
+
+2.1.11
+
+2.x
+------
+* fix youtube login
+  - youtube login page redirects to google login page

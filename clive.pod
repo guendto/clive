@@ -296,7 +296,7 @@ The filtered video page titles are used to name the extracted videos.
 =item B<-N --filename-format=>I<string>
 
 Use I<string> to construct the name of the extracted video. Default is
-"%t_%d_%i.%s". The following specifiers are supported:
+"%t.%s". The following specifiers are supported:
   %t = video title (after applying --cclass)
   %i = video id
   %d = video domain

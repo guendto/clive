@@ -132,7 +132,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-04-07" "2.1.11" "clive manual"
+.TH clive 1 "2009-04-24" "2.1.11" "clive manual"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -376,7 +376,7 @@ The filtered video page titles are used to name the extracted videos.
 .IP "\fB\-N \-\-filename\-format=\fR\fIstring\fR" 4
 .IX Item "-N --filename-format=string"
 Use \fIstring\fR to construct the name of the extracted video. Default is
-\&\*(L"%t_%d_%i.%s\*(R". The following specifiers are supported:
+\&\*(L"%t.%s\*(R". The following specifiers are supported:
   \f(CW%t\fR = video title (after applying \-\-cclass)
   \f(CW%i\fR = video id
   \f(CW%d\fR = video domain

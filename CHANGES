@@ -1,6 +1,7 @@
 Version 2.1.11
 
  User-visible changes:
+  * Change: --filename-format default to "%t.%s"
   * Fix: "Use of uninitialized value $opts{"ytpass"} ..."
     ** Caused by undefined youtube password
   * Add new options:
@@ -8,8 +9,7 @@ Version 2.1.11
     ** --connect-timeout-socks
 
  Known-issues:
-  * Youtube login-support is broken
-    ** The link now redirects to Google login page
+  * Youtube login: broken
 
 
 Version 2.1.10

@@ -1757,7 +1757,7 @@ sub title_to_filename
     my $r = $opts{cclass} || qr|\w|;
     $title = join('', $title =~ /$r/g);
 
-    my $fn = $opts{fnfmt} || "%t_%d_%i.%s";
+    my $fn = $opts{fnfmt} || "%t.%s";
     my $timestamp = POSIX::strftime("%F %T", localtime);
 
     my @a = strdomain($entry{page_url});

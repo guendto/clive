@@ -7,6 +7,10 @@ Version 2.1.11
     ** --connect-timeout
     ** --connect-timeout-socks
 
+ Known-issues:
+  * Youtube login-support is broken
+    ** The link now redirects to Google login page
+
 
 Version 2.1.10
 (April 4, 2009)

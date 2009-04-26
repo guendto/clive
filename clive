@@ -212,8 +212,15 @@ sub reset_timeout
     $curl->setopt(CURLOPT_TIMEOUT, 0);
 }
 
-sub auth_youtube
-{    # Log into Youtube
+sub loginto_youtube
+{
+    return if !$opts{ytuser};
+
+    c_log("FIXME: youtube login: patches welcome\n");
+    exit 1;
+
+    ## FIXME: The URL below redirects now to google page
+
     c_log("[youtube] attempt to login as $opts{ytuser} ...")
       unless $opts{quiet};
 
@@ -259,8 +266,9 @@ sub auth_youtube
     c_log("done.\n")
       unless $opts{quiet};
 
-    $curl->setopt(CURLOPT_COOKIE,
-                  "is_adult=" . uc(Digest::SHA::sha1_hex(rand())));
+    # Set "is_adult" cookie which allowed us to extract content
+    # flagged as "mature content".
+    $curl->setopt(CURLOPT_COOKIE, "is_adult=1");
 
     $ytube_logged = 1;
 }
@@ -319,13 +327,6 @@ sub fetch_page
 {
     my ($url, $response, $from_cache, $rc) = (shift, "");
     open my $fh, ">", \$response;
-
-    # Youtube: login only if both username and password are defined
-    if ($opts{ytuser} and $opts{ytpass} and $opts{login})
-    {
-        auth_youtube()
-          if !$ytube_logged and $url =~ /$re_hosts{IsYoutube}/;
-    }
 
     if ($cache{$hash})
     {
@@ -1386,6 +1387,7 @@ sub main
 
     verify_exec();
 
+    loginto_youtube();
     grab_clivepass();
     get_queue();
 

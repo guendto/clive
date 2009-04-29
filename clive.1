@@ -132,7 +132,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-04-24" "2.1.11" "clive manual"
+.TH clive 1 "2009-04-29" "2.1.11" "clive manual"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -216,23 +216,24 @@ http://curl.haxx.se/docs/knownbugs.html:
 .Sp
 .Vb 4
 \&  "34. The SOCKS4 connection codes don\*(Aqt properly acknowledge
-\&  (connect) timeouts. Also see #12. According to bug #1556528,
-\&  even the SOCKS5 connect code does not do it right:
-\&    http://curl.haxx.se/bug/view.cgi?id=1556528"
+\&       (connect) timeouts. Also see #12. According to bug #1556528,
+\&       even the SOCKS5 connect code does not do it right:
+\&       http://curl.haxx.se/bug/view.cgi?id=1556528"
 \&
 \&  "12. When connecting to a SOCKS proxy, the (connect) timeout
-\&  is not properly acknowledged after the actual TCP connect
-\&  (during the SOCKS \*(Aqnegotiate\*(Aq phase)."
+\&       is not properly acknowledged after the actual TCP connect
+\&       (during the SOCKS \*(Aqnegotiate\*(Aq phase)."
 .Ve
 .Sp
 See also \fB\-\-connect\-timeout\-socks\fR.
-.IP "\fB\-\-connect\-timeout\-socks=\fR\fI\s-1SECONDS\s0\fR" 4
-.IX Item "--connect-timeout-socks=SECONDS"
-Same as above but works around the \s-1SOCKS\s0 proxy bug by using \s-1CURLOPT_TIMEOUT\s0
-instead of \s-1CURLOPT_CONNECTIMEOUT\s0. Ignored for file transfers, otherwise
-curl could interrupt already started transfers.
+.IP "\fB\-\-connect\-timeout\-socks=\fR\fIseconds\fR" 4
+.IX Item "--connect-timeout-socks=seconds"
+Same as \fB\-\-connect\-timeout\fR but works around the \s-1SOCKS\s0 proxy bug by using
+\&\s-1CURLOPT_TIMEOUT\s0 instead of \s-1CURLOPT_CONNECTIMEOUT\s0.
 .Sp
-More about these two options:
+Ignored for file transfers, otherwise curl could interrupt started transfers.
+.Sp
+More about these curl options:
   http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
 .PP
 \&\fBCache Options\fR
@@ -353,12 +354,11 @@ the \fItype\fR as dot:style.
 Progress indication can be disabled completely by setting \fItype\fR to \*(L"none\*(R".
 .IP "\fB\-u \-\-youtube\-user=\fR\fIusername\fR" 4
 .IX Item "-u --youtube-user=username"
-\&\fIusername\fR to log into Youtube. Typically needed only if you are planning
-to extract videos flagged as mature-content.
+Causes \fBclive\fR to log into Youtube as \fIusername\fR. This is done \fIbefore\fR
+extraction, even if the batch does not contain any Youtube video links.
 .IP "\fB\-t \-\-youtube\-pass=\fR\fIpassword\fR" 4
 .IX Item "-t --youtube-pass=password"
-\&\fIpassword\fR to log into Youtube. If \fIpassword\fR is \*(L"\-\*(R", causes clive to
-retrieve the login password from the \fIclivepass\fR\|(1) utility. See \*(L"\s-1EXAMPLES\s0\*(R".
+Use \fIpassword\fR for Youtube login.  If undefined, \fBclive\fR prompts for it.
 .IP "\fB\-L \-\-no\-login\fR" 4
 .IX Item "-L --no-login"
 Do not log into Youtube.
@@ -400,29 +400,27 @@ as possible for the invocation of \fIcommand\fR.
 .IP "\fB\-\-stream\-exec=\fR\fIcommand\fR" 4
 .IX Item "--stream-exec=command"
 Execute \fIcommand\fR when file transfer progress reaches \fIpercent\fR as defined
-with the \fB\-\-stream\fR option. The \*(L"%i\*(R" specifier for video pathname is expected
-to appear somewhere in the \fIcommand\fR expression.
+with the \fB\-\-stream\fR option. If a \*(L"%i\*(R" specifier is used in the \fIcommand\fR
+expression, it will be replaced with video pathname.
 .Sp
-Unlike the \fB\-\-exec\fR option which is executed subsequently after each file
-transfer, \fBclive\fR forks the streaming process and continues with the file
-transfer \*(-- and will not continue to download another file until the child
-process terminates.
+\&\fBclive\fR forks the \fIcommand\fR and continues with the transfer. Note that
+\&\fBclive\fR will not continue to download another file before the child process
+terminates.
 .Sp
-It should also be noted that \fBclive\fR makes no effort to check whether there
-is enough data to be streamed. It assumes the user knows how much data needs
-to be buffered before starting the child process. Similarly, if the transfer
-rate drops significantly after starting the process and it runs out of data,
-\&\fBclive\fR simply ignores that.
-.Sp
-Some players and formats may not work properly with this feature. Try
-\&\fImplayer\fR\|(1) and choose flv if you are unsure.
+Some players and formats may not work properly with this feature.
+\&\fImplayer\fR\|(1) is known to work properly with most flv videos.
 .IP "\fB\-\-stream=\fR\fIpercent\fR" 4
 .IX Item "--stream=percent"
-Execute the \fIcommand\fR defined with the \fB\-\-stream\-exec\fR option when the file
-transfer progress reaches \fIpercent\fR.
+Execute the \fIcommand\fR defined with the \fB\-\-stream\-exec\fR option when the
+file transfer progress reaches \fIpercent\fR.
 .Sp
 Example:
   % clive \-\-stream\-exec=\*(L"mplayer \-really\-quiet \f(CW%i\fR\*(R" \-\-stream=20 \s-1URL\s0
+.Sp
+Note that \fBclive\fR does nothing to check if there is enough data buffered
+before forking the stream process. If the transfer rate drops significantly
+after starting the process and it runs out of data, \fBclive\fR does nothing
+to fix this.
 .IP "\fB\-\-limit\-rate=\fR\fIamount\fR" 4
 .IX Item "--limit-rate=amount"
 Limit video download rate to \fIamount\fR KB/s.
@@ -573,15 +571,6 @@ does not match the cached video format string. This is done for two reasons:
 Cached video extraction \s-1URL\s0 points to a different location
 .IP "2." 4
 Cached video file length is likely to be incorrect
-.SH "UNICODE"
-.IX Header "UNICODE"
-The author has had some success with \fIuxterm\fR\|(1) previously. Truth to be told,
-this is by far one of the least favorite topics of mine. I blame Python (partly)
-for this. See your local unicode-expert on this.
-.PP
-My two cents: As long as the terminal is unicode capable and the used terminal
-font supports the characters, this shouldn't be a problem. You may want to use
-\&\fB\-\-cclass\fR=. when you are running tests. That disables video title filtering.
 .SH "FILES"
 .IX Header "FILES"
 clive searches the ~/.config/clive directory for the config file. You can

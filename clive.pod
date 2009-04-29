@@ -97,23 +97,24 @@ on the system's internal timeouts by default.
 http://curl.haxx.se/docs/knownbugs.html:
 
   "34. The SOCKS4 connection codes don't properly acknowledge
-  (connect) timeouts. Also see #12. According to bug #1556528,
-  even the SOCKS5 connect code does not do it right:
-    http://curl.haxx.se/bug/view.cgi?id=1556528"
+       (connect) timeouts. Also see #12. According to bug #1556528,
+       even the SOCKS5 connect code does not do it right:
+       http://curl.haxx.se/bug/view.cgi?id=1556528"
 
   "12. When connecting to a SOCKS proxy, the (connect) timeout
-  is not properly acknowledged after the actual TCP connect
-  (during the SOCKS 'negotiate' phase)."
+       is not properly acknowledged after the actual TCP connect
+       (during the SOCKS 'negotiate' phase)."
 
 See also B<--connect-timeout-socks>.
 
-=item B<--connect-timeout-socks=>I<SECONDS>
+=item B<--connect-timeout-socks=>I<seconds>
 
-Same as above but works around the SOCKS proxy bug by using CURLOPT_TIMEOUT
-instead of CURLOPT_CONNECTIMEOUT. Ignored for file transfers, otherwise
-curl could interrupt already started transfers.
+Same as B<--connect-timeout> but works around the SOCKS proxy bug by using
+CURLOPT_TIMEOUT instead of CURLOPT_CONNECTIMEOUT.
 
-More about these two options:
+Ignored for file transfers, otherwise curl could interrupt started transfers.
+
+More about these curl options:
   http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
 
 =back
@@ -267,13 +268,12 @@ Progress indication can be disabled completely by setting I<type> to "none".
 
 =item B<-u --youtube-user=>I<username>
 
-I<username> to log into Youtube. Typically needed only if you are planning
-to extract videos flagged as mature-content.
+Causes B<clive> to log into Youtube as I<username>. This is done I<before>
+extraction, even if the batch does not contain any Youtube video links.
 
 =item B<-t --youtube-pass=>I<password>
 
-I<password> to log into Youtube. If I<password> is "-", causes clive to
-retrieve the login password from the L<clivepass(1)> utility. See L</EXAMPLES>.
+Use I<password> for Youtube login.  If undefined, B<clive> prompts for it.
 
 =item B<-L --no-login>
 
@@ -323,30 +323,28 @@ as possible for the invocation of I<command>.
 =item B<--stream-exec=>I<command>
 
 Execute I<command> when file transfer progress reaches I<percent> as defined
-with the B<--stream> option. The "%i" specifier for video pathname is expected
-to appear somewhere in the I<command> expression.
+with the B<--stream> option. If a "%i" specifier is used in the I<command>
+expression, it will be replaced with video pathname.
 
-Unlike the B<--exec> option which is executed subsequently after each file
-transfer, B<clive> forks the streaming process and continues with the file
-transfer -- and will not continue to download another file until the child
-process terminates.
+B<clive> forks the I<command> and continues with the transfer. Note that
+B<clive> will not continue to download another file before the child process
+terminates.
 
-It should also be noted that B<clive> makes no effort to check whether there
-is enough data to be streamed. It assumes the user knows how much data needs
-to be buffered before starting the child process. Similarly, if the transfer
-rate drops significantly after starting the process and it runs out of data,
-B<clive> simply ignores that.
-
-Some players and formats may not work properly with this feature. Try
-L<mplayer(1)> and choose flv if you are unsure.
+Some players and formats may not work properly with this feature.
+L<mplayer(1)> is known to work properly with most flv videos.
 
 =item B<--stream=>I<percent>
 
-Execute the I<command> defined with the B<--stream-exec> option when the file
-transfer progress reaches I<percent>.
+Execute the I<command> defined with the B<--stream-exec> option when the
+file transfer progress reaches I<percent>.
 
 Example:
   % clive --stream-exec="mplayer -really-quiet %i" --stream=20 URL
+
+Note that B<clive> does nothing to check if there is enough data buffered
+before forking the stream process. If the transfer rate drops significantly
+after starting the process and it runs out of data, B<clive> does nothing
+to fix this.
 
 =item B<--limit-rate=>I<amount>
 
@@ -560,16 +558,6 @@ Cached video extraction URL points to a different location
 Cached video file length is likely to be incorrect
 
 =back
-
-=head1 UNICODE
-
-The author has had some success with L<uxterm(1)> previously. Truth to be told,
-this is by far one of the least favorite topics of mine. I blame Python (partly)
-for this. See your local unicode-expert on this.
-
-My two cents: As long as the terminal is unicode capable and the used terminal
-font supports the characters, this shouldn't be a problem. You may want to use
-B<--cclass>=. when you are running tests. That disables video title filtering.
 
 =head1 FILES
 

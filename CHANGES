@@ -1,8 +1,9 @@
 Version 2.1.11
+(April 29, 2009)
 
  User-visible changes:
-  * Change: youtube login to prompt for password if --youtube-pass is unused
-  * Change: --filename-format default to "%t.%s"
+  * Change: --youtube-pass: prompt for password if left undefined
+  * Change: --filename-format: default -> "%t.%s"
   * Fix: "Use of uninitialized value $opts{"ytpass"} ..."
   * Add new options:
     ** --connect-timeout

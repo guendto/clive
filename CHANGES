@@ -4,7 +4,6 @@ Version 2.1.11
   * Change: youtube login to prompt for password if --youtube-pass is unused
   * Change: --filename-format default to "%t.%s"
   * Fix: "Use of uninitialized value $opts{"ytpass"} ..."
-    ** Caused by undefined youtube password
   * Add new options:
     ** --connect-timeout
     ** --connect-timeout-socks
@@ -13,9 +12,7 @@ Version 2.1.11
   * Rename: auth_youtube subroutine -> loginto_youtube
 
  Known-issues:
-  * Youtube login not working anymore
-    ** As of this release, clive exits with an error if --youtube-user is used
-    ** Patches welcome
+  * Youtube login does not work (throw an error, patches welcome!)
 
 
 Version 2.1.10

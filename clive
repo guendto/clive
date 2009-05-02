@@ -21,7 +21,7 @@
 use warnings;
 use strict;
 
-use constant VERSION         => "2.1.11";
+use constant VERSION         => "2.1.12";
 use constant MBDIV           => 0x100000;
 use constant SHOWFMT_DEFAULT => qq/%D: "%t" | %mMB/;
 

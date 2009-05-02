@@ -1753,7 +1753,7 @@ sub title_to_filename
 
     $title =~
       s/(youtube|video|liveleak.com|sevenload|dailymotion|cctv.com)//gi;
-    $title =~ s/^\s+//;
+    $title =~ s/^[-\s]+//;
     $title =~ s/\s+$//;
 
     my $r = $opts{cclass} || qr|\w|;

@@ -202,8 +202,8 @@ sub set_timeout
 {
     my ($socks) = @_;
 
-    $curl->setopt(CURLOPT_CONNECTTIMEOUT, $opts{connecttimeout} || 0);
-    $curl->setopt(CURLOPT_TIMEOUT, $opts{connecttimeoutsocks} || 0)
+    $curl->setopt(CURLOPT_CONNECTTIMEOUT, $opts{connecttimeout} || 30);
+    $curl->setopt(CURLOPT_TIMEOUT, $opts{connecttimeoutsocks} || 30)
       unless $socks;
 }
 

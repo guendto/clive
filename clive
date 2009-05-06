@@ -200,11 +200,8 @@ sub init_curl
 
 sub set_timeout
 {
-    my ($socks) = @_;
-
     $curl->setopt(CURLOPT_CONNECTTIMEOUT, $opts{connecttimeout} || 30);
-    $curl->setopt(CURLOPT_TIMEOUT, $opts{connecttimeoutsocks} || 30)
-      unless $socks;
+    $curl->setopt(CURLOPT_TIMEOUT, $opts{connecttimeoutsocks} || 30);
 }
 
 sub reset_timeout
@@ -411,11 +408,13 @@ sub query_video_length
           unless $opts{quiet};
 
         $curl->setopt(CURLOPT_URL, $entry{xurl});
+
         set_timeout();
 
         # Do not download: GET => HEAD request.
         $curl->setopt(CURLOPT_NOBODY, 1);
         my $rc = $curl->perform;
+
         reset_timeout();
 
         # Reset back: HEAD => GET
@@ -604,8 +603,6 @@ sub extract_video
             $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE,
                           $opts{limitrate} * 1024)
               if defined $opts{limitrate};
-
-            set_timeout(0);
 
             $rc = $curl->perform;
             close $fh;

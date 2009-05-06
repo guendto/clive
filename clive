@@ -200,13 +200,16 @@ sub init_curl
 
 sub set_timeout
 {
+    my ($no_socks_timeout) = @_;
+
     $curl->setopt(CURLOPT_CONNECTTIMEOUT, $opts{connecttimeout} || 30);
-    $curl->setopt(CURLOPT_TIMEOUT, $opts{connecttimeoutsocks} || 30);
+    $curl->setopt(CURLOPT_TIMEOUT, $opts{connecttimeoutsocks} || 30)
+        unless $no_socks_timeout;
 }
 
 sub reset_timeout
 {
-    $curl->setopt(CURLOPT_TIMEOUT, 0);
+    $curl->setopt(CURLOPT_TIMEOUT, 0); # reset socks timeout
 }
 
 sub loginto_youtube
@@ -603,6 +606,8 @@ sub extract_video
             $curl->setopt(CURLOPT_MAX_RECV_SPEED_LARGE,
                           $opts{limitrate} * 1024)
               if defined $opts{limitrate};
+
+            set_timeout(1); # set --connect-timeout only
 
             $rc = $curl->perform;
             close $fh;

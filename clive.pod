@@ -462,7 +462,7 @@ for a limited number of videos, which are usually explicitly marked as "HD"
 or "720p".
 
 Some of the videos displayed on last.fm site are actually Youtube videos.
-You can pass the lastfm'ed video URLs to B<clive>.
+B<clive> can handle such last.fm video links.
 
 =back
 

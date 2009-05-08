@@ -2163,7 +2163,7 @@ clive [options]... [URL]...
      --hosts                    print supported hosts and exit
  -b, --background               go to background after startup
  -e, --emit-csv                 emit video details as csv to stdout
- -E, --emit-xml                 emit video details as csv to stdout
+ -E, --emit-xml                 emit video details as xml to stdout
  -V, --clivepass=PATH           path to clivepass
 HTTP Options:
  -U, --agent=STRING             identify as STRING to http server

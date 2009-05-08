@@ -516,6 +516,10 @@ if requested format is not available.
 
 Formats: flv  Continue: Yes
 
+=item B<redtube.com>
+
+Formats: flv  Continue: Yes
+
 =back
 
 =head1 CACHE

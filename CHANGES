@@ -3,7 +3,8 @@ Version 2.1.12
  User-visible changes:
   * Change: --connect-timeout, --connect-timeout-socks default -> 30s
   * Fix: timeout after file transfer starts
-  * Fix: title parsing with custom character class (closes #8)
+  * Fix: title parsing with custom character class (closes issue #8)
+  * Add: Redtube support; thanks to anonprn2@gmail.com (closes issue #11)
 
 
 Version 2.1.11

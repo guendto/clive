@@ -87,6 +87,7 @@ my %re_hosts = (        # Precompiled regex used to identify the host
                  IsEvisor    => qr|evisor.tv|i,
                  IsDmotion   => qr|dailymotion.com|i,
                  IsCctv      => qr|tv.cctv.com|i,
+                 IsRedtube   => qr|redtube.com|i,
                );
 
 my @re_hosts_arr = (
@@ -99,6 +100,7 @@ my @re_hosts_arr = (
                     [$re_hosts{IsEvisor},    \&handle_evisor],
                     [$re_hosts{IsDmotion},   \&handle_dmotion],
                     [$re_hosts{IsCctv},      \&handle_cctv],
+                    [$re_hosts{IsRedtube},   \&handle_redtube],
                    );
 
 # Parse config
@@ -1042,6 +1044,81 @@ sub handle_cctv
     return ($xurl, $id);
 }
 
+sub handle_redtube
+{
+    my ($resp, $resp_fh, $page_url) = @_;
+
+    # extracts a given digit from a number.
+    # len specifies the desired length of the number.
+    # for example, if $num is 447, $digit is 4, $len is 7,
+    # we extract 4th digit (starting at 0, counting from the left)
+    # in '0000447', which happens to be '4'.
+    sub digit
+    {
+        my ($num, $digit, $len) = @_;
+
+        my $foo = sprintf("%0$len" . "d", $num);
+
+        return substr($foo, $digit, 1);
+    }
+
+    $page_url =~ /redtube\.com\/(\d+)/;
+    my $video_id = $1;
+
+    # the code below was inspired by
+    # http://iescripts.org/view-scripts-61p5.htm
+
+    # some predefined mapping array, it seems
+    my @map = unpack('C*', 'R15342O7K9HBCDXFGAIJ8LMZ6PQ0STUVWEYN');
+
+    my $var_1 = 0;
+    for (my $i = 0 ; $i <= 6 ; $i++)
+    {
+
+        #        0000477
+        #        0 --> 0*1 = 0
+        #        0 --> 0*2 = 0
+        #        0 --> 0*3 = 0
+        #        0 --> 0*4 = 0
+        #        4 --> 4*5 = 20
+        #        7 --> 7*6 = 42
+        #        7 --> 7*7 = 49
+        #        $ var_1 = 20+42+49 = 62+49 = 100+2+9=111
+
+        $var_1 += digit($video_id, $i, 7) * ($i + 1);
+    }
+
+    my $var_2 = 0;
+    for (my $i = 0 ; $i < length($var_1) ; $i++)
+    {
+
+        # $var_1 = 111 -> $var_2 = 3
+        $var_2 += digit($var_1, $i, length($var_1));
+    }
+
+    #    $video_id = "0000477"
+    #    $var_2 = 3
+    #    char codes: 0=48 1=49 2=50 3=51 4=52 5=52 6=54 7=55 8=56 9=57
+
+    my @mapping = ();
+
+    push @mapping, $map[digit($video_id, 3, 7) + $var_2 + 3];
+    push @mapping, 48 + $var_2 % 10;
+    push @mapping, $map[digit($video_id, 0, 7) + $var_2 + 2];
+    push @mapping, $map[digit($video_id, 2, 7) + $var_2 + 1];
+    push @mapping, $map[digit($video_id, 5, 7) + $var_2 + 6];
+    push @mapping, $map[digit($video_id, 1, 7) + $var_2 + 5];
+    push @mapping, 48 + $var_2 / 10;
+    push @mapping, $map[digit($video_id, 4, 7) + $var_2 + 7];
+    push @mapping, $map[digit($video_id, 6, 7) + $var_2 + 4];
+
+    my $xurl = sprintf(
+        "http://dl.redtube.com/_videos_t4vn23s9jc5498tgj49icfj4678/%07d/%s.flv",
+        $video_id / 1000, pack('C*', @mapping));
+
+    return ($xurl, $video_id);
+}
+
 # Subroutines: Progress
 # NOTE: the 'dot' progress copies much from wget.
 
@@ -1754,7 +1831,7 @@ sub title_to_filename
     my $title = shift;
 
     $title =~
-      s/(youtube|video|liveleak.com|sevenload|dailymotion|cctv.com)//gi;
+      s/(youtube|video|liveleak.com|sevenload|dailymotion|cctv.com|redtube)//gi;
     $title =~ s/^[-\s]+//;
     $title =~ s/\s+$//;
 

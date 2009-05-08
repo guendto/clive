@@ -2145,7 +2145,10 @@ sub print_version
     $str .=
       "\nclive is licensed under the ISC license which is functionally\n"
       . "equivalent to the 2-clause BSD licence.\n"
-      . "\tReport bugs: <http://code.google.com/p/clive/issues/>\n";
+      . "\tReport bugs: <http://code.google.com/p/clive/issues/>\n\n";
+    $str .= "A considerable amount of code have been contributed to the\n"
+        . "project by other developers. For a more complete list please\n"
+        . "see the AUTHORS and the CHANGES files.\n";
     print("$str");
     exit(0);
 }

@@ -611,6 +611,7 @@ Additional utilities (clive-utils):
 
 =head1 AUTHOR
 
-Written by Toni Gundogdu <legatvs@gmail.com>.
+Written by Toni Gundogdu <legatvs@gmail.com>. For a list of contributors,
+please see the AUTHORS and the CHANGES files.
 
 =cut

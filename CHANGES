@@ -1,6 +1,8 @@
 Version 2.1.13
 
  Developer-visible changes:
+  * Change: BerkeleyDB and File::Path modules are now optional
+    ** Cache features depend on these modules
   * Moved opted_mods initilization to init_opted_mods (-> loop)
 
 

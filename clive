@@ -320,7 +320,7 @@ sub fetch_page
     my ($url, $response, $from_cache, $rc) = (shift, "");
     open my $fh, ">", \$response;
 
-    if ($cache{$hash})
+    if ($opted_mods{BerkeleyDB} && $cache{$hash})
     {
         fetch_entry($hash)
           ;    # Make sure cached "format" matches with options
@@ -1446,9 +1446,19 @@ sub get_units
 
 # Subroutines: LittleHelpers
 
+sub check_bdb_avail
+{
+    if (!$opted_mods{BerkeleyDB})
+    {
+        c_log("error: BerkeleyDB module not found\n", 1);
+        exit(1);
+    }
+}
+
 sub init_opted_mods
 {
-    my @lst = qw/Clipboard Term::ReadKey IO::Pager Expect/;
+    my @lst =
+      qw/Clipboard Term::ReadKey IO::Pager Expect File::Path BerkeleyDB/;
     sub exp_continue() { }; # Silences "Bareword 'exp_continue' not..." (Expect)
     foreach (@lst)
     {
@@ -1907,17 +1917,25 @@ sub format_show
 
 sub init_cache
 {
-    require File::Path;
-    File::Path::mkpath([$CONFIGDIR], 0, 0700);
-    require BerkeleyDB;
-    $cache_db = tie %cache, "BerkeleyDB::Hash",
-      -Filename => $CACHEFILE,
-      -Flags    => BerkeleyDB->DB_CREATE
-      or die "error: cannot open $CACHEFILE: $!\n";
+    if ($opted_mods{BerkeleyDB})
+    {
+        if (!$opted_mods{FilePath})
+        {
+            c_log("error: File::Path module not found\n", 1);
+            exit(1);
+        }
+        File::Path::mkpath([$CONFIGDIR], 0, 0700);
+        $cache_db = tie %cache, "BerkeleyDB::Hash",
+          -Filename => $CACHEFILE,
+          -Flags    => BerkeleyDB->DB_CREATE
+          or die "error: cannot open $CACHEFILE: $!\n";
+    }
 }
 
 sub show_cache
 {
+    check_bdb_avail();
+
     IO::Pager->new(*STDOUT)
       if $opted_mods{IOPager};
 
@@ -1963,6 +1981,7 @@ sub clear_cache
 
 sub free_cache
 {
+    return if !$opted_mods{BerkeleyDB};
     undef $cache_db;
     untie %cache;
 }
@@ -1991,6 +2010,8 @@ sub fetch_entry
 
 sub save_entry
 {
+    return if !$opted_mods{BerkeleyDB};
+
     my @values;
 
     $entry{time_stamp} = POSIX::strftime("%F %T", localtime);
@@ -2003,6 +2024,8 @@ sub save_entry
 
 sub grep_cache
 {
+    check_bdb_avail();
+
     my $g =
       $opts{case}
       ? qr|$opts{grep}|

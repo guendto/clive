@@ -36,25 +36,15 @@ use Config::Tiny;
 use File::Spec;
 use Encode;
 
-# Non-essential modules: set flags indicating availability
-my %opted_mods =
-  (Clipboard => 1, Expect => 1, IOPager => 1, ReadKey => 1);
-eval "use Clipboard";
-$opted_mods{Clipboard} = 0 if $@;
-eval "use IO::Pager";
-$opted_mods{IOPager} = 0 if $@;
-sub exp_continue() { }; # Satisfies: "Bareword "exp_continue" not allowed while"
-eval "use Expect";
-$opted_mods{Expect} = 0 if $@;
-eval "use Term::ReadKey";
-$opted_mods{ReadKey} = 0 if $@;
-
 my $CONFIGDIR = $ENV{CLIVE_HOME}
   || File::Spec->catfile($ENV{HOME}, ".config/clive");
 
 my $CONFIGFILE = File::Spec->catfile($CONFIGDIR, "config");
 my $CACHEFILE  = File::Spec->catfile($CONFIGDIR, "cache");
 my $RECALLFILE = File::Spec->catfile($CONFIGDIR, "recall");
+
+my %opted_mods;    # Holds states of optional modules
+init_opted_mods();
 
 my %opts;       # runtime options
 my @queue;      # input URLs
@@ -1245,7 +1235,7 @@ use constant DEFAULT_TERM_WIDTH => 80;
 sub get_term_width
 {
     return DEFAULT_TERM_WIDTH
-      unless $opted_mods{ReadKey};
+      unless $opted_mods{TermReadKey};
     my ($width) = GetTerminalSize();
     return $width;
 }
@@ -1455,6 +1445,18 @@ sub get_units
 }
 
 # Subroutines: LittleHelpers
+
+sub init_opted_mods
+{
+    my @lst = qw/Clipboard Term::ReadKey IO::Pager Expect/;
+    sub exp_continue() { }; # Silences "Bareword 'exp_continue' not..." (Expect)
+    foreach (@lst)
+    {
+        eval "use $_";
+        $_ =~ tr/://d;
+        $opted_mods{$_} = int(!$@);
+    }
+}
 
 sub main
 {
@@ -2146,7 +2148,8 @@ sub print_version
       "\nclive is licensed under the ISC license which is functionally\n"
       . "equivalent to the 2-clause BSD licence.\n"
       . "\tReport bugs: <http://code.google.com/p/clive/issues/>\n\n";
-    $str .= "For a list of contributors, please see the AUTHORS and the\n"
+    $str .=
+        "For a list of contributors, please see the AUTHORS and the\n"
       . "CHANGES files.\n";
     print($str);
     exit(0);

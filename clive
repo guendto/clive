@@ -2153,19 +2153,19 @@ sub print_hosts
 
 sub print_version
 {
-    my $perl_v = sprintf("--with-perl=%vd-%s", $^V, $^O);
+    my $perl_v = sprintf("--with-perl=%vd", $^V);
     my $str =
       sprintf("clive version %s with WWW::Curl version "
                 . "$WWW::Curl::VERSION  [%s].\n"
                 . "Copyright (c) 2007-2009 Toni Gundogdu "
                 . "<legatvs\@gmail.com>.\n\n",
               VERSION, $^O);
-    $str .= "$perl_v ";
+    $str .= "$perl_v\n";
     my $i = 0;
     while (my ($key, $value) = each(%opted_mods))
     {
         $str .= sprintf("--with-$key=%s ", $value ? "yes" : "no");
-        $str .= "\n" if (++$i % 2 == 0);
+        $str .= "\n" if (++$i % 3 == 0);
     }
     $str .=
       "\nclive is licensed under the ISC license which is functionally\n"

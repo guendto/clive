@@ -29,18 +29,18 @@
  - URI::Escape (3.29+)
  - Digest::SHA (5.47+)
 
- Optionally (clive runs without them but some features will be disabled):
- - BerkeleyDB (0.34+)# Cache features
- - Clipboard (0.09+) # --paste
- - IO::Pager (0.05+) # --show
- - Expect (1.21+)    # --clivepass
- - Term::ReadKey     # SIGWINCH: resize progressbar to match terminal width
+ Optional (clive runs without them but some features will be disabled):
+ - BerkeleyDB (0.34+) # Cache features
+ - Clipboard (0.09+)  # --paste
+ - IO::Pager (0.05+)  # --show
+ - Expect (1.21+)     # --clivepass
+ - Term::ReadKey      # SIGWINCH: resize progressbar to match terminal width
 
  Note that you can install these modules from CPAN, typically (as root):
 
    # cpan install $modulename
 
- Although many distros have made them available as packages.
+ Many distros have made the above modules available as packages.
 
 
             Getting started with clive

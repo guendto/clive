@@ -33,11 +33,11 @@ RELEASE := \
 all: checks
 
 MODULES = \
- Config::Tiny  WWW::Curl  HTML::TokeParser  BerkeleyDB \
+ Config::Tiny  WWW::Curl  HTML::TokeParser \
  URI::Escape  Digest::SHA \
 
 MODULES_OPTIONAL = \
- Clipboard  IO::Pager  Expect  Term::ReadKey
+   BerkeleyDB  Clipboard  IO::Pager  Expect  Term::ReadKey
 
 checks:
 ifeq ($(WITH_CHECK),yes)

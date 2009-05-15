@@ -1995,7 +1995,7 @@ Logging and Input Options:
  -a, --append=LOGFILE           append to LOGFILE
  -d, --debug                    print libcurl debug messages
  -q, --quiet                    turn off all output
- -r, --recall                   recall last url batch
+ -r, --recall                   recall last input
  -T, --savebatch=FILE           save url batch to FILE
  -p, --paste                    paste input from clipboard
      --stderr                   redirect all output to stderr

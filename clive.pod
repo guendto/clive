@@ -196,8 +196,7 @@ Turn off all output.
 
 =item B<-r --recall>
 
-Recall the last URL batch from the previous runtime. Note that clive overwrites
-this information at every runtime. See also L</CACHE>.
+Recall the last input.
 
 =item B<-T --savebatch=>I<file>
 

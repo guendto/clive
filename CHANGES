@@ -1,5 +1,8 @@
 Version 2.1.14
 
+ User-visible changes:
+  * Fix: liveleak id parsing
+
  Developer-visible changes:
   * Update: INSTALL
 

@@ -822,7 +822,7 @@ sub handle_liveleak {
     my ( $response_ref, $response_fh ) = @_;
 
     my %re = (
-        GrabID        => qr|token=(.*?)&|,
+        GrabID        => qr|token=(.*?)'|,
         GrabConfigURL => qr|'config','(.*?)'|,
     );
 

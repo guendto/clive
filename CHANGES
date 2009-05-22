@@ -5,6 +5,7 @@ Version 2.1.14
   * Add: support for youtube-nocookies.com
 
  Developer-visible changes:
+  * Add: tests/ytube-nocookies.url
   * Update: INSTALL
 
 

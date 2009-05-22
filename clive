@@ -652,7 +652,11 @@ sub parse_input {
 
     chomp $url;
 
-    if ( $url =~ /&srcurl=(.*?)&/ ) {    # GVideo: one of many redirects
+    # Youtube: youtube-nocookie.com -> youtube.com.
+    $url =~ s/-nocookie//;
+
+    # GVideo: one of many redirects
+    if ( $url =~ /&srcurl=(.*?)&/ ) {
         require URI::Escape;
         c_log(
             sprintf "found redirect ...%s\n=> %s\n",

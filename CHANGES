@@ -2,7 +2,7 @@ Version 2.1.14
 
  User-visible changes:
   * Fix: liveleak id parsing
-  * Add: support for youtube-nocookies.com
+  * Add: support for youtube-nocookie.com
 
  Developer-visible changes:
   * Add: tests/ytube-nocookies.url

@@ -35,7 +35,7 @@
     ## %D = current date
     ## %T = current time
     ## %S = timestamp (same as: %D %T)
-    #file = %n.%e
+    #filename_format = %n.%e
 
     ## Format for --show (default: %D: "%t" | %mMB)
     ## %t = video page title

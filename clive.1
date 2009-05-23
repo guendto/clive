@@ -132,7 +132,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-05-15" "2.1.13" "clive manual"
+.TH clive 1 "2009-05-23" "2.1.14" "clive manual"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -308,9 +308,9 @@ newlines.
 Redirect all input to stderr, even if no \s-1TTY\s0 is available.
 .PP
 \&\fBDownload Options\fR
-.IP "\fB\-O \-\-output\-video=\fR\fIfile\fR" 4
-.IX Item "-O --output-video=file"
-Write video to \fIfile\fR.
+.IP "\fB\-O \-\-output\-file=\fR\fIfile\fR" 4
+.IX Item "-O --output-file=file"
+Write extracted video file to \fIfile\fR.
 .IP "\fB\-n \-\-no\-extract\fR" 4
 .IX Item "-n --no-extract"
 Do not actually extract any videos.
@@ -324,10 +324,6 @@ The \*(L"requested range was not delivered\*(R" error typically implies that the
 host does not allow continuing partially extracted video files. You will
 see this error if you attempt to continue a partially downloaded flv video
 from Youtube, for example.
-.IP "\fB\-W \-\-overwrite\fR" 4
-.IX Item "-W --overwrite"
-Causes clive to overwrite already existing video files. By default clive
-appends a numeric suffix to the output filename.
 .IP "\fB\-G \-\-progress=\fR\fItype\fR" 4
 .IX Item "-G --progress=type"
 Select the \fItype\fR of the progress indicator. Accepted types are \*(L"bar\*(R",

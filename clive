@@ -57,7 +57,7 @@ my $ytube_logged = 0;    # youtube: whether logged-in
 my $time_started;        # time file transfer started
 my @exec_files;          # holds fnames for --exec
 my @emit_queue;          # videos to be emitted
-my $logfile;             # path to logfile (--output-file, --append-file)
+my $logfile;             # path to logfile
 my %dp;                  # dot progress data
 my %bp;                  # bar progress data
 my $workdir = getcwd;    # startup workdir
@@ -123,13 +123,13 @@ $opts{case}    = 1;
 
 GetOptions(
     \%opts,
-    'debug|d',    'help|h',     'overwrite|W',  'savebatch|T=s',
+    'debug|d',    'help|h',     'savebatch|T=s','stream=i',
     'paste|p',    'show|s',     'delete|D',     'clear|C',
     'continue|c', 'renew|R',    'recall|r',     'format|f=s',
     'output|o=s', 'append|a=s', 'background|b', 'quiet|q',
     'grep|g=s',   'agent|U=s',  'proxy|y=s',    'savedir|S=s',
     'cclass|l=s', 'exec|x=s',   'progress|G=s', 'clivepass|V=s',
-    'stream=i',   'stderr',
+    'stderr',
     'hosts'     => \&print_hosts,
     'version|v' => \&print_version,
 
@@ -147,7 +147,7 @@ GetOptions(
     'emit-csv|e'               => sub { $opts{emitcsv}             = 1 },
     'emit-xml|E'               => sub { $opts{emitxml}             = 1 },
     'stream-exec=s'            => sub { $opts{streamexec}          = $_[1] },
-    'output-video|O=s'         => sub { $opts{outputfname}         = $_[1] },
+    'output-file|O=s'          => sub { $opts{outputfile}         = $_[1] },
     'limit-rate=i',            => sub { $opts{limitrate}           = $_[1] },
     'connect-timeout=i',       => sub { $opts{connecttimeout}      = $_[1] },
     'connect-timeout-socks=i', => sub { $opts{connecttimeoutsocks} = $_[1] },
@@ -441,7 +441,7 @@ sub extract_video {
     return
       if $rc != 0 or !defined $content_type;
 
-    my $fn = $opts{outputfname}
+    my $fn = $opts{outputfile}
       || title_to_filename( $entry{page_title} );
     my $path      = File::Spec->catfile( $opts{savedir} || $workdir, $fn );
     my $filemode  = ">";
@@ -451,7 +451,7 @@ sub extract_video {
 
     save_entry($hash);
 
-    if ( $size > 0 and !$opts{overwrite} ) {
+    if ( $size > 0 ) {
         if ( $size == $entry{file_length} and $opts{extract} ) {
             c_log( "error: file is already fully retrieved; nothing to do\n",
                 1 );
@@ -2004,10 +2004,9 @@ Logging and Input Options:
  -p, --paste                    paste input from clipboard
      --stderr                   redirect all output to stderr
 Download Options:
- -O, --output-video=FNAME       write video to file
+ -O, --output-file=FNAME        write video to file
  -n, --no-extract               do not extract any videos
  -c, --continue                 continue partially downloaded file
- -W, --overwrite                overwrite existing video file
  -G, --progress=TYPE            use progress indicator TYPE
  -u, --youtube-user=UNAME       youtube username
  -t, --youtube-pass=PASSW       youtube password

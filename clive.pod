@@ -217,9 +217,9 @@ B<Download Options>
 
 =over 4
 
-=item B<-O --output-video=>I<file>
+=item B<-O --output-file=>I<file>
 
-Write video to I<file>.
+Write extracted video file to I<file>.
 
 =item B<-n --no-extract>
 
@@ -235,11 +235,6 @@ The "requested range was not delivered" error typically implies that the
 host does not allow continuing partially extracted video files. You will
 see this error if you attempt to continue a partially downloaded flv video
 from Youtube, for example.
-
-=item B<-W --overwrite>
-
-Causes clive to overwrite already existing video files. By default clive
-appends a numeric suffix to the output filename.
 
 =item B<-G --progress=>I<type>
 

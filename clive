@@ -715,6 +715,7 @@ sub handle_youtube {
         my $fmt;
         if    ( $opts{format} eq "mp4" )    { $fmt = 18; }
         elsif ( $opts{format} eq "mp4_hd" ) { $fmt = 22; }
+        elsif ( $opts{format} eq "fmt35" ) { $fmt = 35; }
         elsif ( $opts{format} eq "3gpp" )   { $fmt = 17; }
         elsif ( $opts{format} eq "xflv" )   { $fmt = 6; }
 

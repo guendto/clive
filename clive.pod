@@ -457,10 +457,6 @@ explicitly as "HD" or "720p".
 last.fm is known to wrap Youtube videos. B<clive> can handle such
 last.fm video links.
 
-=back
-
-=over 4
-
 =item B<video.google.com>
 
 Formats: (flv|mp4)  Continue: Only mp4
@@ -470,25 +466,13 @@ different codec than Youtube mp4 videos. You can typically B<--stream-exec>
 Youtube mp4 videos but this is not case with GoogleVideo mp4 videos. If you
 find a way, drop an email.
 
-=back
-
-=over 4
-
 =item B<www.sevenload.com>
 
 Formats: flv  Continue: Yes
 
-=back
-
-=over 4
-
 =item B<www.break.com>
 
 Formats: flv  Continue: Yes
-
-=back
-
-=over 4
 
 =item B<www.liveleak.com>
 

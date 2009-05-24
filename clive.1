@@ -132,7 +132,7 @@
 .\" ========================================================================
 .\"
 .IX Title "clive 1"
-.TH clive 1 "2009-05-23" "2.1.14" "clive manual"
+.TH clive 1 "2009-05-24" "2.1.14" "clive manual"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -503,16 +503,15 @@ list below only as a rough reference of what formats should be available.
 .IP "\fBwww.last.fm\fR" 4
 .IX Item "www.last.fm"
 .PD
-Formats: (flv|mp4|mp4_hd|3gpp|xflv)  Continue: Yes (except flv)
+Formats: (flv|mp4|fmt35|fmt22|fmt17|fmt6)  Continue: Yes (except flv)
 .Sp
-mp4 and 3gpp formats are typically, or will soon become, available.
-xflv appears to be very rare. Videos dating back to 2006 may only be
-available as flv. The high-definition mp4_hd format is currently available
-for a limited number of videos, which are usually explicitly marked as \*(L"\s-1HD\s0\*(R"
-or \*(L"720p\*(R".
+flv and mp4 are typically available, whereas others may or may not be
+available. For example the high-definition (\s-1HD\s0) formats (35, 22) are
+currently available for a limited number of videos, which are usually
+explicitly as \*(L"\s-1HD\s0\*(R" or \*(L"720p\*(R".
 .Sp
-Some of the videos displayed on last.fm site are actually Youtube videos.
-\&\fBclive\fR can handle such last.fm video links.
+last.fm is known to wrap Youtube videos. \fBclive\fR can handle such
+last.fm video links.
 .IP "\fBvideo.google.com\fR" 4
 .IX Item "video.google.com"
 Formats: (flv|mp4)  Continue: Only mp4

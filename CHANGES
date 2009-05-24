@@ -3,10 +3,17 @@ Version 2.1.14
  User-visible changes:
   * Fix: liveleak id parsing
   * Add: support for youtube-nocookie.com
+  * Rename: --output-video -> --output-file
+  * Rename: output:file -> output:filename_format (config file)
+  * Remove: --overwrite option (use --output-file instead)
 
  Developer-visible changes:
   * Add: tests/ytube-nocookies.url
   * Update: INSTALL
+
+ Other:
+  * 2.2.0 is under development, read more here:
+    http://code.google.com/p/clive/wiki/WhatsNew_2_2_0
 
 
 Version 2.1.13

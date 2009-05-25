@@ -1,13 +1,14 @@
 Version 2.1.14
+(May 25, 2009)
 
  User-visible changes:
+  * Add: support for youtube-nocookie.com (closes issue #12)
+  * Add: fmt35 format ID for Youtube [closes issue #10 (and #13)]
+  * Fix: liveleak id parsing
   * Rename: --format IDs for Youtube
     ** mp4_hd -> fmt22
     ** 3gpp -> fmt17
     ** xflv -> fmt6
-  * Add: fmt35 format ID for Youtube [closes issue #10 (and #13)]
-  * Fix: liveleak id parsing
-  * Add: support for youtube-nocookie.com
   * Rename: --output-video -> --output-file
   * Rename: output:file -> output:filename_format (config file)
   * Remove: --overwrite option (use --output-file instead)

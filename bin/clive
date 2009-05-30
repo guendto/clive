@@ -209,7 +209,9 @@ Dump cache records to standard output.
 
 =item B<--cache-dump-format>=I<format-string>
 
-Used to format the output of the above. For example:
+Used to format the output of the above. Defaults to "%n: %t [%f, %mMB]".
+
+Example:
   % clive --cache-dump --cache-dump-format="%d: %t"
 
 Supported format specifiers:
@@ -222,6 +224,7 @@ Supported format specifiers:
   %T .. time (last update)
   %s .. time stamp (same as "%d %T")
   %f .. video file format
+  %n .. index
 
 =item B<--cache-grep>=I<pattern>
 

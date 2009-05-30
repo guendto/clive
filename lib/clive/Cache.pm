@@ -33,7 +33,7 @@ use Encode;
 use clive::Video;
 use clive::Log;
 
-use constant DEFAULT_DUMP_FORMAT => qq/%d: %t [%f, %mMB]/;
+use constant DEFAULT_DUMP_FORMAT => qq/%n: %t [%f, %mMB]/;
 
 sub init {
     my $self = shift;
@@ -125,7 +125,8 @@ sub _dumpCache {
     my $props =
       clive::Video->new;  # Reuse this rather than re-create it for each record.
 
-    print _formatDump( $self, $dumpfmt, $_, \$props ) . "\n"
+    my $i = 1;
+    print _formatDump( $self, $dumpfmt, $_, \$props, $i++ ) . "\n"
       foreach ( keys %{ $self->{cache} } );
 
     exit(0);
@@ -145,8 +146,9 @@ sub _grepCache {
       : qr|$config->{cache_grep}|;
 
     $self->{grep_queue} = [];
+    my $i = 1;
     foreach ( keys %{ $self->{cache} } ) {
-        my $dumpstr = _formatDump( $self, $dumpfmt, $_, \$props );
+        my $dumpstr = _formatDump( $self, $dumpfmt, $_, \$props, $i++ );
         my @e = split( /#/, $self->{cache}{$_} );
         if ( grep /$g/, @e ) {
             push( @{ $self->{grep_queue} }, $props->page_link );
@@ -176,7 +178,7 @@ sub _grepCache {
 }
 
 sub _formatDump {
-    my ( $self, $dumpfmt, $hash, $props ) = @_;
+    my ( $self, $dumpfmt, $hash, $props, $index ) = @_;
 
     if ( _mapRecord( $self, $props, $hash ) ) {
         my $title  = decode_utf8( $$props->page_title );
@@ -187,6 +189,7 @@ sub _formatDump {
         my $tstamp = $$props->time_stamp;
         my ( $date, $time ) = ( split( / /, $tstamp ) );
         my $format = $$props->video_format;
+        $index = sprintf("%04d",$index);
 
         my $fmt = $dumpfmt;
         $fmt =~ s/%t/$title/g;
@@ -198,6 +201,7 @@ sub _formatDump {
         $fmt =~ s/%T/$time/g;
         $fmt =~ s/%s/$tstamp/g;
         $fmt =~ s/%f/$format/g;
+        $fmt =~ s/%n/$index/g;
 
         return $fmt;
     }

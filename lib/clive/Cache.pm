@@ -176,7 +176,7 @@ sub _grepCache {
 }
 
 sub _formatDump {
-    my ( $self, $dumpfmt, $hash, $props, $no_print ) = @_;
+    my ( $self, $dumpfmt, $hash, $props ) = @_;
 
     if ( _mapRecord( $self, $props, $hash ) ) {
         my $title  = decode_utf8( $$props->page_title );

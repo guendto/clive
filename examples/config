@@ -1,68 +1,23 @@
-## Example config file for clive.
-## Default location: ~/.config/clive/config
+# clive reads ~/.cliverc by default. You can use --home-dir and
+# CLIVE_HOME environment variable to change that.
 
-## Progress indicator (default: bar)
-## Possible values: none, bar, dot
-#progress = dot:binary
+# You can add any of the supported command line options to clive
+# configuration file. For example:
 
-[http]
-    ## HTTP User-agent string (default: Mozilla/5.0).
-    #agent = Furball/0.2
+#--format=mp4
+#-f mp4
+#--proxy=foo:1234
+#--cache-read
+#--no-cache
+#--save-dir=/home/user/videos
 
-    ## HTTP proxy. Overrides http_proxy env. variable.
-    #proxy = http://foo:1234
+# Note that the "dashed" command line options have aliases, so
+# you can use any of the aliases as well, for example:
 
-    ## Limit video download rate to amount KB/s.
-    #limit_rate = 100
+# --no-cache
+# --no_cache
+# --nocache
 
-[output]
-    ## Download video format. See the manual page for available formats.
-    #format = mp4
-
-    ## Save videos to directory (default: cwd).
-    #savedir = /home/user/videos
-
-    ## Character class used to filter out garbage characters from
-    ## video filenames (default: \w).
-    #cclass = [A-Za-z0-9]
-    #cclass = .
-
-    ## Extracted video filename format (default: %t_%d_%i.%s).
-    ## %t = video name after applying the character class regex
-    ## %s = video file suffix (e.g. flv)
-    ## %d = video domain
-    ## %i = video id
-    ## %D = current date
-    ## %T = current time
-    ## %S = timestamp (same as: %D %T)
-    #filename_format = %n.%e
-
-    ## Format for --show (default: %D: "%t" | %mMB)
-    ## %t = video page title
-    ## %i = video id
-    ## %l = video file length (bytes)
-    ## %m = video file length (mb)
-    ## %u = video page url
-    ## %x = video extraction url
-    ## %D = video extraction date
-    ## %T = video extraction time
-    ## %S = video extraction timestamp (same as: %D %T)
-    #show = %t (id: %i | bytes: %l)
-
-[youtube]
-    ## Username and password for Youtube. OPTIONAL unless you
-    ## plan on extracting flagged content. Set pass to "-" if
-    ## you are using clivepass(1) for storing login passwords.
-    #user = myusername
-    #pass = mypassword
-
-[commands]
-    ## Command to be executed subsequently after each file transfer (--exec).
-    #exec = /usr/local/bin/ffmpeg -y -i %i %i.mp3;
-
-    ## Stream command to be executed (--stream-exec).
-    #stream = /usr/local/bin/mplayer -really-quiet %i
-
-    ## Path to clivepass(1) utility. If you are planning to use clivepass
-    ## protected login passwords.
-    #clivepass = /usr/local/bin/clivepass
+# If you are unsure about the command line options, see the output of
+# "clive --help" output or refer to the clive manual page for a complete
+# list of the supported command line options.

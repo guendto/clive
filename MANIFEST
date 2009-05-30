@@ -1,4 +1,5 @@
 bin/clive
+CHANGES
 COPYING
 examples/config
 lib/clive/App.pm
@@ -45,6 +46,7 @@ tlinks/lastfm.url
 tlinks/liveleak.url
 tlinks/multi.lst
 tlinks/sload.url
+tlinks/ytube-nocookie.url
 tlinks/ytube-utf8.url
 tlinks/ytube.url
 TODO

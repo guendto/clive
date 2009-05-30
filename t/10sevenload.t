@@ -7,7 +7,7 @@ use Test::More tests => 5;
 use RunTest;
 
 SKIP: {
-    skip 'Set CLIVE_TEST_HOSTS=1', 4 unless $ENV{CLIVE_TEST_HOSTS};
+    skip 'Set CLIVE_TEST_HOSTS=1', 5 unless $ENV{CLIVE_TEST_HOSTS};
 
     RunTest::runTest(
         qq|http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips|);

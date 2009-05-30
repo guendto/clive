@@ -94,7 +94,7 @@ sub fetchToMem {
 
     close($fh);
 
-    if ( $rc == CURLE_OK ) {
+    if ( $rc == 0 ) {
         my $httpcode = $self->{handle}->getinfo(CURLINFO_RESPONSE_CODE);
         if ( $httpcode == 200 ) {
             $log->out("done.\n");
@@ -137,7 +137,7 @@ sub queryFileLength {
     # HEAD -> GET.
     $self->{handle}->setopt( CURLOPT_HTTPGET, 1 );
 
-    if ( $rc == CURLE_OK ) {
+    if ( $rc == 0 ) {
         my $httpcode = $self->{handle}->getinfo(CURLINFO_RESPONSE_CODE);
         if ( $httpcode == 200 || $httpcode == 206 ) {
             $$props->file_length(
@@ -229,7 +229,7 @@ sub fetchToFile {
     $self->{handle}->setopt( CURLOPT_NOPROGRESS,           1 );
     $self->{handle}->setopt( CURLOPT_RESUME_FROM,          0 );
 
-    if ( $rc == CURLE_OK ) {
+    if ( $rc == 0 ) {
         my $httpcode = $self->{handle}->getinfo(CURLINFO_RESPONSE_CODE);
         if ( $httpcode == 200 || $httpcode == 206 ) {
             $bp->finish();

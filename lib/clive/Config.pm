@@ -115,8 +115,8 @@ sub _printVersion {
           . "Copyright (C) 2009 Toni Gundogdu.\n\n"
           . "License GPLv3+: GNU GPL version 3 or later\n"
           . "  <http://www.gnu.org/licenses/>\n\n"
-          . "This is free software: you are free to change and redistribute it.\n"
-          . "There is NO WARRANTY, to the extent permitted by law.\n\n"
+          . "This is free software: you are free to change and redistribute it."
+          . "\nThere is NO WARRANTY, to the extent permitted by law.\n\n"
           . "Report bugs: <http://code.google.com/p/clive/issues/>\n",
         VERSION, $^O );
     print($str);

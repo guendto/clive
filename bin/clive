@@ -52,7 +52,7 @@ to view the hosted videos.
      --recall-file=FILE         use FILE instead of default ~/.clivelast
      --cache-file=FILE          use FILE instead of default ~/.clivecache
 Output Options:
-     --emit-csv                 emit video details as csv to stdout
+     --emit-csv                 emit video details in CSV to stdout
      --debug                    print cURL debug messages
  -q, --quiet                    turn off all output
  -l, --recall                   recall last input
@@ -84,6 +84,8 @@ Download Options:
      --stream=PERCENT           run stream command (below) at PERCENT
      --stream-exec=CMD          stream command to run
      --limit-rate=AMOUNT        limit transfer rate to AMOUNT (KB/s)
+
+See clive manual page for EXAMPLES.
 
 =head1 OPTION SYNTAX
 

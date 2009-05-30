@@ -9,7 +9,7 @@ sub runTest {
     my $cmd    = "$clive $url @_ 2>&1";
     my $output = qx($cmd);
     ok( $output !~ /error:/ )
-      or diag explain "$cmd\n$output";
+      or diag "$cmd\n$output";
 }
 
 1;

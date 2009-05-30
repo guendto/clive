@@ -8,7 +8,7 @@ WriteMakefile(
     'VERSION' => '2.2.0',
     'EXE_FILES' => ['bin/clive'],
     'PREREQ_PM' => {
-        'Class::Singleton' => 1.40,
+        'Class::Singleton' => 1.4,
         'HTML::TokeParser' => 2.37,
         'URI::Escape' => 3.29,
         'Digest::SHA' => 5.47,

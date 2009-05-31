@@ -57,13 +57,12 @@ shalt lure thou think it be magik but thy know it be all illushion.
  -v, --version                  print version and exit
      --hosts                    print supported hosts and exit
      --home-dir=HOMEDIR         use HOMEDIR instead of $HOME
-     --recall-file=FILE         use FILE instead of default ~/.clivelast
-     --cache-file=FILE          use FILE instead of default ~/.clivecache
 Output Options:
      --emit-csv                 emit video details in CSV to stdout
      --debug                    print cURL debug messages
  -q, --quiet                    turn off all output
  -l, --recall                   recall last input
+     --recall-file=FILE         use FILE instead of default ~/.clivelast
      --stderr                   redirect all output to stderr
 HTTP Options:
      --agent=STRING             identify as STRING to http server
@@ -72,6 +71,7 @@ HTTP Options:
      --proxy=ADDR               use ADDR for http proxy
      --no-proxy                 do not use http proxy
 Cache Options:
+     --cache-file=FILE          use FILE instead of default ~/.clivecache
  -r, --cache-read               enable reading from cache
      --cache-dump               dump cache records to stdout
      --cache-dump-format=STRING print format for dumping cache records
@@ -131,14 +131,6 @@ Use I<homedir> instead of the default $HOME (default) and $CLIVE_HOME environmen
 settings. The I<homedir> determines the home directory for the program files
 such as "cliverc" (default ~/.cliverc) and "clivecache" (~/.clivecache).
 
-=item B<--recall-file>=I<file>
-
-Use I<file> instead of I<homedir>/.clivecache.
-
-=item B<--cache-file>=I<file>
-
-Same as above but for "clivecache" file.
-
 =back
 
 B<Output options>
@@ -162,6 +154,10 @@ Turn off all output to standard output and error.
 
 Recall (or reuse) the last input. This information gets
 overwritten each run-time.
+
+=item B<--recall-file>=I<file>
+
+Use I<file> instead of I<homedir>/.clivelast.
 
 =item B<--stderr>
 
@@ -199,6 +195,10 @@ Disable HTTP proxy use even if http_proxy environment variable is set.
 B<Cache Options>
 
 =over 4
+
+=item B<--cache-file>=I<file>
+
+Use I<file> instead of I<homedir>/.clivecache.
 
 =item B<-r, --cache-read>
 
@@ -496,9 +496,6 @@ indication of this.
 The above is also the main reason reading (reusing cache details)
 from cache has been turned off in clive 2.2.0 and later. You can
 tell clive to read from cache by using the --cache-read option.
-If you do enable it, be sure to use --cache-force-fetch if you
-are having difficulties to re-download a video you downloaded
-earlier. This usually means the video link has expired.
 
 Apart from the obvious use described above, the cache can also be used
 for keeping a track of previously extracted videos. clive allows searching 

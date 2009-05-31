@@ -412,7 +412,7 @@ supported websites. Some of them support also other formats.
 
 =item B<last.fm>
 
-Format: (flv|mp4|fmt17|fmt22|fmt35)  Continue: Yes (excl. flv)
+Format: (flv|mp4|fmt17|fmt22|fmt35)
 
 Apart from flv and mp4, other formats are known to be fairly rare.
 For example, the high-definition formats (32, 22) are currently
@@ -424,13 +424,13 @@ videos. clive can handle such video links.
 
 =item B<video.google.com>
 
-Format: (flv|mp4)  Continue: mp4 only
+Format: (flv|mp4)
 
 mp4 format is available for a limited number of videos.
 
 =item B<dailymotion.com>
 
-Format: (flv|spak-mini|vp6-hq|vp6-hd|vp6|h264)  Continue: Yes
+Format: (flv|spak-mini|vp6-hq|vp6-hd|vp6|h264)
 
 =item B<evisor.tv>
 
@@ -444,7 +444,7 @@ Format: (flv|spak-mini|vp6-hq|vp6-hd|vp6|h264)  Continue: Yes
 
 =item B<redtube.com>
 
-Format: flv  Continue: Yes
+Format: flv
 
 =back
 

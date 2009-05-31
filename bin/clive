@@ -43,6 +43,14 @@ clive is a command line utility for extracting videos from Youtube and other
 video-sharing websites. It was written to bypass the Adobe Flash requirement
 to view the hosted videos.
 
+=head1 NOTES
+
+Thou shalt not expect miracle thy be running this program. Thou shalt also
+be knowing what thy be doing.
+
+Oh. Thou shalt not cache read on if thy believes magik exist. clive
+shalt lure thou think it be magik but thy know it be all illushion.
+
 =head1 OPTIONS
 
  -h, --help                     print help and exit
@@ -471,6 +479,35 @@ BerkeleyDB based cache file containing records of fetched
 video pages.
 
 =back
+
+=head1 CACHE
+
+clive stores fetched and parsed video page details to a BerkeleyDB
+based cache file. It does B<not> store any actual video data so one
+should not expect to recover a deleted video file from it. Its
+sole purpose is to allow clive to skip fetching the the video
+page again.
+
+It should be noted that reusing cached video links fails with
+some of the video hosts. Youtube for example have their video
+links expire after some time. Typically HTTP/403 error is an
+indication of this.
+
+The above is also the main reason reading (reusing cache details)
+from cache has been turned off in clive 2.2.0 and later. You can
+tell clive to read from cache by using the --cache-read option.
+If you do enable it, be sure to use --cache-force-read if you
+are having difficulties to re-download a video you downloaded
+earlier. This usually means the video link has expired.
+
+Apart from the obvious use described above, the cache can also be used
+for keeping a track of previously extracted videos. clive allows searching 
+and reusing the stored video page links. See the --grep option for more
+on this. The L</EXAMPLES> section also covers this topic.
+
+All use of cache can be disabled with --no-cache. Also
+note that if the BerkeleyDB Perl module is not installed
+clive will not attempt to use cache.
 
 =head1 BUGS
 

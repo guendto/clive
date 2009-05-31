@@ -39,17 +39,12 @@ clive [options]... [URL]...
 
 =head1 DESCRIPTION
 
-clive is a command line utility for extracting videos from Youtube and other
-video-sharing websites. It was written to bypass the Adobe Flash requirement
-to view the hosted videos.
+clive is a command line video extraction utility for Youtube and other
+video-sharing websites. It was written to work around the Adobe Flash
+plugin requirement.
 
-=head1 NOTES
-
-Thou shalt not expect miracle thy be running this program. Thou shalt also
-be knowing what thy be doing.
-
-Oh. Thou shalt not turn cache read on if thy believes magik exist. clive
-shalt lure thou think it be magik but thy know it be all illushion.
+clive is not an universal video extraction utility. It only works with
+the video hosts that it supports.
 
 =head1 OPTIONS
 
@@ -123,13 +118,13 @@ Print version and exit.
 
 =item B<--hosts>
 
-Print supported hosts, with precompiled regexps used to identify links, and exit.
+Print supported hosts, with precompiled regexps used to identify links,
+and exit.
 
 =item B<--home-dir>=I<homedir>
 
-Use I<homedir> instead of the default $HOME (default) and $CLIVE_HOME environment
-settings. The I<homedir> determines the home directory for the program files
-such as "cliverc" (default ~/.cliverc) and "clivecache" (~/.clivecache).
+Use I<homedir> instead of the default $HOME (default) and $CLIVE_HOME
+environment settings.
 
 =back
 
@@ -152,8 +147,7 @@ Turn off all output to standard output and error.
 
 =item B<-l, --recall>
 
-Recall (or reuse) the last input. This information gets
-overwritten each run-time.
+Recall (or reuse) the last input.
 
 =item B<--recall-file>=I<file>
 
@@ -202,14 +196,9 @@ Use I<file> instead of I<homedir>/.clivecache.
 
 =item B<-r, --cache-read>
 
-Enable reading from cache. clive writes to cache by default but does
-not read from it. Originally this was enabled but was made optional
-in 2.2.0 as some of the websites have started to use expiring video
-links.
-
-When enabled, clive searches for a previously saved record of a
-visited video page link and reuses the details instead of re-fetching
-and re-parsing the video page again.
+Read video details from cache record if it exists. Allows clive to
+skip fetching the video page again. See L</CACHE> section for more
+on this.
 
 =item B<--cache-dump>
 
@@ -260,14 +249,14 @@ B<Download Options>
 
 =over 4
 
-=item B<-f, --format>=I<video-format>
+=item B<-f, --format>=I<format>
 
-Extract I<video-format> of the video. Note that this is strictly host specific.
-See the L</FORMATS> section for more on this.
+Extract I<format> of the video. Note that this is strictly
+host specific. See the L</FORMATS> section for more on this.
 
 =item B<-O, --output-file>=I<filename>
 
-Write video to I<filename>. Do not use this option when you are extracting
+Write video to I<filename>. Not to be used when extracting
 multiple videos.
 
 =item B<-n, --no-extract>
@@ -284,17 +273,15 @@ Save extracted videos to I<dir>.
 
 =item B<--cclass>=I<class>
 
-Use character-I<class> to filter video page titles.
-Defaults to "\w". Refer to the Perl regular expressions
-(character classes) to learn more about this.
+Use character-I<class> to filter video page titles. Defaults to "\w".
+Refer to the Perl regular expressions (character classes) for more on
+this.
 
 =item B<filename-format>=<format-string>
 
-Use <format-string> to format output video filenames.
-Defaults to "%t.%s".
+Use <format-string> to format output video filenames. Defaults to "%t.%s".
 
 Supported format specifiers:
-
   %t .. video page title (after applying character-class filter)
   %s .. video file suffix (e.g. "flv")
   %i .. video id
@@ -368,8 +355,8 @@ is that each link is separated with a newline.
 
 =item xclip -o | clive
 
-Many X clipboard utilities exist, here we use C<xclip(1)> to
-paste the contents of the clipboard to clive.
+Many X clipboard utilities exist. This example uses C<xclip(1)>
+and a pipe to paste the contents of the clipboard to clive.
 
 =item clive -l
 
@@ -475,36 +462,38 @@ File containing last user input.
 
 =item ~/.clivecache
 
-BerkeleyDB based cache file containing records of fetched
-video pages.
+BerkeleyDB based cache containing the records of fetched and
+parsed video pages.
 
 =back
 
 =head1 CACHE
 
-clive stores fetched and parsed video page details to a BerkeleyDB
-based cache file. It does B<not> store any actual video data so one
-should not expect to recover a deleted video file from it. Its
-sole purpose is to allow clive to skip fetching the the video
-page again.
+clive cache contains the records of the fetched and parsed
+video pages. It does B<not> contain any actual video data
+so one should not expect to recover a deleted video file
+from the cache.
 
-It should be noted that reusing cached video links fails with
-some of the video hosts. Youtube for example have their video
-links expire after some time. Typically HTTP/403 error is an
-indication of this.
+The sole purpose of the cache is to allow clive skip fetching
+the video page again.
 
-The above is also the main reason reading (reusing cache details)
-from cache has been turned off in clive 2.2.0 and later. You can
-tell clive to read from cache by using the --cache-read option.
+It should be noted that reusing the cached video links is known
+to fail for some of the supported hosts, such as Youtube. The
+HTTP server usually returns HTTP/403 if the link has expired.
 
-Apart from the obvious use described above, the cache can also be used
-for keeping a track of previously extracted videos. clive allows searching 
-and reusing the stored video page links. See the --grep option for more
-on this. The L</EXAMPLES> section also covers this topic.
+clive 2.2.0 changed the cache use so that reading (or reusing)
+the cache records is disabled by default. To enable reading
+from the cache, use the --cache-read option.
 
-All use of cache can be disabled with --no-cache. Also
-note that if the BerkeleyDB Perl module is not installed
-clive will not attempt to use cache.
+The cache can also be used as a repository of the extracted videos.
+So for example, one can recall a previously extracted video from
+the cache without remembering or typing down the video page link.
+To do this, use the --grep option. See the L</EXAMPLES> section
+for examples of this.
+
+The use of the cache can be disabled with the --no-cache option.
+Note that if the BerkeleyDB Perl module is not installed, clive
+will not attempt to use the cache at all.
 
 =head1 BUGS
 
@@ -538,15 +527,15 @@ Front-end (GUI):
 =head1 HISTORY
 
 Historically, clive was written in Python when first released and
-later (2.0.0) rewritten in Perl. It started as a workaround to
-the Adobe Flash plugin requirement on Youtube.
+later (2.0.0) rewritten in Perl. It started as a workaround for
+Youtube Adobe Flash plugin requirement.
 
 =head1 AUTHOR
 
 Toni Gundogdu <legatvs@gmail.com>
 
-Thanks to all those who have contributed to the project
-over the years by sending patches, reporting bugs and
-writing feedback.
+Thanks to all those who have contributed to the project over the
+years by sending patches, reporting bugs and writing feedback.
+You know who you are.
 
 =cut

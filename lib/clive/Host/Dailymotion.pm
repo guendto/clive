@@ -23,6 +23,13 @@ package clive::Host::Dailymotion;
 use warnings;
 use strict;
 
+# ON2-1280x720 (vp6-hd)
+# ON2-848x480  (vp6-hq)
+# H264-512x384 (h264)
+# ON2-320x240  (vp6)
+# FLV-320x240  (spark)
+# FLV-80x60    (spak-mini)
+
 sub new {
     return bless( {}, shift );
 }
@@ -42,20 +49,34 @@ sub parsePage {
 
         require URI::Escape;
         my $paths = URI::Escape::uri_unescape( $tmp->{paths} );
-
         my $config = clive::Config->instance->config;
 
         my $format = $config->{format};
         $format = "spark" if ( $format eq "flv" );
 
-        my $xurl;
-        foreach ( split( /\|\|/, $paths ) ) {
+        my %width;
+        my $xurl = "http://dailymotion.com";
+
+        foreach (split( /\|\|/, $paths )) {
             my ( $path, $type ) = split(/@@/);
-            if ( lc($type) eq $format ) {
-                $xurl = "http://dailymotion.com$path";
+
+            $width{$2} = $path
+                if ($path =~ /cdn\/(.*)-(.*?)x/);
+
+            if ( lc($type) eq $format
+                && $format ne "best")
+            {
+                $xurl .= $path;
                 last;
             }
         }
+
+        if ($format eq "best") {
+            # Sort by width in descending order, assume [0] to be the best.
+            my $best = (sort {$b <=> $a} keys %width)[0];
+            $xurl .= $width{$best};
+        }
+
         if ($xurl) {
             $$props->video_id( $tmp->{id} );
             $$props->video_link($xurl);

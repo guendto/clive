@@ -94,10 +94,10 @@ See clive manual page for EXAMPLES.
 
 You may freely mix different option styles and specify options after
 the command line arguments, e.g.:
-  % clive -c URL --format=mp4
+  % clive -c URL --format=best
 
 You may also put several options together that do not require arguments:
-  % clive -cnrf mp4 URL
+  % clive -cnrf best URL
 
 Note that the "dashed" options have aliases available which are not
 documented in the L</OPTIONS> section. For example:
@@ -251,8 +251,11 @@ B<Download Options>
 
 =item B<-f, --format>=I<format>
 
-Extract I<format> of the video. Note that this is strictly
-host specific. See the L</FORMATS> section for more on this.
+Extract I<format> of the video. If I<format> is set to I<best>, clive
+will attempt to extract the best video quality.
+
+Note that the I<format> is strictly host specific. See the L</FORMATS>
+section for more on this.
 
 =item B<-O, --output-file>=I<filename>
 
@@ -368,9 +371,9 @@ Recall last video page link input.
 
 =over 4
 
-=item clive -f mp4 "http://youtube.com/watch?v=3HD220e0bx4"
+=item clive -f best "http://youtube.com/watch?v=3HD220e0bx4"
 
-Extract mp4 format of the video.
+Extract the best format of the video.
 
 =item clive --cache-dump
 
@@ -412,12 +415,17 @@ supported websites. Some of them support also other formats.
 
 =item B<last.fm>
 
-Format: (flv|mp4|fmt17|fmt22|fmt35)
+Format: (flv|fmt17|fmt18|fmt22|fmt35)
 
-Apart from flv and mp4, other formats are known to be fairly rare.
-For example, the high-definition formats (32, 22) are currently
-available for a limited number of videos, which are usually
-explicitly marked as "HD" or "720p".
+flv (fmt34) and fmt18 (mp4) are usually available. Others may be
+available. At the time of writing this, the following formats
+are recognized by both clive and Youtube:
+
+  fmt22 .. mp4    (1280x720) (HD)
+  fmt35 .. flv     (640x380) (HQ)
+  fmt18 .. mp4     (480x360)
+  flv   .. fmt34   (320x180)
+  fmt17 .. 3gp     (176x144)
 
 Some of the videos available at last.fm are actually Youtube
 videos. clive can handle such video links.
@@ -431,6 +439,15 @@ mp4 format is available for a limited number of videos.
 =item B<dailymotion.com>
 
 Format: (flv|spak-mini|vp6-hq|vp6-hd|vp6|h264)
+
+The HD and HQ videos may not always be available.
+
+  ON2-1280x720 (vp6-hd)
+  ON2-848x480  (vp6-hq)
+  H264-512x384 (h264)
+  ON2-320x240  (vp6)
+  FLV-320x240  (flv/spark)
+  FLV-80x60    (spak-mini)
 
 =item B<evisor.tv>
 

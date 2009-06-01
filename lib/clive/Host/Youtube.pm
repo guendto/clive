@@ -23,6 +23,11 @@ package clive::Host::Youtube;
 use warnings;
 use strict;
 
+# fmt22 = HD[1280x720]
+# fmt35 = HQ[640x380]
+# fmt17 = 3gp[176x144]
+# fmt18 = mp4[480x360]
+
 sub new {
     return bless( {}, shift );
 }
@@ -39,17 +44,25 @@ sub parsePage {
 
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
-        my $config = clive::Config->instance->config;
+
         my $xurl =
           "http://youtube.com/get_video?video_id=$tmp->{id}&t=$tmp->{t}";
 
-        my $fmt;
-        if    ( $config->{format} eq "mp4" )   { $fmt = 18; }
-        elsif ( $config->{format} eq "fmt35" ) { $fmt = 35; }
-        elsif ( $config->{format} eq "fmt22" ) { $fmt = 22; }
-        elsif ( $config->{format} eq "fmt17" ) { $fmt = 17; }
+        my $config = clive::Config->instance->config;
 
-        $xurl .= "&fmt=$fmt" if $fmt;
+        my $fmt;
+
+        if ($config->{format} eq "best") {
+            $fmt = $1
+                if $$content =~ /"fmt_map": "(.*?)\//;
+        }
+        else {
+            $fmt = $1
+                if $config->{format} =~ /^fmt(.*)$/;
+        }
+
+        $xurl .= "&fmt=$fmt"
+            if $fmt;
 
         $$props->video_id( $tmp->{id} );
         $$props->video_link($xurl);

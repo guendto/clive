@@ -81,9 +81,10 @@ sub init {
       File::Spec->catfile( $config{home_dir}, ".clivecache" );
 
     # Check format.
-    my @youtube = qw(mp4 fmt35 fmt22 fmt17);
+    my @youtube = qw(fmt18 fmt35 fmt22 fmt17);
+    my @google  = qw(mp4);
     my @dmotion = qw(spak-mini vp6-hq vp6-hd vp6 h264);
-    my @formats = ( qw(flv), @youtube, @dmotion );
+    my @formats = ( qw(flv best), @youtube, @google, @dmotion );
 
     #unless (@formats ~~ $config{format}) { # Perl 5.10.0+
     unless ( grep( /^$config{format}$/, @formats ) ) {

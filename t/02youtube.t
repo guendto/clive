@@ -10,7 +10,7 @@ SKIP: {
     skip 'Set CLIVE_TEST_HOSTS=1', 7 unless $ENV{CLIVE_TEST_HOSTS};
 
     RunTest::runTest( qq|http://www.youtube.com/watch?v=gb2fUOW1ne4|, "-f $_" )
-      foreach qw(flv mp4 fmt17 fmt22 fmt35);
+      foreach qw(flv fmt17 fmt18 fmt22 fmt35);
 
     RunTest::runTest(qq|http://www.youtube.com/v/gb2fUOW1ne4|);    # Embed.
 

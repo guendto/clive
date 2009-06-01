@@ -40,7 +40,7 @@ sub parsePage {
     $$props->video_host("dailymotion");
 
     my %re = (
-        id    => qr|swf%2F(.*?)"|,
+        id    => qr|swf/(.*?)\?|,
         paths => qr|"video", "(.*?)"|
     );
 

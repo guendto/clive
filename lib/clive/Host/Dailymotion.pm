@@ -48,7 +48,7 @@ sub parsePage {
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
 
         require URI::Escape;
-        my $paths = URI::Escape::uri_unescape( $tmp->{paths} );
+        my $paths  = URI::Escape::uri_unescape( $tmp->{paths} );
         my $config = clive::Config->instance->config;
 
         my $format = $config->{format};
@@ -57,23 +57,24 @@ sub parsePage {
         my %width;
         my $xurl = "http://dailymotion.com";
 
-        foreach (split( /\|\|/, $paths )) {
+        foreach ( split( /\|\|/, $paths ) ) {
             my ( $path, $type ) = split(/@@/);
 
             $width{$2} = $path
-                if ($path =~ /cdn\/(.*)-(.*?)x/);
+              if ( $path =~ /cdn\/(.*)-(.*?)x/ );
 
             if ( lc($type) eq $format
-                && $format ne "best")
+                && $format ne "best" )
             {
                 $xurl .= $path;
                 last;
             }
         }
 
-        if ($format eq "best") {
+        if ( $format eq "best" ) {
+
             # Sort by width in descending order, assume [0] to be the best.
-            my $best = (sort {$b <=> $a} keys %width)[0];
+            my $best = ( sort { $b <=> $a } keys %width )[0];
             $xurl .= $width{$best};
         }
 

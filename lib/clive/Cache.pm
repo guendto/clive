@@ -189,7 +189,7 @@ sub _formatDump {
         my $tstamp = $$props->time_stamp;
         my ( $date, $time ) = ( split( / /, $tstamp ) );
         my $format = $$props->video_format;
-        $index = sprintf("%04d",$index);
+        $index = sprintf( "%04d", $index );
 
         my $fmt = $dumpfmt;
         $fmt =~ s/%t/$title/g;

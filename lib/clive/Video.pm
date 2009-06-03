@@ -89,8 +89,7 @@ sub emitCSV {
     my @fields = qw(base_filename file_length video_link);
 
     my $str = "csv:";
-    $str .= sprintf( qq/"%s",/, $self->$_ )
-        foreach (@fields);
+    $str .= sprintf( qq/"%s",/, $self->$_ ) foreach (@fields);
     $str =~ s/,$//;
 
     clive::Log->instance->out("$str\n");

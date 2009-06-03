@@ -61,7 +61,7 @@ sub parsePage {
         }
 
         $xurl = $mp4
-            if ( $config->{format} eq "best" && $mp4);
+          if ( $config->{format} eq "best" && $mp4 );
 
         $$props->video_id( $tmp->{id} );
         $$props->video_link($xurl);

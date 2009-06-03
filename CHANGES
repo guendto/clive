@@ -1,8 +1,126 @@
 Version 2.2.0
 
-Rewrite of 2.1 and code clean up. There have been many changes.
-For a complete list of changes, please see:
-  http://code.google.com/p/clive/wiki/WhatsNew_2_2_0
+This release is a major overhaul aimed to both address the previous
+design flaws and clean up the codebase.
+
+ User-visible changes:
+  * License change
+    1. ISC -> GPLv3
+    2. last changed in 2.1.0
+
+  * Slight boost to program startup
+
+  * Config file format changes (Config::Tiny -> Getopt::ArgvFile)
+    1. Command line options can now be used in config file
+    2. Breaks compatibility with previous versions 
+    3. Cleaner and new format allows using cmdline options in configs
+    4. Format was last changed in 2.0.0
+    Example:
+    -----------------------------------------------
+        # Config::Tiny: clive 2.0 - 2.1
+        cat >> ~/.config/clive/config
+        [http]
+            proxy = "http://foo:1234"
+        [output]
+            savedir = "/home/user/videos"
+
+        # Getopt::ArgvFile: clive 2.2
+        cat >> ~/.cliverc
+        --proxy="http://foo:1234"
+        --savedir="/home/user/videos"
+    -----------------------------------------------
+
+  * Cache changes
+    1. Cache is now passive (read:no, write:yes)
+    2. Add: --cache- option prefix
+    3. New option: --cache-read
+    4. New option: --no-cache
+    5. Rename: misc. options (e.g. --show -> --cache-dump)
+    6. Record field changes
+    o Breaks compatibility with previous versions 
+    7. New field delimiter '#'
+    8. New field order
+
+  * File path changes
+    1. ~/.config/clive/config -> ~/.cliverc
+    2. ~/.config/clive/recall -> ~/.clivelast
+    3. ~/.config/clive/cache -> ~/.clivecache
+
+  * --format changes
+    1. Add: --format=best support (closes  issue #15 )
+    2. Rename: mp4 -> fmt18 (Youtube)
+    3. Rename: Dailymotion ID spark -> flv
+
+  * Fix a few bugs found in 2.1.14
+    1. cURL error handling
+    2. Google mp4 support
+    3. Do not strip link params (closes debian bug #530659)
+    4. --format=fmt6 (no longer supported by Youtube?) 
+    5. Dailymotion ID parsing
+
+  * New options:
+    1. --home-dir
+    2. --recall-file
+    3. --cache-file
+
+  * Misc. feature changes:
+    1. Long options: aliases (e.g. --output_file | --output-file | --outputfile)
+    2. --filename-format: new specifiers, rename some of the old ones
+    3. --format: exit with an error if id is not recognized by clive
+    4. Rename: -r -> -l (--recall) 
+
+  * --emit-csv: changes to CSV fields (cleanup, print only the necessary fields)
+    1. clive 2.0 - 2.1:
+        page_link,          video_link,     filename,   file_length_mb,
+        file_length_bytes,  video_id,       time_stamp, page_title,
+        initial_length,     remaining_bytes
+    2. clive 2.2:
+        base_filename, file_length, video_link
+
+  * Remove options:
+    1. --savebatch
+    2. --renew (now obsolete)
+    3. --youtube-user (broken since 2.1)
+    4. --youtube-pass (...)
+    5. --no-login (...)
+    6. --clivepass (...)
+    7. --emit-xml
+    8. --background
+    9. --progress
+    10. --output
+    11. --append
+    12. --paste
+    13. --format=fmt6 
+
+ Developer-visible changes:
+  * Code and feature purge
+    1. Modularized codebase
+    2. OO in Perl5 fashion
+    3. Many short options have been removed (or reused)
+    4. Renamed cache options
+
+  * Prerequisite changes
+    1. Written for Perl 5.10.0
+        o 5.8 probably OK (unverified) 
+    2. New prerequisites
+        o Class::Singleton
+        o Getopt::ArgvFile 
+    3. Removed prerequisites
+        o Config::Tiny
+        o IO::Pager
+        o Expect
+        o Clipboard 
+    4. Optional modules (no changes)
+        o BerkeleyDB
+        o Term::ReadKey
+
+  * Installation changes
+    1. Makefile.PL (ExtUtils::MakeMaker) [see README]
+
+  * Remove files:
+    1. Makefile (obsoleted by Makefile.PL)
+    2. clive.1 (Makefile.PL generates this from bin/clive)
+    3. clive.pod (merged into bin/clive)
 
 
 Version 2.1.14

@@ -86,14 +86,11 @@ sub emitCSV {
 
     require URI::Escape;
 
-    # Changes: file_length (MB), time_stamp, cont_from, remaining
-    my @fields = qw(page_link video_link base_filename file_length);
-    @fields = ( @fields, qw(video_id page_title) );
+    my @fields = qw(base_filename file_length video_link);
 
     my $str = "csv:";
-    foreach (@fields) {
-        $str .= sprintf( qq/"%s",/, $self->$_ );
-    }
+    $str .= sprintf( qq/"%s",/, $self->$_ )
+        foreach (@fields);
     $str =~ s/,$//;
 
     clive::Log->instance->out("$str\n");

@@ -48,7 +48,7 @@ sub init {
 
         # TODO: Write a wrapper for these.
         'cache_read|cache-read|cacheread|r',
-        'cache_dump|cache-dump|cachedump',
+        'cache_dump|cache-dump|cachedump|d',
         'cache_grep|cache-grep|cachegrep|g=s',
         'cache_remove_record|cache-remove-record|cacheremoverecord|D',
         'cache_ignore_case|cache_ignore-case|cacheignorecase|i',

@@ -68,7 +68,7 @@ HTTP Options:
 Cache Options:
      --cache-file=FILE          use FILE instead of default ~/.clivecache
  -r, --cache-read               enable reading from cache
-     --cache-dump               dump cache records to stdout
+ -d, --cache-dump               dump cache records to stdout
      --cache-dump-format=STRING print format for dumping cache records
      --cache-grep=PATTERN       grep cache records for PATTERN
  -i, --cache-ignore-case        ignore case while matching records
@@ -200,7 +200,7 @@ Read video details from cache record if it exists. Allows clive to
 skip fetching the video page again. See L</CACHE> section for more
 on this.
 
-=item B<--cache-dump>
+=item B<-d, --cache-dump>
 
 Dump cache records to standard output.
 

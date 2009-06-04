@@ -1,14 +1,42 @@
 Version 2.2.0
 
-This release is a major overhaul aimed to both address the previous
-design flaws and clean up the codebase.
+FOREWORD
+
+This release is a major overhaul aimed to address the previous design flaws
+and clean up the codebase. Some of the changes will break compatibility
+with the earlier versions (see the summary of changes further below).
+
+Most of the changes to the program reflect the need to stabilize
+the ever changing core elements, such as the config file format. 2.0.0
+broke the config file compatibility with 1.x which caused some discussion
+about the need to support the earlier file format.
+
+2.2.0 tries to correct this by using Getopt::ArgvFile which allows defining
+the command line options in the config file (example further below). This
+should eliminate the need to remember the often confusing variables names
+and ease the transition in the future as new features are implemented.
+
+2.2.0 also removes some of the less used (or useful) features that have been
+lingering the project since 1.x.
+
+From the developer point of view, Getopt::ArgvFile allowed us to remove a
+chunk of code encumbering the project and the new modular design should
+make clive more adaptable.
+
+Package and port maintainers will want to read the README file. The
+previously used GNU Makefile is gone. clive now uses ExtUtils::MakeMaker
+for installation which should be a welcome change to those familiar with
+Perl and CPAN.
+
+SUMMARY of CHANGES
 
  User-visible changes:
+
   * License change
     1. ISC -> GPLv3
     2. last changed in 2.1.0
 
-  * Slight boost to program startup
+  * Slight improvements to program startup time
 
   * Config file format changes (Config::Tiny -> Getopt::ArgvFile)
     1. Command line options can now be used in config file
@@ -33,11 +61,10 @@ design flaws and clean up the codebase.
   * Cache changes
     1. Cache is now passive (read:no, write:yes)
     2. Add: --cache- option prefix
-    3. New option: --cache-read
-    4. New option: --no-cache
+    3. New option: --cache-read, --no-cache
     5. Rename: misc. options (e.g. --show -> --cache-dump)
     6. Record field changes
-    o Breaks compatibility with previous versions 
+        o Breaks compatibility with previous versions 
     7. New field delimiter '#'
     8. New field order
 
@@ -63,12 +90,6 @@ design flaws and clean up the codebase.
     2. --recall-file
     3. --cache-file
 
-  * Misc. feature changes:
-    1. Long options: aliases (e.g. --output_file | --output-file | --outputfile)
-    2. --filename-format: new specifiers, rename some of the old ones
-    3. --format: exit with an error if id is not recognized by clive
-    4. Rename: -r -> -l (--recall) 
-
   * --emit-csv: changes to CSV fields (cleanup, print only the necessary fields)
     1. clive 2.0 - 2.1:
         page_link,          video_link,     filename,   file_length_mb,
@@ -92,16 +113,22 @@ design flaws and clean up the codebase.
     12. --paste
     13. --format=fmt6 
 
+  * Other changes:
+    1. Long options: aliases (e.g. --output_file | --output-file | --outputfile)
+    2. --filename-format: new specifiers, rename some of the old ones
+    3. --format: exit with an error if id is not recognized by clive
+    4. Rename: -r -> -l (--recall) 
+
  Developer-visible changes:
+
   * Code and feature purge
     1. Modularized codebase
-    2. OO in Perl5 fashion
+    2. OO Perl5 style
     3. Many short options have been removed (or reused)
-    4. Renamed cache options
 
   * Prerequisite changes
     1. Written for Perl 5.10.0
-        o 5.8 probably OK (unverified) 
+        o 5.8 probably OK although unverified
     2. New prerequisites
         o Class::Singleton
         o Getopt::ArgvFile 
@@ -110,7 +137,7 @@ design flaws and clean up the codebase.
         o IO::Pager
         o Expect
         o Clipboard 
-    4. Optional modules (no changes)
+    4. Optional modules (no changes from 2.1.14)
         o BerkeleyDB
         o Term::ReadKey
 
@@ -119,8 +146,8 @@ design flaws and clean up the codebase.
 
   * Remove files:
     1. Makefile (obsoleted by Makefile.PL)
-    2. clive.1 (Makefile.PL generates this from bin/clive)
-    3. clive.pod (merged into bin/clive)
+    2. clive.pod (merged into bin/clive)
+    3. clive.1 (generated from bin/clive)
 
 
 Version 2.1.14

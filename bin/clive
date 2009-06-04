@@ -225,7 +225,7 @@ Supported format specifiers:
 
 =item B<--cache-grep>=I<pattern>
 
-Grep stored cache records for I<pattern>.
+Grep stored cache records for I<pattern>. See also L</EXAMPLES - ADVANCED USE>.
 
 =item B<-i, --cache-ignore-case>
 
@@ -510,19 +510,15 @@ It should be noted that reusing the cached video links is known
 to fail for some of the supported hosts, such as Youtube. The
 HTTP server usually returns HTTP 40x if the link has expired.
 
-clive 2.2.0 changed the cache use so that reading (or reusing)
-the cache records is disabled by default. To enable reading
-from the cache, use the --cache-read option.
-
-The cache can also be used as a repository of the extracted videos.
-So for example, one can recall a previously extracted video from
-the cache without remembering or typing down the video page link.
-To do this, use the --grep option. See the L</EXAMPLES> section
-for examples of this.
+Reading from cache and reusing the stored details is disabled
+by default. You can enable this by invoking the --cache-read
+option.
 
 The use of the cache can be disabled with the --no-cache option.
 Note that if the BerkeleyDB Perl module is not installed, clive
 will not attempt to use the cache at all.
+
+See also the --cache-grep option.
 
 =head1 BUGS
 

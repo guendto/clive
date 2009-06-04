@@ -28,7 +28,7 @@ details by default -- instead the users are expected to invoke the
 
 The cache, while arguably useful in some cases, has turned out to be the
 most controversial feature of clive. Majority of the issues that people
-have reported have been about the infamous HTTP 404 error with Youtube.
+have reported have been about the infamous HTTP 40x error with Youtube.
 Most of those issues could be linked to expired Youtube video links
 that clive used from the cache records.
 

@@ -508,7 +508,7 @@ the video page again.
 
 It should be noted that reusing the cached video links is known
 to fail for some of the supported hosts, such as Youtube. The
-HTTP server usually returns HTTP/403 if the link has expired.
+HTTP server usually returns HTTP 40x if the link has expired.
 
 clive 2.2.0 changed the cache use so that reading (or reusing)
 the cache records is disabled by default. To enable reading

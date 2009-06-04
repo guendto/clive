@@ -348,13 +348,15 @@ can then play the flv video file in a media player.
   http://break.com/index/beach-tackle-whip-lash.html
   http://www.liveleak.com/view?i=704_1228511265
 
-=item cat url.lst | clive # or:
+=item cat url.lst | clive
 
-=item clive E<lt> url.lst
+You can feed clive multiple video page links like this
+or via command line:
 
-You can feed clive multiple video page links like this,
-via command line. The only requirement with using pipes
-is that each link is separated with a newline.
+=item clive URL URL2 URL3 URL4
+
+When you are using the pipes, be sure to separate each link
+with a newline.
 
 =item xclip -o | clive
 
@@ -375,10 +377,11 @@ Recall last video page link input.
 
 Extract the best format of the video.
 
-=item clive -r "http://youtube.com/watch?v=3HD220e0bx4"
+=item clive -r -f best "http://youtube.com/watch?v=3HD220e0bx4"
 
-Causes clive to skip re-fetching the video page and parse it.
-Instead it reuses the record saved in the cache.
+Causes clive to skip re-fetching the video page and parsing it.
+Instead it reuses the record saved in the cache from the previous
+time.
 
 =item clive --cache-dump
 

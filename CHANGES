@@ -2,31 +2,57 @@ Version 2.2.0
 
 FOREWORD
 
-This release is a major overhaul aimed to address the previous design flaws
-and clean up the codebase. Some of the changes will break compatibility
-with the earlier versions (see the summary of changes further below).
+This release is a major overhaul aimed to fix the previous design flaws
+and clean up the codebase. Note that 2.2.0 will break compatibility with
+the earlier versions, see the summary of changes further below for the
+details. For most users most of these changes are transparent but those
+who have used clive for anything else than "clive URL" should read the
+changes carefully.
 
-Most of the changes to the program reflect the need to stabilize
-the ever changing core elements, such as the config file format. 2.0.0
-broke the config file compatibility with 1.x which caused some discussion
-about the need to support the earlier file format.
+2.2.0 changes the license from ISC back to GPLv3.
 
-2.2.0 tries to correct this by using Getopt::ArgvFile which allows defining
-the command line options in the config file (example further below). This
-should eliminate the need to remember the often confusing variables names
-and ease the transition in the future as new features are implemented.
+The changes made to the core elements of the project in 2.2.0 are
+reflecting the need to stabilize these seemingly ever-changing parts
+of clive. The config file format which was last changed in 2.0.0 is one
+of such parts. 2.2.0 tries to correct this by using Getopt::ArgvFile
+which allows defining the command line options in the config file (example
+further below). This should eliminate the need to remember confusing
+config file variable names and ease the transition as new features are
+implemented.
 
-2.2.0 also removes some of the less used (or useful) features that have been
-lingering the project since 1.x.
+2.2.0 makes some radical changes to the use of cache which was previously
+enabled by default to reuse the video details if a video was re-extracted
+again. With this release, clive no longer attempts to reuse the cache
+details by default -- instead the users are expected to invoke the
+--cache-read option.
 
-From the developer point of view, Getopt::ArgvFile allowed us to remove a
-chunk of code encumbering the project and the new modular design should
-make clive more adaptable.
+The cache, while arguably useful in some cases, has turned out to be the
+most controversial feature of clive. Majority of the issues that people
+have reported have been about the infamous HTTP 404 error with Youtube.
+Most of those issues could be linked to expired Youtube video links
+that clive used from the cache records.
+
+clive still saves the parsed video details to the cache (if BerkeleyDB
+module is installed) by default but even this can be disabled with
+--no-cache.
+
+There are significant changes to the --emit-csv output. Only those
+fields are now printed that are known to be any real use to anyone.
+If there is need for additional fields, please contact the author.
+
+Other changes made in 2.2.0 include removing a number of less useful
+features that have lingered in the project since 1.x. In some ways,
+upgrading to 2.2.0 could be compared to upgrading from 1.x to 2.x.
+
+From the developer point of view there are mainly two notable changes:
+Getopt::ArgvFile and new the OO design. Getopt::ArgvFile allowed to
+remove a chunk of code from clive that was encumbering the codebase,
+and the new OO design should make clive more adaptable to anyone who
+is looking to take a hack at it.
 
 Package and port maintainers will want to read the README file. The
-previously used GNU Makefile is gone. clive now uses ExtUtils::MakeMaker
-for installation which should be a welcome change to those familiar with
-Perl and CPAN.
+previously used GNU Makefile is now gone clive uses ExtUtils::MakeMaker
+instead which should be a welcome change to those familiar with Perl.
 
 SUMMARY of CHANGES
 
@@ -34,7 +60,7 @@ SUMMARY of CHANGES
 
   * License change
     1. ISC -> GPLv3
-    2. last changed in 2.1.0
+    2. Last changed in 2.1.0
 
   * Slight improvements to program startup time
 
@@ -78,7 +104,7 @@ SUMMARY of CHANGES
     2. Rename: mp4 -> fmt18 (Youtube)
     3. Rename: Dailymotion ID spark -> flv
 
-  * Fix a few bugs found in 2.1.14
+  * Bugfixes
     1. cURL error handling
     2. Google mp4 support
     3. Do not strip link params (closes debian bug #530659)
@@ -118,13 +144,11 @@ SUMMARY of CHANGES
     2. --filename-format: new specifiers, rename some of the old ones
     3. --format: exit with an error if id is not recognized by clive
     4. Rename: -r -> -l (--recall) 
+    5. Many short options have been removed (or reused)
 
  Developer-visible changes:
 
-  * Code and feature purge
-    1. Modularized codebase
-    2. OO Perl5 style
-    3. Many short options have been removed (or reused)
+  * OO Perl5 style
 
   * Prerequisite changes
     1. Written for Perl 5.10.0

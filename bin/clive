@@ -375,6 +375,11 @@ Recall last video page link input.
 
 Extract the best format of the video.
 
+=item clive -r "http://youtube.com/watch?v=3HD220e0bx4"
+
+Causes clive to skip re-fetching the video page and parse it.
+Instead it reuses the record saved in the cache.
+
 =item clive --cache-dump
 
 Dump cache records to stdout. You can use --cache-dump-format

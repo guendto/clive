@@ -326,7 +326,7 @@ are not any left.
 Note that some video file formats (namely Google mp4) are
 known to B<not> to work with this feature.
 
-=item B<limit-rate>=I<amount>
+=item B<--limit-rate>=I<amount>
 
 Limit transfer rate to I<amount> KB/s.
 
@@ -476,7 +476,11 @@ Format: flv
 
 =item ~/.cliverc
 
-User configuration file.
+User configuration file. You can append the command line options to
+the config file, e.g.:
+  % cat >> ~/.cliverc
+  -f best
+  --proxy=http://foo:1234
 
 =item ~/.clivelast
 

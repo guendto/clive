@@ -26,8 +26,8 @@ use strict;
 use base 'Class::Singleton';
 
 use WWW::Curl::Easy 4.05;
-use Encode;
 use Cwd;
+use Encode;
 
 my $bp;
 
@@ -110,7 +110,16 @@ sub fetchToMem {
         $log->errn( $self->{handle}->strerror($rc) . " (http/$rc)" );
         $rc = 1;
     }
-    decode_utf8($$content);
+
+    my $config = clive::Config->instance->config;
+
+    if (!$config->{no_utf8}) {
+        my $tmp;
+        # Process only valid utf8. Otherwise leave html as it is.
+        eval { $tmp = decode_utf8($$content, Encode::FB_CROAK) };
+        $$content = $tmp and print "valid utf8.\n"
+            if ($@ && $tmp);
+    }
     return ($rc);
 }
 

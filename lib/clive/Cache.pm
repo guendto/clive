@@ -23,12 +23,7 @@ package clive::Cache;
 use warnings;
 use strict;
 
-binmode( STDOUT, ":utf8" );
-binmode( STDERR, ":utf8" );
-
 use base 'Class::Singleton';
-
-use Encode;
 
 use clive::Video;
 use clive::Log;
@@ -181,7 +176,8 @@ sub _formatDump {
     my ( $self, $dumpfmt, $hash, $props, $index ) = @_;
 
     if ( _mapRecord( $self, $props, $hash ) ) {
-        my $title  = decode_utf8( $$props->page_title );
+        my $title  = $$props->page_title;
+        #decode_utf8( $$props->page_title );
         my $id     = $$props->video_id;
         my $host   = $$props->video_host;
         my $len    = $$props->file_length;

@@ -23,9 +23,6 @@ package clive::Log;
 use warnings;
 use strict;
 
-binmode( STDOUT, ":utf8" );
-binmode( STDERR, ":utf8" );
-
 use base 'Class::Singleton';
 
 sub init {

@@ -25,7 +25,6 @@ use strict;
 
 use Carp;
 use POSIX;
-use Encode;
 use File::Basename qw(basename);
 
 use clive::Util;
@@ -104,8 +103,11 @@ sub formatOutputFilename {
     if ( !$config->{output_file} ) {
 
         # Apply character-class.
+        my $title = $self->{page_title};
         my $cclass = $config->{cclass} || qr|\w|;
-        my $title = join( '', $self->{page_title} =~ /$cclass/g );
+
+        $title = join( '', $self->{page_title} =~ /$cclass/g )
+            if (!$config->{no_cclass});
 
         # Format output filename.
         $fname = $config->{filename_format} || "%t.%s";
@@ -163,7 +165,8 @@ sub fromCacheRecord {
     # No need to keep order in sync with clive::Video::toCacheRecord
     # or clive::Cache::_mapRecord -- just make sure each item gets
     # set here.
-    $self->{page_title}   = decode_utf8( $$record{page_title} );
+    $self->{page_title}   = $$record{page_title};
+    #decode_utf8( $$record{page_title} );
     $self->{page_link}    = $$record{page_link};
     $self->{video_id}     = $$record{video_id};
     $self->{video_link}   = $$record{video_link};

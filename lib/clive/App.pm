@@ -75,15 +75,8 @@ sub _parseInput {
     }
 
     # Use argv.
-    foreach (@ARGV) {
-        _parseLine( $self, $_ );
-    }
-
-    # Grep from cache.
-    if ( $config->{cache_grep} ) {
-
-        # TODO: implement grep.
-    }
+    _parseLine($self, $_)
+        foreach(@ARGV);
 
     # Default to STDIN.
     if (   scalar( @{ $self->{queue} } ) == 0

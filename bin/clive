@@ -123,8 +123,8 @@ and exit.
 
 =item B<--home-dir>=I<homedir>
 
-Use I<homedir> instead of the default $HOME (default) and $CLIVE_HOME
-environment settings.
+Use I<homedir> instead of the default $HOME (and $CLIVE_HOME) environment
+variable.
 
 =back
 
@@ -476,6 +476,9 @@ Format: flv
 =head1 FILES
 
 =over 4
+
+The default path is $HOME (or ~). clive will also respect the CLIVE_HOME
+environment variable.
 
 =item ~/.cliverc
 

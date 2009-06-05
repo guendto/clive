@@ -116,7 +116,7 @@ SUMMARY of CHANGES
     2. --recall-file
     3. --cache-file
     4. --no-cclass
-    5. --no-utf8
+    5. --raw
 
   * --emit-csv: changes to CSV fields (cleanup, print only the necessary fields)
     1. clive 2.0 - 2.1:
@@ -151,6 +151,9 @@ SUMMARY of CHANGES
  Developer-visible changes:
 
   * OO Perl5 style
+
+  * Change: use a custom perltidyrc (closes issue #17)
+    - Thanks to Tong Sun <suntong001@gmail.com>
 
   * Prerequisite changes
     1. Written for Perl 5.10.0

@@ -41,7 +41,7 @@ sub init {
         \%config,
         'debug',      'exec=s',   'cclass=s',   'stream=i',
         'continue|c', 'recall|l', 'format|f=s', 'agent=s',
-        'quiet|q',    'proxy=s',  'stderr',
+        'quiet|q',    'proxy=s',  'stderr',     'raw|R',
         'hosts'     => \&clive::HostFactory::dumpHosts,
         'version|v' => \&_printVersion,
         'help|h',   => \&_printHelp,
@@ -68,7 +68,6 @@ sub init {
         'home_dir|home-dir|homedir=s',
         'recall_file|recall-file|recallfile=s',
         'cache_file|cache-file|cachefile=s',
-        'no_utf8|no-utf8|noutf8|U',
         'no_cclass|no-cclass|nocclass|C',
     ) or exit(1);
 

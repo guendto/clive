@@ -113,7 +113,7 @@ sub fetchToMem {
 
     my $config = clive::Config->instance->config;
 
-    if (!$config->{no_utf8}) {
+    if (!$config->{raw}) {
         my $tmp;
         # Process only valid utf8. Otherwise leave html as it is.
         eval { $tmp = decode_utf8($$content, Encode::FB_CROAK) };

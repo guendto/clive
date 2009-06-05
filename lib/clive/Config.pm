@@ -127,7 +127,7 @@ sub _printVersion {
 
 sub _printHelp {
 
-    # Edit scripts/clive for --help contents.
+    # Edit bin/clive for --help contents.
     require Pod::Usage;
     Pod::Usage::pod2usage( -exitstatus => 0, -verbose => 1 );
 }

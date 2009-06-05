@@ -115,6 +115,8 @@ SUMMARY of CHANGES
     1. --home-dir
     2. --recall-file
     3. --cache-file
+    4. --no-cclass
+    5. --no-utf8
 
   * --emit-csv: changes to CSV fields (cleanup, print only the necessary fields)
     1. clive 2.0 - 2.1:
@@ -165,6 +167,8 @@ SUMMARY of CHANGES
         o BerkeleyDB
         o Term::ReadKey
 
+  * Change: use decode_utf8 returned html only if html is valid utf8
+
   * Installation changes
     1. Makefile.PL (ExtUtils::MakeMaker) [see README]
 
@@ -172,6 +176,10 @@ SUMMARY of CHANGES
     1. Makefile (obsoleted by Makefile.PL)
     2. clive.pod (merged into bin/clive)
     3. clive.1 (generated from bin/clive)
+
+  * Remove: binmode STDOUT, ":utf8"
+
+  * Remove: extra decode_utf8
 
 
 Version 2.1.14

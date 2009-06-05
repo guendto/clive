@@ -82,11 +82,13 @@ Download Options:
  -c, --continue                 continue partially downloaded file
      --save-dir=DIR             save video files to DIR
      --cclass=CLASS             use character CLASS to filter titles
+ -C, --no-cclass                do not apply character class
      --filename-format=STRING   use STRING to format output filename
      --exec=CMD                 run CMD subsequently after file transfer
      --stream=PERCENT           run stream command (below) at PERCENT
      --stream-exec=CMD          stream command to run
      --limit-rate=AMOUNT        limit transfer rate to AMOUNT (KB/s)
+ -R, --raw                      process video page html on as-is basis
 
 See clive manual page for EXAMPLES.
 
@@ -280,6 +282,10 @@ Use character-I<class> to filter video page titles. Defaults to "\w".
 Refer to the Perl regular expressions (character classes) for more on
 this.
 
+=item B<-C, --no-class>
+
+Negates the use of the character-class.
+
 =item B<filename-format>=<format-string>
 
 Use <format-string> to format output video filenames. Defaults to "%t.%s".
@@ -329,6 +335,13 @@ known to B<not> to work with this feature.
 =item B<--limit-rate>=I<amount>
 
 Limit transfer rate to I<amount> KB/s.
+
+=item <-R, --raw>
+
+Process video page HTML as it is. Technically, this means that
+clive will not try to decode the HTML using Encode::decode_utf8.
+This may be useful with some of the supported host such as
+Cctv which uses GBK as its HTML encoding.
 
 =back
 
@@ -477,9 +490,6 @@ Format: flv
 
 =over 4
 
-The default path is $HOME (or ~). clive will also respect the CLIVE_HOME
-environment variable.
-
 =item ~/.cliverc
 
 User configuration file. You can append the command line options to
@@ -496,6 +506,11 @@ File containing last user input.
 
 BerkeleyDB based cache containing the records of fetched and
 parsed video pages.
+
+=item Notes
+
+The default path is $HOME (or ~). clive will also respect the CLIVE_HOME
+environment variable.
 
 =back
 

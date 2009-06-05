@@ -1,5 +1,4 @@
 repo: git://repo.or.cz/clive.git
 web : http://repo.or.cz/w/clive.git
 
-* document --no-utf8
-* document --no-cclass
+* add i8n section to manual

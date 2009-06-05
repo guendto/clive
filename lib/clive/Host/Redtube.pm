@@ -62,7 +62,7 @@ sub parsePage {
         my @map = unpack( 'C*', 'R15342O7K9HBCDXFGAIJ8LMZ6PQ0STUVWEYN' );
 
         my $var_1 = 0;
-        for ( my $i = 0 ; $i <= 6 ; $i++ ) {
+        for ( my $i = 0; $i <= 6; $i++ ) {
 
             #        0000477
             #        0 --> 0*1 = 0
@@ -78,7 +78,7 @@ sub parsePage {
         }
 
         my $var_2 = 0;
-        for ( my $i = 0 ; $i < length($var_1) ; $i++ ) {
+        for ( my $i = 0; $i < length($var_1); $i++ ) {
 
             # $var_1 = 111 -> $var_2 = 3
             $var_2 += digit( $var_1, $i, length($var_1) );
@@ -100,8 +100,9 @@ sub parsePage {
         push @mapping, $map[ digit( $id, 4, 7 ) + $var_2 + 7 ];
         push @mapping, $map[ digit( $id, 6, 7 ) + $var_2 + 4 ];
 
-        my $xurl = sprintf(
-"http://dl.redtube.com/_videos_t4vn23s9jc5498tgj49icfj4678/%07d/%s.flv",
+        my $xurl
+            = sprintf(
+            "http://dl.redtube.com/_videos_t4vn23s9jc5498tgj49icfj4678/%07d/%s.flv",
             $id / 1000, pack( 'C*', @mapping ) );
 
         $$props->video_id($id);

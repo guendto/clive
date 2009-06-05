@@ -44,10 +44,10 @@ sub out {
     my $self = shift;
     return if $self->{quiet};
 
-    my $ref =
-      clive::Config->instance->config->{stderr}
-      ? \*STDERR
-      : \*STDOUT;
+    my $ref
+        = clive::Config->instance->config->{stderr}
+        ? \*STDERR
+        : \*STDOUT;
 
     my $fmt = shift;
     my $str = @_ ? sprintf( $fmt, @_ ) : $fmt;
@@ -75,7 +75,7 @@ sub errn {
 
     print( STDERR "\n" );
 
-      err ( $self, @_ );
+        err ( $self, @_ );
 }
 
 sub errorOccurred {

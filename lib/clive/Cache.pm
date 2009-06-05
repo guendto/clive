@@ -39,7 +39,7 @@ sub init {
 
     eval("require BerkeleyDB");
     $self->{enabled} = 1
-      if ( !$@ && !$config->{no_cache} );
+        if ( !$@ && !$config->{no_cache} );
 
     if ( $self->{enabled} ) {
         require Digest::SHA;
@@ -94,15 +94,15 @@ sub grepQueue {
 sub _mapRecord {
     my ( $self, $props, $hash ) = @_;
     $hash = Digest::SHA::sha1_hex( $$props->page_link )
-      if ( !$hash );
+        if ( !$hash );
 
     # Key order matters. Keep in sync with clive::Video::toCacheRecord order.
     if ( $self->{cache}{$hash} ) {
         my @values = split( /#/, $self->{cache}{$hash} );
         my @keys = qw(
-          page_title      page_link      video_id      video_link
-          video_host      video_format   file_length   file_suffix
-          content_type    time_stamp
+            page_title      page_link      video_id      video_link
+            video_host      video_format   file_length   file_suffix
+            content_type    time_stamp
         );
         my $i = 0;
         my %record = map { $_ => $values[ $i++ ] } @keys;
@@ -115,14 +115,14 @@ sub _mapRecord {
 sub _dumpCache {
     my $self = shift;
 
-    my $config = clive::Config->instance->config;
+    my $config  = clive::Config->instance->config;
     my $dumpfmt = $config->{cache_dump_format} || DEFAULT_DUMP_FORMAT;
-    my $props =
-      clive::Video->new;  # Reuse this rather than re-create it for each record.
+    my $props   = clive::Video->new
+        ;                      # Reuse this rather than re-create it for each record.
 
     my $i = 1;
     print _formatDump( $self, $dumpfmt, $_, \$props, $i++ ) . "\n"
-      foreach ( keys %{ $self->{cache} } );
+        foreach ( keys %{ $self->{cache} } );
 
     exit(0);
 }
@@ -130,15 +130,15 @@ sub _dumpCache {
 sub _grepCache {
     my $self = shift;
 
-    my $config = clive::Config->instance->config;
+    my $config  = clive::Config->instance->config;
     my $dumpfmt = $config->{cache_dump_format} || DEFAULT_DUMP_FORMAT;
-    my $props =
-      clive::Video->new;  # Reuse this rather than re-create it for each record.
+    my $props   = clive::Video->new
+        ;                      # Reuse this rather than re-create it for each record.
 
-    my $g =
-      $config->{cache_ignore_case}
-      ? qr|$config->{cache_grep}|i
-      : qr|$config->{cache_grep}|;
+    my $g
+        = $config->{cache_ignore_case}
+        ? qr|$config->{cache_grep}|i
+        : qr|$config->{cache_grep}|;
 
     $self->{grep_queue} = [];
     my $i = 1;
@@ -148,7 +148,7 @@ sub _grepCache {
         if ( grep /$g/, @e ) {
             push( @{ $self->{grep_queue} }, $props->page_link );
             print "$dumpstr\n"
-              if ( $config->{cache_remove_record} );
+                if ( $config->{cache_remove_record} );
         }
     }
 
@@ -177,7 +177,6 @@ sub _formatDump {
 
     if ( _mapRecord( $self, $props, $hash ) ) {
         my $title  = $$props->page_title;
-        #decode_utf8( $$props->page_title );
         my $id     = $$props->video_id;
         my $host   = $$props->video_host;
         my $len    = $$props->file_length;

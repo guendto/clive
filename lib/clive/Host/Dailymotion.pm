@@ -61,7 +61,7 @@ sub parsePage {
             my ( $path, $type ) = split(/@@/);
 
             $width{$2} = $path
-              if ( $path =~ /cdn\/(.*)-(.*?)x/ );
+                if ( $path =~ /cdn\/(.*)-(.*?)x/ );
 
             if ( lc($type) eq $format
                 && $format ne "best" )

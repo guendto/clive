@@ -110,7 +110,8 @@ sub _parseInput {
             # Read from cache.
             if ( $cache->enabled() && $config->{cache_read} ) {
                 $rc = $cache->read( \$props );
-                if ( $rc == 1 && $props->video_format() ne $config->{format} ) {
+                if ( $rc == 1 && $props->video_format() ne $config->{format} )
+                {
 
                     # Cache: video format != requested format -> re-fetch.
                     $rc = 0;
@@ -152,7 +153,8 @@ sub _parseInput {
                 $props->formatOutputFilename;
 
                 if ( $props->nothing_todo ) {
-                    $log->err("file is already fully retrieved; nothing to do");
+                    $log->err(
+                        "file is already fully retrieved; nothing to do");
                     clive::Exec->instance->queue( \$props );
                     next;
                 }
@@ -198,16 +200,16 @@ sub _parseLine {
     chomp $ln;
 
     $ln = "http://$ln"
-      if $ln !~ m{^http://}i;
+        if $ln !~ m{^http://}i;
 
     # Youtube: youtube-nocookie.com -> youtube.com.
     $ln =~ s/-nocookie//;
 
     # Translate host specific embedded link to video page link.
-    $ln =~ s!/v/!/watch?v=!i;                 # youtube
+    $ln =~ s!/v/!/watch?v=!i;  # youtube
     $ln =~ s!googleplayer.swf!videoplay!i;    # googlevideo
-    $ln =~ s!/pl/!/videos/!i;                 # sevenload
-    $ln =~ s!/e/!/view?i=!i;                  # liveleak
+    $ln =~ s!/pl/!/videos/!i;  # sevenload
+    $ln =~ s!/e/!/view?i=!i;   # liveleak
 
     # Lastfm demystifier.
     if ( $ln =~ /last\.fm/ ) {

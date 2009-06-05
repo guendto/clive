@@ -37,8 +37,8 @@ sub parsePage {
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
         my $domain = join( '.', clive::Util::toDomain( $$props->page_link ) );
-        my $config =
-          "http://$domain/playcfg/flv_info_new.jsp?videoId=$tmp->{id}";
+        my $config
+            = "http://$domain/playcfg/flv_info_new.jsp?videoId=$tmp->{id}";
 
         my $curl = clive::Curl->instance;
 

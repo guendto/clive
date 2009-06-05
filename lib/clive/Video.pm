@@ -107,7 +107,7 @@ sub formatOutputFilename {
         my $cclass = $config->{cclass} || qr|\w|;
 
         $title = join( '', $self->{page_title} =~ /$cclass/g )
-            if (!$config->{no_cclass});
+            if ( !$config->{no_cclass} );
 
         # Format output filename.
         $fname = $config->{filename_format} || "%t.%s";
@@ -122,7 +122,7 @@ sub formatOutputFilename {
 
         my $tmp = $fname;
 
-        for ( my $i = 1 ; $i < 9999 ; ++$i ) {
+        for ( my $i = 1; $i < 9999; ++$i ) {
             $self->{initial_length} = clive::Util::fileExists($fname);
 
             if ( $self->{initial_length} == 0 ) {
@@ -141,8 +141,8 @@ sub formatOutputFilename {
         }
     }
     else {
-        $self->{initial_length} =
-          clive::Util->fileExists( $config->{output_file} );
+        $self->{initial_length}
+            = clive::Util->fileExists( $config->{output_file} );
         if ( $self->{initial_length} == $self->{file_length} ) {
             $self->{nothing_todo} = 1;
         }
@@ -166,7 +166,6 @@ sub fromCacheRecord {
     # or clive::Cache::_mapRecord -- just make sure each item gets
     # set here.
     $self->{page_title}   = $$record{page_title};
-    #decode_utf8( $$record{page_title} );
     $self->{page_link}    = $$record{page_link};
     $self->{video_id}     = $$record{video_id};
     $self->{video_link}   = $$record{video_link};
@@ -188,18 +187,18 @@ sub toCacheRecord {
     $self->{page_title} =~ tr{#}//d;
 
     # Keep the order in sync with clive::Cache::_mapRecord.
-    my $record =
-        $self->{page_title} . "#"
-      . $self->{page_link} . "#"
-      . $self->{video_id} . "#"
-      . $self->{video_link} . "#"
-      . $self->{video_host} . "#"
-      . $self->{video_format} . "#"
-      . $self->{file_length} . "#"
-      . $self->{file_suffix} . "#"
-      . $self->{content_type} . "#"
-      . POSIX::strftime( "%F %T", localtime )    # time_stamp
-      ;
+    my $record
+        = $self->{page_title} . "#"
+        . $self->{page_link} . "#"
+        . $self->{video_id} . "#"
+        . $self->{video_link} . "#"
+        . $self->{video_host} . "#"
+        . $self->{video_format} . "#"
+        . $self->{file_length} . "#"
+        . $self->{file_suffix} . "#"
+        . $self->{content_type} . "#"
+        . POSIX::strftime( "%F %T", localtime )    # time_stamp
+        ;
     return $record;
 }
 
@@ -219,7 +218,7 @@ sub _cleanupTitle {
 sub AUTOLOAD {
     my $self = shift;
     my $type = ref($self)
-      or croak("$self is not an object");
+        or croak("$self is not an object");
     my $name = $AUTOLOAD;
     $name =~ s/.*://;
     unless ( exists( $self->{_permitted}->{$name} ) ) {

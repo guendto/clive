@@ -41,7 +41,7 @@ sub parsePage {
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
 
         my $mp4 = "http://$1=ck1"
-          if ( $$content =~ /http:\/\/(.*?)\=ck1/ );
+            if ( $$content =~ /http:\/\/(.*?)\=ck1/ );
 
         my $config = clive::Config->instance->config;
 
@@ -61,7 +61,7 @@ sub parsePage {
         }
 
         $xurl = $mp4
-          if ( $config->{format} eq "best" && $mp4 );
+            if ( $config->{format} eq "best" && $mp4 );
 
         $$props->video_id( $tmp->{id} );
         $$props->video_link($xurl);

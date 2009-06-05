@@ -75,11 +75,11 @@ sub init {
 
     $config{home_dir} ||= $ENV{CLIVE_HOME} || $ENV{HOME};
 
-    $config{recall_file} ||=
-      File::Spec->catfile( $config{home_dir}, ".clivelast" );
+    $config{recall_file}
+        ||= File::Spec->catfile( $config{home_dir}, ".clivelast" );
 
-    $config{cache_file} ||=
-      File::Spec->catfile( $config{home_dir}, ".clivecache" );
+    $config{cache_file}
+        ||= File::Spec->catfile( $config{home_dir}, ".clivecache" );
 
     # Check format.
     my @youtube = qw(fmt18 fmt35 fmt22 fmt17);
@@ -111,15 +111,15 @@ sub config {
 }
 
 sub _printVersion {
-    my $str =
-      sprintf( "clive version %s with WWW::Curl version "
-          . "$WWW::Curl::VERSION  [%s].\n"
-          . "Copyright (C) 2009 Toni Gundogdu.\n\n"
-          . "License GPLv3+: GNU GPL version 3 or later\n"
-          . "  <http://www.gnu.org/licenses/>\n\n"
-          . "This is free software: you are free to change and redistribute it."
-          . "\nThere is NO WARRANTY, to the extent permitted by law.\n\n"
-          . "Report bugs: <http://code.google.com/p/clive/issues/>\n",
+    my $str
+        = sprintf( "clive version %s with WWW::Curl version "
+            . "$WWW::Curl::VERSION  [%s].\n"
+            . "Copyright (C) 2009 Toni Gundogdu.\n\n"
+            . "License GPLv3+: GNU GPL version 3 or later\n"
+            . "  <http://www.gnu.org/licenses/>\n\n"
+            . "This is free software: you are free to change and redistribute it."
+            . "\nThere is NO WARRANTY, to the extent permitted by law.\n\n"
+            . "Report bugs: <http://code.google.com/p/clive/issues/>\n",
         VERSION, $^O );
     print($str);
     exit(0);

@@ -35,7 +35,7 @@ sub init {
     if ( $config->{exec} ) {
         if ( $config->{exec} !~ /[;+]$/ ) {
             clive::Log->instance->err( "--exec expression must be "
-                  . "terminated by either ';' or '+'" );
+                    . "terminated by either ';' or '+'" );
             exit(1);
         }
     }
@@ -66,7 +66,7 @@ sub runExec {
             system("$cmd");
         }
     }
-    else {                              # Plus
+    else {                     # Plus
         my $cmd = sprintf( "%s ", $config->{exec} );
         $cmd =~ s/%i//g;
         $cmd =~ tr{+}//d;
@@ -79,7 +79,7 @@ sub resetStream {
     my $self = shift;
 
     waitpid( $self->{stream_pid}, 0 )
-      if $self->{stream_flag};
+        if $self->{stream_flag};
 
     $self->{stream_flag} = 0;
     $self->{stream_pid}  = -1;
@@ -93,7 +93,7 @@ sub runStream {
         && !$self->{stream_flag} )
     {
         _forkStreamer( $self, \$config, $props )
-          if ( $percent >= $config->{stream} );
+            if ( $percent >= $config->{stream} );
     }
 }
 

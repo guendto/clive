@@ -41,7 +41,7 @@ sub new {
     my $total   = $$props->file_length;
 
     $total = $initial
-      if ( $initial > $total );
+        if ( $initial > $total );
 
     $recv_sigwinch = 0;
     $SIG{WINCH} = \&handle_sigwinch;
@@ -136,7 +136,7 @@ sub update {
     # pad to max. width leaving enough space for rate+eta
     my $pad = $self->{width} - length($tmp) - length($buf);
     $buf .= sprintf( "%${pad}s", " " );
-    $buf .= $tmp;    # append rate+eta
+    $buf .= $tmp;              # append rate+eta
 
     clive::Log->instance->out("\r$buf");
     $self->{count} = $now;

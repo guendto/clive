@@ -31,7 +31,7 @@ use constant MBDIV              => 0x100000;
 
 sub termWidth {
     return DEFAULT_TERM_WIDTH
-      unless $TermReadKey;
+        unless $TermReadKey;
     my ($width) = Term::ReadKey::GetTerminalSize();
     return $width;
 }
@@ -103,8 +103,9 @@ sub matchRegExps {
 sub toDomain {
     my $uri = shift;
 
-    my ( $scheme, $authority, $path, $query, $fragment ) = $uri =~
-      m{(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?}o;
+    my ( $scheme, $authority, $path, $query, $fragment )
+        = $uri
+        =~ m{(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?}o;
 
     return split( /\./, $authority );
 }

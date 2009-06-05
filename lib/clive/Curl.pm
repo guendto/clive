@@ -44,10 +44,10 @@ sub init {
     $c->setopt( CURLOPT_NOBODY,         0 );
 
     $c->setopt( CURLOPT_VERBOSE, 1 )
-      if $config->{debug};
+        if $config->{debug};
 
     $c->setopt( CURLOPT_PROXY, $config->{proxy} )
-      if $config->{proxy};
+        if $config->{proxy};
 
     $self->{handle} = $c;
 }
@@ -58,11 +58,11 @@ sub setTimeout {
     my $config = clive::Config->instance->config;
 
     $self->{handle}
-      ->setopt( CURLOPT_CONNECTTIMEOUT, $config->{connecttimeout} || 30 );
+        ->setopt( CURLOPT_CONNECTTIMEOUT, $config->{connecttimeout} || 30 );
 
     $self->{handle}
-      ->setopt( CURLOPT_TIMEOUT, $config->{connecttimeoutsocks} || 30 )
-      unless $no_socks_timeout;
+        ->setopt( CURLOPT_TIMEOUT, $config->{connecttimeoutsocks} || 30 )
+        unless $no_socks_timeout;
 }
 
 sub resetTimeout {
@@ -113,12 +113,13 @@ sub fetchToMem {
 
     my $config = clive::Config->instance->config;
 
-    if (!$config->{raw}) {
+    if ( !$config->{raw} ) {
         my $tmp;
+
         # Process only valid utf8. Otherwise leave html as it is.
-        eval { $tmp = decode_utf8($$content, Encode::FB_CROAK) };
+        eval { $tmp = decode_utf8( $$content, Encode::FB_CROAK ) };
         $$content = $tmp and print "valid utf8.\n"
-            if ($@ && $tmp);
+            if ( $@ && $tmp );
     }
     return ($rc);
 }
@@ -152,7 +153,8 @@ sub queryFileLength {
             $$props->file_length(
                 $self->{handle}->getinfo(CURLINFO_CONTENT_LENGTH_DOWNLOAD) );
 
-            my $content_type = $self->{handle}->getinfo(CURLINFO_CONTENT_TYPE);
+            my $content_type
+                = $self->{handle}->getinfo(CURLINFO_CONTENT_TYPE);
             $$props->content_type($content_type);
 
             # Figure out file suffix.
@@ -208,7 +210,7 @@ sub fetchToFile {
     my $fpath = $$props->filename;
 
     open( my $fh, $mode, $fpath )
-      or die("$fpath: $!");
+        or die("$fpath: $!");
 
     $self->{handle}->setopt( CURLOPT_URL,         $$props->video_link );
     $self->{handle}->setopt( CURLOPT_ENCODING,    "identity" );
@@ -263,7 +265,7 @@ sub fetchToFile {
 sub progress_callback {
     my ( $percent, $props ) = $bp->update(@_);
     clive::Exec->instance->runStream( $percent, $props );
-    return (0);    # 0 == OK
+    return (0);                # 0 == OK
 }
 
 1;

@@ -45,8 +45,8 @@ sub parsePage {
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
 
-        my $xurl =
-          "http://youtube.com/get_video?video_id=$tmp->{id}&t=$tmp->{t}";
+        my $xurl
+            = "http://youtube.com/get_video?video_id=$tmp->{id}&t=$tmp->{t}";
 
         my $config = clive::Config->instance->config;
 
@@ -54,15 +54,15 @@ sub parsePage {
 
         if ( $config->{format} eq "best" ) {
             $fmt = $1
-              if $$content =~ /"fmt_map": "(.*?)\//;
+                if $$content =~ /"fmt_map": "(.*?)\//;
         }
         else {
             $fmt = $1
-              if $config->{format} =~ /^fmt(.*)$/;
+                if $config->{format} =~ /^fmt(.*)$/;
         }
 
         $xurl .= "&fmt=$fmt"
-          if $fmt;
+            if $fmt;
 
         $$props->video_id( $tmp->{id} );
         $$props->video_link($xurl);

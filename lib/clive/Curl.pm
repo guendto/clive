@@ -118,7 +118,7 @@ sub fetchToMem {
 
         # Process only valid utf8. Otherwise leave html as it is.
         eval { $tmp = decode_utf8( $$content, Encode::FB_CROAK ) };
-        $$content = $tmp and print "valid utf8.\n"
+        $$content = $tmp
             if ( $@ && $tmp );
     }
     return ($rc);

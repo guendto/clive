@@ -27,25 +27,22 @@ Optional modules
 Installation
 ------------
 
-    perl Makefile.PL
+INSTALL_BASE can be passed into Makefile.PL to change where clive will
+be installed. For example:
 
-INSTALL_BASE can be passed into Makefile.PL to change where your module
-will be installed. INSTALL_BASE is more like what everyone else calls
-"prefix" than PREFIX is. For example:
+  perl Makefile.PL INSTALL_BASE=/usr/local
 
-    perl Makefile.PL INSTALL_BASE=~
+  perl Makefile.PL
+  make
+  make test
+  make install
 
-    make
-    make test
-    make install
-
-NOTE: "make test" will not run the host specific test cases unless
-you set CLIVE_TEST_HOSTS env. variable. Please note that these
-tests run clive executable which will use ~/.cliverc settings
-if they can be found.
+NOTE: "make test" will not run the host specific test cases unless you
+set CLIVE_TEST_HOSTS env. variable. Note that if you have ~/.cliverc
+installed, clive will use it.
 
 
 Bugs
 ----
 
-    http://code.google.com/p/clive/issues/
+  http://code.google.com/p/clive/issues/

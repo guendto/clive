@@ -282,7 +282,7 @@ Use character-I<class> to filter video page titles. Defaults to "\w".
 Refer to the Perl regular expressions (character classes) for more on
 this.
 
-=item B<-C, --no-class>
+=item B<-C, --no-cclass>
 
 Negates the use of the character-class.
 

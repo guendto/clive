@@ -4,6 +4,6 @@ use warnings;
 use strict;
 
 use Test::More tests => 1;
-use RunTest;
+use Test::clive;
 
-RunTest::runTest(qq|http://space.tv.cctv.com/video/VIDE1212909276513233|);
+Test::clive::host(qq|http://space.tv.cctv.com/video/VIDE1212909276513233|);

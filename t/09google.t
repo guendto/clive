@@ -4,13 +4,13 @@ use warnings;
 use strict;
 
 use Test::More tests => 3;
-use RunTest;
+use Test::clive;
 
-RunTest::runTest(
+Test::clive::host(
     qq|http://video.google.com/videoplay?docid=-8669127848070159803|,
     "-f $_" )
     foreach qw(flv mp4);
 
-RunTest::runTest(              # Embed.
+Test::clive::host(             # Embed.
     qq|http://video.google.com/googleplayer.swf?docid=-8669127848070159803|
 );

@@ -1,10 +1,10 @@
-package RunTest;
+package Test::clive;
 
 use Test::More;
 
 my $clive = "perl -I./blib/lib blib/script/clive -n";
 
-sub runTest {
+sub host {
     my $url    = shift;
     my $cmd    = "$clive $url @_ 2>&1";
     my $output = qx($cmd);

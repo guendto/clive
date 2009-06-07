@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 use Test::More tests => 1;
-use RunTest;
+use Test::clive;
 
-RunTest::runTest(
+Test::clive::host(
     qq|http://www.last.fm/music/Johnny+Cash/+videos/+1-AOtl60OOhsM|);

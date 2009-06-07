@@ -4,19 +4,20 @@ use warnings;
 use strict;
 
 use Test::More tests => 5;
-use RunTest;
+use Test::clive;
 
-RunTest::runTest(
+Test::clive::host(
     qq|http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips|);
-RunTest::runTest(
+Test::clive::host(
     qq|http://de.sevenload.com/videos/GN4Hati/EM08-Spanien-Russland-4-1-Highlights|
 );
-RunTest::runTest(
+Test::clive::host(
     qq|http://en.sevenload.com/shows/TheSailingChannel-TV/episodes/zLM5OvT-Cruising-with-Bettie-Trailer|
 );
-RunTest::runTest(
+Test::clive::host(
     qq|http://de.sevenload.com/sendungen/halbzeit-in/folgen/Kbv3CsN-Wechselgesang-Sieger-beste-Bewertungen|
 );
 
 # Embed.
-RunTest::runTest(qq|http://en.sevenload.com/pl/IUL3gda-Funny-Football-Clips|);
+Test::clive::host(
+    qq|http://en.sevenload.com/pl/IUL3gda-Funny-Football-Clips|);

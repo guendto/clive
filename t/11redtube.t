@@ -4,6 +4,6 @@ use warnings;
 use strict;
 
 use Test::More tests => 1;
-use RunTest;
+use Test::clive;
 
-RunTest::runTest(qq|http://www.redtube.com/11573|);
+Test::clive::host(qq|http://www.redtube.com/11573|);

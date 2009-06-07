@@ -4,6 +4,6 @@ use warnings;
 use strict;
 
 use Test::More tests => 1;
-use RunTest;
+use Test::clive;
 
-RunTest::runTest(qq|http://break.com/index/beach-tackle-whip-lash.html|);
+Test::clive::host(qq|http://break.com/index/beach-tackle-whip-lash.html|);

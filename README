@@ -37,9 +37,7 @@ be installed. For example:
   make test
   make install
 
-NOTE: "make test" will not run the host specific test cases unless you
-set CLIVE_TEST_HOSTS env. variable. Note that if you have ~/.cliverc
-installed, clive will use it.
+NOTE: "make test" will use ~/.cliverc settings.
 
 
 Bugs

@@ -9,5 +9,5 @@ SKIP: {
 
     my $r = podchecker("blib/script/clive");
     ok( $r == 0 )
-      or diag explain $r;
+        or diag explain $r;
 }

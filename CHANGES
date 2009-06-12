@@ -4,55 +4,48 @@ FOREWORD
 
 This release is a major overhaul aimed to fix the previous design flaws
 and clean up the codebase. Note that 2.2.0 will break compatibility with
-the earlier versions, see the summary of changes further below for the
-details. For most users most of these changes are transparent but those
-who have used clive for anything else than "clive URL" should read the
-changes carefully.
+the earlier versions. See the summary of changes further below for a list
+of the details. For most users most of these changes are transparent but
+those who have used clive for anything else than "clive URL" should read
+the changes carefully.
 
-2.2.0 changes the license from ISC back to GPLv3.
+2.2.0 changes the license from ISC to GPLv3.
 
-The changes made to the core elements of the project in 2.2.0 are
-reflecting the need to stabilize these seemingly ever-changing parts
-of clive. The config file format which was last changed in 2.0.0 is one
-of such parts. 2.2.0 tries to correct this by using Getopt::ArgvFile
-which allows defining the command line options in the config file (example
-further below). This should eliminate the need to remember confusing
-config file variable names and ease the transition as new features are
-implemented.
+Many of the changes made to the core of the project in 2.2.0 are in fact
+aimed to stabilize the seemingly ever-changing parts of clive such as the
+format of the config file which was last changed in 2.0.0. By choosing to
+use Getopt::ArgvFile, users may now define the command line options
+in the config instead having to know or look up their supported variable
+name counterparts. We also no longer need to modify the config file parsing
+support everytime we add a new feature to the program in order to support it.
 
-2.2.0 makes some radical changes to the use of cache which was previously
-enabled by default to reuse the video details if a video was re-extracted
-again. With this release, clive no longer attempts to reuse the cache
-details by default -- instead the users are expected to invoke the
---cache-read option.
+A more radical change to the program is how it uses the video page cache
+by default. clive now writes to the cache by default and only reads from
+it if --cache-read is defined. There is also a whole section in the manual
+page dedicated to its use and purpose.
 
-The cache, while arguably useful in some cases, has turned out to be the
-most controversial feature of clive. Majority of the issues that people
-have reported have been about the infamous HTTP 40x error with Youtube.
-Most of those issues could be linked to expired Youtube video links
-that clive used from the cache records.
+This change was made primarily as many users have frequently reported that
+they cannot re-extract videos that they previously were able to. clive
+would typically print an HTTP 403 or HTTP 404 error if clive would attempt
+to reuse an expired video link from the cache. Youtube is known to have
+their video links expire after some time. This way only more advanced users
+with some more know-how will make more use of the cache which is often
+overlooked by a regular user.
 
-clive still saves the parsed video details to the cache (if BerkeleyDB
-module is installed) by default but even this can be disabled with
---no-cache.
+Another notable change to clive 2.2.0 is what --emit-csv now outputs.
+Previously clive printed out a number of less used fields that have
+not been any real use to anyone. 2.2.0 now prints only those that
+are known to be useful to anyone.
 
-There are significant changes to the --emit-csv output. Only those
-fields are now printed that are known to be any real use to anyone.
-If there is need for additional fields, please contact the author.
+2.2.0 also removes several less useful features that have lingered in
+the project since the 1.x.
 
-Other changes made in 2.2.0 include removing a number of less useful
-features that have lingered in the project since 1.x. In some ways,
-upgrading to 2.2.0 could be compared to upgrading from 1.x to 2.x.
+Part time hackers and/or developers will notice that clive now follows
+a new OO design.
 
-From the developer point of view there are mainly two notable changes:
-Getopt::ArgvFile and new the OO design. Getopt::ArgvFile allowed to
-remove a chunk of code from clive that was encumbering the codebase,
-and the new OO design should make clive more adaptable to anyone who
-is looking to take a hack at it.
-
-Package and port maintainers will want to read the README file. The
-previously used GNU Makefile is now gone clive uses ExtUtils::MakeMaker
-instead which should be a welcome change to those familiar with Perl.
+Package/port maintainers will want to read the README file. The previously
+used GNU Makefile is no longer used and clive now uses ExtUtils::MakeMaker
+instead.
 
 SUMMARY of CHANGES
 

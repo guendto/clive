@@ -48,7 +48,10 @@ sub parsePage {
         return substr( $foo, $digit, 1 );
     }
 
-    my %re = ( id => qr|videoid=(.*?)'| );
+    my %re = ( 
+        id => qr|videoid=(.*?)'|,
+        title => qr|videotitle'>(.*?)</|i
+    );
 
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
@@ -102,11 +105,15 @@ sub parsePage {
 
         my $xurl
             = sprintf(
-            "http://dl.redtube.com/_videos_t4vn23s9jc5498tgj49icfj4678/%07d/%s.flv",
-            $id / 1000, pack( 'C*', @mapping ) );
+            "http://dl.redtube.com/_videos_t4vn23s9jc5498tgj49icfj4678/%07d/"
+            ."%s.flv",$id / 1000, pack( 'C*', @mapping ) );
 
         $$props->video_id($id);
         $$props->video_link($xurl);
+
+        # <title> no longer contains the video title. Use the string
+        # extracted from the html instead.
+        $$props->page_title(undef, $tmp->{title});
 
         return (0);
     }

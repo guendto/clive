@@ -58,13 +58,17 @@ sub new {
 sub page_title {
     my $self = shift;
     if (@_) {
-        require HTML::TokeParser;
-        my $content = shift;
-
-        my $p = HTML::TokeParser->new($content);
-        $p->get_tag("title");
-        $self->{page_title} = $p->get_trimmed_text;
-        _cleanupTitle($self);
+        my ($content, $title) = @_;
+        if (!$title) {
+            require HTML::TokeParser;
+            my $p = HTML::TokeParser->new($content);
+            $p->get_tag("title");
+            $self->{page_title} = $p->get_trimmed_text;
+            _cleanupTitle($self);
+        }
+        else {
+            $self->{page_title} = $title;
+        }
     }
     return $self->{page_title};
 }

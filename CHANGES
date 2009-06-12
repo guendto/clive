@@ -77,6 +77,8 @@ SUMMARY of CHANGES
         --savedir="/home/user/videos"
     -----------------------------------------------
 
+  * Fix: Redtube video title parsing
+
   * Cache changes
     1. Cache is now passive (read:no, write:yes)
     2. Add: --cache- option prefix

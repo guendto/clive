@@ -522,25 +522,33 @@ environment variable.
 
 =head1 CACHE
 
-clive cache contains the records of the fetched and parsed
-video pages. It does B<not> contain any actual video data
-so one should not expect to recover a deleted video file
-from the cache.
 
-The sole purpose of the cache is to allow clive skip fetching
-the video page again.
+The purpose of the cache is to allow clive to skip fetching
+and parsing the video page again. It does not contain any
+actual video data so one should not expect to recover a deleted
+video file from the cache. Only some of the parsed details
+are stored as records to the cache.
 
-It should be noted that reusing the cached video links is known
-to fail for some of the supported hosts, such as Youtube. The
-HTTP server usually returns HTTP 40x if the link has expired.
+By now, it is should be a well known fact that the cache fails
+with some of the supported hosts. For example Youtube video links
+expire after some time, this causes the re-extraction to fail if
+the cached video link is used later again.
 
-Reading from cache and reusing the stored details is disabled
-by default. You can enable this by invoking the --cache-read
-option.
+This was the main reason why in 2.2.0 reading from cache was
+disabled by default. Many users reported the reuse of expired
+video links as a bug previously even though it was well documented
+in the manual page explaining that most of the HTTP 403/404 errors
+were actually caused by expired video links.
+
+It is, of course, still possible to read from cache. You can
+enable this by invoking the --cache-read option. This causes
+clive to look up a saved cache record and reuse the stored
+video details if they are found instead of fetching the video
+page.
 
 The use of the cache can be disabled with the --no-cache option.
-Note that if the BerkeleyDB Perl module is not installed, clive
-will not attempt to use the cache at all.
+This disables both read and write. Note that if the BerkeleyDB Perl
+module is not installed, clive will not use the cache.
 
 See also the --cache-grep option.
 

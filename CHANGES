@@ -112,6 +112,7 @@ SUMMARY of CHANGES
     3. --cache-file
     4. --no-cclass
     5. --raw
+    6. --stop-after (closes issue #18)
 
   * --emit-csv: changes to CSV fields (cleanup, print only the necessary fields)
     1. clive 2.0 - 2.1:

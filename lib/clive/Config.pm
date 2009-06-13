@@ -69,6 +69,7 @@ sub init {
         'recall_file|recall-file|recallfile=s',
         'cache_file|cache-file|cachefile=s',
         'no_cclass|no-cclass|nocclass|C',
+        'stop_after|stop-after|stopafter=s',
     ) or exit(1);
 
     $config{format} = $config{format} || 'flv';
@@ -98,6 +99,17 @@ sub init {
         unless ( $config{stream_exec} && $config{stream} ) {
             clive::Log->instance->err(
                 "both --stream-exec and --stream must be defined");
+            exit(1);
+        }
+    }
+
+    # Check --stop-after.
+    if ($config{stop_after}) {
+        if ($config{stop_after} !~ /M$/
+            && $config{stop_after} !~ /%$/)
+        {
+            clive::Log->instance->err(
+                "--stop-after must be terminated by either '%' or 'M'");
             exit(1);
         }
     }

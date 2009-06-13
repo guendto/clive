@@ -88,6 +88,7 @@ Download Options:
      --stream=PERCENT           run stream command (below) at PERCENT
      --stream-exec=CMD          stream command to run
      --limit-rate=AMOUNT        limit transfer rate to AMOUNT (KB/s)
+     --stop-after=SIZE|PERCENT  stop file transfer after SIZE or PERCENT
  -R, --raw                      process video page html on as-is basis
 
 See clive manual page for EXAMPLES.
@@ -335,6 +336,11 @@ known to B<not> to work with this feature.
 =item B<--limit-rate>=I<amount>
 
 Limit transfer rate to I<amount> KB/s.
+
+=item B<--stop-after>=I<size|percent>
+
+Stop file transfer after I<size> or I<percent>. The value must
+be terminated by either '%' or 'M'.
 
 =item <-R, --raw>
 

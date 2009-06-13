@@ -27,28 +27,25 @@ we are no longer required to modify the code responsible for parsing
 the config file. Using Getopt::ArgvFile also required adding only one
 line of code to the project whereas Config::Tiny required several.
 
-cache use has now been re-designed and defaults to write cache only,
-although a new option, --cache-read, can still be used to achieve the
-same results but requires to be defined which implies that the user
-knows what he is doing.
-
-The old default behaviour caused too many false bug reports from users
-in the past so after some consideration this was disabled in 2.2.0.
-There is also a whole section in the manual page dedicated to the
-subject.
+cache no longer reads by default. This means that --cache-read option
+must be invoked for clive to read previously stored video records
+from the cache. The change was made after seeing how most users found
+the reading from cache too confusing and frequently reported expired
+link errors such as HTTP 403 as bugs even though the behaviour was
+documented in the manual page. DAERTM?
 
 --emit-csv now outputs very few details about the videos. Only those
-fields that are known to be any use to anyone are now printed out.
+fields that are known to be any use are printed out.
 
-2.2.0 also removes a number of the less useful features that have
-lingered in the project since the 1.x. Most of these features were
-never requested and have only been burdening the program codebase
-since their introduction.
+2.2.0 also removes a number of less used features that have lingered
+in the project since the 1.x. Most of these features were never
+requested and have only been burdening the program codebase since
+their introduction.
 
 Part time hackers and/or developers will notice that clive now follows
 a new OO design -- as well as Perl5 allows it. While there are still
 some considerations regarding the design and limitations that could not
-quite be copied from C++ design used in cclive, WYSIWYG.
+quite be ported from C++ used in cclive, WYSIWYG.
 
 Package/port maintainers will want to read the README file. The previously
 used GNU Makefile is no longer used and clive installation now depends on

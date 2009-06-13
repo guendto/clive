@@ -48,8 +48,8 @@ sub parsePage {
         return substr( $foo, $digit, 1 );
     }
 
-    my %re = ( 
-        id => qr|videoid=(.*?)'|,
+    my %re = (
+        id    => qr|videoid=(.*?)'|,
         title => qr|videotitle'>(.*?)</|i
     );
 
@@ -106,14 +106,15 @@ sub parsePage {
         my $xurl
             = sprintf(
             "http://dl.redtube.com/_videos_t4vn23s9jc5498tgj49icfj4678/%07d/"
-            ."%s.flv",$id / 1000, pack( 'C*', @mapping ) );
+                . "%s.flv",
+            $id / 1000, pack( 'C*', @mapping ) );
 
         $$props->video_id($id);
         $$props->video_link($xurl);
 
         # <title> no longer contains the video title. Use the string
         # extracted from the html instead.
-        $$props->page_title(undef, $tmp->{title});
+        $$props->page_title( undef, $tmp->{title} );
 
         return (0);
     }

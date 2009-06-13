@@ -58,8 +58,8 @@ sub new {
 sub page_title {
     my $self = shift;
     if (@_) {
-        my ($content, $title) = @_;
-        if (!$title) {
+        my ( $content, $title ) = @_;
+        if ( !$title ) {
             require HTML::TokeParser;
             my $p = HTML::TokeParser->new($content);
             $p->get_tag("title");

@@ -265,7 +265,7 @@ sub fetchToFile {
 sub progress_callback {
     my ( $percent, $stop_transfer, $props ) = $bp->update(@_);
     clive::Exec->instance->runStream( $percent, $props );
-    return($stop_transfer);
+    return ($stop_transfer);
 }
 
 1;

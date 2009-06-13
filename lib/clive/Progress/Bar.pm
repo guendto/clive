@@ -81,7 +81,7 @@ sub update {
         if ( ( $elapsed - $self->{last_update} ) < REFRESH_INTERVAL
             && !$force_update )
         {
-            return (0,0);
+            return ( 0, 0 );
         }
     }
     else {
@@ -98,7 +98,7 @@ sub update {
 
     my $buf = substr( basename( $self->{props}->filename ), 0, $fname_len );
 
-    my $percent = 0;
+    my $percent       = 0;
     my $stop_transfer = 0;
 
     if ( $self->{total} > 0 ) {
@@ -113,18 +113,18 @@ sub update {
         $buf .= sprintf(
             "  %4.1fM / %4.1fM",
             clive::Util::toMB($_size),
-            clive::Util::toMB($self->{total})
+            clive::Util::toMB( $self->{total} )
         );
 
         my $stop_after = clive::Config->instance->config->{stop_after};
         if ($stop_after) {
-            if ($stop_after =~ /(.*?)M$/) {
+            if ( $stop_after =~ /(.*?)M$/ ) {
                 $stop_transfer = 1
-                    if (clive::Util::toMB($_size) >= $1);
+                    if ( clive::Util::toMB($_size) >= $1 );
             }
-            elsif ($stop_after =~ /(.*?)%$/) {
+            elsif ( $stop_after =~ /(.*?)%$/ ) {
                 $stop_transfer = 1
-                    if ($percent >= $1);
+                    if ( $percent >= $1 );
             }
         }
     }

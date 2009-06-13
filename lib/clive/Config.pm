@@ -104,9 +104,9 @@ sub init {
     }
 
     # Check --stop-after.
-    if ($config{stop_after}) {
-        if ($config{stop_after} !~ /M$/
-            && $config{stop_after} !~ /%$/)
+    if ( $config{stop_after} ) {
+        if (   $config{stop_after} !~ /M$/
+            && $config{stop_after} !~ /%$/ )
         {
             clive::Log->instance->err(
                 "--stop-after must be terminated by either '%' or 'M'");

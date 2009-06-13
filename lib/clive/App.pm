@@ -75,8 +75,7 @@ sub _parseInput {
     }
 
     # Use argv.
-    _parseLine($self, $_)
-        foreach(@ARGV);
+    _parseLine( $self, $_ ) foreach (@ARGV);
 
     # Default to STDIN.
     if (   scalar( @{ $self->{queue} } ) == 0

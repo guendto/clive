@@ -1,6 +1,7 @@
 Version 2.2.1
 
  User-visible changes:
+  * Add: support for Vimeo (closes issue #19)
   * Fix: return code is always 0 (closes issue #20)
 
  Developer-visible changes:

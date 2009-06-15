@@ -46,6 +46,8 @@ sub main {
     clive::Exec->instance->init;
 
     _parseInput();
+
+    exit(clive::Log->instance->errorOccurred);
 }
 
 sub _parseInput {
@@ -207,7 +209,7 @@ sub _parseLine {
     if ( $ln =~ /last\.fm/ ) {
         $ln =~ /\+1\-(.+)/;
         if ( !$1 ) {
-            print( STDERR "no support: $ln\n" );
+            clive::Log->instance->errn("no support: $ln");
             return;
         }
         $ln = "http://youtube.com/watch?v=$1";

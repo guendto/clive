@@ -30,7 +30,7 @@ use Getopt::Long qw(:config bundling);
 
 use clive::HostFactory;
 
-use constant VERSION => "2.2.0";
+use constant VERSION => "2.2.1";
 
 sub init {
     my $self = shift;

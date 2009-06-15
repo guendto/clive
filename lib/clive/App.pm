@@ -47,7 +47,7 @@ sub main {
 
     _parseInput();
 
-    exit(clive::Log->instance->errorOccurred);
+    exit( clive::Log->instance->errorOccurred );
 }
 
 sub _parseInput {

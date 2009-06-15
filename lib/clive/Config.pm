@@ -86,7 +86,8 @@ sub init {
     my @youtube = qw(fmt18 fmt35 fmt22 fmt17);
     my @google  = qw(mp4);
     my @dmotion = qw(spak-mini vp6-hq vp6-hd vp6 h264);
-    my @formats = ( qw(flv best), @youtube, @google, @dmotion );
+    my @vimeo   = qw(hd);
+    my @formats = ( qw(flv best), @youtube, @google, @dmotion, @vimeo );
 
     #unless (@formats ~~ $config{format}) { # Perl 5.10.0+
     unless ( grep( /^$config{format}$/, @formats ) ) {

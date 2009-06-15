@@ -15,6 +15,7 @@ lib/clive/Host/Google.pm
 lib/clive/Host/Liveleak.pm
 lib/clive/Host/Redtube.pm
 lib/clive/Host/Sevenload.pm
+lib/clive/Host/Vimeo.pm
 lib/clive/Host/Youtube.pm
 lib/clive/HostFactory.pm
 lib/clive/Log.pm
@@ -37,6 +38,7 @@ t/09google.t
 t/10sevenload.t
 t/11redtube.t
 t/12error.t
+t/13vimeo.t
 t/lib/Test/clive.pm
 tlinks/break.url
 tlinks/cctv.url
@@ -47,6 +49,7 @@ tlinks/lastfm.url
 tlinks/liveleak.url
 tlinks/multi.lst
 tlinks/sload.url
+tlinks/vimeo.url
 tlinks/ytube-nocookie.url
 tlinks/ytube-utf8.url
 tlinks/ytube.url

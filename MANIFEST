@@ -36,6 +36,7 @@ t/08evisor.t
 t/09google.t
 t/10sevenload.t
 t/11redtube.t
+t/12error.t
 t/lib/Test/clive.pm
 tlinks/break.url
 tlinks/cctv.url

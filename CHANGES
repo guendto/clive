@@ -3,6 +3,9 @@ Version 2.2.1
  User-visible changes:
   * Fix: return code is always 0 (closes issue #20)
 
+ Developer-visible changes:
+  * Add: t/12error.t
+
 
 Version 2.2.0
 (June 14, 2009)

@@ -573,6 +573,17 @@ You are welcome to submit bug reports via the Issue tracker at:
 
 clive exits 0 on success, and E<gt>0 if an error occurs.
 
+ CLIVE_OK          = 0
+ CLIVE_NOTHINGTODO = 1    # file already retrieved
+ CLIVE_NOSUPPORT   = 2    # host not supported
+ CLIVE_READ        = 3    # file open/read error
+ CLIVE_GREP        = 4    # grep: nothing matched in cache
+ CLIVE_OPTARG      = 5    # invalid option argument
+ CLIVE_SYSTEM      = 6    # system call failed (e.g. fork)
+ CLIVE_REGEXP      = 7    # regexp pattern matching failed
+ CLIVE_FORMAT      = 8    # requested format unavailable
+ CLIVE_NET         = 9    # network error
+
 =head1 OTHER
 
 Homepage:

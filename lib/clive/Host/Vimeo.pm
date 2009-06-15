@@ -87,6 +87,6 @@ sub _parseConfig {
     return (1);
 }
 
-# No reason to get excited.
-
 1;
+
+# No reason to get excited.

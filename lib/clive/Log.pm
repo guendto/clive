@@ -25,10 +25,12 @@ use strict;
 
 use base 'Class::Singleton';
 
+use clive::Error qw(CLIVE_OK);
+
 sub init {
     my $self = shift;
 
-    $self->{error_occurred} = 0;
+    $self->{return_code} = CLIVE_OK;
 
     my $config = clive::Config->instance->config;
     $self->{quiet} = $config->{quiet};
@@ -57,30 +59,28 @@ sub out {
 
 sub err {
     my $self = shift;
-    $self->{error_occurred} = 1;
+    $self->{return_code} = shift;
 
     return if $self->{quiet};
 
     my $fmt = shift;
-    my $str = "error: " . ( @_ ? sprintf( $fmt, @_ ) : $fmt );
+    my $msg = "error: " . ( @_ ? sprintf( $fmt, @_ ) : $fmt );
 
-    print STDERR $str . "\n";
+    print( STDERR "$msg\n" );
 }
 
 sub errn {
     my $self = shift;
-    $self->{error_occurred} = 1;
 
-    return if $self->{quiet};
-
-    print( STDERR "\n" );
+    print( STDERR "\n" )
+        if ( !$self->{quiet} );
 
         err ( $self, @_ );
 }
 
-sub errorOccurred {
+sub returnCode {
     my $self = shift;
-    return $self->{error_occurred};
+    return $self->{return_code};
 }
 
 1;

@@ -26,6 +26,12 @@ use strict;
 use base 'Class::Singleton';
 
 use clive::Log;
+use clive::Error qw(
+    CLIVE_OK
+    CLIVE_NOTHINGTODO
+    CLIVE_NOSUPPORT
+    CLIVE_READ
+);
 use clive::Config;
 use clive::Curl;
 use clive::Cache;
@@ -47,7 +53,7 @@ sub main {
 
     _parseInput();
 
-    exit( clive::Log->instance->errorOccurred );
+    exit( clive::Log->instance->returnCode );
 }
 
 sub _parseInput {
@@ -64,7 +70,8 @@ sub _parseInput {
             close($fh);
         }
         else {
-            clive::Log->instance->errn("$config->{recall_file}: $!");
+            clive::Log->instance->errn( CLIVE_READ,
+                "$config->{recall_file}: $!" );
         }
     }
 
@@ -147,8 +154,8 @@ sub _parseInput {
                 $props->formatOutputFilename;
 
                 if ( $props->nothing_todo ) {
-                    $log->err(
-                        "file is already fully retrieved; nothing to do");
+                    $log->err( CLIVE_NOTHINGTODO,
+                        "file already retrieved; nothing todo" );
                     clive::Exec->instance->queue( \$props );
                     next;
                 }
@@ -167,20 +174,20 @@ sub _parseInput {
             }
         }
         else {
-            $log->err("no support: $_");
+            $log->err( CLIVE_NOSUPPORT, "no support: $_" );
         }
     }
 
     clive::Exec->instance->runExec;
 
     # Update recall file.
-    if ( !$log->errorOccurred() ) {
+    if ( $log->returnCode == CLIVE_OK ) {
         if ( open( my $fh, ">", $config->{recall_file} ) ) {
             print( $fh "$_\n" ) foreach ( @{ $self->{passed_queue} } );
             close($fh);
         }
         else {
-            $log->errn("$config->{recall_file}: $!");
+            $log->errn( CLIVE_READ, "$config->{recall_file}: $!" );
         }
     }
 }
@@ -209,7 +216,7 @@ sub _parseLine {
     if ( $ln =~ /last\.fm/ ) {
         $ln =~ /\+1\-(.+)/;
         if ( !$1 ) {
-            clive::Log->instance->errn("no support: $ln");
+            clive::Log->instance->errn( CLIVE_NOSUPPORT, "no support: $ln" );
             return;
         }
         $ln = "http://youtube.com/watch?v=$1";
@@ -221,7 +228,7 @@ sub _parseLine {
 sub _printHosts {
     require clive::HostFactory;
     clive::HostFactory->dumpHosts();
-    exit(0);
+    exit(CLIVE_OK);
 }
 
 1;

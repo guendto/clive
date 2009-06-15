@@ -26,7 +26,7 @@ use strict;
 use base 'Class::Singleton';
 
 use clive::Video;
-use clive::Log;
+use clive::Error qw(CLIVE_OK CLIVE_GREP);
 
 use constant DEFAULT_DUMP_FORMAT => qq/%n: %t [%f, %mMB]/;
 
@@ -124,7 +124,7 @@ sub _dumpCache {
     print _formatDump( $self, $dumpfmt, $_, \$props, $i++ ) . "\n"
         foreach ( keys %{ $self->{cache} } );
 
-    exit(0);
+    exit(CLIVE_OK);
 }
 
 sub _grepCache {
@@ -163,12 +163,13 @@ sub _grepCache {
                     delete $self->{cache}{$hash};
                 }
             }
-            exit(0);
+            exit(CLIVE_OK);
         }
     }
     if ( scalar( @{ $self->{grep_queue} } ) == 0 ) {
-        clive::Log->instance->err("nothing matched $g.");
-        exit(1);
+        clive::Log->instance->err( CLIVE_GREP,
+            "nothing matched $g in cache" );
+        exit(CLIVE_GREP);
     }
 }
 
@@ -208,7 +209,7 @@ sub _clearCache {
     my $count = 0;
     $self->{handle}->truncate($count);
     print "$count records truncated.\n";
-    exit(0);
+    exit(CLIVE_OK);
 }
 
 sub DESTROY {

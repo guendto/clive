@@ -26,6 +26,8 @@ use strict;
 eval("use Term::ReadKey");
 my $TermReadKey = int( !$@ );
 
+use clive::Error qw(CLIVE_REGEXP);
+
 use constant DEFAULT_TERM_WIDTH => 80;
 use constant MBDIV              => 0x100000;
 
@@ -93,7 +95,7 @@ sub matchRegExps {
     while ( my ( $key, $re ) = each( %{$regexps} ) ) {
         $$results->{$key} = $1 if $$content =~ /$re/;
         if ( !$$results->{$key} ) {
-            clive::Log->instance->err("no match: `$re'");
+            clive::Log->instance->err( CLIVE_REGEXP, "no match: `$re'" );
             return (1);
         }
     }

@@ -2,9 +2,11 @@ Version 2.2.1
 
  User-visible changes:
   * Add: support for Vimeo (closes issue #19)
+  * Add: return codes for each error case (closes issue #22)
   * Fix: return code is always 0 (closes issue #20)
 
  Developer-visible changes:
+  * Change: Cctv, Dailymotion, Liveleak -> use clive::Utils::matchRegExps
   * Add: t/12error.t
 
 

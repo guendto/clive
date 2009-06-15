@@ -23,6 +23,8 @@ package clive::HostFactory;
 use warnings;
 use strict;
 
+use clive::Error qw(CLIVE_OK);
+
 my @_hosts = (
     [ "Youtube",     qr|youtube.com|i ],
     [ "Google",      qr|video.google.|i ],
@@ -56,7 +58,7 @@ sub dumpHosts {
         my ( $host, $re ) = @{$_};
         print "$host: $re\n";
     }
-    exit(0);
+    exit(CLIVE_OK);
 }
 
 1;

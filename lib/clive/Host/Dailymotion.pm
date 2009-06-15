@@ -23,6 +23,8 @@ package clive::Host::Dailymotion;
 use warnings;
 use strict;
 
+use clive::Error qw(CLIVE_FORMAT);
+
 # ON2-1280x720 (vp6-hd)
 # ON2-848x480  (vp6-hq)
 # H264-512x384 (h264)
@@ -73,7 +75,7 @@ sub parsePage {
 
         if ( $format eq "best" ) {
 
-            # Sort by width in descending order, assume [0] to be the best.
+            # Sort by width to descending order, assume [0] to be the best.
             my $best = ( sort { $b <=> $a } keys %width )[0];
             $xurl .= $width{$best};
         }
@@ -84,7 +86,8 @@ sub parsePage {
             return (0);
         }
         else {
-            clive::Log->instance->err( "format unavailable: `$format'", 1 );
+            clive::Log->instance->err( CLIVE_FORMAT,
+                "format unavailable: `$format'" );
         }
     }
     return (1);

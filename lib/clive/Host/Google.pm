@@ -23,6 +23,8 @@ package clive::Host::Google;
 use warnings;
 use strict;
 
+use clive::Error qw(CLIVE_FORMAT);
+
 sub new {
     return bless( {}, shift );
 }
@@ -51,7 +53,8 @@ sub parsePage {
                 $xurl = $mp4;
             }
             else {
-                clive::Log->instance->err( "format unavailable: `mp4'", 1 );
+                clive::Log->instance->err( CLIVE_FORMAT,
+                    "format unavailable: `mp4'" );
                 return (1);
             }
         }

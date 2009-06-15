@@ -44,13 +44,12 @@ sub parsePage {
 
         my $content;
         if ( $curl->fetchToMem( $config, \$content, "config" ) == 0 ) {
-            my $re = qr|"url":"(.*?)"|;
-            if ( $content =~ /$re/ ) {
+            %re = ( path => qr|"url":"(.*?)"| );
+            if ( clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 ) {
                 $$props->video_id( $tmp->{id} );
-                $$props->video_link("http://v.cctv.com/flash/$1");
+                $$props->video_link("http://v.cctv.com/flash/$tmp->{path}");
                 return (0);
             }
-            clive::Log->instance->err( "no match: `$re'", 1 );
         }
     }
     return (1);

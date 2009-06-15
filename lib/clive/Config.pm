@@ -29,6 +29,7 @@ use Getopt::ArgvFile home => 1, startupFilename => '.cliverc';
 use Getopt::Long qw(:config bundling);
 
 use clive::HostFactory;
+use clive::Error qw(CLIVE_OK CLIVE_OPTARG);
 
 use constant VERSION => "2.2.1";
 
@@ -70,7 +71,7 @@ sub init {
         'cache_file|cache-file|cachefile=s',
         'no_cclass|no-cclass|nocclass|C',
         'stop_after|stop-after|stopafter=s',
-    ) or exit(1);
+    ) or exit(CLIVE_OPTARG);
 
     $config{format} = $config{format} || 'flv';
 
@@ -91,16 +92,17 @@ sub init {
 
     #unless (@formats ~~ $config{format}) { # Perl 5.10.0+
     unless ( grep( /^$config{format}$/, @formats ) ) {
-        clive::Log->instance->err("unsupported format `$config{format}'");
-        exit(1);
+        clive::Log->instance->err( CLIVE_OPTARG,
+            "unsupported format `$config{format}'" );
+        exit(CLIVE_OPTARG);
     }
 
     # Check --stream-exec and --stream.
     if ( $config{stream_exec} || $config{stream} ) {
         unless ( $config{stream_exec} && $config{stream} ) {
-            clive::Log->instance->err(
-                "both --stream-exec and --stream must be defined");
-            exit(1);
+            clive::Log->instance->err( CLIVE_OPTARG,
+                "both --stream-exec and --stream must be defined" );
+            exit(CLIVE_OPTARG);
         }
     }
 
@@ -109,9 +111,9 @@ sub init {
         if (   $config{stop_after} !~ /M$/
             && $config{stop_after} !~ /%$/ )
         {
-            clive::Log->instance->err(
-                "--stop-after must be terminated by either '%' or 'M'");
-            exit(1);
+            clive::Log->instance->err( CLIVE_OPTARG,
+                "--stop-after must be terminated by either '%' or 'M'" );
+            exit(CLIVE_OPTARG);
         }
     }
 
@@ -135,14 +137,14 @@ sub _printVersion {
             . "Report bugs: <http://code.google.com/p/clive/issues/>\n",
         VERSION, $^O );
     print($str);
-    exit(0);
+    exit(CLIVE_OK);
 }
 
 sub _printHelp {
 
     # Edit bin/clive for --help contents.
     require Pod::Usage;
-    Pod::Usage::pod2usage( -exitstatus => 0, -verbose => 1 );
+    Pod::Usage::pod2usage( -exitstatus => CLIVE_OK, -verbose => 1 );
 }
 
 1;

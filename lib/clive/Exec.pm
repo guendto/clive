@@ -25,6 +25,8 @@ use strict;
 
 use base 'Class::Singleton';
 
+use clive::Error qw(CLIVE_OK CLIVE_OPTARG CLIVE_SYSTEM);
+
 sub init {
     my $self = shift;
     $self->{exec_queue}  = [];
@@ -34,9 +36,10 @@ sub init {
     my $config = clive::Config->instance->config;
     if ( $config->{exec} ) {
         if ( $config->{exec} !~ /[;+]$/ ) {
-            clive::Log->instance->err( "--exec expression must be "
+            clive::Log->instance->err( CLIVE_OPTARG,
+                      "--exec expression must be "
                     . "terminated by either ';' or '+'" );
-            exit(1);
+            exit(CLIVE_OPTARG);
         }
     }
 }
@@ -103,14 +106,14 @@ sub _forkStreamer {
     $self->{stream_flag} = 1;
     my $child = fork;
     if ( $child < 0 ) {
-        clive::Log->instance->errn("fork: $!");
+        clive::Log->instance->errn( CLIVE_SYSTEM, "fork: $!" );
     }
     elsif ( $child == 0 ) {
         my $cmd   = $$config->{stream_exec};
         my $fname = $$props->filename;
         $cmd =~ s/%i/"$fname"/g;
         system("$cmd");
-        exit(0);
+        exit(CLIVE_OK);
     }
 }
 

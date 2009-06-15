@@ -29,6 +29,8 @@ use WWW::Curl::Easy 4.05;
 use Cwd;
 use Encode;
 
+use clive::Error qw(CLIVE_NET);
+
 my $bp;
 
 sub init {
@@ -101,13 +103,14 @@ sub fetchToMem {
             $rc = 0;
         }
         else {
-            $log->errn(
+            $log->errn( CLIVE_NET,
                 $self->{handle}->strerror($httpcode) . " (http/$httpcode)" );
             $rc = 1;
         }
     }
     else {
-        $log->errn( $self->{handle}->strerror($rc) . " (http/$rc)" );
+        $log->errn( CLIVE_NET,
+            $self->{handle}->strerror($rc) . " (http/$rc)" );
         $rc = 1;
     }
 
@@ -173,16 +176,18 @@ sub queryFileLength {
                 return (0);
             }
             else {
-                $log->errn("$content_type: unexpected content-type");
+                $log->errn( CLIVE_NET,
+                    "$content_type: unexpected content-type" );
             }
         }
         else {
-            $log->errn(
+            $log->errn( CLIVE_NET,
                 $self->{handle}->strerror($httpcode) . " (http/$httpcode)" );
         }
     }
     else {
-        $log->errn( $self->{handle}->strerror($rc) . " (http/$rc)" );
+        $log->errn( CLIVE_NET,
+            $self->{handle}->strerror($rc) . " (http/$rc)" );
     }
     return (1);
 }
@@ -246,13 +251,13 @@ sub fetchToFile {
             $bp->finish();
         }
         else {
-            $log->errn(
+            $log->errn( CLIVE_NET,
                 $self->{handle}->strerror($httpcode) . " (http/$httpcode)" );
             return (1);
         }
     }
     else {
-        $log->errn( $self->{handle}->strerror($rc) . " (rc/$rc)" );
+        $log->errn( CLIVE_NET, $self->{handle}->strerror($rc) . " (rc/$rc)" );
         return (1);
     }
 

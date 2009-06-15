@@ -59,21 +59,20 @@ sub _parseConfig {
 
     my $content;
     if ( $curl->fetchToMem( $url, \$content, "config" ) == 0 ) {
-        my %re = (
-            file     => qr|<file>(.*?)</file>|,
-            location => qr|<location>(.*?)</location>|
-        );
-        if ( $content =~ /$re{file}/ ) {
-            if ( $curl->fetchToMem( $1, \$content, "playlist" ) == 0 ) {
-                if ( $content =~ /$re{location}/ ) {
-                    $self->{video_link} = $1;
+        my %re = ( file => qr|<file>(.*?)</file>| );
+        my $tmp;
+        if ( clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 ) {
+            if ( $curl->fetchToMem( $tmp->{file}, \$content, "playlist" )
+                == 0 )
+            {
+                %re = ( location => qr|<location>(.*?)</location>| );
+                $tmp = undef;
+                if (clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 )
+                {
+                    $self->{video_link} = $tmp->{location};
                     return (0);
                 }
-                $log->err( "no match: $re{location}", 1 );
             }
-        }
-        else {
-            $log->err( "no match: $re{file}", 1 );
         }
     }
     return (1);

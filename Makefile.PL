@@ -7,7 +7,7 @@ WriteMakefile(
         'ABSTRACT' => 'command line video extraction utility'
         )
     : (),
-    'VERSION'   => '2.2.0',
+    'VERSION'   => '2.2.1',
     'EXE_FILES' => ['bin/clive'],
     'PREREQ_PM' => {
         'Getopt::ArgvFile' => 1.11,

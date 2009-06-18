@@ -583,6 +583,7 @@ clive exits 0 on success, and E<gt>0 if an error occurs.
  CLIVE_REGEXP      = 7    # regexp pattern matching failed
  CLIVE_FORMAT      = 8    # requested format unavailable
  CLIVE_NET         = 9    # network error
+ CLIVE_STOP        = 10   # --stop-after
 
 =head1 OTHER
 

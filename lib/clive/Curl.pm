@@ -29,7 +29,7 @@ use WWW::Curl::Easy 4.05;
 use Cwd;
 use Encode;
 
-use clive::Error qw(CLIVE_NET);
+use clive::Error qw(CLIVE_NET CLIVE_STOP);
 
 my $bp;
 
@@ -257,7 +257,8 @@ sub fetchToFile {
         }
     }
     else {
-        $log->errn( CLIVE_NET, $self->{handle}->strerror($rc) . " (rc/$rc)" );
+        $log->errn( $rc == 42 ? CLIVE_STOP : CLIVE_NET,
+            $self->{handle}->strerror($rc) . " (rc/$rc)" );
         return (1);
     }
 

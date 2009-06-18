@@ -261,8 +261,8 @@ sub fetchToFile {
         return (1);
     }
 
-    $log->out("\n");
     clive::Exec->instance->resetStream;
+    $log->out("\n");
 
     return (0);
 }

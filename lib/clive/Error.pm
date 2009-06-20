@@ -35,7 +35,7 @@ use constant {
     CLIVE_REGEXP      => 7,    # regexp pattern matching failed
     CLIVE_FORMAT      => 8,    # requested format unavailable
     CLIVE_NET         => 9,    # network error
-    CLIVE_STOP          => 10, # --stop-after
+    CLIVE_STOP        => 10,   # --stop-after
 };
 
 our @EXPORT_OK = qw(

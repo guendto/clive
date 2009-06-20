@@ -57,7 +57,7 @@ sub dumpHosts {
     foreach (@_hosts) {
         my ( $host, $re ) = @{$_};
         print "$1\n"
-            if ($re =~ /xsm:(.*?)\)/);
+            if ( $re =~ /xsm:(.*?)\)/ );
     }
     exit(CLIVE_OK);
 }

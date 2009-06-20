@@ -257,8 +257,10 @@ sub fetchToFile {
         }
     }
     else {
-        $log->errn( $rc == 42 ? CLIVE_STOP : CLIVE_NET,
-            $self->{handle}->strerror($rc) . " (rc/$rc)" );
+        $log->errn(
+            $rc == 42 ? CLIVE_STOP : CLIVE_NET,
+            $self->{handle}->strerror($rc) . " (rc/$rc)"
+        );
         return (1);
     }
 

@@ -48,23 +48,16 @@ sub parsePage {
         my $config = clive::Config->instance->config;
 
         my $xurl;
-        if ( $config->{format} eq "mp4" ) {
-            if ($mp4) {
-                $xurl = $mp4;
-            }
-            else {
-                clive::Log->instance->err( CLIVE_FORMAT,
-                    "format unavailable: `mp4'" );
-                return (1);
-            }
+        if ( ( $config->{format} eq "mp4" || $config->{format} eq "best" )
+            && $mp4 )
+
+        {
+            $xurl = $mp4;
         }
         else {
             require URI::Escape;
             $xurl = URI::Escape::uri_unescape( $tmp->{xurl} );
         }
-
-        $xurl = $mp4
-            if ( $config->{format} eq "best" && $mp4 );
 
         $$props->video_id( $tmp->{id} );
         $$props->video_link($xurl);

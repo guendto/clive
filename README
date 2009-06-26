@@ -37,6 +37,9 @@ be installed. For example:
   make test
   make install
 
+See also:
+  http://search.cpan.org/perldoc?ExtUtils::MakeMaker
+
 NOTE: "make test" will use ~/.cliverc settings.
 
 

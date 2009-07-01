@@ -1,9 +1,13 @@
 Version 2.2.2
 
- User-visible changeS:
+ User-visible changes:
   * Change: Google: --format=mp4/best
     1. Default to flv if mp4 is not available
     2. Fix --format=best support
+
+ Developer-visible changes:
+  * Change: t/02youtube.t test link
+    1. Old dropped dead
 
 
 Version 2.2.1

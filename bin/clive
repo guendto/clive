@@ -587,11 +587,14 @@ clive exits 0 on success, and E<gt>0 if an error occurs.
 
 =head1 OTHER
 
-Homepage:
-  <http://clive.sourceforge.net/>
-
 Project page:
   <http://code.google.com/p/clive/>
+
+Front-end (GUI):
+  <http://code.google.com/p/abby/>
+
+Additional utilities (clive-utils):
+  <http://code.google.com/p/clive-utils/>
 
 Development repository can be cloned with:
   % git clone git://repo.or.cz/clive.git
@@ -599,17 +602,12 @@ Development repository can be cloned with:
 Release announcements:
   <http://freshmeat.net/projects/clive/>
 
-Additional utilities (clive-utils):
-  <http://code.google.com/p/clive-utils/>
-
-Front-end (GUI):
-  <http://code.google.com/p/abby/>
-
 =head1 HISTORY
 
-Historically, clive was written in Python when first released and
-later (2.0.0) rewritten in Perl. It started as a workaround for
-Youtube Adobe Flash plugin requirement.
+clive was originally written in Python but later (2.0.0)
+rewritten in Perl. The project started as a workaround
+to Youtube Adobe flash-plugin requirement which was
+poorly supported on Unix-like systems.
 
 =head1 AUTHOR
 

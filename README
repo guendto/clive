@@ -40,7 +40,8 @@ be installed. For example:
 See also:
   http://search.cpan.org/perldoc?ExtUtils::MakeMaker
 
-NOTE: "make test" will use ~/.cliverc settings.
+NOTE: "make test" will use ~/.cliverc settings. Set NO_INTERNET
+environment variable to skip the host tests.
 
 
 Bugs

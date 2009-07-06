@@ -3,7 +3,13 @@
 use warnings;
 use strict;
 
-use Test::More tests => 6;
+use Test::More;
+if ( $ENV{NO_INTERNET} ) {
+    plan skip_all => "No internet during package build";
+}
+else {
+    plan tests => 6;
+}
 use Test::clive;
 
 foreach (qw(flv spak-mini vp6-hq vp6-hd vp6 h264)) {

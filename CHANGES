@@ -6,6 +6,7 @@ Version 2.2.2
     2. Fix --format=best support
 
  Developer-visible changes:
+  * Add: t/$host.t: NO_INTERNET variable support (closes issue #24)
   * Change: t/02youtube.t test link
     1. Old dropped dead
 

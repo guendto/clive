@@ -20,4 +20,4 @@ Test::clive::host(qq|http://www.youtube.com/v/d0j_ONmVcXA|);    # Embed.
 Test::clive::host(qq|http://www.youtube-nocookie.com/v/3PuHGKnboNY|);
 
 Test::clive::host(
-    qq|http://www.last.fm/music/Rammstein/+videos/+1-3jwXQFFLSHo|);
+    qq|http://www.last.fm/music/Iron+Maiden/+videos/+1-Pje6h_hFPzc|);

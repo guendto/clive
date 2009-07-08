@@ -32,7 +32,6 @@ t/02youtube.t
 t/03break.t
 t/04liveleak.t
 t/05dailymotion.t
-t/06lastfm.t
 t/07cctv.t
 t/08evisor.t
 t/09google.t

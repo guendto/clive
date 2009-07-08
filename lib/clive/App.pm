@@ -216,7 +216,7 @@ sub _parseLine {
     if ( $ln =~ /last\.fm/ ) {
         $ln =~ /\+1\-(.+)/;
         if ( !$1 ) {
-            clive::Log->instance->errn( CLIVE_NOSUPPORT, "no support: $ln" );
+            clive::Log->instance->err( CLIVE_NOSUPPORT, "no support: $ln" );
             return;
         }
         $ln = "http://youtube.com/watch?v=$1";

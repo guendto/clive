@@ -114,4 +114,4 @@ sub toDomain {
 
 1;
 
-# There's too much confusion.
+# While all the women came and went.

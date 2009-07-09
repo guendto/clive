@@ -278,4 +278,4 @@ sub progress_callback {
 
 1;
 
-# At night or strolling through the park.
+# I can't get no relief.

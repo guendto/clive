@@ -54,4 +54,4 @@ our @EXPORT_OK = qw(
 
 1;
 
-# The thief he kindly spoke.
+# Outside in the cold distance.

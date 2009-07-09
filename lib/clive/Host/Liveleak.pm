@@ -80,4 +80,4 @@ sub _parseConfig {
 
 1;
 
-# You can run on for a long time.
+# There are many here among us.

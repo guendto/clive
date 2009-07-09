@@ -123,4 +123,4 @@ sub parsePage {
 
 1;
 
-# Run on for a long time, run on for a long time.
+# Who feel that life is but a joke.

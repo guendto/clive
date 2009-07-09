@@ -74,4 +74,4 @@ sub parsePage {
 
 1;
 
-# And I heard as it were the noise of thunder.
+# And this is not our fate.

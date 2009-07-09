@@ -69,4 +69,4 @@ sub parsePage {
 
 1;
 
-# Nobody of it is worth.
+# The thief he kindly spoke.

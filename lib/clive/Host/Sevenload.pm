@@ -72,4 +72,4 @@ sub _parseConfig {
 
 1;
 
-# Early one morning.
+# But ah, you and I we've been through that.

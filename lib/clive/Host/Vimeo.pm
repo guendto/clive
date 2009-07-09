@@ -89,4 +89,4 @@ sub _parseConfig {
 
 1;
 
-# No reason to get excited.
+# So let us not talk falsely now.

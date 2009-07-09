@@ -95,4 +95,4 @@ sub parsePage {
 
 1;
 
-# Ploughmen dig my earth.
+# Nobody of it is worth.

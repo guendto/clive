@@ -149,4 +149,4 @@ sub _printHelp {
 
 1;
 
-# There must be some kinda way out of here.
+# There's too much confusion.

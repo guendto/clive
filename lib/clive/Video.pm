@@ -238,4 +238,4 @@ sub AUTOLOAD {
 
 1;
 
-# Well, there's a reason for the things that I have on.
+# Barefoot servants too.

@@ -176,4 +176,4 @@ sub handle_sigwinch {
 
 1;
 
-# With time to kill.
+# Princess kept the view.

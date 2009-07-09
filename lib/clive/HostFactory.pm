@@ -64,4 +64,4 @@ sub dumpHosts {
 
 1;
 
-# Well, you wonder why I always dress in black.
+# The hour's getting late.

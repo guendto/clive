@@ -119,4 +119,4 @@ sub _forkStreamer {
 
 1;
 
-# Said a joker to the thief.
+# Businessmen they, they drink my wine.

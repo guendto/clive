@@ -57,4 +57,4 @@ sub parsePage {
 
 1;
 
-# I can't get no relief.
+# Ploughmen dig my earth.

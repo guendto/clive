@@ -85,4 +85,4 @@ sub returnCode {
 
 1;
 
-# Why you never see bright colors on my back.
+# All along the watchtower.

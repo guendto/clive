@@ -222,4 +222,4 @@ sub DESTROY {
 
 1;
 
-# And when I'm walking a dark road.
+# Said a joker to the thief.

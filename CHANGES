@@ -9,6 +9,8 @@ Version 2.2.2
   * Add: t/$host.t: NO_INTERNET variable support (closes issue #24)
   * Change: t/02youtube.t test link
     1. Old dropped dead
+  * Remove: t/06lastfm.t
+    1. t/02youtube.t: includes the same test
 
 
 Version 2.2.1

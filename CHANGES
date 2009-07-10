@@ -2,7 +2,8 @@ Version 2.2.3
 
  User-visibile change:
   * Fix: Can't call method "filename" on unblessed reference at Exec.pm line 5x
-    1. Closes Debian bug #535459
+    1. e.g. clive URL --exec="ls;"
+    2. Closes Debian bug #535459
 
 
 Version 2.2.2

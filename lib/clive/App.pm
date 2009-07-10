@@ -168,7 +168,7 @@ sub _parseInput {
                 }
                 else {
                     if ( $curl->fetchToFile( \$props ) == 0 ) {
-                        clive::Exec->instance->queue( \$self, \$props );
+                        clive::Exec->instance->queue( \$props );
                     }
                 }
             }

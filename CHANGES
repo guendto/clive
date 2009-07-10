@@ -1,5 +1,9 @@
 Version 2.2.3
 
+ User-visibile change:
+  * Fix: Can't call method "filename" on unblessed reference at Exec.pm line 5x
+    1. Closes Debian bug #535459
+
 
 Version 2.2.2
 (July 9, 2009)

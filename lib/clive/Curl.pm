@@ -51,6 +51,9 @@ sub init {
     $c->setopt( CURLOPT_PROXY, $config->{proxy} )
         if $config->{proxy};
 
+    $c->setopt( CURLOPT_PROXY, "" )
+        if $config->{no_proxy};
+
     $self->{handle} = $c;
 }
 

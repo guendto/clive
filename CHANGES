@@ -1,6 +1,9 @@
 Version 2.2.3
 
  User-visibile change:
+  * Fix: --no-proxy: really disable all proxy use
+    1. http_proxy setting was still used if it was set
+    2. Closes issue #25
   * Fix: Can't call method "filename" on unblessed reference at Exec.pm line 5x
     1. e.g. clive URL --exec="ls;"
     2. Closes Debian bug #535459

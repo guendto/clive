@@ -57,7 +57,7 @@ sub init {
         'cache_clear|cache-clear|cacheclear',
         'no_cache|no-cache|nocache',
         'no_extract|no-extract|noextract|n',
-        'no_proxy|no-proxy|noproxy' => sub { $config{proxy} = "" },
+        'no_proxy|no-proxy|noproxy',
         'filename_format|filename-format|filenameformat=s',
         'emit_csv|emit-csv|emitcsv',
         'stream_exec|stream-exec|streamexec=s',

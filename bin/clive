@@ -127,7 +127,7 @@ and exit.
 =item B<--home-dir>=I<homedir>
 
 Use I<homedir> instead of the default $HOME (and $CLIVE_HOME) environment
-variable.
+variable for all non-config files (e.g. cache).
 
 =back
 
@@ -527,8 +527,8 @@ parsed video pages.
 
 =item Notes
 
-The default path is $HOME (or ~). clive will also respect the CLIVE_HOME
-environment variable.
+Note that the default path (~) for all non-config files can be altered
+with CLIVE_HOME environment variable and --home-dir option.
 
 =back
 

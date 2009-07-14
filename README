@@ -3,8 +3,11 @@ README for clive
 
 clive is a command line utility for extracting videos from Youtube and other
 video-sharing websites. It was written to bypass the Adobe Flash requirement
-to view the hosted videos. See http://clive.sf.net for more information
-on clive.
+to view the hosted videos.
+
+    http://clive.sf.net
+    http://code.google.com/p/clive/issues/
+    http://code.google.com/p/clive/wiki/FAQ
 
 
 Prerequisites
@@ -40,17 +43,5 @@ be installed. For example:
 See also:
   http://search.cpan.org/perldoc?ExtUtils::MakeMaker
 
-NOTE: "make test" will use ~/.cliverc settings. Set NO_INTERNET
+NOTE: "make test" will use ~/.cliverc settings. You can set NO_INTERNET
 environment variable to skip the host tests.
-
-
-Bugs
-----
-
-  http://code.google.com/p/clive/issues/
-
-
-FAQ
----
-
-  http://code.google.com/p/clive/wiki/FAQ

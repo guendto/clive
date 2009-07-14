@@ -593,14 +593,8 @@ Project page:
 Front-end (GUI):
   <http://code.google.com/p/abby/>
 
-Additional utilities (clive-utils):
-  <http://code.google.com/p/clive-utils/>
-
 Development repository can be cloned with:
   % git clone git://repo.or.cz/clive.git
-
-Release announcements:
-  <http://freshmeat.net/projects/clive/>
 
 =head1 HISTORY
 

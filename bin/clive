@@ -64,7 +64,7 @@ HTTP Options:
      --connect-timeout=SECS     max time allowed connection to take
      --connect-timeout-socks=S  same as above, tries to workaround SOCKS
      --proxy=ADDR               use ADDR for http proxy
-     --no-proxy                 do not use http proxy
+     --no-proxy                 disable all use of http proxy
 Cache Options:
      --cache-file=FILE          use FILE instead of default ~/.clivecache
  -r, --cache-read               enable reading from cache
@@ -77,9 +77,9 @@ Cache Options:
      --no-cache                 disable cache all (read and write) use
 Download Options:
  -f, --format=FORMAT            extract FORMAT of video
- -O, --output-file=FNAME        write video to file
- -n, --no-extract               do not extract any videos
+ -O, --output-file=FILE         write video to file
  -c, --continue                 continue partially downloaded file
+ -n, --no-extract               do not extract any videos
      --save-dir=DIR             save video files to DIR
      --cclass=CLASS             use character CLASS to filter titles
  -C, --no-cclass                do not apply character class
@@ -102,7 +102,7 @@ the command line arguments, e.g.:
 You may also put several options together that do not require arguments:
   % clive -cnrf best URL
 
-Note that the "dashed" options have aliases available which are not
+Note that the "dashed" options have aliases available. These are not
 documented in the L</OPTIONS> section. For example:
   % clive --no-extract --no_extract --noextract
   % clive --cache-read --cache_read --cacheread
@@ -121,8 +121,7 @@ Print version and exit.
 
 =item B<--hosts>
 
-Print supported hosts, with precompiled regexps used to identify links,
-and exit.
+Print supported hosts and exit.
 
 =item B<--home-dir>=I<homedir>
 
@@ -176,8 +175,8 @@ Maximum time in I<seconds> allowed for connection to take. Defaults to 30.
 
 =item B<--connect-timeout-socks>=I<seconds>
 
-Same as above but tries to workaround the SOCKS proxy bug in cURL. Defaults
-to 30.
+Same as above but tries to workaround the SOCKS proxy bug in cURL.
+Defaults to 30.
 
 =item B<--proxy>=I<address>
 
@@ -185,7 +184,7 @@ Use I<address> for HTTP proxy. Example: "http://foo:1234".
 
 =item B<--no-proxy>
 
-Disable HTTP proxy use even if http_proxy environment variable is set.
+Disable all use of HTTP proxy, even if http_proxy environment variable is set.
 
 =back
 
@@ -260,20 +259,31 @@ will attempt to extract the best video quality.
 Note that the I<format> is strictly host specific. See the L</FORMATS>
 section for more on this.
 
-=item B<-O, --output-file>=I<filename>
-
-Write video to I<filename>. Not to be used when extracting
-multiple videos.
-
 =item B<-n, --no-extract>
 
 Do not extract the video.
+
+=item B<-O, --output-file>=I<file>
+
+Write video to I<file>. Overwrites an already existing file.
+
+Do not use this option when you are downloading more than
+one video on one go.
+
+See also the note below.
 
 =item B<-c, --continue>
 
 Continue partially downloaded video file.
 
-=item B<--sav-dir>=I<dir>
+Note that, by default, clive appends a numeric suffix to
+the filename if the file exists already. That is unless
+one of the following conditions is met:
+
+  * file is already completely retrieved
+  * -c or -O is used
+
+=item B<--save-dir>=I<dir>
 
 Save extracted videos to I<dir>.
 
@@ -287,9 +297,16 @@ this.
 
 Negates the use of the character-class.
 
-=item B<filename-format>=<format-string>
+=item B<-R, --raw>
 
-Use <format-string> to format output video filenames. Defaults to "%t.%s".
+Process video page HTML as it is. Technically, this means that
+clive will not try to decode the HTML using Encode::decode_utf8.
+This may be useful with some of the supported host such as
+Cctv which uses GBK as its HTML encoding.
+
+=item B<--filename-format>=I<format-string>
+
+Use I<format-string> to format output video filenames. Defaults to "%t.%s".
 
 Supported format specifiers:
   %t .. video page title (after applying character-class filter)
@@ -307,7 +324,7 @@ extracted video file.
 
 =item B<--exec>=I<command>+
 
-Same as above but "%i" is replaced with as many pathnames as
+Same as above but "%i" is replaced with as many path names as
 possible for the invocation of I<command>.
 
 =item B<--stream>=I<percent>
@@ -341,13 +358,6 @@ Limit transfer rate to I<amount> KB/s.
 
 Stop file transfer after I<size> or I<percent>. The value must
 be terminated by either '%' or 'M'.
-
-=item <-R, --raw>
-
-Process video page HTML as it is. Technically, this means that
-clive will not try to decode the HTML using Encode::decode_utf8.
-This may be useful with some of the supported host such as
-Cctv which uses GBK as its HTML encoding.
 
 =back
 

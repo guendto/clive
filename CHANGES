@@ -4,6 +4,7 @@ Version 2.2.3
   * Manual page:
     1. Add note about numeric suffix (closes issue #28)
     2. Fix a number of typos, use better grammar
+  * Fix: Remove "see examples" from pod markup (closes issue #30)
   * Fix: Prevent ".$suffix" output filenames
     1. Use $id if $title is empty and %i was not defined in --filename-format
     2. Related to issue #29

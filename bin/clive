@@ -91,8 +91,6 @@ Download Options:
      --stop-after=SIZE|PERCENT  stop file transfer after SIZE or PERCENT
  -R, --raw                      process video page html on as-is basis
 
-See clive manual page for EXAMPLES.
-
 =head1 OPTION SYNTAX
 
 You may freely mix different option styles and specify options after

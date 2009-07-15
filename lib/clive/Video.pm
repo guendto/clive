@@ -116,6 +116,9 @@ sub formatOutputFilename {
         # Format output filename.
         $fname = $config->{filename_format} || "%t.%s";
 
+        $title ||= $self->{video_id}
+            if ( $fname !~ /%i/ );
+
         $fname =~ s/%t/$title/;
         $fname =~ s/%s/$self->{file_suffix}/;
         $fname =~ s/%i/$self->{video_id}/;

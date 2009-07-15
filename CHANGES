@@ -4,6 +4,9 @@ Version 2.2.3
   * Manual page:
     1. Add note about numeric suffix (closes issue #28)
     2. Fix a number of typos, use better grammar
+  * Fix: Prevent ".$suffix" output filenames
+    1. Use $id if $title is empty and %i was not defined in --filename-format
+    2. Related to issue #29
   * Fix: --no-proxy: really disable all proxy use
     1. http_proxy setting was still used if it was set
     2. Closes issue #25

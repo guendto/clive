@@ -1,6 +1,9 @@
 Version 2.2.3
 
- User-visibile change:
+ User-visible change:
+  * Improve: backwards compatibility with clive 2.0, 2.1
+    1. --format
+      1.1. mp4, hd (mp4_hd), hq, 3gp (3gpp)
   * Manual page:
     1. Add note about numeric suffix (closes issue #28)
     2. Fix a number of typos, use better grammar

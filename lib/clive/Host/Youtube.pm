@@ -57,8 +57,11 @@ sub parsePage {
                 if $$content =~ /"fmt_map": "(.*?)\//;
         }
         else {
+            # Youtube aliases to fmtxx (e.g. mp4 -> fmt18).
+            require clive::Compat;
+
             $fmt = $1
-                if $config->{format} =~ /^fmt(.*)$/;
+                if clive::Compat::toFmt($config->{format}) =~ /^fmt(.*)$/;
         }
 
         $xurl .= "&fmt=$fmt"

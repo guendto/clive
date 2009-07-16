@@ -84,7 +84,7 @@ sub init {
         ||= File::Spec->catfile( $config{home_dir}, ".clivecache" );
 
     # Check format.
-    my @youtube = qw(fmt18 fmt35 fmt22 fmt17);
+    my @youtube = qw(fmt18 fmt35 fmt22 fmt17 hq 3gp);
     my @google  = qw(mp4);
     my @dmotion = qw(spak-mini vp6-hq vp6-hd vp6 h264);
     my @vimeo   = qw(hd);

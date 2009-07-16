@@ -1,5 +1,20 @@
 use ExtUtils::MakeMaker;
 
+sub get_version {
+    my $file = "lib/clive/Config.pm";
+    my $re   = qr/VERSION => "(.*?)"/;
+    open my $fh, "<", $file
+        or die "$file: $!";
+    foreach (<$fh>) {
+        close $fh and return $1
+            if $_ =~ /$re/;
+    }
+    close $fh;
+    die "$file: `$re`: not matched";
+}
+
+my $version = get_version();
+
 WriteMakefile(
     'NAME' => 'clive',
     ( $[ >= 5.8 )
@@ -7,7 +22,7 @@ WriteMakefile(
         'ABSTRACT' => 'command line video extraction utility'
         )
     : (),
-    'VERSION'   => '2.2.3',
+    'VERSION'   => $version,
     'EXE_FILES' => ['bin/clive'],
     'PREREQ_PM' => {
         'Getopt::ArgvFile' => 1.11,

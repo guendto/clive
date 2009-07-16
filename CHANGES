@@ -1,9 +1,8 @@
 Version 2.2.3
 
- User-visible change:
+ User-visible changes:
   * Improve: backwards compatibility with clive 2.0, 2.1
-    1. --format
-      1.1. mp4, hd (mp4_hd), hq, 3gp (3gpp)
+    1. --format: mp4, hd (mp4_hd), hq, 3gp (3gpp) [youtube]
   * Manual page:
     1. Add note about numeric suffix (closes issue #28)
     2. Fix a number of typos, use better grammar
@@ -17,6 +16,9 @@ Version 2.2.3
   * Fix: Can't call method "filename" on unblessed reference at Exec.pm line 5x
     1. e.g. clive URL --exec="ls;"
     2. Closes Debian bug #535459
+
+ Developer-visible changes:
+  * Makefile.PL: use get_version subr to get version from lib/clive/Config.pm
 
 
 Version 2.2.2

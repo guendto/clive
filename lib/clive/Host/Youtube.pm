@@ -27,6 +27,7 @@ use strict;
 # fmt35 = HQ[640x380]
 # fmt17 = 3gp[176x144]
 # fmt18 = mp4[480x360]
+# fmt34 = flv[320x180]
 
 sub new {
     return bless( {}, shift );
@@ -57,11 +58,8 @@ sub parsePage {
                 if $$content =~ /"fmt_map": "(.*?)\//;
         }
         else {
-            # Youtube aliases to fmtxx (e.g. mp4 -> fmt18).
-            require clive::Compat;
-
             $fmt = $1
-                if clive::Compat::toFmt($config->{format}) =~ /^fmt(.*)$/;
+                if toFmt($self, $config->{format}) =~ /^fmt(.*)$/;
         }
 
         $xurl .= "&fmt=$fmt"
@@ -73,6 +71,15 @@ sub parsePage {
         return (0);
     }
     return (1);
+}
+
+sub toFmt {
+    my ($self, $id) = @_;
+    $id =~ s/hd/fmt22/;
+    $id =~ s/hq/fmt35/;
+    $id =~ s/mp4/fmt18/;
+    $id =~ s/3gp/fmt17/;
+    return ($id);
 }
 
 1;

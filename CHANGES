@@ -18,7 +18,10 @@ Version 2.2.3
     2. Closes Debian bug #535459
 
  Developer-visible changes:
-  * Makefile.PL: use get_version subr to get version from lib/clive/Config.pm
+  * Makefile.PL:
+    1. Extract VERSION from lib/clive/Config.pm
+    2. Add "use warnings/strct"
+    3. chmod +x
 
 
 Version 2.2.2

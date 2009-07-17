@@ -3,9 +3,14 @@ Version 2.2.3
  User-visible changes:
   * Improve: backwards compatibility with clive 2.0, 2.1
     1. --format: mp4, hd (mp4_hd), hq, 3gp (3gpp) [youtube]
-  * Manual page:
-    1. Add note about numeric suffix (closes issue #28)
-    2. Fix a number of typos, use better grammar
+      1.1. closes Debian #535957
+    2. Restore ~/.config/clive/config path support
+      2.1. closes Debian #535483
+  * Add: ~/.clive/config path support
+  * Change: relocate files
+    1. ~/.clivelast -> ~/.cache/clive/last
+    2. ~/.clivecache -> ~/.cache/clive/cache
+  * Change: If HOME environment variable undefined, assume current workdir
   * Fix: Remove "see examples" from pod markup (closes issue #30)
   * Fix: Prevent ".$suffix" output filenames
     1. Use $id if $title is empty and %i was not defined in --filename-format
@@ -16,6 +21,15 @@ Version 2.2.3
   * Fix: Can't call method "filename" on unblessed reference at Exec.pm line 5x
     1. e.g. clive URL --exec="ls;"
     2. Closes Debian bug #535459
+  * Rename: --recall, --recall-file -> --last, --last-file
+  * Remove:
+    1. CLIVE_HOME environment variable support (flawed)
+      1.1. Use instead CLIVE_CACHE
+        1.1.1 Defines path to use for clive cache and last files
+    2. --home-dir option (ditto)
+  * Manual page:
+    1. Add note about numeric suffix (closes issue #28)
+    2. Fix a number of typos, use better grammar
 
  Developer-visible changes:
   * Makefile.PL:

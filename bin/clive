@@ -83,8 +83,8 @@ Download Options:
      --cclass=CLASS             use character CLASS to filter titles
  -C, --no-cclass                do not apply character class
      --filename-format=STRING   use STRING to format output filename
-     --exec=CMD                 run CMD subsequently after file transfer
- -e, --exec-run                 trigger command defined with --exec
+     --exec=CMD                 command to run when transfer finishes
+ -e, --exec-run                 invoke command defined with --exec
      --stream=PERCENT           run stream command (below) at PERCENT
      --stream-exec=CMD          stream command to run
      --limit-rate=AMOUNT        limit transfer rate to AMOUNT (KB/s)
@@ -326,7 +326,7 @@ possible for the invocation of I<command>.
 =item B<-e, --exec-run>
 
 Causes clive to invoke the command defined with B<--exec> when
-transfer completes.
+transfer finishes.
 
 =item B<--stream>=I<percent>
 
@@ -429,7 +429,7 @@ Note the use of "-i" (--cache-ignore-case).
 Same as above but removes the record from cache instead of
 extracting the video.
 
-=item clive --exec="ffmpeg -i %i %i.mp3;" URL
+=item clive --exec="ffmpeg -i %i %i.mp3;" -e URL
 
 Extract video and use C<ffmpeg(1)> to copy audio from it
 to mp3 file.

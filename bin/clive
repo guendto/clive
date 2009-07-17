@@ -51,13 +51,12 @@ the video hosts that it supports.
  -h, --help                     print help and exit
  -v, --version                  print version and exit
      --hosts                    print supported hosts and exit
-     --home-dir=HOMEDIR         use HOMEDIR instead of $HOME
 Output Options:
      --emit-csv                 emit video details in CSV to stdout
      --debug                    print cURL debug messages
  -q, --quiet                    turn off all output
- -l, --recall                   recall last input
-     --recall-file=FILE         use FILE instead of default ~/.clivelast
+ -l, --last                     recall last input
+     --last-file=PATH           read/write PATH instead of default path
      --stderr                   redirect all output to stderr
 HTTP Options:
      --agent=STRING             identify as STRING to http server
@@ -66,7 +65,7 @@ HTTP Options:
      --proxy=ADDR               use ADDR for http proxy
      --no-proxy                 disable all use of http proxy
 Cache Options:
-     --cache-file=FILE          use FILE instead of default ~/.clivecache
+     --cache-file=PATH          read/write PATH instead of default path
  -r, --cache-read               enable reading from cache
  -d, --cache-dump               dump cache records to stdout
      --cache-dump-format=STRING print format for dumping cache records
@@ -121,11 +120,6 @@ Print version and exit.
 
 Print supported hosts and exit.
 
-=item B<--home-dir>=I<homedir>
-
-Use I<homedir> instead of the default $HOME (and $CLIVE_HOME) environment
-variable for all non-config files (e.g. cache).
-
 =back
 
 B<Output options>
@@ -145,13 +139,13 @@ Print cURL debug (or verbose) messages to standard error.
 
 Turn off all output to standard output and error.
 
-=item B<-l, --recall>
+=item B<-l, --last>
 
 Recall (or reuse) the last input.
 
-=item B<--recall-file>=I<file>
+=item B<--last-file>=I<path>
 
-Use I<file> instead of I<homedir>/.clivelast.
+Use I<path> instead of the default path. See L</FILES>.
 
 =item B<--stderr>
 
@@ -190,9 +184,9 @@ B<Cache Options>
 
 =over 4
 
-=item B<--cache-file>=I<file>
+=item B<--cache-file>=I<path>
 
-Use I<file> instead of I<homedir>/.clivecache.
+Use I<path> instead of the default path. See L</FILES>.
 
 =item B<-r, --cache-read>
 
@@ -462,6 +456,19 @@ are recognized by both clive and Youtube:
   flv   .. fmt34   (320x180)
   fmt17 .. 3gp     (176x144)
 
+Note that you can use alternative format IDs for Youtube:
+
+  fmt22 .. hd
+  fmt35 .. hq
+  fmt18 .. mp4
+  fmt17 .. 3gp
+
+For example:
+  % clive -f hd URL
+
+Which is equivalent to:
+  % clive -f fmt22 URL
+
 Some of the videos available at last.fm are actually Youtube
 videos. clive can handle such video links.
 
@@ -514,29 +521,60 @@ Format: flv
 
 =head1 FILES
 
+Should HOME environment variable be undefined for some
+reason, clive will use the current working directory
+instead.
+
 =over 4
 
-=item ~/.cliverc
+=item $HOME/.cliverc, $HOME/.clive/config, $HOME/.config/clive/config
 
-User configuration file. You can append the command line options to
-the config file, e.g.:
+User configuration file. For example:
   % cat >> ~/.cliverc
   -f best
   --proxy=http://foo:1234
 
-=item ~/.clivelast
+=item $HOME/.cache/clive/last
 
-File containing last user input.
+File containing the last user input (video page links).
 
-=item ~/.clivecache
+You can use --last-file to override the path, e.g.:
+  --last-file=/path/to/last/file.
 
-BerkeleyDB based cache containing the records of fetched and
-parsed video pages.
+You can also define this option in the config file.
 
-=item Notes
+See also CLIVE_CACHE notes below.
 
-Note that the default path (~) for all non-config files can be altered
-with CLIVE_HOME environment variable and --home-dir option.
+=item $HOME/.cache/clive/cache
+
+BerkeleyDB based cache file containing the records of fetched
+and parsed video pages.
+
+You can use --cache-file to override the path., e.g.:
+  --cache-file=/path/to/cache/file.
+
+You can also define this option in the config file.
+
+See also CLIVE_CACHE notes below.
+
+=item Notes: CLIVE_CACHE
+
+clive defaults to use $HOME/.cache/clive/ for "last" and
+"cache" files described above.
+
+The use of the default path can be overridden by
+CLIVE_CACHE environment variable. Note that clive
+will attempt to create the specified path recursively.
+
+Examples:
+  setenv CLIVE_CACHE /home/user/cachedata (in csh terms)
+  clive # will read/write /home/user/cachedata/(last|cache)
+
+  unsetenv CLIVE_CACHE
+  clive # read/write $HOME/clive/(last|cache)
+
+  clive --last-file=mylast --cache-file=cachedata/mycache
+    # read/write "mylast" file, read/write cachedata/mycache file
 
 =back
 
@@ -574,7 +612,9 @@ See also the --cache-grep option.
 
 =head1 BUGS
 
-You are welcome to submit bug reports via the Issue tracker at:
+Sure to be some.
+
+Please report them to the issue tracker at:
   <http://code.google.com/p/clive/issues/>
 
 =head1 EXIT STATUS

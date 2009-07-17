@@ -25,8 +25,15 @@ use strict;
 
 use base 'Class::Singleton';
 
-use Getopt::ArgvFile home => 1, startupFilename => '.cliverc';
+use Getopt::ArgvFile(
+    home            => 1,
+    startupFilename => [qw(.cliverc .clive/config .config/clive/config)],
+);
+
 use Getopt::Long qw(:config bundling);
+use File::Spec::Functions;
+use File::Path qw(mkpath);
+use Cwd qw(getcwd);
 
 use clive::HostFactory;
 use clive::Error qw(CLIVE_OK CLIVE_OPTARG);
@@ -66,22 +73,25 @@ sub init {
         'connect_timeout|connect-timeout|connecttimeout=i',
         'connect_timeout_socks|connect-timeout-socks|connecttimeoutsocks=i',
         'save_dir|save-dir|savedir=s',
-        'home_dir|home-dir|homedir=s',
         'recall_file|recall-file|recallfile=s',
         'cache_file|cache-file|cachefile=s',
         'no_cclass|no-cclass|nocclass|C',
         'stop_after|stop-after|stopafter=s',
     ) or exit(CLIVE_OPTARG);
 
-    $config{format} = $config{format} || 'flv';
+    my $homedir = $ENV{HOME} || getcwd();
 
-    $config{home_dir} ||= $ENV{CLIVE_HOME} || $ENV{HOME};
+    my $cachedir = $ENV{CLIVE_CACHE}
+        || catfile( $homedir, ".cache", "clive" );
 
-    $config{recall_file}
-        ||= File::Spec->catfile( $config{home_dir}, ".clivelast" );
+    eval { mkpath($cachedir) };
+    die "$cachedir: $@"
+        if ($@);
 
-    $config{cache_file}
-        ||= File::Spec->catfile( $config{home_dir}, ".clivecache" );
+    $config{recall_file} ||= catfile( $cachedir, "last" );
+    $config{cache_file}  ||= catfile( $cachedir, "cache" );
+
+    $config{format} ||= 'flv';
 
     # Check format.
     my @youtube = qw(fmt18 fmt35 fmt22 fmt17 hq 3gp);

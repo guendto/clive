@@ -121,6 +121,8 @@ sub formatOutputFilename {
         $title ||= $self->{video_id}
             if ( $fname !~ /%i/ );
 
+        $title =~ s/-/_/g;
+
         $fname =~ s/%t/$title/;
         $fname =~ s/%s/$self->{file_suffix}/;
         $fname =~ s/%i/$self->{video_id}/;

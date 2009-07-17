@@ -26,6 +26,8 @@ use strict;
 use Carp;
 use POSIX;
 use File::Basename qw(basename);
+use File::Spec::Functions;
+use Cwd qw(getcwd);
 
 use clive::Util;
 
@@ -125,7 +127,7 @@ sub formatOutputFilename {
         $fname =~ s/%h/$self->{video_host}/;
 
         my $config = clive::Config->instance->config;
-        $fname = File::Spec->catfile( $config->{save_dir} || getcwd, $fname );
+        $fname = catfile( $config->{save_dir} || getcwd, $fname );
 
         my $tmp = $fname;
 

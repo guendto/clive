@@ -51,12 +51,12 @@ the video hosts that it supports.
  -h, --help                     print help and exit
  -v, --version                  print version and exit
      --hosts                    print supported hosts and exit
+ -l, --last                     recall last input
+     --last-file=PATH           read/write PATH instead of default path
 Output Options:
      --emit-csv                 emit video details in CSV to stdout
      --debug                    print cURL debug messages
  -q, --quiet                    turn off all output
- -l, --last                     recall last input
-     --last-file=PATH           read/write PATH instead of default path
      --stderr                   redirect all output to stderr
 HTTP Options:
      --agent=STRING             identify as STRING to http server
@@ -121,6 +121,14 @@ Print version and exit.
 
 Print supported hosts and exit.
 
+=item B<-l, --last>
+
+Recall (or reuse) the last input.
+
+=item B<--last-file>=I<path>
+
+Use I<path> instead of the default path. See L</FILES>.
+
 =back
 
 B<Output options>
@@ -139,14 +147,6 @@ Print cURL debug (or verbose) messages to standard error.
 =item B<-q, --quiet>
 
 Turn off all output to standard output and error.
-
-=item B<-l, --last>
-
-Recall (or reuse) the last input.
-
-=item B<--last-file>=I<path>
-
-Use I<path> instead of the default path. See L</FILES>.
 
 =item B<--stderr>
 

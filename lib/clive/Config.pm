@@ -77,6 +77,7 @@ sub init {
         'cache_file|cache-file|cachefile=s',
         'no_cclass|no-cclass|nocclass|C',
         'stop_after|stop-after|stopafter=s',
+        'exec_run|exec-run|execrun|e',
     ) or exit(CLIVE_OPTARG);
 
     my $homedir = $ENV{HOME} || getcwd();

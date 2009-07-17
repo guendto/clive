@@ -84,6 +84,7 @@ Download Options:
  -C, --no-cclass                do not apply character class
      --filename-format=STRING   use STRING to format output filename
      --exec=CMD                 run CMD subsequently after file transfer
+ -e, --exec-run                 trigger command defined with --exec
      --stream=PERCENT           run stream command (below) at PERCENT
      --stream-exec=CMD          stream command to run
      --limit-rate=AMOUNT        limit transfer rate to AMOUNT (KB/s)
@@ -308,16 +309,24 @@ Supported format specifiers:
 
 =item B<--exec>=I<command>;
 
-Execute I<command> subsequently after video file transfer. Optional
-arguments may be passed to the command. The expression must be
-terminated by a semicolon (";"). If the specifier "%i" appears
-anywhere in the I<command>, it is replaced by the pathname of the
-extracted video file.
+Defines the I<command> to run when video file transfer completes.
+Note that B<--exec-run> must be used to actually cause clive
+to invoke the defined I<command>.
+
+Optional arguments may be passed to the command. The expression must be
+terminated by a semicolon (";"). If the specifier "%i" appears anywhere
+in the I<command>, it is replaced by the pathname of the extracted
+video file.
 
 =item B<--exec>=I<command>+
 
 Same as above but "%i" is replaced with as many path names as
 possible for the invocation of I<command>.
+
+=item B<-e, --exec-run>
+
+Causes clive to invoke the command defined with B<--exec> when
+transfer completes.
 
 =item B<--stream>=I<percent>
 

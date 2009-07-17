@@ -48,7 +48,7 @@ sub queue {
     my $self = shift;
     if (@_) {
         my $config = clive::Config->instance->config;
-        if ( $config->{exec} ) {
+        if ( $config->{exec} && $config->{exec_run} ) {
             my $props = shift;
             push( @{ $self->{exec_queue} }, $$props->filename );
         }
@@ -58,7 +58,7 @@ sub queue {
 
 sub runExec {
     my $config = clive::Config->instance->config;
-    return if !$config->{exec};
+    return if !$config->{exec_run};
 
     my $self = shift;
     if ( $config->{exec} =~ /;$/ ) {    # Semi

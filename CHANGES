@@ -1,6 +1,8 @@
 Version 2.2.3
 
  User-visible changes:
+  * Change: --exec no longer triggers the defined command
+    1. Add: -e, --exec-run for triggering
   * Improve: backwards compatibility with clive 2.0, 2.1
     1. --format: mp4, hd (mp4_hd), hq, 3gp (3gpp) [youtube]
       1.1. closes Debian #535957

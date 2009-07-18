@@ -13,6 +13,7 @@ Version 2.2.3
     1. ~/.clivelast -> ~/.cache/clive/last
     2. ~/.clivecache -> ~/.cache/clive/cache
   * Change: If HOME environment variable undefined, assume current workdir
+  * Fix: file suffix for CCTV (.x-shockwave-flash -> .flv)
   * Fix: Remove "see examples" from pod markup (closes issue #30)
   * Fix: Prevent ".$suffix" output filenames
     1. Use $id if $title is empty and %i was not defined in --filename-format

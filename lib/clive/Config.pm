@@ -140,7 +140,7 @@ sub _printVersion {
     my $str
         = sprintf( "clive version %s with WWW::Curl version "
             . "$WWW::Curl::VERSION  [%s].\n"
-            . "Copyright (C) 2009 Toni Gundogdu.\n\n"
+            . "Copyright (C) 2007,2008,2009 Toni Gundogdu.\n\n"
             . "License GPLv3+: GNU GPL version 3 or later\n"
             . "  <http://www.gnu.org/licenses/>\n\n"
             . "This is free software: you are free to change and redistribute it."

@@ -50,7 +50,7 @@ sub upgradeConfig {
         format                => $c->{output}->{format},
         save_dir              => $c->{output}->{savedir},
         cclass                => $c->{output}->{cclass},
-        format_filename       => $c->{output}->{filename_format},
+        filename_format       => $c->{output}->{filename_format},
         format                => $c->{output}->{format},
         cache_dump_format     => $c->{output}->{show},
         exec                  => $c->{commands}->{exec},

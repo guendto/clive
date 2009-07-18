@@ -59,7 +59,7 @@ sub parsePage {
         }
         else {
             $fmt = $1
-                if toFmt($self, $config->{format}) =~ /^fmt(.*)$/;
+                if toFmt( $self, $config->{format} ) =~ /^fmt(.*)$/;
         }
 
         $xurl .= "&fmt=$fmt"
@@ -74,7 +74,7 @@ sub parsePage {
 }
 
 sub toFmt {
-    my ($self, $id) = @_;
+    my ( $self, $id ) = @_;
     $id =~ s/hd/fmt22/;
     $id =~ s/hq/fmt35/;
     $id =~ s/mp4/fmt18/;

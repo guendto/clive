@@ -29,7 +29,8 @@ use clive::Util;
 # Upgrades clive 2.0/2.1 config to 2.2+ format.
 sub upgradeConfig {
     require File::Spec;
-    my $path = File::Spec->catfile( $ENV{HOME}, ".config", "clive", "config" );
+    my $path
+        = File::Spec->catfile( $ENV{HOME}, ".config", "clive", "config" );
 
     require Config::Tiny;
     print("Verify $path.\n");
@@ -63,20 +64,21 @@ sub upgradeConfig {
     );
 
     my $data;
-    while ( (my $i) = each(%opts)) {
+    while ( ( my $i ) = each(%opts) ) {
         $data .= qq/--$i="$opts{$i}"\n/
             if ( $opts{$i} );
     }
 
     if ( !$data ) {
-        my $a = clive::Util::prompt("error: Nothing to upgrade -- View file? (Y/n):");
+        my $a = clive::Util::prompt(
+            "error: Nothing to upgrade -- View file? (Y/n):");
         system("less $path")
             if ( $a ne "n" );
         exit(CLIVE_OK);
     }
 
     open my $fh, ">", "$path.new"
-        or print(STDERR "error: $path.new: $!")
+        or print( STDERR "error: $path.new: $!" )
         and exit(CLIVE_READ);
 
     print $fh $data;
@@ -96,7 +98,7 @@ sub upgradeConfig {
     print("Upgrade.\n");
     require File::Copy;
     File::Copy::move( "$path.new", "$path" )
-        or print(STDERR "error: move: $!")
+        or print( STDERR "error: move: $!" )
         and exit(CLIVE_READ);
     print("Done.\n");
 

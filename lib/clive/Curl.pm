@@ -117,10 +117,10 @@ sub fetchToMem {
         $rc = 1;
     }
 
-    from_to($$content, $1, "utf8")
-        if ($$content=~ /charset=(.*?)"/);
+    from_to( $$content, $1, "utf8" )
+        if ( $$content =~ /charset=(.*?)"/ );
 
-    $$content = decode_utf8($$content, Encode::FB_CROAK);
+    $$content = decode_utf8( $$content, Encode::FB_CROAK );
 
     return ($rc);
 }

@@ -119,7 +119,7 @@ sub formatOutputFilename {
         # Format output filename.
         $fname = $config->{filename_format} || "%t.%s";
 
-        if ( !$title &&  $fname !~ /%i/ ) {
+        if ( !$title && $fname !~ /%i/ ) {
             $title = $self->{video_id};
             $title =~ s/-/_/g;
         }
@@ -177,7 +177,7 @@ sub fromCacheRecord {
     # No need to keep order in sync with clive::Video::toCacheRecord
     # or clive::Cache::_mapRecord -- just make sure each item gets
     # set here.
-    $self->{page_title}   = decode_utf8($$record{page_title});
+    $self->{page_title}   = decode_utf8( $$record{page_title} );
     $self->{page_link}    = $$record{page_link};
     $self->{video_id}     = $$record{video_id};
     $self->{video_link}   = $$record{video_link};
@@ -197,7 +197,7 @@ sub toCacheRecord {
     # Should really remove all '#' from the strings
     # before storing them. Living on the edge.
     $self->{page_title} =~ tr{#}//d;
-    my $title = decode_utf8($self->{page_title});
+    my $title = decode_utf8( $self->{page_title} );
 
     # Keep the order in sync with clive::Cache::_mapRecord.
     my $record

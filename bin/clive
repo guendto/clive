@@ -54,6 +54,7 @@ the video hosts that it supports.
  -h, --help                     print help and exit
  -v, --version                  print version and exit
      --hosts                    print supported hosts and exit
+     --upgrade-config           upgrade 2.0/2.1 config to 2.2+ format
  -l, --last                     recall last input
      --last-file=PATH           read/write PATH instead of default path
 Output Options:
@@ -122,6 +123,10 @@ Print version and exit.
 =item B<--hosts>
 
 Print supported hosts and exit.
+
+=item B<--upgrade-config>
+
+Upgrade clive 2.0/2.1 config to current 2.2+ format and exit.
 
 =item B<-l, --last>
 

@@ -9,6 +9,8 @@ Version 2.2.3
       1.1. closes Debian bug #535957
     2. Restore ~/.config/clive/config path support
       2.1. closes Debian bug #535483
+    3. Add: --upgrade-config
+      3.1. Can be used to upgrade 2.0/2.1 config to 2.2+ format
   * Add: ~/.clive/config path support
   * Change: --exec no longer triggers the defined command
     1. Add: -e, --exec-run for triggering
@@ -40,6 +42,9 @@ Version 2.2.3
     2. Fix a number of typos, use better grammar
 
  Developer-visible changes:
+  * Add: clive/Compat.pm
+  * New prerequisite: Config::Tiny
+    1. Required by --upgrade-config
   * Makefile.PL:
     1. Extract VERSION from lib/clive/Config.pm
     2. Add "use warnings/strct"

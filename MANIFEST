@@ -4,6 +4,7 @@ COPYING
 examples/config
 lib/clive/App.pm
 lib/clive/Cache.pm
+lib/clive/Compat.pm
 lib/clive/Config.pm
 lib/clive/Curl.pm
 lib/clive/Error.pm

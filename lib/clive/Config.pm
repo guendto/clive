@@ -36,6 +36,7 @@ use File::Path qw(mkpath);
 use Cwd qw(getcwd);
 
 use clive::HostFactory;
+use clive::Compat;
 use clive::Error qw(CLIVE_OK CLIVE_OPTARG);
 
 use constant VERSION => "2.2.3";
@@ -54,7 +55,6 @@ sub init {
         'version|v' => \&_printVersion,
         'help|h',   => \&_printHelp,
 
-        # TODO: Write a wrapper for these.
         'cache_read|cache-read|cacheread|r',
         'cache_dump|cache-dump|cachedump|d',
         'cache_grep|cache-grep|cachegrep|g=s',
@@ -78,6 +78,8 @@ sub init {
         'no_cclass|no-cclass|nocclass|C',
         'stop_after|stop-after|stopafter=s',
         'exec_run|exec-run|execrun|e',
+        'upgrade_config|upgrade-config|upgradeconfig' =>
+            \&clive::Compat::upgradeConfig,
     ) or exit(CLIVE_OPTARG);
 
     my $homedir = $ENV{HOME} || getcwd();
@@ -150,7 +152,7 @@ sub _printVersion {
             . "redistribute it.\n"
             . "There is NO WARRANTY, to the extent permitted by law.\n\n"
             . "Report bugs: <http://code.google.com/p/clive/issues/>\n",
-        VERSION, $^O, $perl_v, $locale);
+        VERSION, $^O, $perl_v, $locale );
     print($str);
     exit(CLIVE_OK);
 }

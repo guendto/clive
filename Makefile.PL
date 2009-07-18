@@ -23,6 +23,7 @@ WriteMakefile(
         'URI::Escape'      => 3.29,
         'Digest::SHA'      => 5.45,
         'WWW::Curl'        => 4.05,
+        'Config::Tiny'     => 2.12,
     },
     'LICENSE' => 'gpl',
     dist      => {

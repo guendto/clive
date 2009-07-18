@@ -112,6 +112,12 @@ sub toDomain {
     return split( /\./, $authority );
 }
 
+sub prompt {
+    print shift;
+    chomp( my $ln = <STDIN> );
+    return $ln;
+}
+
 1;
 
 # While all the women came and went.

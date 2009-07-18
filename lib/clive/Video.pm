@@ -28,6 +28,7 @@ use POSIX;
 use File::Basename qw(basename);
 use File::Spec::Functions;
 use Cwd qw(getcwd);
+use Encode qw(decode_utf8);
 
 use clive::Util;
 
@@ -176,7 +177,7 @@ sub fromCacheRecord {
     # No need to keep order in sync with clive::Video::toCacheRecord
     # or clive::Cache::_mapRecord -- just make sure each item gets
     # set here.
-    $self->{page_title}   = $$record{page_title};
+    $self->{page_title}   = decode_utf8($$record{page_title});
     $self->{page_link}    = $$record{page_link};
     $self->{video_id}     = $$record{video_id};
     $self->{video_link}   = $$record{video_link};
@@ -196,10 +197,11 @@ sub toCacheRecord {
     # Should really remove all '#' from the strings
     # before storing them. Living on the edge.
     $self->{page_title} =~ tr{#}//d;
+    my $title = decode_utf8($self->{page_title});
 
     # Keep the order in sync with clive::Cache::_mapRecord.
     my $record
-        = $self->{page_title} . "#"
+        = $title . "#"
         . $self->{page_link} . "#"
         . $self->{video_id} . "#"
         . $self->{video_link} . "#"

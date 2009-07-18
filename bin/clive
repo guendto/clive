@@ -22,6 +22,9 @@
 use warnings;
 use strict;
 
+binmode(STDOUT, ":utf8");
+binmode(STDERR, ":utf8");
+
 use clive::App;
 
 clive::App->main;

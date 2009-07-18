@@ -27,7 +27,7 @@ use base 'Class::Singleton';
 
 use WWW::Curl::Easy 4.05;
 use Cwd;
-use Encode;
+use Encode qw(from_to decode_utf8 FB_CROAK);
 
 use clive::Error qw(CLIVE_NET CLIVE_STOP);
 
@@ -117,16 +117,11 @@ sub fetchToMem {
         $rc = 1;
     }
 
-    my $config = clive::Config->instance->config;
+    from_to($$content, $1, "utf8")
+        if ($$content=~ /charset=(.*?)"/);
 
-    if ( !$config->{raw} ) {
-        my $tmp;
+    $$content = decode_utf8($$content, Encode::FB_CROAK);
 
-        # Process only valid utf8. Otherwise leave html as it is.
-        eval { $tmp = decode_utf8( $$content, Encode::FB_CROAK ) };
-        $$content = $tmp
-            if ( $@ && $tmp );
-    }
     return ($rc);
 }
 

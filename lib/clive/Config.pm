@@ -137,16 +137,20 @@ sub config {
 }
 
 sub _printVersion {
+    my $locale = $ENV{LANG} || "undefined";
+    my $perl_v = sprintf( "%vd", $^V );
     my $str
         = sprintf( "clive version %s with WWW::Curl version "
-            . "$WWW::Curl::VERSION  [%s].\n"
-            . "Copyright (C) 2007,2008,2009 Toni Gundogdu.\n\n"
+            . "$WWW::Curl::VERSION\n"
+            . "Copyright (C) 2007,2008,2009 Toni Gundogdu\n\n"
+            . "OS: %s  Perl: %s  Locale: %s\n\n"
             . "License GPLv3+: GNU GPL version 3 or later\n"
             . "  <http://www.gnu.org/licenses/>\n\n"
-            . "This is free software: you are free to change and redistribute it."
-            . "\nThere is NO WARRANTY, to the extent permitted by law.\n\n"
+            . "This is free software: you are free to change and "
+            . "redistribute it.\n"
+            . "There is NO WARRANTY, to the extent permitted by law.\n\n"
             . "Report bugs: <http://code.google.com/p/clive/issues/>\n",
-        VERSION, $^O );
+        VERSION, $^O, $perl_v, $locale);
     print($str);
     exit(CLIVE_OK);
 }

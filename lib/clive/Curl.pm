@@ -54,6 +54,9 @@ sub init {
     $c->setopt( CURLOPT_PROXY, "" )
         if $config->{no_proxy};
 
+    $c->setopt( CURLOPT_COOKIEJAR, $config->{cookie_jar})
+        if $config->{cookie_jar};
+
     $self->{handle} = $c;
 }
 

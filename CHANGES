@@ -1,6 +1,9 @@
 Version 2.2.3
 
  User-visible changes:
+  * Improve: unicode support
+    1. cctv: no longer requires -C and -R options (obsoletes -R)
+    2. --cclass: now works as expected with unicode as well
   * Improve: backwards compatibility with clive 2.0, 2.1
     1. --format: mp4, hd (mp4_hd), hq, 3gp (3gpp) [youtube]
       1.1. closes Debian #535957
@@ -13,6 +16,8 @@ Version 2.2.3
     1. ~/.clivelast -> ~/.cache/clive/last
     2. ~/.clivecache -> ~/.cache/clive/cache
   * Change: If HOME environment variable undefined, assume current workdir
+  * Tweak: --version: print locale etc.
+  * Fix: --version: copyright years
   * Fix: file suffix for CCTV (.x-shockwave-flash -> .flv)
   * Fix: Remove "see examples" from pod markup (closes issue #30)
   * Fix: Prevent ".$suffix" output filenames
@@ -26,6 +31,7 @@ Version 2.2.3
     2. Closes Debian bug #535459
   * Rename: --recall, --recall-file -> --last, --last-file
   * Rename: CLIVE_HOME -> CLIVE_CACHE
+  * Remove: -R, --raw (obsoleted by improved unicode support)
   * Remove: --home-dir option (missleading name)
     1. Missleading name
     2. Obsoleted by --cache-file and --last-file

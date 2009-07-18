@@ -1,14 +1,14 @@
 Version 2.2.3
 
  User-visible changes:
-  * Improve: unicode support
+  * Improve: unicode support (related to issue #29)
     1. cctv: no longer requires -C and -R options (obsoletes -R)
     2. --cclass: now works as expected with unicode as well
   * Improve: backwards compatibility with clive 2.0, 2.1
     1. --format: mp4, hd (mp4_hd), hq, 3gp (3gpp) [youtube]
-      1.1. closes Debian #535957
+      1.1. closes Debian bug #535957
     2. Restore ~/.config/clive/config path support
-      2.1. closes Debian #535483
+      2.1. closes Debian bug #535483
   * Add: ~/.clive/config path support
   * Change: --exec no longer triggers the defined command
     1. Add: -e, --exec-run for triggering

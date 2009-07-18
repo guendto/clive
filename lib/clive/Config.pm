@@ -49,7 +49,7 @@ sub init {
         \%config,
         'debug',      'exec=s',   'cclass=s',   'stream=i',
         'continue|c', 'recall|l', 'format|f=s', 'agent=s',
-        'quiet|q',    'proxy=s',  'stderr',     'raw|R',
+        'quiet|q',    'proxy=s',  'stderr',
         'hosts'     => \&clive::HostFactory::dumpHosts,
         'version|v' => \&_printVersion,
         'help|h',   => \&_printHelp,

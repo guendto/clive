@@ -92,7 +92,6 @@ Download Options:
      --stream-exec=CMD          stream command to run
      --limit-rate=AMOUNT        limit transfer rate to AMOUNT (KB/s)
      --stop-after=SIZE|PERCENT  stop file transfer after SIZE or PERCENT
- -R, --raw                      process video page html on as-is basis
 
 =head1 OPTION SYNTAX
 
@@ -291,14 +290,7 @@ this.
 
 =item B<-C, --no-cclass>
 
-Negates the use of the character-class.
-
-=item B<-R, --raw>
-
-Process video page HTML as it is. Technically, this means that
-clive will not try to decode the HTML using Encode::decode_utf8.
-This may be useful with some of the supported host such as
-Cctv which uses GBK as its HTML encoding.
+Disables the use of B<--cclass>.
 
 =item B<--filename-format>=I<format-string>
 
@@ -621,6 +613,30 @@ This disables both read and write. Note that if the BerkeleyDB Perl
 module is not installed, clive will not use the cache.
 
 See also the --cache-grep option.
+
+=head1 UNICODE
+
+Q: Why am I seeing mangled video filenames?
+
+A: Make sure you have set appropriate locale. For example (in csh terms):
+  % setenv LANG en_US.UTF-8
+  % urxvt &
+
+You can get a list of supported locales on your system with:
+  % locale -a
+
+=head1 DEBUGGING
+
+Some tips that we have found useful:
+
+  % clive --debug URL
+  Causes I<libcurl> to dump log messages to stderr.
+  This data includes HTTP headers etc.
+
+  % clive -n URL
+  Do not actually download the video. Causes clive
+  to fetch, parse and verify video link. It will not
+  proceed to download it.
 
 =head1 BUGS
 

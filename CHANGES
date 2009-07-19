@@ -46,8 +46,13 @@ Version 2.2.3
     2. Fix a number of typos, use better grammar
 
  Developer-visible changes:
-  * Add: clive/Compat.pm, clive/Host/Spiegel.pm
-  * Add: t/06golem.t, t/14spiegel.t
+  * Add:
+    1. clive/Compat.pm
+    2. clive/Host/Spiegel.pm
+    3. t/06golem.t
+    4. t/14spiegel.t
+    5. tlinks/golem.url
+    6. tlinks/spiegel.url
   * New prerequisite: Config::Tiny
     1. Required by --upgrade-config
   * Makefile.PL:

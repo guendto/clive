@@ -13,6 +13,7 @@ lib/clive/Host/Break.pm
 lib/clive/Host/Cctv.pm
 lib/clive/Host/Dailymotion.pm
 lib/clive/Host/Evisor.pm
+lib/clive/Host/Golem.pm
 lib/clive/Host/Google.pm
 lib/clive/Host/Liveleak.pm
 lib/clive/Host/Redtube.pm
@@ -34,6 +35,7 @@ t/02youtube.t
 t/03break.t
 t/04liveleak.t
 t/05dailymotion.t
+t/06golem.t
 t/07cctv.t
 t/08evisor.t
 t/09google.t
@@ -41,6 +43,7 @@ t/10sevenload.t
 t/11redtube.t
 t/12vimeo.t
 t/13error.t
+t/14spiegel.t
 t/lib/Test/clive.pm
 tlinks/break.url
 tlinks/cctv.url

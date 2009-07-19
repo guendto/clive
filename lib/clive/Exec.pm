@@ -42,6 +42,12 @@ sub init {
             exit(CLIVE_OPTARG);
         }
     }
+
+    if ( !$config->{exec} && $config->{exec_run} ) {
+        clive::Log->instance->err( CLIVE_OPTARG,
+            "--exec-run depends on --exec");
+        exit(CLIVE_OPTARG);
+    }
 }
 
 sub queue {

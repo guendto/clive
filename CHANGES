@@ -1,6 +1,10 @@
 Version 2.2.3
 
  User-visible changes:
+  * Add: support for spiegel.de (closes issue #32)
+    1. Thanks to anon data miner
+    2. Submitted originally to the old bug tracker at gna.org
+  * Add: ~/.clive/config path support
   * Improve: unicode support (related to issue #29)
     1. cctv: no longer requires -C and -R options (obsoletes -R)
     2. --cclass: now works as expected with unicode as well
@@ -11,9 +15,7 @@ Version 2.2.3
       2.1. closes Debian bug #535483
     3. Add: --upgrade-config
       3.1. Can be used to upgrade 2.0/2.1 config to 2.2+ format
-  * Add: ~/.clive/config path support
-  * Change: --exec no longer triggers the defined command
-    1. Add: -e, --exec-run for triggering
+  * Change:  pair --exec with --exec-run, the latter now triggers the former
   * Change: relocate files
     1. ~/.clivelast -> ~/.cache/clive/last
     2. ~/.clivecache -> ~/.cache/clive/cache
@@ -43,6 +45,7 @@ Version 2.2.3
 
  Developer-visible changes:
   * Add: clive/Compat.pm
+  * Add: clive/Host/Spiegel.pm
   * New prerequisite: Config::Tiny
     1. Required by --upgrade-config
   * Makefile.PL:

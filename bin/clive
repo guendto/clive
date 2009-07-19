@@ -444,8 +444,8 @@ reaches 25% complete.
 
 =head1 FORMATS
 
-clive extracts flv (typically 320x240) by default from all
-supported websites. Some of them support also other formats.
+clive extracts flv (typically 320x240) by default from all supported
+websites. Some of the websites support additional formats.
 
 =over 4
 
@@ -500,14 +500,29 @@ The HD and HQ videos may not always be available.
   FLV-320x240  (flv/spark)
   FLV-80x60    (spak-mini)
 
+=item B<spiegel.de>
+
+Format: (flv|vp6_64|vp6_388|vp6_576|vp6_928|h264_1400|3gp|small|iphone|podcast)
+
+Some formats may not be available for some videos.
+
+  h264_1400 mp4 996x560 
+  vp6_928   flv 996x560 
+  vp6_576   flv 560x315 
+  vp6_388   flv 180x100 
+  vp6_64    flv 180x100 
+  3gp       3gp (?)
+  small     3gp (?)
+  iphone    mp4 (?)
+  podcast   mp4 (?)
+
 =item B<vimeo.com>
 
 Format: (flv|hd)
 
 HD should be available for the vimeo.com/hd channel videos at least.
-Note that "flv" only means "default" here, as some of the hosted
-videos are encoded (as default) in other video formats such as
-"mp4" rather than "flv".
+Note that "flv" only means the "default flv". Some of the hosted
+"default" videos are actually "mp4", not "flv".
 
 For further reading:
   http://vimeo.com/help/hd
@@ -623,22 +638,22 @@ See also the --cache-grep option.
 
 Q: Why am I seeing mangled video filenames?
 
-A: Make sure you have set appropriate locale. For example (in csh terms):
+A: Make sure you have set appropriate locale. For example (in csh/urxvt terms):
   % setenv LANG en_US.UTF-8
   % urxvt &
 
-You can get a list of supported locales on your system with:
+You can get a list of supported locales on your typical Unix-like system with:
   % locale -a
 
 =head1 DEBUGGING
 
 Some tips that we have found useful:
 
-  % clive --debug URL
+  % cclive --debug URL
   Causes I<libcurl> to dump log messages to stderr.
   This data includes HTTP headers etc.
 
-  % clive -n URL
+  % cclive -n URL
   Do not actually download the video. Causes clive
   to fetch, parse and verify video link. It will not
   proceed to download it.

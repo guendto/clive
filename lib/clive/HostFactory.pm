@@ -37,6 +37,7 @@ my @_hosts = (
     [ "Cctv",        qr|tv.cctv.com|i ],
     [ "Redtube",     qr|redtube.com|i ],
     [ "Vimeo",       qr|vimeo.com|i ],
+    [ "Spiegel",     qr|spiegel.de|i ],
 );
 
 sub new {

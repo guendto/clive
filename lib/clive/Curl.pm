@@ -54,7 +54,7 @@ sub init {
     $c->setopt( CURLOPT_PROXY, "" )
         if $config->{no_proxy};
 
-    $c->setopt( CURLOPT_COOKIEJAR, $config->{cookie_jar})
+    $c->setopt( CURLOPT_COOKIEJAR, $config->{cookie_jar} )
         if $config->{cookie_jar};
 
     $self->{handle} = $c;
@@ -122,6 +122,9 @@ sub fetchToMem {
 
     from_to( $$content, $1, "utf8" )
         if ( $$content =~ /charset=(.*?)"/ );
+
+    from_to( $$content, $1, "utf8" )
+        if ( $$content =~ /encoding="(.*?)"/ );
 
     $$content = decode_utf8( $$content, Encode::FB_CROAK );
 

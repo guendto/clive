@@ -17,6 +17,7 @@ lib/clive/Host/Google.pm
 lib/clive/Host/Liveleak.pm
 lib/clive/Host/Redtube.pm
 lib/clive/Host/Sevenload.pm
+lib/clive/Host/Spiegel.pm
 lib/clive/Host/Vimeo.pm
 lib/clive/Host/Youtube.pm
 lib/clive/HostFactory.pm

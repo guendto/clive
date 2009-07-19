@@ -102,6 +102,7 @@ sub init {
     my @google  = qw(mp4);
     my @dmotion = qw(spak-mini vp6-hq vp6-hd vp6 h264);
     my @vimeo   = qw(hd);
+    my @spiegel = qw(vp6_64 vp6_388 vp6_576 vp6_928 h264_1400 small iphone podcast);
     my @formats = ( qw(flv best), @youtube, @google, @dmotion, @vimeo );
 
     #unless (@formats ~~ $config{format}) { # Perl 5.10.0+

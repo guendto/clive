@@ -122,3 +122,5 @@ sub _fetchConfig {
 }
 
 1;
+
+# Two riders were approaching.

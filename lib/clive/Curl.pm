@@ -168,7 +168,6 @@ sub queryFileLength {
             if ( $content_type =~ /\/(.*)/ ) {
                 my $suffix = $1;    # Default to whatever was matched.
                 if (   $1 =~ /octet/
-                    || $1 =~ /x\-flv/
                     || $1 =~ /plain/
                     || $1 =~ /flash/ )
                 {
@@ -176,6 +175,7 @@ sub queryFileLength {
                     # Otherwise use "flv" for the above exceptions.
                     $suffix = "flv";
                 }
+                $suffix =~ tr{x-}//d; # e.g. x-flv -> flv.
                 $$props->file_suffix($suffix);
                 $log->out("done.\n");
                 return (0);

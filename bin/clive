@@ -22,13 +22,12 @@
 use warnings;
 use strict;
 
-binmode(STDOUT, ":utf8");
-binmode(STDERR, ":utf8");
+binmode( STDOUT, ":utf8" );
+binmode( STDERR, ":utf8" );
 
 use clive::App;
 
 clive::App->main;
-
 
 __END__
 
@@ -515,6 +514,10 @@ Some formats may not be available for some videos.
   small     3gp (?)
   iphone    mp4 (?)
   podcast   mp4 (?)
+
+=item B<golem.de>
+
+Format: (flv|high|ipod)
 
 =item B<vimeo.com>
 

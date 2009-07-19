@@ -26,18 +26,19 @@ use strict;
 use clive::Error qw(CLIVE_OK);
 
 my @_hosts = (
-    [ "Youtube",     qr|youtube.com|i ],
-    [ "Google",      qr|video.google.|i ],
-    [ "Sevenload",   qr|sevenload.com|i ],
-    [ "Break",       qr|break.com|i ],
-    [ "Youtube",     qr|last.fm|i ],
-    [ "Liveleak",    qr|liveleak.com|i ],
-    [ "Evisor",      qr|evisor.tv|i ],
-    [ "Dailymotion", qr|dailymotion.com|i ],
-    [ "Cctv",        qr|tv.cctv.com|i ],
-    [ "Redtube",     qr|redtube.com|i ],
-    [ "Vimeo",       qr|vimeo.com|i ],
-    [ "Spiegel",     qr|spiegel.de|i ],
+    [ "Youtube",     qr|youtube.com|i, "flv|3gp|mp4|hq|hd" ],
+    [ "Youtube",     qr|last.fm|i, "see above" ],
+    [ "Google",      qr|video.google.|i, "flv|mp4" ],
+    [ "Sevenload",   qr|sevenload.com|i, "flv" ],
+    [ "Break",       qr|break.com|i, "flv" ],
+    [ "Liveleak",    qr|liveleak.com|i, "flv" ],
+    [ "Evisor",      qr|evisor.tv|i, "flv" ],
+    [ "Dailymotion", qr|dailymotion.com|i, "flv|spak-mini|vp6-(hq|hd)|vp6|h264" ],
+    [ "Cctv",        qr|tv.cctv.com|i, "flv" ],
+    [ "Redtube",     qr|redtube.com|i, "flv" ],
+    [ "Vimeo",       qr|vimeo.com|i, "flv|hd" ],
+    [ "Spiegel",     qr|spiegel.de|i, "flv|3gp|small|iphone|podcast|vp6_(928|576|388|64)|h264_1400" ],
+    [ "Golem",       qr|golem.de|i, "flv|ipod|high" ],
 );
 
 sub new {
@@ -56,10 +57,11 @@ sub new {
 sub dumpHosts {
     my $self = shift;
     foreach (@_hosts) {
-        my ( $host, $re ) = @{$_};
-        print "$1\n"
-            if ( $re =~ /xsm:(.*?)\)/ );
+        my ( $host, $re, $fmts ) = @{$_};
+        printf("%s\t%s\n", $1, $fmts)
+            if ( $re =~ /xsm:(.*?)\)/ && $re !~ /last\.fm/);
     }
+    print "\nNote: Some videos may have limited number of formats available.\n";
     exit(CLIVE_OK);
 }
 

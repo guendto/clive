@@ -13,6 +13,7 @@ else {
 use Test::clive;
 
 Test::clive::host(
-    qq|http://video.golem.de/internet/2174/firefox-3.5-test.html|, "-f $_" )
+    qq|http://video.golem.de/internet/2174/firefox-3.5-test.html|,
+    "-f $_" )
     foreach qw(flv high ipod);
 

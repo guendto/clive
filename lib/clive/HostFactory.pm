@@ -37,7 +37,7 @@ my @_hosts = (
     [ "Cctv",        qr|tv.cctv.com|i, "flv" ],
     [ "Redtube",     qr|redtube.com|i, "flv" ],
     [ "Vimeo",       qr|vimeo.com|i, "flv|hd" ],
-    [ "Spiegel",     qr|spiegel.de|i, "flv|3gp|small|iphone|podcast|vp6_(928|576|388|64)|h264_1400" ],
+    [ "Spiegel",     qr|spiegel.de|i, "flv|vp6_(928|576|64)|h264_1400" ],
     [ "Golem",       qr|golem.de|i, "flv|ipod|high" ],
 );
 

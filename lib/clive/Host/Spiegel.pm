@@ -23,6 +23,12 @@ package clive::Host::Spiegel;
 use warnings;
 use strict;
 
+# The fetched config xml contains paths to
+# 3gp, small, etc. but we are yet to find
+# a working link to test them properly.
+
+# h264 and the vp_(*) videos seem to work OK.
+
 use clive::Curl;
 use clive::Log;
 

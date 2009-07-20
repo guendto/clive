@@ -693,10 +693,10 @@ clive exits 0 on success, and E<gt>0 if an error occurs.
 =head1 OTHER
 
 Project page:
-  <http://code.google.com/p/clive/>
+  <http://clive.googlecode.com/>
 
 Front-end (GUI):
-  <http://code.google.com/p/abby/>
+  <http://abby.googlecode.com/>
 
 Development repository can be cloned with:
   % git clone git://repo.or.cz/clive.git

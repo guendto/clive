@@ -33,11 +33,11 @@ my @_hosts = (
     [ "Break",       qr|break.com|i, "flv" ],
     [ "Liveleak",    qr|liveleak.com|i, "flv" ],
     [ "Evisor",      qr|evisor.tv|i, "flv" ],
-    [ "Dailymotion", qr|dailymotion.com|i, "flv|spak-mini|vp6-(hq|hd)|vp6|h264" ],
+    [ "Dailymotion", qr|dailymotion.com|i, "flv|spak-mini|vp6-hq|vp6-hd|vp6|h264" ],
     [ "Cctv",        qr|tv.cctv.com|i, "flv" ],
     [ "Redtube",     qr|redtube.com|i, "flv" ],
     [ "Vimeo",       qr|vimeo.com|i, "flv|hd" ],
-    [ "Spiegel",     qr|spiegel.de|i, "flv|vp6_(928|576|64)|h264_1400" ],
+    [ "Spiegel",     qr|spiegel.de|i, "flv|vp6_928|vp6_576|vp6_64|h264_1400" ],
     [ "Golem",       qr|golem.de|i, "flv|ipod|high" ],
 );
 

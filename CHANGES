@@ -1,49 +1,49 @@
 Version 2.2.3
 
  User-visible changes:
-  * Add: support
-    1. spiegel.de (closes issue #32)
-    2. golem.de (closes issue #33)
-    3. Thanks to anon data miner (via old bug tracker at gna.org)
-  * Add: ~/.clive/config path support
+  * Add:
+    1. support spiegel.de (closes issue #32) [thanks to anon for data]
+    2. support golem.de (closes issue #33) [thanks to anon for data]
+    3. ~/.clive/config path support
   * Improve: unicode support (related to issue #29)
     1. cctv: no longer requires -C and -R options (obsoletes -R)
     2. --cclass: now works as expected with unicode as well
   * Improve: backwards compatibility with clive 2.0, 2.1
-    1. --format: mp4, hd (mp4_hd), hq, 3gp (3gpp) [youtube]
-      1.1. closes Debian bug #535957
-    2. Restore ~/.config/clive/config path support
-      2.1. closes Debian bug #535483
-    3. Add: --upgrade-config
-      3.1. Can be used to upgrade 2.0/2.1 config to 2.2+ format
-  * Change: --hosts prints now supported formats
-  * Change:  pair --exec with --exec-run, the latter now triggers the former
-  * Change: relocate files
-    1. ~/.clivelast -> ~/.cache/clive/last
-    2. ~/.clivecache -> ~/.cache/clive/cache
-  * Change: If HOME environment variable undefined, assume current workdir
-  * Tweak: --version: print locale etc.
-  * Fix: --version: copyright years
-  * Fix: file suffix for CCTV (.x-shockwave-flash -> .flv)
-  * Fix: Remove "see examples" from pod markup (closes issue #30)
-  * Fix: Prevent ".$suffix" output filenames
-    1. Use $id if $title is empty and %i was not defined in --filename-format
-    2. Related to issue #29
-  * Fix: --no-proxy: really disable all proxy use
-    1. http_proxy setting was still used if it was set
-    2. Closes issue #25
-  * Fix: Can't call method "filename" on unblessed reference at Exec.pm line 5x
-    1. e.g. clive URL --exec="ls;"
-    2. Closes Debian bug #535459
-  * Rename: --recall, --recall-file -> --last, --last-file
-  * Rename: CLIVE_HOME -> CLIVE_CACHE
-  * Remove: -R, --raw (obsoleted by improved unicode support)
-  * Remove: --home-dir option (missleading name)
-    1. Missleading name
-    2. Obsoleted by --cache-file and --last-file
+    1. Allow --format=(mp4|hd|hq|3gp) (closes Debian bug #535957)
+    2. Restore ~/.config/clive/config path support (closes Debian bug #535483)
+    3. Add --upgrade-config (2.0/2.1 config to 2.2+ format)
+  * Change:
+    1.  --hosts prints now supported formats
+    2. pair --exec with --exec-run, the latter now triggers the former
+    3. relocate files
+      3.1. ~/.clivelast -> ~/.cache/clive/last
+      3.2. ~/.clivecache -> ~/.cache/clive/cache
+    4. If HOME environment variable undefined, assume current workdir
+    5. --version: print locale etc.
+  * Fix:
+    1. --version: copyright years
+    2. file suffix for CCTV (.x-shockwave-flash -> .flv)
+    3. Remove "see examples" from pod markup (closes issue #30)
+    4. Prevent ".$suffix" output filenames
+      4.1. Use $id if !$title && %i was not defined in --filename-format
+      4.2. Related to issue #29
+    5. --no-proxy: really disable all proxy use (closes issue #25)
+      5.1. http_proxy setting was still used
+    6. Can't call method "filename" on unblessed reference at Exec.pm line 5x
+      6.1. e.g. clive URL --exec="ls;"
+      6.2. Closes Debian bug #535459
+  * Rename:
+    1. --recall, --recall-file -> --last, --last-file
+    2. CLIVE_HOME -> CLIVE_CACHE
+  * Remove:
+    1. -R, --raw (obsoleted by improved unicode support)
+    2. --home-dir option
+      2.1. Missleading name
+      2.2. Obsoleted by --cache-file and --last-file
   * Manual page:
     1. Add note about numeric suffix (closes issue #28)
     2. Fix a number of typos, use better grammar
+    3. Overhaul
 
  Developer-visible changes:
   * Add:

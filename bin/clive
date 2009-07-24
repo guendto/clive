@@ -57,7 +57,7 @@ each website in order to download any videos from them.
      --hosts                    print supported hosts and exit
      --upgrade-config           upgrade 2.0/2.1 config to 2.2+ format
  -l, --last                     recall last input
-     --last-file=PATH           read/write PATH instead of default path
+     --last-file=FILE           read/write FILE instead of default path
 Output Options:
      --emit-csv                 emit video details in CSV to stdout
      --debug                    print cURL debug messages
@@ -69,8 +69,9 @@ HTTP Options:
      --connect-timeout-socks=S  same as above, tries to workaround SOCKS
      --proxy=ADDR               use ADDR for http proxy
      --no-proxy                 disable all use of http proxy
+     --cookie-jar=FILE          enable cookies, write them to FILE
 Cache Options:
-     --cache-file=PATH          read/write PATH instead of default path
+     --cache-file=FILE          read/write FILE instead of default path
  -r, --cache-read               enable reading from cache
  -d, --cache-dump               dump cache records to stdout
      --cache-dump-format=STRING print format for dumping cache records
@@ -185,6 +186,12 @@ Use I<address> for HTTP proxy. Example: "http://foo:1234".
 =item B<--no-proxy>
 
 Disable all use of HTTP proxy, even if http_proxy environment variable is set.
+
+=item B<--cookie-jar>=I<file>
+
+Enable cookies, which are otherwise rejected by default, and have libcurl
+to write them to I<file>. Specify "-" to instead to have the cookies written
+to stdout.
 
 =back
 

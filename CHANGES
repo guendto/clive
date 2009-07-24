@@ -5,6 +5,7 @@ Version 2.2.3
     1. support spiegel.de (closes issue #32) [thanks to anon for data]
     2. support golem.de (closes issue #33) [thanks to anon for data]
     3. ~/.clive/config path support
+    4. --cookie-jar option
   * Improve: unicode support (related to issue #29)
     1. cctv: no longer requires -C and -R options (obsoletes -R)
     2. --cclass: now works as expected with unicode as well

@@ -23,7 +23,7 @@ Version 2.2.3
     5. --version: print locale etc.
   * Fix:
     1. --version: copyright years
-    2. file suffix for CCTV (.x-shockwave-flash -> .flv)
+    2. File suffix for CCTV (.x-shockwave-flash -> .flv)
     3. Remove "see examples" from pod markup (closes issue #30)
     4. Prevent ".$suffix" output filenames
       4.1. Use $id if !$title && %i was not defined in --filename-format
@@ -33,6 +33,7 @@ Version 2.2.3
     6. Can't call method "filename" on unblessed reference at Exec.pm line 5x
       6.1. e.g. clive URL --exec="ls;"
       6.2. Closes Debian bug #535459
+    7. Dailymotion support (closes issue #35)
   * Rename:
     1. --recall, --recall-file -> --last, --last-file
     2. CLIVE_HOME -> CLIVE_CACHE

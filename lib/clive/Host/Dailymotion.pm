@@ -57,7 +57,7 @@ sub parsePage {
         $format = "spark" if ( $format eq "flv" );
 
         my %width;
-        my $xurl = "http://dailymotion.com";
+        my $xurl;
 
         foreach ( split( /\|\|/, $paths ) ) {
             my ( $path, $type ) = split(/@@/);
@@ -68,7 +68,7 @@ sub parsePage {
             if ( lc($type) eq $format
                 && $format ne "best" )
             {
-                $xurl .= $path;
+                $xurl = $path;
                 last;
             }
         }
@@ -77,7 +77,7 @@ sub parsePage {
 
             # Sort by width to descending order, assume [0] to be the best.
             my $best = ( sort { $b <=> $a } keys %width )[0];
-            $xurl .= $width{$best};
+            $xurl = $width{$best};
         }
 
         if ($xurl) {

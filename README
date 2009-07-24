@@ -37,7 +37,7 @@ be installed. For example:
 
   perl Makefile.PL
   make
-  make test
+  make test # optional
   make install
 
 See also:

@@ -78,6 +78,7 @@ sub toFmt {
     $id =~ s/hd/fmt22/;
     $id =~ s/hq/fmt35/;
     $id =~ s/mp4/fmt18/;
+    $id =~ s/fmt34/flv/;
     $id =~ s/3gp/fmt17/;
     return ($id);
 }

@@ -12,4 +12,5 @@ else {
 }
 use Test::clive;
 
-Test::clive::host( qq|http://www.ehrensenf.de/shows/ehrensenf/getarnte-bienen-schaukelmotorrad-devitohorror" );
+Test::clive::host(
+    qq|http://www.ehrensenf.de/shows/ehrensenf/getarnte-bienen-schaukelmotorrad-devitohorror| );

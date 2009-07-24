@@ -45,7 +45,7 @@ sub init {
 
     if ( !$config->{exec} && $config->{exec_run} ) {
         clive::Log->instance->err( CLIVE_OPTARG,
-            "--exec-run depends on --exec");
+            "--exec-run depends on --exec" );
         exit(CLIVE_OPTARG);
     }
 }

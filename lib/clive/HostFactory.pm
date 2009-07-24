@@ -26,20 +26,22 @@ use strict;
 use clive::Error qw(CLIVE_OK);
 
 my @_hosts = (
-    [ "Youtube",     qr|youtube.com|i, "flv|3gp|mp4|hq|hd" ],
-    [ "Youtube",     qr|last.fm|i, "see above" ],
-    [ "Google",      qr|video.google.|i, "flv|mp4" ],
-    [ "Sevenload",   qr|sevenload.com|i, "flv" ],
-    [ "Break",       qr|break.com|i, "flv" ],
-    [ "Liveleak",    qr|liveleak.com|i, "flv" ],
-    [ "Evisor",      qr|evisor.tv|i, "flv" ],
-    [ "Dailymotion", qr|dailymotion.com|i, "flv|spak-mini|vp6-hq|vp6-hd|vp6|h264" ],
-    [ "Cctv",        qr|tv.cctv.com|i, "flv" ],
-    [ "Redtube",     qr|redtube.com|i, "flv" ],
-    [ "Vimeo",       qr|vimeo.com|i, "flv|hd" ],
-    [ "Spiegel",     qr|spiegel.de|i, "flv|vp6_928|vp6_576|vp6_64|h264_1400" ],
-    [ "Golem",       qr|golem.de|i, "flv|ipod|high" ],
-    [ "Ehrensenf",   qr|ehrensenf.de|i, "flv" ],
+    [ "Youtube",   qr|youtube.com|i,   "flv|3gp|mp4|hq|hd" ],
+    [ "Youtube",   qr|last.fm|i,       "see above" ],
+    [ "Google",    qr|video.google.|i, "flv|mp4" ],
+    [ "Sevenload", qr|sevenload.com|i, "flv" ],
+    [ "Break",     qr|break.com|i,     "flv" ],
+    [ "Liveleak",  qr|liveleak.com|i,  "flv" ],
+    [ "Evisor",    qr|evisor.tv|i,     "flv" ],
+    [   "Dailymotion", qr|dailymotion.com|i,
+        "flv|spak-mini|vp6-hq|vp6-hd|vp6|h264"
+    ],
+    [ "Cctv",    qr|tv.cctv.com|i, "flv" ],
+    [ "Redtube", qr|redtube.com|i, "flv" ],
+    [ "Vimeo",   qr|vimeo.com|i,   "flv|hd" ],
+    [ "Spiegel", qr|spiegel.de|i,  "flv|vp6_928|vp6_576|vp6_64|h264_1400" ],
+    [ "Golem",   qr|golem.de|i,    "flv|ipod|high" ],
+    [ "Ehrensenf", qr|ehrensenf.de|i, "flv" ],
 );
 
 sub new {
@@ -59,10 +61,11 @@ sub dumpHosts {
     my $self = shift;
     foreach (@_hosts) {
         my ( $host, $re, $fmts ) = @{$_};
-        printf("%s\t%s\n", $1, $fmts)
-            if ( $re =~ /xsm:(.*?)\)/ && $re !~ /last\.fm/);
+        printf( "%s\t%s\n", $1, $fmts )
+            if ( $re =~ /xsm:(.*?)\)/ && $re !~ /last\.fm/ );
     }
-    print "\nNote: Some videos may have limited number of formats available.\n";
+    print
+        "\nNote: Some videos may have limited number of formats available.\n";
     exit(CLIVE_OK);
 }
 

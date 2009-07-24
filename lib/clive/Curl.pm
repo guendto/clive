@@ -175,7 +175,7 @@ sub queryFileLength {
                     # Otherwise use "flv" for the above exceptions.
                     $suffix = "flv";
                 }
-                $suffix =~ tr{x-}//d; # e.g. x-flv -> flv.
+                $suffix =~ tr{x-}//d;    # e.g. x-flv -> flv.
                 $$props->file_suffix($suffix);
                 $log->out("done.\n");
                 return (0);

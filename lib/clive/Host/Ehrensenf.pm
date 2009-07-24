@@ -1,7 +1,7 @@
 # -*- coding: ascii -*-
 ###########################################################################
 # clive, command line video extraction utility.
-# Copyright 2009 Toni Gundogdu.
+# Copyright 2007, 2008, 2009 Toni Gundogdu.
 #
 # This file is part of clive.
 #
@@ -24,18 +24,18 @@ use warnings;
 use strict;
 
 sub new {
-    return bless({}, shift);
+    return bless( {}, shift );
 }
 
 sub parsePage {
-    my ($self, $content, $props) = @_;
+    my ( $self, $content, $props ) = @_;
 
     $$props->video_host("ehrensenf");
 
-    my %re = (data => qr|<h2 class="gradient">(.*?)</h2>|);
+    my %re = ( data => qr|<h2 class="gradient">(.*?)</h2>| );
 
     my $tmp;
-    if (clive::Util::matchRegExps(\%re, \$tmp, $content) == 0) {
+    if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
         if ( $tmp->{data} =~ /(\d\d).(\d\d).(\d\d\d\d)/ ) {
             my $id = "$3-$2-$1";
 

@@ -53,7 +53,7 @@ sub parsePage {
         if ( _fetchConfig( $self, $url, $tmp->{id} ) == 0 ) {
 
             $$props->page_title( undef, $self->{page_title} )
-                if ($self->{page_title});
+                if ( $self->{page_title} );
 
             $$props->video_id( $tmp->{id} );
             $$props->video_link( $self->{video_link} );
@@ -76,7 +76,7 @@ sub _fetchConfig {
         my $config = clive::Config->instance->config;
 
         my $title = $1
-            if ($content =~ /<title>(.*?)<\/title>/);
+            if ( $content =~ /<title>(.*?)<\/title>/ );
 
         my $fmt;
         if ( $config->{format} eq "best" ) {
@@ -92,11 +92,11 @@ sub _fetchConfig {
             }
 
             $fmt =~ s/hd/high/;
-            $fmt =~ s/sd//; # medium
+            $fmt =~ s/sd//;    # medium
         }
         else {
             $fmt = $config->{format};
-            $fmt =~ s/flv//; # medium (default)
+            $fmt =~ s/flv//;   # medium (default)
         }
 
         $xurl .= "?q=$fmt"

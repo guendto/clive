@@ -12,6 +12,7 @@ lib/clive/Exec.pm
 lib/clive/Host/Break.pm
 lib/clive/Host/Cctv.pm
 lib/clive/Host/Dailymotion.pm
+lib/clive/Host/Ehrensenf.pm
 lib/clive/Host/Evisor.pm
 lib/clive/Host/Golem.pm
 lib/clive/Host/Google.pm
@@ -44,10 +45,12 @@ t/11redtube.t
 t/12vimeo.t
 t/13error.t
 t/14spiegel.t
+t/15ehrensenf.t
 t/lib/Test/clive.pm
 tlinks/break.url
 tlinks/cctv.url
 tlinks/dmotion.url
+tlinks/ehrensenf.url
 tlinks/evisor.url
 tlinks/golem.url
 tlinks/gvideo.url

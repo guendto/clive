@@ -30,6 +30,8 @@ Optional modules
 Installation
 ------------
 
+Be sure to remove any previous versions of clive first.
+
 INSTALL_BASE can be passed into Makefile.PL to change where clive will
 be installed. For example:
 
@@ -40,8 +42,12 @@ be installed. For example:
   make test # optional
   make install
 
-See also:
+See also (for Makefile.PL options etc.):
   http://search.cpan.org/perldoc?ExtUtils::MakeMaker
 
 NOTE: "make test" will use ~/.cliverc settings. You can set NO_INTERNET
 environment variable to skip the host tests.
+
+If you want to try clive without installing it first:
+  cd lib
+  ../bin/clive URL

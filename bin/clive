@@ -41,14 +41,14 @@ clive [options]... [URL]...
 
 =head1 DESCRIPTION
 
-clive is a command line video extraction utility for Youtube and other
-similar video-sharing websites. It was written to work around the Adobe
-Flash plugin requirement which is poorly supported on Unix-like systems.
+clive is a command line video extraction utility for Youtube and other similar
+video-sharing websites. It was written to work around the Adobe Flash plugin
+requirement as the technology is poorly supported on Unix-like systems.
 
-clive is not an universal video extraction utility. It supports a number 
-of video websites only. How each website allows access to their hosted
-videos can vary greatly. Therefore clive has to be customized by hand
-for each website often very differently.
+clive is not an universal video extraction utility. In fact, it supports only
+a number of video websites. Each website typically exposes access to the video
+content in a very different way, meaning that clive has to be customized for
+each website in order to download any videos from them.
 
 =head1 OPTIONS
 

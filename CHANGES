@@ -2,10 +2,11 @@ Version 2.2.3
 
  User-visible changes:
   * Add:
-    1. support spiegel.de (closes issue #32) [thanks to anon for data]
-    2. support golem.de (closes issue #33) [thanks to anon for data]
+    1. Support spiegel.de (closes issue #32) [thanks to anon for data]
+    2. Support golem.de (closes issue #33) [thanks to anon for data]
     3. ~/.clive/config path support
     4. --cookie-jar option
+    5. Support for ehrensenf.de (closes issue #34) [thanks to bjoern for data]
   * Improve: unicode support (related to issue #29)
     1. cctv: no longer requires -C and -R options (obsoletes -R)
     2. --cclass: now works as expected with unicode as well
@@ -15,8 +16,8 @@ Version 2.2.3
     3. Add --upgrade-config (2.0/2.1 config to 2.2+ format)
   * Change:
     1.  --hosts prints now supported formats
-    2. pair --exec with --exec-run, the latter now triggers the former
-    3. relocate files
+    2. Pair --exec with --exec-run, the latter now triggers the former
+    3. Relocate files
       3.1. ~/.clivelast -> ~/.cache/clive/last
       3.2. ~/.clivecache -> ~/.cache/clive/cache
     4. If HOME environment variable undefined, assume current workdir
@@ -55,6 +56,10 @@ Version 2.2.3
     4. t/14spiegel.t
     5. tlinks/golem.url
     6. tlinks/spiegel.url
+    7. clive/Host/Golem.pm
+    8. clive/Host/Ehrensenf.pm
+    9. t/15ehrensenf.t
+    10. tlinks/ehrensenf.url
   * New prerequisite: Config::Tiny
     1. Required by --upgrade-config
   * Makefile.PL:

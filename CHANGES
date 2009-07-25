@@ -3,6 +3,7 @@ Version 2.2.4
  User-visible changes:
   * Fix:
     1. Misc. typos in manual
+    2. Redtube support (videoid/title parsing issues)
 
 
 Version 2.2.3

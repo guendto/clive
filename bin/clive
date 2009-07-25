@@ -615,7 +615,6 @@ Examples:
 
 =head1 CACHE
 
-
 The purpose of the cache is to allow clive to skip fetching
 and parsing the video page again. It does not contain any
 actual video data so one should not expect to recover a deleted
@@ -660,12 +659,12 @@ You can get a list of supported locales on your typical Unix-like system with:
 
 Some tips that we have found useful:
 
-  % cclive --debug URL
+  % clive --debug URL
 
 Causes I<libcurl> to dump log messages to stderr. This data includes HTTP
 headers etc.
 
-  % cclive -n URL
+  % clive -n URL
 
 Causes clive to do the usual fetch, parse and verify video link
 approach but exits after that without downloading the video file.

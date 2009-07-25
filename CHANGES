@@ -17,6 +17,7 @@ Version 2.2.3
   * Change:
     1.  --hosts prints now supported formats
     2. Pair --exec with --exec-run, the latter now triggers the former
+       2.1. Closes Debian bug #520520
     3. Relocate files
       3.1. ~/.clivelast -> ~/.cache/clive/last
       3.2. ~/.clivecache -> ~/.cache/clive/cache
@@ -35,6 +36,7 @@ Version 2.2.3
       6.1. e.g. clive URL --exec="ls;"
       6.2. Closes Debian bug #535459
     7. Dailymotion support (closes issue #35)
+    8. Redtube support (error: no match: `(?-xism:videoid=(.*?)')')
   * Rename:
     1. --recall, --recall-file -> --last, --last-file
     2. CLIVE_HOME -> CLIVE_CACHE
@@ -50,16 +52,16 @@ Version 2.2.3
 
  Developer-visible changes:
   * Add:
-    1. clive/Compat.pm
-    2. clive/Host/Spiegel.pm
-    3. t/06golem.t
-    4. t/14spiegel.t
-    5. tlinks/golem.url
-    6. tlinks/spiegel.url
-    7. clive/Host/Golem.pm
-    8. clive/Host/Ehrensenf.pm
-    9. t/15ehrensenf.t
-    10. tlinks/ehrensenf.url
+    * clive/Compat.pm
+    * clive/Host/Spiegel.pm
+    * clive/Host/Golem.pm
+    * clive/Host/Ehrensenf.pm
+    * t/06golem.t
+    * t/14spiegel.t
+    * t/15ehrensenf.t
+    * tlinks/golem.url
+    * tlinks/spiegel.url
+    * tlinks/ehrensenf.url
   * New prerequisite: Config::Tiny
     1. Required by --upgrade-config
   * Makefile.PL:

@@ -49,8 +49,8 @@ sub parsePage {
     }
 
     my %re = (
-        id    => qr|videoid=(.*?)'|,
-        title => qr|videotitle'>(.*?)</|i
+        id    => qr|videoid=(.*?)"|,
+        title => qr|videotitle">(.*?)</|i
     );
 
     my $tmp;

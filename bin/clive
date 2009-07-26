@@ -438,9 +438,9 @@ continues to extract the matched videos. Note the use of "-i"
 Same as above but removes the record from cache instead of extracting
 the video.
 
-=item clive --exec="ffmpeg -i %i %i.mp3;" -e URL
+=item cclive --exec="ffmpeg -i %i -acodec libvorbis %i.ogg;" -e URL
 
-Extract video and use C<ffmpeg(1)> to copy audio from it to mp3 file.
+Copy audio from downloaded video to ogg with C<ffmpeg(1)>.
 
 =item clive --stream-exec="mplayer -really-quiet %i"
     --stream=25 URL
@@ -452,12 +452,7 @@ reaches 25% complete.
 
 =head1 FORMATS
 
-flv format which is typically ~320x240 resolution video on all supported
-websites, is downloaded by default if --format option is not defined.
-
-Some of the supported websites support additional formats which are
-listed below with any known details. Note that --hosts option lists
-available formats as well as the supported hosts.
+B<clive> downloads "flv" by default from all of the supported websites.
 
 =over 4
 
@@ -661,19 +656,17 @@ Some tips that we have found useful:
 
   % clive --debug URL
 
-Causes I<libcurl> to dump log messages to stderr. This data includes HTTP
-headers etc.
+Causes I<libcurl> to be I<verbose>.
 
   % clive -n URL
 
-Causes clive to do the usual fetch, parse and verify video link
-approach but exits after that without downloading the video file.
+Simulates video extraction only.
 
 =head1 BUGS
 
 Sure to be some.
 
-Please report them to the issue tracker at:
+Please report them:
   <http://code.google.com/p/clive/issues/>
 
 =head1 EXIT STATUS
@@ -700,7 +693,7 @@ Project page:
 Front-end (GUI):
   <http://abby.googlecode.com/>
 
-Development repository can be cloned with:
+Development code:
   % git clone git://repo.or.cz/clive.git
 
 =head1 HISTORY

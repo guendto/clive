@@ -91,8 +91,9 @@ Download Options:
      --filename-format=STRING   use STRING to format output filename
      --exec=CMD                 command to run when transfer finishes
  -e, --exec-run                 invoke command defined with --exec
-     --stream=PERCENT           run stream command (below) at PERCENT
-     --stream-exec=CMD          stream command to run
+     --stream-exec=CMD          stream command to be invoked
+     --stream=PERCENT           invoke --stream-exec when transfer reaches %
+ -s, --stream-pass              pass video link to --stream-exec command
      --limit-rate=AMOUNT        limit transfer rate to AMOUNT (KB/s)
      --stop-after=SIZE|PERCENT  stop file transfer after SIZE or PERCENT
 
@@ -338,28 +339,38 @@ possible for the invocation of I<command>.
 Causes clive to invoke the command defined with B<--exec> when
 transfer finishes.
 
-=item B<--stream>=I<percent>
-
-Execute --stream-exec=I<command> when file transfer reaches
-I<percent>.
-
 =item B<--stream-exec>=I<command>
 
-Execute (fork a child process) I<command> while transferring
-video file. This "simulates" streaming the media but does so
-without checking for buffer underruns so make sure you set
---stream=I<percent> high enough and that you have a fast
-internet connection.
+Define the command to be invoked with B<--stream> and B<--stream-pass>.
+If a "%i" specifier is used in the I<command>, it will be replaced with
+either video file path name (B<--stream>) or parsed video link
+(B<--stream-pass>).
 
-clive will not attempt to re-execute the command if it
-terminates before the file transfer finishes.
+=item B<--stream>=I<percent>
 
-clive will wait that the child process terminates before
-it moves on to extract another file or exits if there
-are not any left.
+Causes clive to fetch, parse, start download and eventually invoke
+the command defined with B<--stream-exec> when the transfer reaches
+the percentage defined with this option. See also L</EXAMPLES>.
 
-Note that some video file formats (namely Google mp4) are
-known to B<not> to work with this feature.
+Note that clive does nothing to check if there is enough data buffered
+before invoking the B<--stream-exec> defined I<command>. If the transfer
+rate drops significantly after starting the process and it runs out of data,
+clive does nothing to fix this.
+
+Also note that clive will not continue to download another file before the
+child process exits.
+
+This mode is supported for historical reasons. Consider using
+B<--stream-pass> instead.
+
+=item B<-s, --stream-pass>
+
+Otherwise the same as above but B<instead of> starting the download,
+clive passes the parsed video link to the command defined with
+B<--stream-exec>. See also L</EXAMPLES>.
+
+The concept of this option is based on a simple C<clive(1)> wrapper
+script contributed by Bill Squire.
 
 =item B<--limit-rate>=I<amount>
 
@@ -438,21 +449,27 @@ continues to extract the matched videos. Note the use of "-i"
 Same as above but removes the record from cache instead of extracting
 the video.
 
-=item cclive --exec="ffmpeg -i %i -acodec libvorbis %i.ogg;" -e URL
+=item clive --exec="ffmpeg -i %i -acodec libvorbis %i.ogg;" -e URL
 
 Copy audio from downloaded video to ogg with C<ffmpeg(1)>.
 
-=item clive --stream-exec="mplayer -really-quiet %i"
-    --stream=25 URL
+=item clive --stream-exec="mplayer -really-quiet %i" --stream=25 URL
 
-Start playing the video (with mplayer) being extracted when the transfer
-reaches 25% complete.
+Start playing the video being extracted when the transfer reaches
+25% complete.
+
+=item echo '--stream-exec="mplayer -really-quiet %i"' >> ~/.cliverc
+
+=item clive -s URL
+
+Alternate to Adobe Flash. C<vlc(1)> and C<totem(1)> have been reported
+to work also.
 
 =back
 
 =head1 FORMATS
 
-B<clive> downloads "flv" by default from all of the supported websites.
+clive downloads "flv" by default from all of the supported websites.
 
 =over 4
 
@@ -656,7 +673,7 @@ Some tips that we have found useful:
 
   % clive --debug URL
 
-Causes I<libcurl> to be I<verbose>.
+Causes B<libcurl> to be verbose.
 
   % clive -n URL
 
@@ -698,13 +715,12 @@ Development code:
 
 =head1 HISTORY
 
-=over 4
+  * Originally written in Python
+  * Rewritten in Perl for 2.0.0
 
-=item Originally written in Python
+=head1 SEE ALSO
 
-=item Later rewritten in Perl for 2.0.0
-
-=back
+C<cclive(1)>
 
 =head1 AUTHOR
 

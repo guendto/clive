@@ -166,6 +166,9 @@ sub _parseInput {
                 elsif ( $config->{emit_csv} ) {
                     $props->emitCSV;
                 }
+                elsif ( $config->{stream_pass} ) {
+                    clive::Exec->instance->passStream( \$props );
+                }
                 else {
                     if ( $curl->fetchToFile( \$props ) == 0 ) {
                         clive::Exec->instance->queue( \$props );

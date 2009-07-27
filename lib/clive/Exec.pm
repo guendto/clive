@@ -106,6 +106,31 @@ sub runStream {
     }
 }
 
+sub passStream {
+    my ( $self, $props ) = @_;
+
+    my $config = clive::Config->instance->config;
+    my $cmd    = $config->{stream_exec};
+    my $lnk    = $$props->video_link;
+
+    $cmd =~ s/%i/"$lnk"/g;
+
+    my $log = clive::Log->instance;
+    $log->out("pass video link ...");
+
+    my $n = system($cmd);
+
+    if ( $n == 0 ) {
+        $log->out("done.\n");
+    }
+    elsif ( $n == -1 ) {
+        $log->errn( CLIVE_SYSTEM, "failed to execute: `$!'" );
+    }
+    else {
+        $log->errn( CLIVE_SYSTEM, "child exited with: " . ( $n >> 8 ) );
+    }
+}
+
 sub _forkStreamer {
     my ( $self, $config, $props ) = @_;
 

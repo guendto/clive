@@ -68,6 +68,7 @@ sub init {
         'filename_format|filename-format|filenameformat=s',
         'emit_csv|emit-csv|emitcsv',
         'stream_exec|stream-exec|streamexec=s',
+        'stream_pass|stream-pass|streampass|s',
         'output_file|output-file|outputfile|O=s',
         'limit_rate|limit-rate|limitrate=i',
         'connect_timeout|connect-timeout|connecttimeout=i',
@@ -105,6 +106,7 @@ sub init {
     my @spiegel                # vp6_388=flv (regular)
         = qw(vp6_64 vp6_576 vp6_928 h264_1400 small iphone podcast);
     my @golem   = qw(high ipod);    # medium=flv (regular)
+
     my @formats = (
         qw(flv best), @youtube, @google, @dmotion, @vimeo, @spiegel, @golem
     );
@@ -116,13 +118,19 @@ sub init {
         exit(CLIVE_OPTARG);
     }
 
-    # Check --stream-exec and --stream.
-    if ( $config{stream_exec} || $config{stream} ) {
-        unless ( $config{stream_exec} && $config{stream} ) {
-            clive::Log->instance->err( CLIVE_OPTARG,
-                "both --stream-exec and --stream must be defined" );
-            exit(CLIVE_OPTARG);
-        }
+    my $log = clive::Log->instance;
+    my $str = "%s depends on --stream-exec which is undefined";
+
+    # Check streaming options.
+
+    if ( $config{stream} && !$config{stream_exec} ) {
+        $log->err( CLIVE_OPTARG, sprintf( $str, "--stream" ) );
+        exit(CLIVE_OPTARG);
+    }
+
+    if ( $config{stream_pass} && !$config{stream_exec} ) {
+        $log->err( CLIVE_OPTARG, sprintf( $str, "--stream-pass" ) );
+        exit(CLIVE_OPTARG);
     }
 
     # Check --stop-after.

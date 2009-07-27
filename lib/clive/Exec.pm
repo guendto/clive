@@ -116,7 +116,7 @@ sub passStream {
     $cmd =~ s/%i/"$lnk"/g;
 
     my $log = clive::Log->instance;
-    $log->out("pass video link ...");
+    $log->out("stream ...");
 
     my $n = system($cmd);
 

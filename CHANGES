@@ -1,7 +1,10 @@
 Version 2.2.4
 
  User-visible changes:
-  * Add: --stream-pass option (port from cclive)
+  * Add:
+    # --stream-pass option (port from cclive)
+    # clipfish support
+      * Thanks to Patrick Hoffmann <patrick@sobran.de> for data mining
   * Fix:
     1. Misc. typos in manual
     2. Redtube support (videoid/title parsing issues)

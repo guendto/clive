@@ -105,7 +105,7 @@ sub init {
     my @vimeo   = qw(hd);
     my @spiegel                # vp6_388=flv (regular)
         = qw(vp6_64 vp6_576 vp6_928 h264_1400 small iphone podcast);
-    my @golem   = qw(high ipod);    # medium=flv (regular)
+    my @golem = qw(high ipod); # medium=flv (regular)
 
     my @formats = (
         qw(flv best), @youtube, @google, @dmotion, @vimeo, @spiegel, @golem

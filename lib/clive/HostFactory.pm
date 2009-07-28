@@ -42,6 +42,7 @@ my @_hosts = (
     [ "Spiegel", qr|spiegel.de|i,  "flv|vp6_928|vp6_576|vp6_64|h264_1400" ],
     [ "Golem",   qr|golem.de|i,    "flv|ipod|high" ],
     [ "Ehrensenf", qr|ehrensenf.de|i, "flv" ],
+    [ "Clipfish",  qr|clipfish.de|i,  "flv" ],
 );
 
 sub new {

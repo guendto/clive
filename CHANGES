@@ -6,8 +6,18 @@ Version 2.2.4
     # clipfish support
       * Thanks to Patrick Hoffmann <patrick@sobran.de> for data mining
   * Fix:
-    1. Misc. typos in manual
-    2. Redtube support (videoid/title parsing issues)
+    # Misc. typos in manual
+    # Redtube support (videoid/title parsing issues)
+
+ Developer-visible changes:
+  * Add:
+    # Host/Clipfish.pm
+    # t/clipfish.t
+    # tlinks/clipfish.url
+  * Change:
+    # t/02youtube.t: test link (dead link)
+    # tlinks/ytube.url: ditto
+    # tlinks/multi.url: youtube: ditto
 
 
 Version 2.2.3

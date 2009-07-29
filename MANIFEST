@@ -47,6 +47,7 @@ t/12vimeo.t
 t/13error.t
 t/14spiegel.t
 t/15ehrensenf.t
+t/16clipfish.t
 t/lib/Test/clive.pm
 tlinks/break.url
 tlinks/cctv.url

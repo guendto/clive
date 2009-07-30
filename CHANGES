@@ -8,6 +8,7 @@ Version 2.2.4
   * Fix:
     # Misc. typos in manual
     # Redtube support (videoid/title parsing issues)
+    # Dailymotion: spak-mini -> spark-mini
 
  Developer-visible changes:
   * Add:

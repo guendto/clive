@@ -29,6 +29,8 @@ Version 2.2.4
     # t/02youtube.t: test link (dead link)
     # tlinks/ytube.url: ditto
     # tlinks/multi.url: youtube: ditto
+  * Remove:
+    # tlinks/multi.lst
 
 
 Version 2.2.3

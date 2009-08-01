@@ -169,6 +169,7 @@ sub queryFileLength {
                 my $suffix = $1;    # Default to whatever was matched.
                 if (   $1 =~ /octet/
                     || $1 =~ /plain/
+                    || $1 =~ /swf/
                     || $1 =~ /flash/ )
                 {
 

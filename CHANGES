@@ -5,6 +5,8 @@ Version 2.2.4
     # --stream-pass option (port from cclive)
     # funnyhub support
       * Port from cclive
+    # myubo support
+      * Port from cclive
     # clipfish support
       * Thanks to Patrick Hoffmann <patrick@sobran.de> for data mining
   * Fix:
@@ -16,10 +18,13 @@ Version 2.2.4
   * Add:
     # Host/Clipfish.pm
     # Host/Funnyhub.pm
+    # Host/Myubo.pm
     # t/16clipfish.t
     # t/17funnyhub.t
+    # t/18funnyhub.t
     # tlinks/clipfish.url
     # tlinks/funnyhub.url
+    # tlinks/myubo.url
   * Change:
     # t/02youtube.t: test link (dead link)
     # tlinks/ytube.url: ditto

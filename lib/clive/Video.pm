@@ -119,14 +119,15 @@ sub formatOutputFilename {
         # Format output filename.
         $fname = $config->{filename_format} || "%t.%s";
 
-        if ( !$title && $fname !~ /%i/ ) {
-            $title = $self->{video_id};
-            $title =~ s/-/_/g;
-        }
+        my $id = $self->{video_id};
+        $id =~ s/-/_/g;
+
+        $title = $id
+            if ( !$title && $fname !~ /%i/ );
 
         $fname =~ s/%t/$title/;
         $fname =~ s/%s/$self->{file_suffix}/;
-        $fname =~ s/%i/$self->{video_id}/;
+        $fname =~ s/%i/$id/;
         $fname =~ s/%h/$self->{video_host}/;
 
         my $config = clive::Config->instance->config;

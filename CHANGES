@@ -13,6 +13,8 @@ Version 2.2.4
     # Misc. typos in manual
     # Redtube support (videoid/title parsing issues)
     # Dailymotion: spak-mini -> spark-mini
+  * Change:
+    # replace dashes ("-") with underscores ("_") in video ids
 
  Developer-visible changes:
   * Add:

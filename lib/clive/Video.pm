@@ -219,11 +219,9 @@ sub _cleanupTitle {
     my $self  = shift;
     my $title = $self->{page_title};
 
-    $title =~ s/(youtube|video|liveleak.com|sevenload|dailymotion)//gi;
-    $title =~ s/(cctv.com|redtube|ehrensenf|clipfish)//gi;
-
-    $title =~ s/video//gi;
-
+    $title =~ s/(youtube|liveleak.com|sevenload|dailymotion)//gi;
+    $title =~ s/(cctv.com|redtube|ehrensenf|clipfish|funny hub)//gi;
+    $title =~ s/video[s]//gi;
     $title =~ s/^[-\s]+//;
     $title =~ s/\s+$//;
 

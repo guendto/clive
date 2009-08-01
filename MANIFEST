@@ -15,6 +15,7 @@ lib/clive/Host/Clipfish.pm
 lib/clive/Host/Dailymotion.pm
 lib/clive/Host/Ehrensenf.pm
 lib/clive/Host/Evisor.pm
+lib/clive/Host/Funnyhub.pm
 lib/clive/Host/Golem.pm
 lib/clive/Host/Google.pm
 lib/clive/Host/Liveleak.pm
@@ -48,6 +49,7 @@ t/13error.t
 t/14spiegel.t
 t/15ehrensenf.t
 t/16clipfish.t
+t/17funnyhub.t
 t/lib/Test/clive.pm
 tlinks/break.url
 tlinks/cctv.url
@@ -55,6 +57,7 @@ tlinks/clipfish.url
 tlinks/dmotion.url
 tlinks/ehrensenf.url
 tlinks/evisor.url
+tlinks/funnyhub.url
 tlinks/golem.url
 tlinks/gvideo.url
 tlinks/lastfm.url

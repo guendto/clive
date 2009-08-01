@@ -43,6 +43,7 @@ my @_hosts = (
     [ "Golem",   qr|golem.de|i,    "flv|ipod|high" ],
     [ "Ehrensenf", qr|ehrensenf.de|i, "flv" ],
     [ "Clipfish",  qr|clipfish.de|i,  "flv" ],
+    [ "Funnyhub",  qr|funnyhub.com|i, "flv" ],
 );
 
 sub new {

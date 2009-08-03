@@ -222,7 +222,7 @@ sub _cleanupTitle {
 
     $title =~ s/(youtube|liveleak.com|sevenload|dailymotion)//gi;
     $title =~ s/(cctv.com|redtube|ehrensenf|clipfish|funny hub)//gi;
-    $title =~ s/video[s]//gi;
+    $title =~ s/(videos|video)//gi;
     $title =~ s/^[-\s]+//;
     $title =~ s/\s+$//;
 

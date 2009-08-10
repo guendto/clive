@@ -462,7 +462,7 @@ Start playing the video being extracted when the transfer reaches
 
 =item clive -s URL
 
-Alternate to Adobe Flash. C<vlc(1)> and C<totem(1)> have been reported
+Alternative to Adobe Flash. C<vlc(1)> and C<totem(1)> have been reported
 to work also.
 
 =back

@@ -149,6 +149,10 @@ B<Output options>
 Print (or emit) video details in CSV format to standard output.
 Implies --no-extract.
 
+=item B<--print-fname>
+
+Print filename on a separate line before download starts.
+
 =item B<--debug>
 
 Print cURL debug (or verbose) messages to standard error.

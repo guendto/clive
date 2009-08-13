@@ -171,6 +171,9 @@ sub _parseInput {
                     clive::Exec->instance->passStream( \$props );
                 }
                 else {
+                    if ( $config->{print_fname} ) {
+                        $props->printVideo;
+                    }
                     if ( $curl->fetchToFile( \$props ) == 0 ) {
                         clive::Exec->instance->queue( \$props );
                     }

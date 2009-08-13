@@ -83,6 +83,7 @@ sub init {
         'upgrade_config|upgrade-config|upgradeconfig' =>
             \&clive::Compat::upgradeConfig,
         'cookie_jar|cookie-jar|cookiejar=s',
+        'print_fname|print-fname|printfname',
     ) or exit(CLIVE_OPTARG);
 
     my $homedir = $ENV{HOME} || getcwd();

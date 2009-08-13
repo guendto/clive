@@ -1,6 +1,7 @@
 Version 2.2.5
 
  User-visible changes:
+  * Add: --print-fname option
   * Fix: dailymotion ID parsing
   * Fix: --hosts: dailymotion: spak-mini -> spark-mini
 

@@ -4,6 +4,7 @@ Version 2.2.5
   * Add: --print-fname option
   * Fix: dailymotion ID parsing
   * Fix: --hosts: dailymotion: spak-mini -> spark-mini
+  * Zeropad ETA
 
  Developer-visible changes:
   * Correct copyright years and notices in source code

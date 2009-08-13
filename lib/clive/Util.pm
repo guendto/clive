@@ -54,16 +54,16 @@ sub timeToStr {
 
     my $str;
     if ( $secs < 100 ) {
-        $str = sprintf( "%ds", $secs );
+        $str = sprintf( "%02ds", $secs );
     }
     elsif ( $secs < 100 * 60 ) {
-        $str = sprintf( "%dm%ds", $secs / 60, $secs % 60 );
+        $str = sprintf( "%02dm%02ds", $secs / 60, $secs % 60 );
     }
     elsif ( $secs < 48 * 3600 ) {
-        $str = sprintf( "%dh%dm", $secs / 3600, ( $secs / 60 ) % 60 );
+        $str = sprintf( "%02dh%02dm", $secs / 3600, ( $secs / 60 ) % 60 );
     }
     elsif ( $secs < 100 * 86400 ) {
-        $str = sprintf( "%dd%dh", $secs / 86400, ( $secs / 3600 ) % 60 );
+        $str = sprintf( "%dd%02dh", $secs / 86400, ( $secs / 3600 ) % 60 );
     }
     else {
         $str = sprintf( "%dd", $secs / 86400 );

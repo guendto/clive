@@ -1,7 +1,8 @@
 # -*- coding: ascii -*-
 ###########################################################################
 # clive, command line video extraction utility.
-# Copyright 2007, 2008, 2009 Toni Gundogdu.
+#
+# Copyright 2009 anonprn2@gmail.com.
 #
 # This file is part of clive.
 #
@@ -18,8 +19,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
-
-# Original: anonprn2@gmail.com
 
 package clive::Host::Redtube;
 

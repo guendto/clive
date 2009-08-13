@@ -1,7 +1,7 @@
 # -*- coding: ascii -*-
 ###########################################################################
 # clive, command line video extraction utility.
-# Copyright 2007, 2008, 2009 Toni Gundogdu.
+# Copyright 2009 Toni Gundogdu.
 #
 # This file is part of clive.
 #

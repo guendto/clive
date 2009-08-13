@@ -5,6 +5,7 @@ Version 2.2.5
   * Fix: --hosts: dailymotion: spak-mini -> spark-mini
 
  Developer-visible changes:
+  * Correct copyright years and notices in source code
   * tlinks/youtube-utf8.url: fix dead link
 
 

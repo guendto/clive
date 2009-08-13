@@ -1,9 +1,8 @@
 # -*- coding: ascii -*-
 ###########################################################################
 # clive, command line video extraction utility.
-# Copyright 2007, 2008, 2009 Toni Gundogdu.
-# Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-#   Free Software Foundation, Inc.
+#
+# Copyright 2009 Toni Gundogdu.
 #
 # This file is part of clive.
 #
@@ -21,6 +20,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
 package clive::Progress::Bar;
+
+# Based on wget code.
 
 use warnings;
 use strict;

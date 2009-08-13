@@ -1,7 +1,8 @@
 # -*- coding: ascii -*-
 ###########################################################################
 # clive, command line video extraction utility.
-# Copyright 2007, 2008, 2009 Toni Gundogdu.
+#
+# Copyright 2009 Toni Gundogdu.
 #
 # This file is part of clive.
 #
@@ -20,8 +21,8 @@
 ###########################################################################
 package clive::Host::Break;
 
-# Rewritten: Toni Gundogdu (clive 2.x, Perl).
-# Original: Jan Hulsbergen <afoo@gmail.com> (clive 1.x, Python)
+# Rewritten from the original code contribution by Jan Hulsbergen
+# <afoo@gmail.com> which was written in Python for clive 1.0.
 
 use warnings;
 use strict;

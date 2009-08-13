@@ -63,6 +63,7 @@ Output Options:
      --debug                    print cURL debug messages
  -q, --quiet                    turn off all output
      --stderr                   redirect all output to stderr
+     --print-fname              print filename before download starts
 HTTP Options:
      --agent=STRING             identify as STRING to http server
      --connect-timeout=SECS     max time allowed connection to take

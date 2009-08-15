@@ -12,4 +12,4 @@ else {
 }
 use Test::clive;
 
-Test::clive::host(qq|http://www.redtube.com/11573|);
+Test::clive::host(qq|http://www.redtube.com/3644|);

@@ -1,3 +1,9 @@
+Version 2.2.6
+
+ Developer-visible changes:
+  * t/11redtube.t: fix dead link
+
+
 Version 2.2.5
 (August 14, 2009)
 

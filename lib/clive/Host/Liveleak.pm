@@ -71,6 +71,7 @@ sub _parseConfig {
                 if (clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 )
                 {
                     $self->{video_link} = $tmp->{location};
+                    $self->{video_link} =~ tr/ //d;
                     return (0);
                 }
             }

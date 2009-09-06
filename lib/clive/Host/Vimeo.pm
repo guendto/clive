@@ -34,7 +34,6 @@ sub parsePage {
 
     my %re = (
         id    => qr|clip_id=(.*?)"|,
-        title => qr|name="title" content="(.*?)"|
     );
 
     my $tmp;
@@ -44,9 +43,6 @@ sub parsePage {
         if ( _parseConfig( $self, $config, $tmp->{id} ) == 0 ) {
             $$props->video_id( $tmp->{id} );
             $$props->video_link( $self->{video_link} );
-
-            # Less hassle than using <title>.
-            $$props->page_title( undef, $tmp->{title} );
 
             return (0);
         }

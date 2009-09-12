@@ -45,8 +45,9 @@ sub parsePage {
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
 
-        my $xurl = "http://media1.break.com/dnet/media"
+        my $xurl = "http://video1.break.com/dnet/media"
             . "/$tmp->{fpath}/$tmp->{fname}.flv";
+
 
         $$props->video_id( $tmp->{id} );
         $$props->video_link($xurl);

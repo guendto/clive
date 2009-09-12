@@ -4,6 +4,7 @@ Version 2.2.6
   * Fix: liveleak: "error: Unsupported protocol (http/1)" (closes #36)
   * Fix: vimeo: title parsing (Thanks to Peter Baranyi for the fix, closes #37)
     - Fixes title issues with accented chars
+  * Fix: break: http/403 (Thanks to Werner Elsler for the fix, closes #38)
 
  Developer-visible changes:
   * t/11redtube.t: fix dead link

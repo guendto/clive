@@ -1,4 +1,5 @@
 Version 2.2.6
+(September 14, 2009)
 
  User-visible changes:
   * Fix: liveleak: "error: Unsupported protocol (http/1)" (closes #36)

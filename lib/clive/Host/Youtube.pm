@@ -56,7 +56,7 @@ sub parsePage {
 
         if ( $config->{format} eq "best" ) {
             $fmt = $1
-                if $$content =~ /"fmt_map": "(.*?)\//;
+                if ($$content =~ /"fmt_map": "(.*?)(?:%2F|\/|")/ && $1 ne "");
         }
         else {
             $fmt = $1

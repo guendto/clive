@@ -34,19 +34,19 @@ sub parsePage {
     $$props->video_host("myubo");
 
     my %re = (
-        id => qr|movieid=(.*?)"|i,
+        id    => qr|movieid=(.*?)"|i,
         title => qr|<div id="moviedetail"><h1>(.*?)</h1>|i,
-        flv => qr|writeflashplayer\('(.*?)'|i,
+        flv   => qr|writeflashplayer\('(.*?)'|i,
     );
 
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
-        $$props->video_id($tmp->{id});
-        $$props->page_title(undef, $tmp->{title});
-        $$props->video_link($tmp->{flv});
-        return(0);
+        $$props->video_id( $tmp->{id} );
+        $$props->page_title( undef, $tmp->{title} );
+        $$props->video_link( $tmp->{flv} );
+        return (0);
     }
-    return(1);
+    return (1);
 }
 
 1;

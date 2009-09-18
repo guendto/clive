@@ -48,7 +48,6 @@ sub parsePage {
         my $xurl = "http://video1.break.com/dnet/media"
             . "/$tmp->{fpath}/$tmp->{fname}.flv";
 
-
         $$props->video_id( $tmp->{id} );
         $$props->video_link($xurl);
 

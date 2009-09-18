@@ -32,9 +32,7 @@ sub parsePage {
 
     $$props->video_host("vimeo");
 
-    my %re = (
-        id    => qr|clip_id=(.*?)"|,
-    );
+    my %re = ( id => qr|clip_id=(.*?)"|, );
 
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {

@@ -45,7 +45,7 @@ my @_hosts = (
     [ "Ehrensenf", qr|ehrensenf.de|i, "flv" ],
     [ "Clipfish",  qr|clipfish.de|i,  "flv" ],
     [ "Funnyhub",  qr|funnyhub.com|i, "flv" ],
-    [ "Myubo",  qr|myubo.com|i, "flv" ],
+    [ "Myubo",     qr|myubo.com|i,    "flv" ],
 );
 
 sub new {

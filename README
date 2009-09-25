@@ -45,9 +45,16 @@ be installed. For example:
 See also (for Makefile.PL options etc.):
   http://search.cpan.org/perldoc?ExtUtils::MakeMaker
 
-NOTE: "make test" will use ~/.cliverc settings. You can set NO_INTERNET
+
+Notes
+-----
+
+* "make test" will use ~/.cliverc settings. You can set NO_INTERNET
 environment variable to skip the host tests.
 
-If you want to try clive without installing it first:
-  cd lib
-  ../bin/clive URL
+* To enable adult website tests, set ADULT_OK environment variable.
+
+* If you want to try clive without installing it first:
+  cd lib; ../bin/clive URL
+
+

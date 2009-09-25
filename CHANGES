@@ -1,8 +1,14 @@
 Version 2.2.7
 
  User-visible changes:
- * Fix: --format=best not working with youtube (closes issue #39)
-   # Thanks to Peter Baranyi for the fix
+  * Fix: --format=best not working with youtube (closes issue #39)
+    # Thanks to Peter Baranyi for the fix
+
+ Developer-visible changes:
+  * "make test": ADULT_OK env.var. now enables redtube test
+
+ Known issues:
+  * redtube: broken
  
 
 Version 2.2.6

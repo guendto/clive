@@ -1,6 +1,10 @@
 Version 2.2.7
 
  User-visible changes:
+  * Youtube:
+    # Accept -f fmt34
+    # fmt34 is now treated as yet another (new?) format
+    # Rewrite youtube section of the FORMATS in the manual
   * Fix: --format=best not working with youtube (closes issue #39)
     # Thanks to Peter Baranyi for the fix
 

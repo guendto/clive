@@ -24,11 +24,14 @@ package clive::Host::Youtube;
 use warnings;
 use strict;
 
-# fmt22 = HD[1280x720]
-# fmt35 = HQ[640x380]
-# fmt17 = 3gp[176x144]
-# fmt18 = mp4[480x360]
-# fmt34 = flv[320x180]
+# fmt22 = HD    [1280x720]
+# fmt35 = HQ     [640x380]
+# fmt17 = 3gp    [176x144]
+# fmt18 = mp4    [480x360]
+# fmt34 = flv    [320x180] (quality reportedly varies)
+
+# If --format is unused, clive defaults to whatever youtube
+# defaults to: we do not append the "&fmt=" to the video link.
 
 sub new {
     return bless( {}, shift );
@@ -80,7 +83,7 @@ sub toFmt {
     $id =~ s/hd/fmt22/;
     $id =~ s/hq/fmt35/;
     $id =~ s/mp4/fmt18/;
-    $id =~ s/fmt34/flv/;
+#    $id =~ s/fmt34/flv/; # Previously assumed to be the "youtube default format"
     $id =~ s/3gp/fmt17/;
     return ($id);
 }

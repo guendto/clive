@@ -101,7 +101,7 @@ sub init {
     $config{format} ||= 'flv';
 
     # Check format.
-    my @youtube = qw(fmt18 fmt35 fmt22 fmt17 hq 3gp);
+    my @youtube = qw(fmt18 fmt34 fmt35 fmt22 fmt17 hq 3gp);
     my @google  = qw(mp4);
     my @dmotion = qw(spark-mini vp6-hq vp6-hd vp6 h264);
     my @vimeo   = qw(hd);

@@ -4,6 +4,7 @@ use warnings;
 use strict;
 
 use Test::More;
+plan skip_all => "Broken. See http://code.google.com/p/clive/issues/detail?id=41";
 if ( $ENV{NO_INTERNET} ) {
     plan skip_all => "No internet during package build";
 }

@@ -9,10 +9,11 @@ Version 2.2.7
     # Thanks to Peter Baranyi for the fix
 
  Developer-visible changes:
+  * Disable: t/11redtube.t (broken, see known issues)
   * "make test": ADULT_OK env.var. now enables redtube test
 
  Known issues:
-  * redtube: broken
+  * redtube: broken (verify -> http/404)
  
 
 Version 2.2.6

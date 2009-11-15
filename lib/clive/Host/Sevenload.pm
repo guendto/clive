@@ -28,6 +28,8 @@ package clive::Host::Sevenload;
 use warnings;
 use strict;
 
+use clive::Error qw(CLIVE_REGEXP);
+
 sub new {
     return bless( {}, shift );
 }
@@ -57,17 +59,32 @@ sub _parseConfig {
 
     my $content;
     if ( $curl->fetchToMem( $url, \$content, "config" ) == 0 ) {
-        my %re = (
-            id       => qr|item id="(.*?)"|,
-            location => qr|<location seeking="yes">(.*?)</location>|
-        );
-        my $tmp;
-        if ( clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 ) {
-            $$props->video_id( $tmp->{id} );
-            $tmp->{location} =~ s/&amp;/&/g;
-            $$props->video_link( $tmp->{location} );
-            return (0);
+
+        my $re = qr|item id="(\w+)">\s+<title>(.*?)</|i;
+
+        if ($content =~ $re) {
+            my ($id, $title) = ($1,$2);
+            $$props->video_id( $id );
+            $$props->page_title( undef, $title );
         }
+        else {
+            clive::Log->instance->err( CLIVE_REGEXP, "no match: `$re'" );
+            return (1);
+        }
+
+        $re = qr|location seeking="yes">(.*?)</|i;
+
+        if ($content =~ /$re/) {
+            my $lnk = $1;
+            $lnk =~ s/&amp;/&/g;
+            $$props->video_link( $lnk );
+        }
+        else {
+            clive::Log->instance->err( CLIVE_REGEXP, "no match: `$re'" );
+            return (1);
+        }
+
+        return (0);
     }
     return (1);
 }

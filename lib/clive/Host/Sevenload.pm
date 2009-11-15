@@ -64,6 +64,7 @@ sub _parseConfig {
         my $tmp;
         if ( clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 ) {
             $$props->video_id( $tmp->{id} );
+            $tmp->{location} =~ s/&amp;/&/g;
             $$props->video_link( $tmp->{location} );
             return (0);
         }

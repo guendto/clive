@@ -1,3 +1,13 @@
+Version 2.2.8
+
+ User-visible changes:
+  * Sevenload:
+    # Fix http/401 error
+    # Cleanup title parsing (use config data instead)
+  * Croak with an error if BerkeleyDB module is not found
+    # And either -d or -g options are used
+
+
 Version 2.2.7
 (September 29, 2009)
 

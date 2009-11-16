@@ -119,6 +119,26 @@ sub prompt {
     return $ln;
 }
 
+sub fromEntities {
+    my %conv_table = (
+        "&quot;" => "\"",
+        "&#34;"  => "\"",
+        "&amp;"  => "&",
+        "&#38;"  => "&",
+        "&apos;" => "'",
+        "&#39;"  => "'",
+        "&lt;"   => "<",
+        "&#60;"  => "<",
+        "&gt;"   => ">",
+        "&#62;"  => ">",
+    );
+    my $str = shift;
+    while ( my ( $from, $to ) = each( %conv_table ) ) {
+        $str =~ s/$from/$to/g;
+    }
+    return $str;
+}
+
 1;
 
 # While all the women came and went.

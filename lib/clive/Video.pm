@@ -71,7 +71,7 @@ sub page_title {
             _cleanupTitle($self);
         }
         else {
-            $self->{page_title} = $title;
+            $self->{page_title} = clive::Util::fromEntities( $title );
         }
     }
     return $self->{page_title};

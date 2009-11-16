@@ -71,7 +71,7 @@ sub page_title {
             _cleanupTitle($self);
         }
         else {
-            $self->{page_title} = clive::Util::fromEntities( $title );
+            $self->{page_title} = clive::Util::fromEntities($title);
         }
     }
     return $self->{page_title};
@@ -203,9 +203,9 @@ sub toCacheRecord {
     my $title = $self->{page_title};
 
     # See http://code.google.com/p/clive/issues/detail?id=42
-    if (sprintf( "%vd", $^V ) =~ /(\d+).(\d+).(\d+)/) {
-        $title = decode_utf8( $title )
-            if ($1 >= 5 && $2 >= 10);
+    if ( sprintf( "%vd", $^V ) =~ /(\d+).(\d+).(\d+)/ ) {
+        $title = decode_utf8($title)
+            if ( $1 >= 5 && $2 >= 10 );
     }
 
     # Keep the order in sync with clive::Cache::_mapRecord.

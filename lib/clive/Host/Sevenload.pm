@@ -62,9 +62,9 @@ sub _parseConfig {
 
         my $re = qr|item id="(\w+)">\s+<title>(.*?)</|i;
 
-        if ($content =~ $re) {
-            my ($id, $title) = ($1,$2);
-            $$props->video_id( $id );
+        if ( $content =~ $re ) {
+            my ( $id, $title ) = ( $1, $2 );
+            $$props->video_id($id);
             $$props->page_title( undef, $title );
         }
         else {
@@ -74,10 +74,10 @@ sub _parseConfig {
 
         $re = qr|location seeking="yes">(.*?)</|i;
 
-        if ($content =~ /$re/) {
+        if ( $content =~ /$re/ ) {
             my $lnk = $1;
             $lnk =~ s/&amp;/&/g;
-            $$props->video_link( $lnk );
+            $$props->video_link($lnk);
         }
         else {
             clive::Log->instance->err( CLIVE_REGEXP, "no match: `$re'" );

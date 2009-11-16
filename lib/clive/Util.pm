@@ -133,7 +133,7 @@ sub fromEntities {
         "&#62;"  => ">",
     );
     my $str = shift;
-    while ( my ( $from, $to ) = each( %conv_table ) ) {
+    while ( my ( $from, $to ) = each(%conv_table) ) {
         $str =~ s/$from/$to/g;
     }
     return $str;

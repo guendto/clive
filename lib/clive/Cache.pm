@@ -66,7 +66,7 @@ sub init {
         }
     }
     else {
-        if ($config->{cache_dump} || $config->{cache_grep}) {
+        if ( $config->{cache_dump} || $config->{cache_grep} ) {
             die "error: requires BerkeleyDB module\n";
         }
     }

@@ -202,13 +202,11 @@ sub toCacheRecord {
 
     my $title = $self->{page_title};
 
-=for comment
-    # See: http://code.google.com/p/clive/issues/detail?id=42
+    # See http://code.google.com/p/clive/issues/detail?id=42
     if ( sprintf( "%vd", $^V ) =~ /(\d+).(\d+).(\d+)/ ) {
         $title = decode_utf8($title)
             if ( $1 >= 5 && $2 >= 10 );
     }
-=cut
 
     # Keep the order in sync with clive::Cache::_mapRecord.
     my $record

@@ -1,6 +1,7 @@
 Version 2.2.8
 
  User-visible changes:
+  * Fix UTF8 decoding on Perl 5.8.8 (closes issue #42)
   * Sevenload:
     # Fix http/401 error
     # Cleanup title parsing (use config data instead)

@@ -562,21 +562,10 @@ Note that "flv" only means the "default flv". Some of the hosted
 For further reading:
   http://vimeo.com/help/hd
 
-=item B<evisor.tv>
+=item B<Other>
 
-=item B<liveleak.com>
-
-=item B<tv.cctv.com>
-
-=item B<sevenload.com>
-
-=item B<break.com>
-
-=item B<ehrensenf.de>
-
-=item B<clipfish.de>
-
-Format: flv
+All other supported websites (see --host output) support
+the flv format only.
 
 =back
 

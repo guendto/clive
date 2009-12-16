@@ -38,7 +38,6 @@ my @_hosts = (
         "flv|spark-mini|vp6-hq|vp6-hd|vp6|h264"
     ],
     [ "Cctv",    qr|tv.cctv.com|i, "flv" ],
-    [ "Redtube", qr|redtube.com|i, "flv" ],
     [ "Vimeo",   qr|vimeo.com|i,   "flv|hd" ],
     [ "Spiegel", qr|spiegel.de|i,  "flv|vp6_928|vp6_576|vp6_64|h264_1400" ],
     [ "Golem",   qr|golem.de|i,    "flv|ipod|high" ],

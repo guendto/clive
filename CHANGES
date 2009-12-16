@@ -1,6 +1,7 @@
 Version 2.2.8
 
  User-visible changes:
+  * Remove the remains of the redtube support
   * Do not replace dashes with underscores in IDs (closes issue #44)
   * Sevenload:
     # Fix http/401 error

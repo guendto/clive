@@ -20,9 +20,6 @@ Test::clive::host(
 Test::clive::host(
     qq|http://en.sevenload.com/shows/TheSailingChannel-TV/episodes/zLM5OvT-Cruising-with-Bettie-Trailer|
 );
-Test::clive::host(
-    qq|http://de.sevenload.com/sendungen/halbzeit-in/folgen/Kbv3CsN-Wechselgesang-Sieger-beste-Bewertungen|
-);
 
 # Embed.
 Test::clive::host(

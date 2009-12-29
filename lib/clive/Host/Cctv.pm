@@ -45,11 +45,30 @@ sub parsePage {
 
         my $content;
         if ( $curl->fetchToMem( $config, \$content, "config" ) == 0 ) {
-            %re = ( path => qr|"url":"(.*?)"| );
-            if ( clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 ) {
-                $$props->video_id( $tmp->{id} );
-                $$props->video_link("http://v.cctv.com/flash/$tmp->{path}");
-                return (0);
+
+            use constant PREFIX => "http://v.cctv.com/flash/";
+
+            # Until a better way can be found.
+            if ( $content =~ /"chapters":\[(.*?)\]/ ) {
+                my @arr = ( $1 =~ /"url":"(.*?)"/g );
+                if ( scalar @arr == 1 ) {
+                    $$props->video_id( $tmp->{id} );
+                    $$props->video_link( PREFIX . $arr[0] );
+                    return (0);
+                }
+                printf( "video-segment: \"%s$_\n", PREFIX ) foreach (@arr);
+                return (0xff);
+            }
+            else {
+
+                # Fallback to what once used to be the standard.
+                %re = ( path => qr|"url":"(.*?)"| );
+                if (clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 )
+                {
+                    $$props->video_id( $tmp->{id} );
+                    $$props->video_link( PREFIX . $tmp->{path} );
+                    return (0);
+                }
             }
         }
     }

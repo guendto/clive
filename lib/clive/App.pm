@@ -179,6 +179,13 @@ sub _parseInput {
                     }
                 }
             }
+            elsif ( $rc == 0xff ) {
+
+                # Purpose: dump (cctv) video segment links to terminal.
+                # a.k.a. "One link leads to many video segment links."
+                # a.k.a. "Something we never had even thought of."
+                # We skip quite a few steps with this chunk of joy.
+            }
         }
         else {
             $log->err( CLIVE_NOSUPPORT, "no support: $_" );

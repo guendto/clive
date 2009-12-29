@@ -1,5 +1,10 @@
 Version 2.2.9
 
+ User-visible changes:
+  * Partial fix: cctv: dump multi-segment video links
+    # single-segment videos are still copied normally
+    # closes issue #44 (for now)
+
  Developer-visible changes:
   * Add NEWS file
   * Remove dead test link:

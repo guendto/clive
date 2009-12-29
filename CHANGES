@@ -1,6 +1,7 @@
 Version 2.2.9
 
  Developer-visible changes:
+  * Add NEWS file
   * Remove dead test link:
     # tlinks/sload.url
     # t/10sevenload.t

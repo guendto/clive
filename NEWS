@@ -1,0 +1,12 @@
+2.2.9
+-----
+
+cctv support was fixed. These videos appear to come in (at least) two
+flavors now: multi-segment and single-segment. The issue has been
+discussed here:
+  http://code.google.com/p/clive/issues/detail?id=45
+
+It was decided, mainly due to overall laziness, that multi-segment
+video links are to be dumped to the terminal without any further
+fiddling with them. The reasons have also been covered in the above
+discussion.

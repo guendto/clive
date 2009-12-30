@@ -56,8 +56,25 @@ sub parsePage {
                     $$props->video_link( PREFIX . $arr[0] );
                     return (0);
                 }
-                printf( "video-segment: \"%s$_\n", PREFIX ) foreach (@arr);
-                return (0xff);
+
+                # We'd parse this from content-type header when
+                # video links are verified. Since we skip that,
+                # we will have to apply voodoo here.
+                my $i = 0;
+                foreach (@arr) {
+
+                    # Figure out suffix.
+                    my $suffix = "flv";
+                    $suffix = $2 if ( $_ =~ /(.*)\.(\w+)$/ );
+
+                    # Append video segment index to the filename.
+                    $$props->formatOutputFilename( $suffix, ++$i );
+
+                    # Dump.
+                    printf( "video-segment:\t%s\t%s$_\n",
+                        $$props->{base_filename}, PREFIX );
+                }
+                return (0xff); # IDs the above.
             }
             else {
 

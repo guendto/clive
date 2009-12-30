@@ -103,7 +103,7 @@ sub emitCSV {
 }
 
 sub formatOutputFilename {
-    my $self = shift;
+    my ($self, $suffix, $index) = @_;
 
     my $config = clive::Config->instance->config;
     my $fname;
@@ -128,7 +128,13 @@ sub formatOutputFilename {
             if ( !$title && $fname !~ /%i/ );
 
         $fname =~ s/%t/$title/;
-        $fname =~ s/%s/$self->{file_suffix}/;
+        if ($self->{file_suffix}) {
+            $fname =~ s/%s/$self->{file_suffix}/;
+        }
+        elsif ($suffix) {
+            my $tmp = "$index.$suffix";
+            $fname =~ s/%s/$tmp/;
+        }
         $fname =~ s/%i/$id/;
         $fname =~ s/%h/$self->{video_host}/;
 

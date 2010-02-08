@@ -8,6 +8,7 @@ Version 2.2.9
     # closes issue #45 (for now)
 
  Developer-visible changes:
+  * Rename CHANGES -> ChangeLog
   * Add NEWS file
   * Remove dead test link:
     # tlinks/sload.url

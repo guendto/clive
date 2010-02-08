@@ -1,6 +1,6 @@
 bin/clive
 NEWS
-CHANGES
+ChangeLog
 COPYING
 examples/config
 lib/clive/App.pm

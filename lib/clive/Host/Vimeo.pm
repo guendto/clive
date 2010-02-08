@@ -64,16 +64,17 @@ sub _parseConfig {
         my $tmp;
         if ( clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 ) {
             my $xurl = "http://vimeo.com/moogaloop/play/clip:$id"
-                . "/$tmp->{sig}/$tmp->{sig_exp}";
+                . "/$tmp->{sig}/$tmp->{sig_exp}/?q=";
             my $config = clive::Config->instance->config;
+            my $q = "sd";
             if (   $config->{format} eq "hd"
                 || $config->{format} eq "best" )
             {
-                my $hd_avail = $1
-                    if ( $content =~ /<hd_button>(.*?)<\/hd_button>/ );
-                $xurl .= "/?q=hd"
-                    if ( $hd_avail && $hd_avail eq "1" );
+                if ( $content =~ /<hd_button>(.*?)<\/hd_button>/ ) {
+                    $q = "hd" if ($1 eq "1");
+                }
             }
+            $xurl .= $q;
             $self->{video_link} = $xurl;
             return (0);
         }

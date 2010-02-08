@@ -1,6 +1,8 @@
 Version 2.2.9
 
  User-visible changes:
+  * Fix vimeo support
+    # closes issue #49
   * Partial fix: cctv: dump multi-segment video links
     # single-segment videos are still copied normally
     # closes issue #45 (for now)

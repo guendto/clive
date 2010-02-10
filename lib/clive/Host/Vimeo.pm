@@ -66,12 +66,12 @@ sub _parseConfig {
             my $xurl = "http://vimeo.com/moogaloop/play/clip:$id"
                 . "/$tmp->{sig}/$tmp->{sig_exp}/?q=";
             my $config = clive::Config->instance->config;
-            my $q = "sd";
+            my $q      = "sd";
             if (   $config->{format} eq "hd"
                 || $config->{format} eq "best" )
             {
                 if ( $content =~ /<hd_button>(.*?)<\/hd_button>/ ) {
-                    $q = "hd" if ($1 eq "1");
+                    $q = "hd" if ( $1 eq "1" );
                 }
             }
             $xurl .= $q;

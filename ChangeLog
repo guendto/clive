@@ -1,6 +1,10 @@
 Version 2.2.9
 
  User-visible changes:
+  * Fix dailymotion formats
+    - vp6-hd -> h264-hd
+    - vp6-hq -> h264-hq
+    - vp6 -> h264
   * Fix vimeo support
     # closes issue #49
   * Partial fix: cctv: dump multi-segment video links

@@ -8,7 +8,7 @@ if ( $ENV{NO_INTERNET} ) {
     plan skip_all => "No internet during package build";
 }
 else {
-    plan tests => 5;
+    plan tests => 4;
 }
 use Test::clive;
 

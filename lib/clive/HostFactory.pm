@@ -35,7 +35,7 @@ my @_hosts = (
     [ "Liveleak",  qr|liveleak.com|i,  "flv" ],
     [ "Evisor",    qr|evisor.tv|i,     "flv" ],
     [   "Dailymotion", qr|dailymotion.com|i,
-        "flv|spark-mini|vp6-hq|vp6-hd|vp6|h264"
+        "flv|spark-mini|h264-hq|h264-hd|h264"
     ],
     [ "Cctv",    qr|tv.cctv.com|i, "flv" ],
     [ "Vimeo",   qr|vimeo.com|i,   "flv|hd" ],

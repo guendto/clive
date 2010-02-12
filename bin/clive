@@ -515,16 +515,15 @@ mp4 format is available for a limited number of videos.
 
 =item B<dailymotion.com>
 
-Format: (flv|spark-mini|vp6-hq|vp6-hd|vp6|h264)
+Format: (flv|spark-mini|h264|h264-hq|h264-hd)
 
 The HD and HQ videos may not always be available.
 
-  vp6-hd    .. on2   (1280x720)
-  vp6-hq    .. on2     (848x480)
-  h264      .. h264    (512x384)
-  vp6       .. on2     (320x240)
-  flv       .. flv     (320x240)
-  spark-mini .. flv       (80x60)
+  h264-hd    .. mp4   (1280x720)
+  h264-hq    .. mp4    (848x480)
+  h264       .. mp4    (512x384)
+  flv        .. flv    (320x240) [a.k.a. spark]
+  spark-mini .. flv      (80x60)
 
 =item B<spiegel.de>
 

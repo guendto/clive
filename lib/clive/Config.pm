@@ -103,7 +103,7 @@ sub init {
     # Check format.
     my @youtube = qw(fmt18 fmt34 fmt35 fmt22 fmt17 hq 3gp);
     my @google  = qw(mp4);
-    my @dmotion = qw(spark-mini vp6-hq vp6-hd vp6 h264);
+    my @dmotion = qw(spark-mini h264-hq h264-hd h264);
     my @vimeo   = qw(hd);
     my @spiegel                # vp6_388=flv (regular)
         = qw(vp6_64 vp6_576 vp6_928 h264_1400 small iphone podcast);

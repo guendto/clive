@@ -2,6 +2,8 @@ Version 2.2.10
 
  * Fix break.com support
    # Thanks to Werner Elsler for the fix
+ * Fix break.com title parsing
+   # Ported from libquvi
 
 
 Version 2.2.9

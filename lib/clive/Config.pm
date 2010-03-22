@@ -103,15 +103,13 @@ sub init {
     # Check format.
     my @youtube = qw(fmt18 fmt34 fmt35 fmt22 fmt17 hq 3gp);
     my @google  = qw(mp4);
-    my @dmotion = qw(spark-mini h264-hq h264-hd h264);
     my @vimeo   = qw(hd);
     my @spiegel                # vp6_388=flv (regular)
         = qw(vp6_64 vp6_576 vp6_928 h264_1400 small iphone podcast);
     my @golem = qw(high ipod); # medium=flv (regular)
 
-    my @formats = (
-        qw(flv best), @youtube, @google, @dmotion, @vimeo, @spiegel, @golem
-    );
+    my @formats
+        = ( qw(flv best), @youtube, @google, @vimeo, @spiegel, @golem );
 
     #unless (@formats ~~ $config{format}) { # Perl 5.10.0+
     unless ( grep( /^$config{format}$/, @formats ) ) {

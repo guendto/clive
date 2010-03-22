@@ -2,7 +2,7 @@
 ###########################################################################
 # clive, command line video extraction utility.
 #
-# Copyright 2009 Toni Gundogdu.
+# Copyright 2009,2010 Toni Gundogdu.
 #
 # This file is part of clive.
 #
@@ -24,74 +24,92 @@ package clive::Host::Dailymotion;
 use warnings;
 use strict;
 
-use clive::Error qw(CLIVE_FORMAT);
-
-# ON2-1280x720 (vp6-hd)
-# ON2-848x480  (vp6-hq)
-# H264-512x384 (h264)
-# ON2-320x240  (vp6)
-# FLV-320x240  (spark)
-# FLV-80x60    (spak-mini)
+use clive::Error qw(CLIVE_FORMAT CLIVE_REGEXP CLIVE_NOSUPPORT);
 
 sub new {
     return bless( {}, shift );
 }
 
+use constant LONG_ASS_ERRMSG =>
+    "looks like one of dailymotion's partner videos. we cannot currently
+error: download any of those videos. note that those videos are often
+error: protected by flash drm zealots, so don't ask unless you are
+error: volunteering to write a patch.";
+
 sub parsePage {
     my ( $self, $content, $props ) = @_;
 
+    # Can we even dl this video?
+
+    if ( $$content =~ /SWFObject\("http:/ ) {
+        clive::Log->instance->err( CLIVE_NOSUPPORT, LONG_ASS_ERRMSG );
+        return 1;
+    }
+
     $$props->video_host("dailymotion");
+
+    # Match video ID, title.
 
     my %re = (
         id    => qr|video/(.*?)_|,
-        paths => qr|"video", "(.*?)"|
+        title => qr|title="(.*?)"|,
     );
 
     my $tmp;
-    if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
+    return 1
+        if clive::Util::matchRegExps( \%re, \$tmp, $content ) != 0;
 
-        require URI::Escape;
-        my $paths  = URI::Escape::uri_unescape( $tmp->{paths} );
-        my $config = clive::Config->instance->config;
+    # Match available formats.
 
-        my $format = $config->{format};
-        $format = "spark" if ( $format eq "flv" );
+    my $re = qr|%22(\w\w)URL%22%3A%22(.*?)%22|;
+    my %lst = $$content =~ /$re/gm;
 
-        my %width;
-        my $xurl;
+    if ( keys %lst == 0 ) {
+        clive::Log->instance->err( CLIVE_REGEXP, "no match: `$re'" );
+        return 1;
+    }
 
-        foreach ( split( /\|\|/, $paths ) ) {
-            my ( $path, $type ) = split(/@@/);
+    # User requested format.
 
-            $width{$2} = $path
-                if ( $path =~ /cdn\/(.*)-(.*?)x/ );
+    my $format = clive::Config->instance->config->{format};
+    $format = "sd" if $format eq "flv";    # Alias.
 
-            if ( lc($type) eq $format
-                && $format ne "best" )
-            {
-                $xurl = $path;
-                last;
-            }
+    # Match requested format to a video link.
+
+    my $lnk;
+    foreach (qw/sd hq hd/) {
+        if ( not exists $lst{$_} ) {
+            print STDERR "warning: `$_' not found in hash, ignored.\n";
+            next;
         }
-
         if ( $format eq "best" ) {
-
-            # Sort by width to descending order, assume [0] to be the best.
-            my $best = ( sort { $b <=> $a } keys %width )[0];
-            $xurl = $width{$best};
+            $lnk = $lst{$_};
         }
-
-        if ($xurl) {
-            $$props->video_id( $tmp->{id} );
-            $$props->video_link($xurl);
-            return (0);
-        }
-        else {
-            clive::Log->instance->err( CLIVE_FORMAT,
-                "format unavailable: `$format'" );
+        elsif ( $format eq $_ ) {
+            $lnk = $lst{$_};
+            last;
         }
     }
-    return (1);
+
+    if ( not defined $lnk ) {
+        clive::Log->instance->err( CLIVE_REGEXP,
+            "oops. \$lnk undefined. that does not look right. terminating." );
+        return 1;
+    }
+
+    # Cleanup video link.
+
+    $lnk =~ s/%5C//g;
+    require URI::Escape;
+    $lnk = URI::Escape::uri_unescape($lnk);
+
+    # Set video properties.
+
+    $$props->video_id( $tmp->{id} );
+    $$props->page_title( undef, $tmp->{title} );
+    $$props->video_link($lnk);
+
+    return 0;
 }
 
 1;

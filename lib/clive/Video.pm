@@ -103,7 +103,7 @@ sub emitCSV {
 }
 
 sub formatOutputFilename {
-    my ($self, $suffix, $index) = @_;
+    my ( $self, $suffix, $index ) = @_;
 
     my $config = clive::Config->instance->config;
     my $fname;
@@ -128,7 +128,7 @@ sub formatOutputFilename {
             if ( !$title && $fname !~ /%i/ );
 
         $fname =~ s/%t/$title/;
-        if ($self->{file_suffix}) {
+        if ( $self->{file_suffix} ) {
             $fname =~ s/%s/$self->{file_suffix}/;
         }
         elsif ($suffix) {

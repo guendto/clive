@@ -1,7 +1,19 @@
 Version 2.2.10
 --------------
 
+Changes:
+  * Mark ehrensenf.de support as broken
+
 Bugfixes:
+  * dailymotion.com
+    # Change format IDs to reflect website changes (yet again):
+      * h264-hd -> hd
+      * h264-hq -> hq
+      * removed h264
+    # Parse title from elsewhere
+      * Title was previously parsed from the title HTML tag
+      * Which usually contained more than we cared for
+    # Spew out an error if the video looks like a partner video
   * break.com
     # Support, thanks to Werner Elsler for the fix
     # Title parsing, ported from libquvi

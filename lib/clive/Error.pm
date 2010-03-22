@@ -2,7 +2,7 @@
 ###########################################################################
 # clive, command line video extraction utility.
 #
-# Copyright 2009 Toni Gundogdu.
+# Copyright 2009,2010 Toni Gundogdu.
 #
 # This file is part of clive.
 #
@@ -26,17 +26,18 @@ require Exporter;
 our @ISA = qw(Exporter);
 
 use constant {
-    CLIVE_OK          => 0,
-    CLIVE_NOTHINGTODO => 1,    # file already retrieved
-    CLIVE_NOSUPPORT   => 2,    # host not supported
-    CLIVE_READ        => 3,    # file open/read error
-    CLIVE_GREP        => 4,    # grep: nothing matched in cache
-    CLIVE_OPTARG      => 5,    # invalid option argument
-    CLIVE_SYSTEM      => 6,    # system call failed (e.g. fork)
-    CLIVE_REGEXP      => 7,    # regexp pattern matching failed
-    CLIVE_FORMAT      => 8,    # requested format unavailable
-    CLIVE_NET         => 9,    # network error
-    CLIVE_STOP        => 10,   # --stop-after
+    CLIVE_OK           => 0,
+    CLIVE_NOTHINGTODO  => 1,   # file already retrieved
+    CLIVE_NOSUPPORT    => 2,   # host not supported
+    CLIVE_READ         => 3,   # file open/read error
+    CLIVE_GREP         => 4,   # grep: nothing matched in cache
+    CLIVE_OPTARG       => 5,   # invalid option argument
+    CLIVE_SYSTEM       => 6,   # system call failed (e.g. fork)
+    CLIVE_REGEXP       => 7,   # regexp pattern matching failed
+    CLIVE_FORMAT       => 8,   # requested format unavailable
+    CLIVE_NET          => 9,   # network error
+    CLIVE_STOP         => 10,  # --stop-after
+    CLIVE_MARKEDBROKEN => 11,  # support marked broken
 };
 
 our @EXPORT_OK = qw(
@@ -51,6 +52,7 @@ our @EXPORT_OK = qw(
     CLIVE_FORMAT
     CLIVE_NET
     CLIVE_STOP
+    CLIVE_MARKEDBROKEN
 );
 
 1;

@@ -24,12 +24,23 @@ package clive::Host::Ehrensenf;
 use warnings;
 use strict;
 
+use clive::Error qw(CLIVE_MARKEDBROKEN);
+
 sub new {
     return bless( {}, shift );
 }
 
+use constant MARKEDBROKEN_ERRMSG =>
+    "support marked as 'broken'. consider whipping up a patch to earn fame
+error: and other users' undying gratitude.";
+
 sub parsePage {
     my ( $self, $content, $props ) = @_;
+
+    # Marked as "broken."
+
+    clive::Log->instance->err( CLIVE_MARKEDBROKEN, MARKEDBROKEN_ERRMSG );
+    return 1;
 
     $$props->video_host("ehrensenf");
 

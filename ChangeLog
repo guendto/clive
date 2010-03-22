@@ -9,7 +9,7 @@ Bugfixes:
     # Change format IDs to reflect website changes (yet again):
       * h264-hd -> hd
       * h264-hq -> hq
-      * removed h264
+      * removed h264 and spark-mini (no longer even listed)
     # Parse title from elsewhere
       * Title was previously parsed from the title HTML tag
       * Which usually contained more than we cared for

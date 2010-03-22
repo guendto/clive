@@ -515,15 +515,13 @@ mp4 format is available for a limited number of videos.
 
 =item B<dailymotion.com>
 
-Format: (flv|spark-mini|h264|h264-hq|h264-hd)
+Format: (flv|hq|hd)
 
 The HD and HQ videos may not always be available.
 
-  h264-hd    .. mp4   (1280x720)
-  h264-hq    .. mp4    (848x480)
-  h264       .. mp4    (512x384)
-  flv        .. flv    (320x240) [a.k.a. spark]
-  spark-mini .. flv      (80x60)
+  hd    (1280x720)
+  hq     (848x480)
+  flv    (320x240) aka "sd"
 
 =item B<spiegel.de>
 
@@ -702,6 +700,7 @@ clive exits 0 on success, and E<gt>0 if an error occurs.
  CLIVE_FORMAT      = 8    # requested format unavailable
  CLIVE_NET         = 9    # network error
  CLIVE_STOP        = 10   # --stop-after
+ CLIVE_MARKEDBROKEN = 11  # support marked broken
 
 =head1 OTHER
 

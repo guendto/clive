@@ -32,7 +32,7 @@ sub parsePage {
     $$props->video_host("buzzhumor");
 
     my %re = (
-        id => qr|/videos/(\d+)/|,
+        id  => qr|/videos/(\d+)/|,
         lnk => qr|&file=(.*?)"|
     );
 

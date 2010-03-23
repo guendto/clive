@@ -27,25 +27,23 @@ use strict;
 use clive::Error qw(CLIVE_OK);
 
 my @_hosts = (
-    [ "Youtube",   qr|youtube.com|i,   "flv|3gp|mp4|hq|hd" ],
-    [ "Youtube",   qr|last.fm|i,       "see above" ],
-    [ "Google",    qr|video.google.|i, "flv|mp4" ],
-    [ "Sevenload", qr|sevenload.com|i, "flv" ],
-    [ "Break",     qr|break.com|i,     "flv" ],
-    [ "Liveleak",  qr|liveleak.com|i,  "flv" ],
-    [ "Evisor",    qr|evisor.tv|i,     "flv" ],
-    [   "Dailymotion", qr|dailymotion.com|i,
-        "flv|spark-mini|h264-hq|h264-hd|h264"
-    ],
-    [ "Cctv",    qr|tv.cctv.com|i, "flv" ],
-    [ "Vimeo",   qr|vimeo.com|i,   "flv|hd" ],
-    [ "Spiegel", qr|spiegel.de|i,  "flv|vp6_928|vp6_576|vp6_64|h264_1400" ],
-    [ "Golem",   qr|golem.de|i,    "flv|ipod|high" ],
-    [ "Ehrensenf", qr|ehrensenf.de|i, "flv" ],
-    [ "Clipfish",  qr|clipfish.de|i,  "flv" ],
-    [ "Funnyhub",  qr|funnyhub.com|i, "flv" ],
-    [ "Myubo",     qr|myubo.com|i,    "flv" ],
-    [ "Buzzhumor", qr|buzzhumor.com|i,    "flv" ],
+    [ "Youtube",     qr|youtube.com|i,     "flv|3gp|mp4|hq|hd" ],
+    [ "Youtube",     qr|last.fm|i,         "see youtube formats" ],
+    [ "Google",      qr|video.google.|i,   "flv|mp4" ],
+    [ "Sevenload",   qr|sevenload.com|i,   "flv" ],
+    [ "Break",       qr|break.com|i,       "flv" ],
+    [ "Liveleak",    qr|liveleak.com|i,    "flv" ],
+    [ "Evisor",      qr|evisor.tv|i,       "flv" ],
+    [ "Dailymotion", qr|dailymotion.com|i, "flv|hq|hd" ],
+    [ "Cctv",        qr|tv.cctv.com|i,     "flv" ],
+    [ "Vimeo",       qr|vimeo.com|i,       "flv|hd" ],
+    [ "Spiegel", qr|spiegel.de|i, "flv|vp6_928|vp6_576|vp6_64|h264_1400" ],
+    [ "Golem",   qr|golem.de|i,   "flv|ipod|high" ],
+    [ "Ehrensenf", qr|ehrensenf.de|i,  "flv" ],
+    [ "Clipfish",  qr|clipfish.de|i,   "flv" ],
+    [ "Funnyhub",  qr|funnyhub.com|i,  "flv" ],
+    [ "Myubo",     qr|myubo.com|i,     "flv" ],
+    [ "Buzzhumor", qr|buzzhumor.com|i, "flv" ],
 );
 
 sub new {

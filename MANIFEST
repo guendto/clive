@@ -25,6 +25,7 @@ lib/clive/Host/Sevenload.pm
 lib/clive/Host/Spiegel.pm
 lib/clive/Host/Vimeo.pm
 lib/clive/Host/Youtube.pm
+lib/clive/Host/Buzzhumor.pm
 lib/clive/HostFactory.pm
 lib/clive/Log.pm
 lib/clive/Progress/Bar.pm
@@ -51,6 +52,7 @@ t/15ehrensenf.t
 t/16clipfish.t
 t/17funnyhub.t
 t/18myubo.t
+t/19buzzhumor.t
 t/lib/Test/clive.pm
 tlinks/break.url
 tlinks/cctv.url

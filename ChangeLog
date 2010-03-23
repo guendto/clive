@@ -6,6 +6,7 @@ Changes:
   * Mark ehrensenf.de support as broken
 
 Bugfixes:
+  * Update --hosts format strings
   * dailymotion.com
     # Change format IDs to reflect website changes (yet again):
       * h264-hd -> hd

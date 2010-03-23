@@ -2,6 +2,7 @@ Version 2.2.10
 --------------
 
 Changes:
+  * Add buzzhumor.com support
   * Mark ehrensenf.de support as broken
 
 Bugfixes:

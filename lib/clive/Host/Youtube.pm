@@ -43,8 +43,8 @@ sub parsePage {
     $$props->video_host("youtube");
 
     my %re = (
-        id => qr|"video_id": "(.*?)"|,
-        t  => qr|"t": "(.*?)"|,
+        id => qr|&video_id=(.*?)&|,
+        t  => qr|&t=(.*?)&|,
     );
 
     my $tmp;
@@ -59,8 +59,7 @@ sub parsePage {
 
         if ( $config->{format} eq "best" ) {
             $fmt = $1
-                if ( $$content =~ /"fmt_map": "(.*?)(?:%2F|\/|")/
-                && $1 ne "" );
+                if ( $$content =~ /&fmt_map=(\d+)/ && $1 ne "" );
         }
         else {
             $fmt = $1

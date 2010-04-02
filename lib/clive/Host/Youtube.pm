@@ -50,6 +50,10 @@ sub parsePage {
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
 
+        require URI::Escape;
+
+        $tmp->{t} = URI::Escape::uri_unescape($tmp->{t});
+
         my $xurl
             = "http://youtube.com/get_video?video_id=$tmp->{id}&t=$tmp->{t}";
 

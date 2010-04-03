@@ -8,18 +8,12 @@ if ( $ENV{NO_INTERNET} ) {
     plan skip_all => "No internet during package build";
 }
 else {
-    plan tests => 4;
+    plan tests => 2;
 }
 use Test::clive;
 
 Test::clive::host(
     qq|http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips|);
-Test::clive::host(
-    qq|http://de.sevenload.com/videos/GN4Hati/EM08-Spanien-Russland-4-1-Highlights|
-);
-Test::clive::host(
-    qq|http://en.sevenload.com/shows/TheSailingChannel-TV/episodes/zLM5OvT-Cruising-with-Bettie-Trailer|
-);
 
 # Embed.
 Test::clive::host(

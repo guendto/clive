@@ -1,4 +1,10 @@
 
+Version 2.2.12
+
+Bugfixes:
+  * break.com support, thanks to Werner Elsler for the fix (#57)
+
+
 Version 2.2.11
 --------------
 April 3, 2010

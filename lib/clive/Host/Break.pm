@@ -38,7 +38,6 @@ sub parsePage {
 
     my %re = (
         id    => qr|sGlobalContentID='(.*?)'|,
-        fpath => qr|sGlobalContentFilePath='(.*?)'|,
         fname => qr|sGlobalFileName='(.*?)'|,
         fhash => qr|flashVars.icon = \"(.*?)\"|,
         title => qr|id="vid_title" content="(.*?)"|
@@ -47,8 +46,7 @@ sub parsePage {
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
 
-        my $xurl = "http://video1.break.com/dnet/media"
-            . "/$tmp->{fpath}/$tmp->{fname}.flv?$tmp->{fhash}";
+        my $xurl = "$tmp->{fname}.flv?$tmp->{fhash}";
 
         $$props->video_id( $tmp->{id} );
         $$props->page_title( undef, $tmp->{title} );

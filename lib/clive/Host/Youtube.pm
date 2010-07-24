@@ -57,6 +57,8 @@ sub parsePage {
         my $xurl
             = "http://youtube.com/get_video?video_id=$tmp->{id}&t=$tmp->{t}";
 
+        $xurl .= "&asv=2"; # Should fix the http/404 issue (#58).
+
         my $config = clive::Config->instance->config;
 
         my $fmt;

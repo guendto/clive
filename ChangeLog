@@ -2,6 +2,7 @@
 Version 2.2.12
 
 Bugfixes:
+  * [youtube] http/404, ported from quvi, fix by Daniel Schaal (quvi #7)
   * break.com support, thanks to Werner Elsler for the fix (#57)
 
 

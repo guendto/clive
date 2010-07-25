@@ -24,12 +24,21 @@ package clive::Host::Cctv;
 use warnings;
 use strict;
 
+use clive::Error qw(CLIVE_MARKEDBROKEN);
+
+use constant BROKEN_MSG => "Marked as broken.";
+
 sub new {
     return bless( {}, shift );
 }
 
 sub parsePage {
     my ( $self, $content, $props ) = @_;
+
+    # Marked as "broken."
+
+    clive::Log->instance->err( CLIVE_MARKEDBROKEN, BROKEN_MSG );
+    return 1;
 
     $$props->video_host("cctv");
 

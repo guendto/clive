@@ -1,4 +1,11 @@
 
+
+Version 2.2.14
+
+Bugfixes:
+  * Output File path encoding (#60)
+
+
 Version 2.2.13
 August 12, 2010
 

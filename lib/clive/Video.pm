@@ -139,8 +139,9 @@ sub formatOutputFilename {
         $fname =~ s/%h/$self->{video_host}/;
 
         my $config = clive::Config->instance->config;
-        $fname = catfile( $config->{save_dir} || getcwd, $fname );
+        my $path = Encode::decode_utf8 ($config->{save_dir} or getcwd);
 
+        $fname  = catfile ($path, $fname);
         my $tmp = $fname;
 
         for ( my $i = 1; $i < 9999; ++$i ) {

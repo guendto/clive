@@ -474,95 +474,23 @@ to work also.
 
 =head1 FORMATS
 
-clive downloads "flv" by default from all of the supported websites.
+Run the program with C<--hosts> to view the supported websites and
+format IDs to be used with C<--format>.
 
 =over 4
 
 =item B<youtube.com>
 
-=item B<last.fm>
+For historical reasons, you can still use the following format IDs
+with Youtube:
+  mp4, hd, hq, 3gp
 
-Format: (flv|fmt17|fmt18|fmt22|fmt35)
+Note however that the above IDs should be considered deprecated.
+You can get a list of the current IDs if you run clive
+with C<--hosts>.
 
-If --format option is not unused, clive defaults to whatever
-Youtube defaults to. Technically speaking, we leaving the "&fmt="
-from the video link.
-
-Youtube likes to rehash these from time to time so don't be
-surprised if, for example, the quality is not what you expected.
-The same applies to the suffices listed below.
-
- YoutubeID Alias    Suffix  Resolution
- fmt22     hd       mp4     1280x720
- fmt35     hq       flv      640x380
- fmt18     mp4      mp4      480x360
- fmt34     -        flv      320x180 (quality reportedly varies)
- fmt17     3gp      3gp      176x144
-
-You can use either, the "alias" (e.g. "hd") or the "YoutubeID"
-(e.g. "fmt22") with --format. The aliases exist for historical
-reasons. The suffix is parsed from the content-type field of
-the returned HTTP header.
-
-clive can also download videos that last.fm lists as Youtube
-hosted videos.
-
-=item B<video.google.com>
-
-Format: (flv|mp4)
-
-mp4 format is available for a limited number of videos.
-
-=item B<dailymotion.com>
-
-Format: (flv|hq|hd)
-
-The HD and HQ videos may not always be available.
-
-  hd    (1280x720)
-  hq     (848x480)
-  flv    (320x240) aka "sd"
-
-=item B<spiegel.de>
-
-Format: (flv|vp6_(64|576|928)|h264_1400)
-
-  h264_1400 .. mp4 (996x560)
-  vp6_928   .. flv (996x560)
-  vp6_576   .. flv (560x315)
-  flv       .. flv (180x100)
-  vp6_64    .. flv (180x100)
-
-Format: (3gp|small|iphone|podcast)
-
-The data that clive parses indicates that these formats should be available
-although we are yet to find a video with these formats available.
-If you find one, let us know, too.
-
-  3gp       .. 3gp (?)
-  small     .. 3gp (?)
-  iphone    .. mp4 (?)
-  podcast   .. mp4 (?)
-
-=item B<golem.de>
-
-Format: (flv|high|ipod)
-
-=item B<vimeo.com>
-
-Format: (flv|hd)
-
-HD should be available for the vimeo.com/hd channel videos at least.
-Note that "flv" only means the "default flv". Some of the hosted
-"default" videos are actually "mp4", not "flv".
-
-For further reading:
-  http://vimeo.com/help/hd
-
-=item B<Other>
-
-All other supported websites (see --host output) support
-the flv format only.
+Even though <--hosts> does not list them, you can use the exact
+format IDs that Youtube uses, e.g. fmt22 or fmt35 with C<--format>.
 
 =back
 

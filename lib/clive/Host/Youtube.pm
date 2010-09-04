@@ -24,14 +24,15 @@ package clive::Host::Youtube;
 use warnings;
 use strict;
 
-# fmt22 = HD    [1280x720]
-# fmt35 = HQ     [640x380]
-# fmt17 = 3gp    [176x144]
-# fmt18 = mp4    [480x360]
-# fmt34 = flv    [320x180] (quality reportedly varies)
-
-# If --format is unused, clive defaults to whatever youtube
-# defaults to: we do not append the "&fmt=" to the video link.
+# List of format IDs. This info is based on <http://quvi.googlecode.com/>.
+# Old clive aliases, for backward-compatibility, in parenthesis.
+# mobile   = 17 --       3gp (fmt17, 3gp)
+# sd_270p  = 18 --   480x270 (fmt18, mp4)
+# sd_360p  = 34 --   640x360 (fmt34)
+# hq_480p  = 35 --   848x480 (fmt35, hq)
+# hd_720p  = 22 --  1280x720 (fmt22, hd)
+# hd_1080p = 37 -- 1920x1080 (added in 2.2.15)
+# Default is whatever Youtube gives us without the &fmt param.
 
 sub new {
     return bless( {}, shift );
@@ -85,12 +86,23 @@ sub parsePage {
 
 sub toFmt {
     my ( $self, $id ) = @_;
-    $id =~ s/hd/fmt22/;
-    $id =~ s/hq/fmt35/;
-    $id =~ s/mp4/fmt18/;
 
-    #    $id =~ s/fmt34/flv/; # Previously assumed to be the "youtube default format"
-    $id =~ s/3gp/fmt17/;
+    my %h = (
+        mobile   => "fmt17",
+        sd_270p  => "fmt18",
+        sd_360p  => "fmt34",
+        hq_480p  => "fmt35",
+        hd_720p  => "fmt22",
+        hd_1080p => "fmt37",
+        # For backward-compatibility only.
+        '3gp' => "fmt17",
+        mp4   => "fmt18",
+        hq    => "fmt35",
+        hd    => "fmt22",
+    );
+
+    $id =~ s/$_/$h{$_}/ foreach keys %h;
+
     return ($id);
 }
 

@@ -269,8 +269,12 @@ B<Download Options>
 Download the I<format> of the video. If I<format> is set to I<best>, clive
 will attempt to download the best quality of the video.
 
-Note that the I<format> is strictly host specific. See the L</FORMATS>
-section for more on this.
+If this option is not used (or is used with "default"), clive will
+attempt to download whatever is assumed to be the default format
+for the website.
+
+Note also that each I<format> is specific to a website. See
+L</FORMATS> for more.
 
 =item B<-n, --no-extract>
 

@@ -1,5 +1,17 @@
-2.2.9
------
+
+
+Version 2.2.15
+
+Youtube:
+
+  * Add HD 1080p support
+
+  * Add support for the quvi supported Youtube IDs (e.g. sd_270p).
+    The old (and vague) IDs (e.g. mp4 or hd) are still supported
+    but should be considered _deprecated_.
+
+
+Version 2.2.9
 
 cctv support was fixed. These videos appear to come in (at least) two
 flavors now: multi-segment and single-segment. The issue has been

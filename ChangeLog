@@ -3,6 +3,7 @@
 Version 2.2.15
 
 Changes:
+  * --format, "flv" is now called "default"
   * Add Youtube 1080p support (#62)
   * Update Youtube format IDs to match those used with quvi
 

@@ -2,6 +2,10 @@
 
 Version 2.2.15
 
+Changes:
+  * Add Youtube 1080p support (#62)
+  * Update Youtube format IDs to match those used with quvi
+
 Bugfixes:
   * Vimeo support (http/404), thanks to Jonas Smedegaard for the fix (#61)
     - <http://bugs.debian.org/595486>

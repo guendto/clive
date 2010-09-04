@@ -27,7 +27,9 @@ use strict;
 use clive::Error qw(CLIVE_OK);
 
 my @_hosts = (
-    [ "Youtube",     qr|youtube.com|i,     "default|mobile|sd_270p|sd_360p|hq_480p|hd_720p|hd_1080p" ],
+    [   "Youtube", qr|youtube.com|i,
+        "default|mobile|sd_270p|sd_360p|hq_480p|hd_720p|hd_1080p"
+    ],
     [ "Youtube",     qr|last.fm|i,         "see youtube formats" ],
     [ "Google",      qr|video.google.|i,   "default|mp4" ],
     [ "Sevenload",   qr|sevenload.com|i,   "default" ],
@@ -37,8 +39,9 @@ my @_hosts = (
     [ "Dailymotion", qr|dailymotion.com|i, "default|hq|hd" ],
     [ "Cctv",        qr|tv.cctv.com|i,     "default" ],
     [ "Vimeo",       qr|vimeo.com|i,       "default|hd" ],
-    [ "Spiegel", qr|spiegel.de|i, "default|vp6_928|vp6_576|vp6_64|h264_1400" ],
-    [ "Golem",   qr|golem.de|i,   "default|ipod|high" ],
+    [   "Spiegel", qr|spiegel.de|i, "default|vp6_928|vp6_576|vp6_64|h264_1400"
+    ],
+    [ "Golem",     qr|golem.de|i,      "default|ipod|high" ],
     [ "Ehrensenf", qr|ehrensenf.de|i,  "default" ],
     [ "Clipfish",  qr|clipfish.de|i,   "default" ],
     [ "Funnyhub",  qr|funnyhub.com|i,  "default" ],

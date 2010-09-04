@@ -53,12 +53,12 @@ sub parsePage {
 
         require URI::Escape;
 
-        $tmp->{t} = URI::Escape::uri_unescape($tmp->{t});
+        $tmp->{t} = URI::Escape::uri_unescape( $tmp->{t} );
 
         my $xurl
             = "http://youtube.com/get_video?video_id=$tmp->{id}&t=$tmp->{t}";
 
-        $xurl .= "&asv=2"; # Should fix the http/404 issue (#58).
+        $xurl .= "&asv=2";     # Should fix the http/404 issue (#58).
 
         my $config = clive::Config->instance->config;
 
@@ -94,6 +94,7 @@ sub toFmt {
         hq_480p  => "fmt35",
         hd_720p  => "fmt22",
         hd_1080p => "fmt37",
+
         # For backward-compatibility only.
         '3gp' => "fmt17",
         mp4   => "fmt18",

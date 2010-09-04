@@ -111,8 +111,11 @@ sub init {
         = qw(vp6_64 vp6_576 vp6_928 h264_1400 small iphone podcast);
     my @golem = qw(high ipod); # medium=default
 
-    my @formats
-        = ( qw(default best), @youtube, @youtube_old, @youtube_new, @google, @vimeo, @spiegel, @golem );
+    my @formats = (
+        qw(default best),
+        @youtube, @youtube_old, @youtube_new, @google, @vimeo, @spiegel,
+        @golem
+    );
 
     #unless (@formats ~~ $config{format}) { # Perl 5.10.0+
     unless ( grep( /^$config{format}$/, @formats ) ) {
@@ -156,8 +159,8 @@ sub config {
 }
 
 sub _printLicense {
-print
-"Copyright (C) 2007,2008,2009,2010 Toni Gundogdu. License: GNU GPL version 3+
+    print
+        "Copyright (C) 2007,2008,2009,2010 Toni Gundogdu. License: GNU GPL version 3+
 This is free software; see the  source for  copying conditions.  There is NO
 warranty;  not even for MERCHANTABILITY or FITNESS FOR A  PARTICULAR PURPOSE.
 ";
@@ -165,10 +168,9 @@ warranty;  not even for MERCHANTABILITY or FITNESS FOR A  PARTICULAR PURPOSE.
 }
 
 sub _printVersion {
-    printf
-        "clive version %s with WWW::Curl version $WWW::Curl::VERSION\n"
+    printf "clive version %s with WWW::Curl version $WWW::Curl::VERSION\n"
         . "os=%s, perl=%s, locale=%s\n",
-        VERSION, $^O, (sprintf "%vd", $^V), $ENV{LANG} || "?";
+        VERSION, $^O, ( sprintf "%vd", $^V ), $ENV{LANG} || "?";
     exit CLIVE_OK;
 }
 

@@ -97,7 +97,7 @@ sub _fetchConfig {
         }
         else {
             $fmt = $config->{format};
-            $fmt =~ s/default//;   # medium (default)
+            $fmt =~ s/default//;    # medium (default)
         }
 
         $xurl .= "?q=$fmt"

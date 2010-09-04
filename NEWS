@@ -2,6 +2,10 @@
 
 Version 2.2.15
 
+Changes to --format
+
+  * "flv" is now called "default"
+
 Youtube:
 
   * Add HD 1080p support

@@ -12,4 +12,4 @@ else {
 }
 use Test::clive;
 
-Test::clive::host( qq|http://vimeo.com/1485507|, "-f $_" ) foreach qw(flv hd);
+Test::clive::host( qq|http://vimeo.com/1485507|, "-f $_" ) foreach qw(default hd);

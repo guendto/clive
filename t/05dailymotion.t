@@ -12,7 +12,7 @@ else {
 }
 use Test::clive;
 
-foreach (qw(flv hq hd)) {
+foreach (qw(default hq hd)) {
     Test::clive::host(
         qq|http://www.dailymotion.com/hd/video/|
             . qq|x9fkzj_battlefield-1943-coral-sea-trailer_videogames|,

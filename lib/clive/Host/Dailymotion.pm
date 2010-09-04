@@ -72,7 +72,7 @@ sub parsePage {
     # User requested format.
 
     my $format = clive::Config->instance->config->{format};
-    $format = "sd" if $format eq "flv";    # Alias.
+    $format = "sd" if $format eq "default";    # Alias.
 
     # Match requested format to a video link.
 

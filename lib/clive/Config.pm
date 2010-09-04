@@ -99,7 +99,7 @@ sub init {
     $config{recall_file} ||= catfile( $cachedir, "last" );
     $config{cache_file}  ||= catfile( $cachedir, "cache" );
 
-    $config{format} ||= 'flv';
+    $config{format} ||= 'default';
 
     # Check format.
     my @youtube     = qw(fmt17 fmt18 fmt22 fmt34 fmt35 fmt37);
@@ -107,12 +107,12 @@ sub init {
     my @youtube_old = qw(hq 3gp);
     my @google      = qw(mp4);
     my @vimeo       = qw(hd);
-    my @spiegel                # vp6_388=flv (regular)
+    my @spiegel                # vp6_388=default
         = qw(vp6_64 vp6_576 vp6_928 h264_1400 small iphone podcast);
-    my @golem = qw(high ipod); # medium=flv (regular)
+    my @golem = qw(high ipod); # medium=default
 
     my @formats
-        = ( qw(flv best), @youtube, @youtube_old, @youtube_new, @google, @vimeo, @spiegel, @golem );
+        = ( qw(default best), @youtube, @youtube_old, @youtube_new, @google, @vimeo, @spiegel, @golem );
 
     #unless (@formats ~~ $config{format}) { # Perl 5.10.0+
     unless ( grep( /^$config{format}$/, @formats ) ) {

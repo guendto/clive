@@ -26,7 +26,7 @@ use strict;
 
 # --format=(high|medium|ipod)
 # high   = hd
-# medium = default (what we call "flv" in clive)
+# medium = default (what we call "default" in clive)
 # ipod   = ipod
 
 # Note that we do not use "medium" at all. The host
@@ -97,7 +97,7 @@ sub _fetchConfig {
         }
         else {
             $fmt = $config->{format};
-            $fmt =~ s/flv//;   # medium (default)
+            $fmt =~ s/default//;   # medium (default)
         }
 
         $xurl .= "?q=$fmt"

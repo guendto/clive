@@ -102,7 +102,7 @@ sub _fetchConfig {
         );
 
         my @fnames = $content =~ /$re{path}/g;
-        my $path = $fnames[0];    # default flv
+        my $path = $fnames[0];    # default format
 
         my $config = clive::Config->instance->config;
 

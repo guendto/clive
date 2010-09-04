@@ -35,13 +35,13 @@ sub parsePage {
 
     my %re = (
         id  => qr|/videofiles/(.*?)_|,
-        flv => qr|"flv", "(.*?)"|,
+        url => qr|"flv", "(.*?)"|,
     );
 
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
         $$props->video_id( $tmp->{id} );
-        $$props->video_link( $tmp->{flv} );
+        $$props->video_link( $tmp->{url} );
         return (0);
     }
     return (1);

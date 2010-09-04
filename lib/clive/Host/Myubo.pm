@@ -36,14 +36,14 @@ sub parsePage {
     my %re = (
         id    => qr|movieid=(.*?)"|i,
         title => qr|<div id="moviedetail"><h1>(.*?)</h1>|i,
-        flv   => qr|writeflashplayer\('(.*?)'|i,
+        url   => qr|writeflashplayer\('(.*?)'|i,
     );
 
     my $tmp;
     if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
         $$props->video_id( $tmp->{id} );
         $$props->page_title( undef, $tmp->{title} );
-        $$props->video_link( $tmp->{flv} );
+        $$props->video_link( $tmp->{url} );
         return (0);
     }
     return (1);

@@ -12,10 +12,10 @@ else {
 }
 use Test::clive;
 
-Test::clive::host( qq|http://www.youtube.com/watch?v=DeWsZ2b_pK4|, "-f $_" )
+Test::clive::host( qq|http://www.youtube.com/watch?v=DUM1284TqFc|, "-f $_" )
     foreach qw(default mobile sd_270p sd_360p hq_480p hd_720p hd_1080p);
 
-Test::clive::host(qq|http://www.youtube.com/v/DeWsZ2b_pK4|);    # Embed.
+Test::clive::host(qq|http://www.youtube.com/v/DUM1284TqFc|);    # Embed.
 
 Test::clive::host(qq|http://www.youtube-nocookie.com/v/3PuHGKnboNY|);
 

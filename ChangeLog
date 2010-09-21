@@ -2,6 +2,7 @@
 Version 2.2.16
 
 Changes:
+  * Misc. minor tweaks in manual (e.g. URLs, etc.)
   * Migrate issue tracking from Googlecode to Sourceforge
     * See: <http://sourceforge.net/news/?group_id=215220&id=291940>
 

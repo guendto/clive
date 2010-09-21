@@ -640,8 +640,7 @@ Development code:
 
 =head1 HISTORY
 
-  * Originally written in Python
-  * Rewritten in Perl for 2.0.0
+Originally written for Python, later (2.x) rewritten for Perl.
 
 =head1 SEE ALSO
 

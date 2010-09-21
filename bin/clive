@@ -610,13 +610,6 @@ Causes B<libcurl> to be verbose.
 
 Simulates video extraction only.
 
-=head1 BUGS
-
-Sure to be some.
-
-Please report them:
-  <http://code.google.com/p/clive/issues/>
-
 =head1 EXIT STATUS
 
 clive exits 0 on success, and E<gt>0 if an error occurs.
@@ -639,8 +632,8 @@ clive exits 0 on success, and E<gt>0 if an error occurs.
 Project page:
   <http://clive.googlecode.com/>
 
-Front-end (GUI):
-  <http://abby.googlecode.com/>
+Bugs, support, etc. trackers can be found at:
+  <https://sourceforge.net/projects/clive/>
 
 Development code:
   % git clone git://repo.or.cz/clive.git
@@ -656,7 +649,7 @@ C<cclive(1)>
 
 =head1 AUTHOR
 
-Toni Gundogdu <legatvs@gmail.com>
+Toni Gundogdu <legatvs at sign gmail com>
 
 Thanks to all those who have contributed to the project
 by sending patches, reporting bugs and writing feedback.

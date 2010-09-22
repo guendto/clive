@@ -2,6 +2,8 @@
 Version 2.2.16
 
 Changes:
+  * Add support for webm_480p, webm_720p [youtube]
+    * Thanks to Mark Weaver for the patch, <http://is.gd/fmwv5>
   * Misc. minor tweaks in manual (e.g. URLs, etc.)
   * Migrate issue tracking from Googlecode to Sourceforge
     * See: <http://sourceforge.net/news/?group_id=215220&id=291940>

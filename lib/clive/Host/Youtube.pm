@@ -32,6 +32,8 @@ use strict;
 # hq_480p  = 35 --   848x480 (fmt35, hq)
 # hd_720p  = 22 --  1280x720 (fmt22, hd)
 # hd_1080p = 37 -- 1920x1080 (added in 2.2.15)
+# webm_480p = 43 --  854x480 (webm)
+# webm_720p = 45 -- 1280x720
 # Default is whatever Youtube gives us without the &fmt param.
 
 sub new {
@@ -94,6 +96,8 @@ sub toFmt {
         hq_480p  => "fmt35",
         hd_720p  => "fmt22",
         hd_1080p => "fmt37",
+        webm_480p => "fmt43",
+        webm_720p => "fmt45",
 
         # For backward-compatibility only.
         '3gp' => "fmt17",

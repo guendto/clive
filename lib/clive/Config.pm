@@ -102,8 +102,8 @@ sub init {
     $config{format} ||= 'default';
 
     # Check format.
-    my @youtube     = qw(fmt17 fmt18 fmt22 fmt34 fmt35 fmt37);
-    my @youtube_new = qw(mobile sd_270p sd_360p hq_480p hd_720p hd_1080p);
+    my @youtube     = qw(fmt17 fmt18 fmt22 fmt34 fmt35 fmt37 fmt43 fmt45);
+    my @youtube_new = qw(mobile sd_270p sd_360p hq_480p hd_720p hd_1080p webm webm_480p webm_720p);
     my @youtube_old = qw(hq 3gp);
     my @google      = qw(mp4);
     my @vimeo       = qw(hd);

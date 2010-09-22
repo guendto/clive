@@ -90,12 +90,12 @@ sub toFmt {
     my ( $self, $id ) = @_;
 
     my %h = (
-        mobile   => "fmt17",
-        sd_270p  => "fmt18",
-        sd_360p  => "fmt34",
-        hq_480p  => "fmt35",
-        hd_720p  => "fmt22",
-        hd_1080p => "fmt37",
+        mobile    => "fmt17",
+        sd_270p   => "fmt18",
+        sd_360p   => "fmt34",
+        hq_480p   => "fmt35",
+        hd_720p   => "fmt22",
+        hd_1080p  => "fmt37",
         webm_480p => "fmt43",
         webm_720p => "fmt45",
 

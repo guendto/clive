@@ -27,7 +27,8 @@ use strict;
 use clive::Error qw(CLIVE_OK);
 
 my @_hosts = (
-    [   "Youtube", qr|youtube.com|i,
+    [   "Youtube",
+        qr|youtube.com|i,
         "default|mobile|sd_270p|sd_360p|hq_480p|hd_720p|hd_1080p|webm_480p|webm_720p"
     ],
     [ "Youtube",     qr|last.fm|i,         "see youtube formats" ],

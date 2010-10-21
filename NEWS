@@ -1,4 +1,52 @@
 
+2.3
+
+clive now uses libquvi [1], through WWW::Quvi [2], to parse the
+video details.
+
+New:
+    * --regexp, this was copied from cclive
+    * --transfer-timeout
+    * --dns-cache-timeout
+
+Removed:
+    * --upgrade-config
+    * --last
+    * --last-file
+    * --stderr
+    * --print-fname
+    * --cookie-jar
+    * --cache-* [3]
+    * --connect-timeout-socks
+    * --stop-after
+    * --emit-csv, use quvi(1) instead, it supports JSON, XML, etc.
+    * --stream-*, use quvi(1) instead, it has --exec (as of 0.2.7)
+    * --cclass, use --regexp instead
+    * --exec-run, use --exec instead
+
+Open a ticket if you think anything above deserves to be backported to 2.3.
+
+Renamed:
+    * --hosts       -> --support
+    * --debug       -> --verbose-libcurl
+    * --no-extract  -> --no-download
+    * --limit-rate  -> --throttle
+
+Other:
+    * Exit status changes 0=OK, 1=failure
+    * --format arg value is no longer checked
+    * --format no longer supports the arcane IDs (e.g. 'mp4')
+        - I think we can all agree the libquvi provided IDs are less confusing
+    * Status message and progressbar changes
+
+See Makefile.PL for the updated prerequisites.
+
+[1] <http://quvi.googlecode.com/>
+[2] <http://www-quvi.googlecode.com/>
+[3] Caching is a thing of the past, most websites have started to
+    use "expiring" video links, rendering this feature obsolete.
+
+
 
 Version 2.2.15
 

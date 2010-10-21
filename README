@@ -1,58 +1,42 @@
-README for clive
-----------------
+clive
+============
 
-clive is a command line utility for extracting videos from Youtube and other
-video-sharing websites. It was written to bypass the Adobe Flash requirement
-to view the hosted videos.
+clive is a command line video extraction tool for Youtube
+and other similar video-sharing websites.
 
-    http://clive.googlecode.com/
-    http://code.google.com/p/clive/issues/
-    http://code.google.com/p/clive/wiki/FAQ
+WWW: <http://clive.googlecode.com/>
+GIT: git://repo.or.cz/clive.git
 
 
-Prerequisites
--------------
+PREREQUISITES
 
-See Makefile.PL file.
+See the Makefile.PL file.
 
-
-Optional modules
-----------------
-
-* BerkeleyDB
-  - If not installed, clive cache features will be disabled
-
-* Term::ReadKey
-  - If not installed, clive will not resize progressbar to
-  match terminal width
+Additional (optional):
+    * Term::ReadKey, if not found, progressbar will not resize
 
 
-Installation
-------------
+INSTALLATION
 
-Be sure to remove any previous versions of clive first.
+You can skip this step, if you like, and instead just run ./bin/clive .
+This should work as long as the prerequisite modules have been installed
+to your system (see above).
 
-INSTALL_BASE can be passed into Makefile.PL to change where clive will
-be installed. For example:
+If you choose to install:
 
-  perl Makefile.PL INSTALL_BASE=/usr/local
+    * Highly recommended
+        - Remove / uninstall any earlier version you have installed
 
-  perl Makefile.PL
-  make
-  make test # optional
-  make install
+    * You can specify install prefix with INSTALL_BASE
+        e.g. perl Makefile.PL INSTALL_BASE=/usr/local
 
-See also (for Makefile.PL options etc.):
-  http://search.cpan.org/perldoc?ExtUtils::MakeMaker
+To install:
 
+    perl Makefile.PL
+    make
+    make install
 
-Notes
------
-
-* "make test" will use ~/.cliverc settings. You can set NO_INTERNET
-environment variable to skip the host tests.
-
-* If you want to try clive without installing it first:
-  cd lib; ../bin/clive URL
+  More: <http://search.cpan.org/perldoc?ExtUtils::MakeMaker>
+   FAQ: <http://perldoc.perl.org/ExtUtils/MakeMaker/FAQ.html>
 
 

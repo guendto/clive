@@ -1,46 +1,25 @@
-#!/usr/bin/env perl
-
 use warnings;
 use strict;
 
 use ExtUtils::MakeMaker;
 
-my $version = get_version();
-
 WriteMakefile(
     'NAME' => 'clive',
     ( $[ >= 5.8 )
-    ? ( AUTHOR     => 'Toni Gundogdu <legatvs@gmail.com>',
-        'ABSTRACT' => 'command line video extraction utility'
+    ? ( 'AUTHOR'     => 'Toni Gundogdu <legatvs at sign gmail com>',
+        'ABSTRACT' => 'Command line video extraction tool'
         )
     : (),
-    'VERSION'   => $version,
+    'VERSION_FROM' => 'bin/clive',
     'EXE_FILES' => ['bin/clive'],
     'PREREQ_PM' => {
-        'Getopt::ArgvFile' => 1.11,
-        'Class::Singleton' => 1.4,
-        'HTML::TokeParser' => 2.37,
-        'URI::Escape'      => 3.29,
-        'Digest::SHA'      => 5.45,
-        'WWW::Curl'        => 4.05,
-        'Config::Tiny'     => 2.12,
+# Earlier versions may work. The module has been confirmed to work with:
+'WWW::Quvi'        => 0.01, # <http://www-quvi.googlecode.com/>
+'WWW::Curl'        => 4.12, # <http://search.cpan.org/perldoc?WWW::Curl>
+'Getopt::ArgvFile' => 1.11, # <http://search.cpan.org/perldoc?Getopt::ArgvFile>
+'version'          => 0.82, # <http://search.cpan.org/perldoc?version>
+# Optional:
+'Term::ReadKey'    => 2.30 # <http://search.cpan.org/perldoc?Term::ReadKey>
     },
-    'LICENSE' => 'gpl',
-    dist      => {
-        COMPRESS => "bzip2",
-        SUFFIX   => ".bz2"
-    },
+    'LICENSE' => 'GPLv3+',
 );
-
-sub get_version {
-    my $file = "lib/clive/Config.pm";
-    my $re   = qr/VERSION => "(.*?)"/;
-    open my $fh, "<", $file
-        or die "$file: $!";
-    foreach (<$fh>) {
-        close $fh and return $1
-            if $_ =~ /$re/;
-    }
-    close $fh;
-    die "$file: `$re`: not matched";
-}

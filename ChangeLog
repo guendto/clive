@@ -1,3 +1,14 @@
+Revision history for clive.
+
+2.3 beta1
+
+Changes:
+  * Use libquvi (WWW::Quvi) to parse video details
+  * Feature and option changes
+  * Prerequisite changes
+
+Read NEWS file for the details.
+
 
 Version 2.2.16
 September 28, 2010

@@ -364,10 +364,8 @@ sub progress_callback {
 
         my $old_term_width = $pb{term_width};
 
-        $pb{term_width} = term_width ();
-
-        $pb{term_width} = DEFAULT_TERM_WIDTH
-            unless $pb{term_width};
+        $pb{term_width}   = term_width ();
+        $pb{term_width} ||= DEFAULT_TERM_WIDTH;
 
         if ($pb{term_width} != $old_term_width) {
             $pb{old_width} = $pb{width};

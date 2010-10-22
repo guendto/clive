@@ -465,7 +465,7 @@ sub progress_callback {
 
         # Pad to max. terminal width.
 
-        $b .= " " while (length ($b) < ($pb{width} - $tmp_len));
+        $b .= " "  while (length ($b) < ($sub_len));
         $b .= $tmp;
     }
 

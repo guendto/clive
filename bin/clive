@@ -29,10 +29,10 @@ use Getopt::ArgvFile (
 home            => 1,
 startupFilename => [qw(.cliverc .clive/config .config/clive/config)]
 );
+use Encode qw(decode_utf8 encode_utf8);
 use Getopt::Long qw(:config bundling);
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);
-use Encode qw(decode_utf8);
 use POSIX qw(INT_MAX);
 use Cwd qw(getcwd);
 use WWW::Quvi;
@@ -320,7 +320,7 @@ sub pb_init {
         width          => $term_width - 1,
         old_width      => $term_width - 1,
         done           => 0,
-        fname          => $fname,
+        fname          => encode_utf8 ($fname), # Do not touch.
     );
 
     if ($initial_length > $video->{link}->{length_bytes})
@@ -454,27 +454,29 @@ sub progress_callback {
 
     my $tmp_len = length ($tmp);
     my $sub_len = $pb{width} - $tmp_len;
-
-    my $b = "";
+    my $b       = "";
 
     if ($sub_len > 0) {
-
-        $b = substr ($pb{fname}, 0, $sub_len);
-
-        # Pad to max. terminal width.
-
-        $b .= " "  while (length ($b) < ($sub_len));
+        $b  = substr ($pb{fname}, 0, $sub_len);
+        $b .= " "  while length ($b) < $sub_len;
         $b .= $tmp;
     }
 
-    # Clear the last column if the terminal shrunk.
+    if ($pb{old_width}) { # Clear line properly.
 
-    if ($pb{old_width} > $pb{width}) {
-        $pb{old_width} = $pb{width};
-        $b .= " ";
+        my $m =
+            ($pb{old_width} < $pb{width})
+            ? $pb{width}
+            : $pb{old_width};
+
+        for (my $i=0; $i<$m; ++$i) { print " "; }
+
+        print "\r";
+
+        $pb{old_width} = 0;
     }
 
-    print "$b\r";
+    print decode_utf8 ($b) . "\r"; # Do not touch.
 
     $pb{last_update} = $elapsed;
     $pb{count}       = $now;
@@ -528,14 +530,16 @@ sub get_filename {
 }
 
 sub apply_output_path {
-    my $fname = shift;
 
-    my $fpath      = decode_utf8 (catfile (getcwd, $fname));
-    my $fpath_copy = $fpath;
+    # Do not touch.
+    my $cwd     = decode_utf8 (getcwd);
+    my $fname   = shift;
+    my $fpath   = catfile ($cwd, $fname);
 
+    my $fpath_copy     = $fpath;
     my $initial_length = 0;
 
-    if ( not $config{overwrite} ) {
+    if (not $config{overwrite}) {
 
         for (my $i=0; $i<INT_MAX; ++$i) {
 
@@ -586,7 +590,9 @@ sub apply_regexp {
 
     if ($config{regexp} =~ /$rq/) {
 
-        return unless $title; # Assume syntax check.
+        return unless $title; # Must be a syntax check.
+
+        $title = decode_utf8 ($title); # Do not touch.
 
         my ($pat, $flags, $g, $i) = ($1, $2);
 

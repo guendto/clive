@@ -21,5 +21,5 @@ WriteMakefile(
 # Optional:
 'Term::ReadKey'    => 2.30 # <http://search.cpan.org/perldoc?Term::ReadKey>
     },
-    'LICENSE' => 'GPLv3+',
+    'LICENSE' => 'gpl'
 );

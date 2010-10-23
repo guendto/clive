@@ -1,8 +1,7 @@
 
 2.3
 
-clive now uses libquvi [1], through WWW::Quvi [2], to parse the
-video details.
+clive now uses libquvi [1], through WWW::Quvi [2], to parse the video details.
 
 New:
     * --regexp, this was copied from cclive

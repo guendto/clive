@@ -393,7 +393,7 @@ sub progress_callback {
         ? $pb{initial_bytes} + $now
         : $now;
 
-    my $size_s = sprintf "%.2fM", to_mb ($size);
+    my $size_s = sprintf "%.1fM", to_mb ($size);
 
     # Rate.
 

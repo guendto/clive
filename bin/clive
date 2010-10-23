@@ -862,20 +862,20 @@ Default is 60.
 
 =over 4
 
-=item B<clive "http://www.youtube.com/watch?v=DeWsZ2b_pK4">
+=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc">
 
 Typical use.
 
-=item B<clive "http://www.youtube.com/watch?v=DeWsZ2b_pK4" -f sd_270p>
+=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -f sd_270p>
 
 Same but get the sd_270p (Youtube specific) format instead. See
 C<--support> for a complete list of websites and formats.
 
-=item B<clive "http://www.youtube.com/watch?v=DeWsZ2b_pK4" -n>
+=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -n>
 
 Do not download the video. Print the video details only.
 
-=item B<echo "http://www.youtube.com/watch?v=DeWsZ2b_pK4" | clive>
+=item B<echo "http://www.youtube.com/watch?v=DUM1284TqFc" | clive>
 
 Yet another way to feed clive with an URL.
 
@@ -886,8 +886,8 @@ from a file. Each URL must be separated with a newline.
 Consider the following example:
 
   % cat >> urls.lst
-  http://www.youtube.com/watch?v=DeWsZ2b_pK4
   http://www.youtube.com/watch?v=DUM1284TqFc
+  http://www.youtube.com/watch?v=TqgTz8ymZl8
   (ctrl+d)
   % clive < urls.lst
 

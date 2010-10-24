@@ -1,12 +1,7 @@
 
-2.3
+2.3.0
 
 clive now uses libquvi [1], through WWW::Quvi [2], to parse the video details.
-
-New:
-    * --regexp, this was copied from cclive
-    * --transfer-timeout
-    * --dns-cache-timeout
 
 Removed:
     * --upgrade-config
@@ -30,6 +25,11 @@ Renamed:
     * --debug       -> --verbose-libcurl
     * --no-extract  -> --no-download
     * --limit-rate  -> --throttle
+
+New:
+    * --regexp
+    * --transfer-timeout
+    * --dns-cache-timeout
 
 Other:
     * Exit status changes 0=OK, 1=failure

@@ -75,7 +75,7 @@ sub init {
     'no_proxy|no-proxy',
     # Configuration:
     'filename_format|filename-format=s',
-    'regexp|r=s',
+    'regexp=s',
     'exec=s',
     'agent=s',
     'proxy=s',
@@ -679,28 +679,28 @@ and other similar video-sharing websites.
 
 =head1 OPTIONS
 
-     --help                     print help and exit
-     --version                  print version and exit
-     --license                  print license and exit
-     --support                  print supported websites and exit
-     --verbose-libcurl          turn on libcurl verbose output
- -q, --quiet                    turn off all output, excl. errors
- -f, --format arg (=default)    download video format
- -c, --continue                 resume partially downloaded video
- -W, --overwrite                overwrite existing video
- -O, --output-file arg          write downloaded video to file
- -n, --no-download              do not download video, print info only
-     --no-proxy                 disable use of HTTP proxy
+      --help                     print help and exit
+      --version                  print version and exit
+      --license                  print license and exit
+      --support                  print supported websites and exit
+      --verbose-libcurl          turn on libcurl verbose output
+  -q, --quiet                    turn off all output, excl. errors
+  -f, --format arg (=default)    download video format
+  -c, --continue                 resume partially downloaded video
+  -W, --overwrite                overwrite existing video
+  -O, --output-file arg          write downloaded video to file
+  -n, --no-download              do not download video, print info only
+      --no-proxy                 disable use of HTTP proxy
 Configuration:
-     --filename-format arg (=%t.%s)  output video filename format
- -r, --regexp arg (=/(\w|\s)/g)      regexp to clean up video title
-     --throttle arg (=0)             limit download transfer rate
-     --exec arg                      invoke arg when download finishes
-     --agent arg (=Mozilla/5.0)      identify as arg to HTTP servers
-     --proxy arg                     use proxy for HTTP connections
-     --connect-timeout arg (=30)     seconds connecting allowed to take
-     --transfer-timeout arg (=0)     seconds transfer allowed to take
-     --dns-cache-timeout arg (=60)   seconds dns resolves kept in memory
+  --filename-format arg (=%t.%s)  output video filename format
+  --regexp arg (=/(\w|\s)/g)      regexp to clean up video title
+  --throttle arg (=0)             limit download transfer rate
+  --exec arg                      invoke arg when download finishes
+  --agent arg (=Mozilla/5.0)      identify as arg to HTTP servers
+  --proxy arg                     use proxy for HTTP connections
+  --connect-timeout arg (=30)     seconds connecting allowed to take
+  --transfer-timeout arg (=0)     seconds transfer allowed to take
+  --dns-cache-timeout arg (=60)   seconds dns resolves kept in memory
 
 =head1 OPTIONS - GENERAL
 
@@ -779,7 +779,7 @@ The following specifiers are supported:
 
 Note that I<all> occurences of the specifier will be replaced.
 
-=item B<-r, --regexp> I<arg>
+=item B<--regexp> I<arg>
 
 Use regular expression I<arg> to clean up the video title before
 it is used in the output filename. The default is "/(\w|\s)/g".

@@ -7,6 +7,8 @@ Changes:
         - Remove options / features
         - Rename options
         - Prerequisites
+Bugfixes:
+        - Progressbar unicode issues
 
 Read NEWS file for the details.
 

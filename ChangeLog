@@ -10,7 +10,8 @@ Changes:
 Bugfixes:
         - Progressbar unicode issues
 
-Read NEWS file for the details.
+Version 2.3 discards some of the more esoteric features provided by the older
+versions. Read NEWS file for the details.
 
 
 Version 2.2.16

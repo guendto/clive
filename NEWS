@@ -3,6 +3,9 @@
 
 clive now uses libquvi [1], through WWW::Quvi [2], to parse the video details.
 
+Version 2.3 discards some of the more esoteric features provided by the older
+versions.
+
 Removed:
     * --upgrade-config
     * --last

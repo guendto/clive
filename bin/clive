@@ -20,7 +20,7 @@
 use warnings;
 use strict;
 
-use version 0.77; our $VERSION = qv(2.3.0_2);
+use version 0.77 (); our $VERSION = version->declare("2.3.0_2");
 
 binmode STDOUT, ":utf8";
 binmode STDERR, ":utf8";
@@ -625,7 +625,7 @@ sub print_version {
     printf "clive $VERSION with Perl %s on %s. WWW::Quvi %s bindings.
 libquvi version %s\n",
         (sprintf "%vd", $^V), $^O,
-        qv(WWW::Quvi::version ()),
+        version->declare(WWW::Quvi::version ()),
         WWW::Quvi::version (WWW::Quvi::libquviVersionLong);
     exit 0;
 }

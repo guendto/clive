@@ -1,5 +1,11 @@
 Revision history for clive.
 
+2.3.0_2 (beta 2)
+
+Changes:
+        - Use version->declare instead of version::qv
+
+
 2.3.0_1 (beta 1)  Wed Oct 27 2010
 
 Changes:

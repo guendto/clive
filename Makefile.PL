@@ -17,7 +17,7 @@ WriteMakefile(
 'WWW::Quvi'        => 0.01, # <http://www-quvi.googlecode.com/>
 'WWW::Curl'        => 4.12, # <http://search.cpan.org/perldoc?WWW::Curl>
 'Getopt::ArgvFile' => 1.11, # <http://search.cpan.org/perldoc?Getopt::ArgvFile>
-'version'          => 0.82, # <http://search.cpan.org/perldoc?version>
+'version'          => 0.77, # <http://search.cpan.org/perldoc?version>
 # Optional:
 'Term::ReadKey'    => 2.30 # <http://search.cpan.org/perldoc?Term::ReadKey>
     },

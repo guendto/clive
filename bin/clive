@@ -622,7 +622,7 @@ sub print_help {
 }
 
 sub print_version {
-    printf "clive $VERSION with Perl %s on %s. WWW::Quvi %s bindings.
+    printf "clive version $VERSION with Perl %s on %s. WWW::Quvi %s bindings.
 libquvi version %s\n",
         (sprintf "%vd", $^V), $^O,
         version->declare(WWW::Quvi::version ()),

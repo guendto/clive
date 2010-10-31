@@ -1,11 +1,11 @@
 clive
 ============
 
-clive is a command line video extraction tool for Youtube
-and other similar video-sharing websites.
+clive is a command line video extraction tool for Youtube and other similar
+video websites that require Adobe Flash for viewing the content.
 
 WWW: <http://clive.googlecode.com/>
-GIT: git://repo.or.cz/clive.git
+GIT: <git://repo.or.cz/clive.git>
 
 
 PREREQUISITES
@@ -18,9 +18,8 @@ Additional (optional):
 
 INSTALLATION
 
-You can skip this step, if you like, and instead just run ./bin/clive .
-This should work as long as the prerequisite modules have been installed
-to your system (see above).
+You can skip this step, if you like, and instead just run "bin/clive".
+This should work as long as the prerequisites are found.
 
 If you choose to install:
 

@@ -12,7 +12,6 @@
 #   %u  Video download URL
 #   %f  Full path to video file (to write to)
 #   %n  File name (basename of the above)
-#   
 --get-with "/usr/bin/curl -L -C - o %f %u"
 
 # Play downloaded video when done.

@@ -1,9 +1,21 @@
 Revision history for clive.
 
 2.3.0_2 (beta 2)
-
 Changes:
+        - Use quvi(1) for parsing video details, --quvi arg
+        - Use external command to download, --get-with arg
         - Use version->declare instead of version::qv
+        - Add JSON::XS dependency
+        - Add examples/cliverc
+        - Remove WWW::Quvi dependency
+        - Remove WWW::Curl dependency
+        - Remove Term::ReadKey dependency
+        - Remove --continue, --overwrite, --proxy
+        - Remove --no-proxy, --agent, --throttle
+        - Dist gz instead of bz2
+
+Please read the NEWS file. Even if you did so for beta1.
+There have been several major changes between the betas.
 
 
 2.3.0_1 (beta 1)  Wed Oct 27 2010

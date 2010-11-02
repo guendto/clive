@@ -13,13 +13,10 @@ WriteMakefile(
     'VERSION_FROM' => 'bin/clive',
     'EXE_FILES' => ['bin/clive'],
     'PREREQ_PM' => {
-# Earlier versions may work. The module has been confirmed to work with:
-'WWW::Quvi'        => 0.01, # <http://www-quvi.googlecode.com/>
-'WWW::Curl'        => 4.12, # <http://search.cpan.org/perldoc?WWW::Curl>
+# Earlier versions may work.
 'Getopt::ArgvFile' => 1.11, # <http://search.cpan.org/perldoc?Getopt::ArgvFile>
+'JSON::XS'         => 2.30, # <http://search.cpan.org/perldoc?JSON::XS>
 'version'          => 0.77, # <http://search.cpan.org/perldoc?version>
-# Optional:
-'Term::ReadKey'    => 2.30 # <http://search.cpan.org/perldoc?Term::ReadKey>
     },
     'LICENSE' => 'gpl'
 );

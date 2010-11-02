@@ -1,53 +1,71 @@
 
 2.3.0
 
-clive now uses libquvi [1], through WWW::Quvi [2], to parse the video details.
+This release makes clive more simple, modular and flexible. Instead of re-
+inventing the wheel over and over again, we now leave much of the heavy-
+lifting for other tools to do. In a sense, clive is now a glorified wrapper
+script with a few fancy tricks in the sleeve.
 
-Version 2.3 discards some of the more esoteric features provided by the older
-versions.
+    * single-script vs. multiple-clive-modules
+        - Easier deployment and updating
 
-Removed:
+    * clive no longer, directly, fetches and parses video details
+        - quvi(1) <http://quvi.googlecode.com/> does this for us now
+
+    * clive no longer downloads the videos
+        - This is left for an external command to do (e.g. curl or wget)
+
+    * Some of the more esoteric features were discarded
+        - See the full list below
+
+    * Fewer prerequisites
+
+    * Additional bonus: faster response time
+
+NOTES
+
+    * If you installed clive 2.3 beta 1, you can remove WWW::Quvi from
+        your system, we no longer use it
+
+REMOVED
     * --upgrade-config
     * --last
     * --last-file
     * --stderr
     * --print-fname
     * --cookie-jar
-    * --cache-* [3]
-    * --connect-timeout-socks
+    * --cache-*, rendered largely obsolete due to one-time-use-URLs
     * --stop-after
     * --emit-csv, use quvi(1) instead, it supports JSON, XML, etc.
     * --stream-*, use quvi(1) instead, it has --exec (as of 0.2.7)
-    * --cclass, use --regexp instead
-    * --exec-run, use --exec instead
+    * --cclass, replaced by --regexp
+    * --exec-run, use --exec
+    * --hosts, run quvi --support"
+    * --connect-timeout-socks
+    * --limit-rate
+    * --debug
+    * --continue
+    * --overwrite
+    * --proxy
+    * --no-proxy
+    * --agent
 
-Open a ticket if you think anything above deserves to be backported to 2.3.
+Open a ticket if you feel different.
 
-Renamed:
-    * --hosts       -> --support
-    * --debug       -> --verbose-libcurl
+RENAMED
     * --no-extract  -> --no-download
-    * --limit-rate  -> --throttle
 
-New:
+NEW
+    * --config-file
+    * --quvi
+    * --get-with
     * --regexp
-    * --transfer-timeout
-    * --dns-cache-timeout
 
-Other:
-    * Exit status changes 0=OK, 1=failure
+OTHER
     * --format arg value is no longer checked
     * --format no longer supports the arcane IDs (e.g. 'mp4')
-        - I think we can all agree the libquvi provided IDs are less confusing
-    * Status message and progressbar changes
 
 See Makefile.PL for the updated prerequisites.
-
-[1] <http://quvi.googlecode.com/>
-[2] <http://www-quvi.googlecode.com/>
-[3] Caching is a thing of the past, most websites have started to
-    use "expiring" video links, rendering this feature obsolete.
-
 
 
 Version 2.2.15

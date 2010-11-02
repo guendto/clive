@@ -27,30 +27,15 @@ binmode STDERR, ":utf8";
 
 use Getopt::ArgvFile (
 home            => 1,
-startupFilename => [qw(.cliverc .clive/config .config/clive/config)]
+startupFilename => [qw(.cliverc .clive/config .config/clive/config)],
+fileOption      => '--config-file'
 );
-use Encode qw(decode_utf8 encode_utf8);
 use Getopt::Long qw(:config bundling);
-use File::Spec::Functions qw(catfile);
-use File::Basename qw(basename);
-use POSIX qw(INT_MAX);
-use Cwd qw(getcwd);
-use WWW::Quvi;
-use WWW::Curl::Easy;
+use Encode qw(decode_utf8);
 
-eval "use Term::ReadKey";
-my $HAVE_TERM_READKEY = int !$@;
-
-my $recv_sigwinch = 0;
 my %config;
-my $query;
 my @queue;
 my $video;
-my $curl;
-my %pb;
-
-use constant DEFAULT_TERM_WIDTH      =>  80;
-use constant DEFAULT_UPDATE_INTERVAL => 0.2;
 
 exit main ();
 
@@ -64,37 +49,34 @@ sub init {
     'help'    => \&print_help,
     'version' => \&print_version,
     'license' => \&print_license,
-    'support' => \&print_support,
-    'verbose_libcurl|verbose-libcurl',
-    'quiet|q',
+    'quiet',
     'format|f=s',
-    'continue|c',
-    'overwrite|W',
     'output_file|output-file|O=s',
     'no_download|no-download|n',
-    'no_proxy|no-proxy',
     # Configuration:
+    'quvi=s',
+    'get_with|get-with=s',
     'filename_format|filename-format=s',
     'regexp=s',
     'exec=s',
-    'agent=s',
-    'proxy=s',
-    'throttle=i',
-    'connect_timeout|connect-timeout=i',
-    'transfer_timeout|transfer-timeout=i',
-    'dns_cache_timeout|dns-cache-timeout=i',
     ) or exit 1;
 
     $config{format}          ||= 'default';
     $config{filename_format} ||= '%t.%s';
     $config{regexp}          ||= '/(\\w|\\s)/g';
-    $config{throttle}        ||= 0;
-    $config{agent}           ||= 'Mozilla/5.0';
-    $config{connect_timeout} ||= 30;
-    $config{transfer_timeout}  ||= 0;
-    $config{dns_cache_timeout} ||= 60;
 
-    apply_regexp (); # Check --regexp value.
+    require Carp;
+
+    # Check --quvi.
+    Carp::croak "error: specify path to quvi(1) command with --quvi"
+        unless $config{quvi};
+
+    # Check --get-with.
+    Carp::croak "error: specify path to a download command with --get-with\n"
+        unless $config{get_with};
+
+    # Check --regexp.
+    apply_regexp ();
 
     add_queue ($_)  foreach @ARGV;
 
@@ -103,10 +85,20 @@ sub init {
 
     @queue = uniq2 (@queue); # Remove duplicate URLs.
 
-    $query = new WWW::Quvi::Query;
-    $curl  = new WWW::Curl::Easy;
-
     select STDOUT; $| = 1; # Go unbuffered.
+}
+
+sub add_queue {
+
+    my $ln = trim (shift);
+    chomp $ln;
+
+    return if $ln =~ /^$/;
+    return if $ln =~ /^#/;
+
+    $ln = "http://$ln"  if $ln !~ m{^http://}i;
+
+    push @queue, $ln;
 }
 
 sub uniq2 { # http://is.gd/g8jQU
@@ -121,100 +113,78 @@ sub uniq2 { # http://is.gd/g8jQU
     return @r;
 }
 
-sub add_queue {
-    my $ln = trim (shift);
-
-    chomp $ln;
-
-    return if $ln =~ /^$/;
-    return if $ln =~ /^#/;
-
-    $ln = "http://$ln"  if $ln !~ m{^http://}i;
-
-    push @queue, $ln;
-}
-
 sub process_queue {
 
-    my $opts = new WWW::Quvi::Options;
-    $opts->{http_proxy}      = $config{proxy}  if $config{proxy};
-    $opts->{http_proxy}      = "" if $config{no_proxy};
-    $opts->{format}          = $config{format};
-    $opts->{user_agent}      = $config{agent};
-    $opts->{verbose_libcurl} = $config{verbose_libcurl} ? 1:0;
+    require JSON::XS;
 
     my $n = scalar @queue;
     my $i = 0;
+    my $r = 0;
+    my $fpath;
 
     foreach (@queue) {
 
-        ++$i;
+        print_checking (++$i, $n);
 
-        print_checking ($i, $n);
+        my $q = $config{quvi};
+           $q =~ s/%u/"$_"/;
+           $q .= " -q"  if $q !~ /-q/; # Force --quiet.
+           $q .= " -f $config{format}";
 
-        $video = $query->parse ($_, $opts);
+        my $o = join '', qx/$q/;
 
-        if (not $video->{ok}) {
-            print STDERR "error: libquvi: $query->{last_error}\n";
-            next;
-        }
+        $r = $? >> 8;
+
+        next unless $r == 0;
+
+        $video = JSON::XS::decode_json ($o);
 
         print "done.\n"  unless $config{quiet};
 
-        my ($ok, $fpath) = get_video ();
+        ($r, $fpath) = get_video ();
 
-        if ($ok) {
-
+        if ($r == 0) {
             if ($config{exec})
-                { invoke_exec ($fpath); }
-
+                { $r = invoke_exec ($fpath); }
         }
     }
 
-    return 0;
+    return $r;
 }
 
 sub print_checking {
-    return if $config{quiet};
+
+    return  if $config{quiet};
+
     my ($i, $n) = @_;
+
     print "($i of $n) "  if $n > 1;
-    print "Checking ... ";
+    print "Checking ...";
 }
 
 sub get_video {
-    my ($fpath, $initial_length) = get_filename ();
-    my $fname = basename ($fpath);
 
-    # Return status: 0=failure, 1=OK
+    require File::Basename;
+
+    my $fpath = get_filename ();
+    my $fname = File::Basename::basename ($fpath);
 
     if ($config{no_download})
         { print_video ($fname); return 0; }
 
-    else {
-
-        if ($initial_length == -1)
-            { print STDERR "video fully retrieved already\n"; return 1; }
-
-        else
-            { return write_video ($fpath, $fname, $initial_length); }
-
-    }
+    return write_video ($fpath, $fname);
 }
 
 sub invoke_exec {
+
     my $fpath = shift;
-    my $arg   = $config{exec};
 
-    $arg =~ s/%f/"$fpath"/g;
+    my $e =  $config{exec};
+       $e =~ s/%f/"$fpath"/g;
 
-    my $rc = system ($arg);
+    qx/$e/;
 
-    if    ($rc ==  0) { }
-    elsif ($rc == -1) { print STDERR "error: failed to execute `$arg'\n"; }
-    else  {
-        print STDERR "error: child exited with: %d\n", $rc >> 8
-            unless $config{quiet};
-    }
+    return $? >> 8;
 }
 
 sub to_mb { return (shift) / (1024*1024); }
@@ -222,343 +192,47 @@ sub to_mb { return (shift) / (1024*1024); }
 sub print_video {
     printf "%s  %.2fM  [%s]\n",
         shift,
-        to_mb ($video->{link}->{length_bytes}),
-        $video->{link}->{content_type};
+        to_mb ($video->{link}[0]->{length_bytes}),
+        $video->{link}[0]->{content_type};
 }
 
 sub write_video {
-    my ($fpath, $fname, $initial_length) = @_;
 
-    # Return status: 0=failure, 1=OK
+    my ($fpath, $fname) = @_;
 
-    my $mode = ">";
+    my $g = $config{get_with};
+       $g =~ s/%u/"$video->{link}[0]->{url}"/g;
+       $g =~ s/%f/"$fpath"/g;
+       $g =~ s/%n/"$fname"/g;
 
-    if (not $config{overwrite})
-        { $mode = ">>"  if $initial_length > 0; }
+    qx/$g/;
 
-    open my $fh, $mode, $fpath
-        or print STDERR "$fpath: $!\n" and return 0;
-
-    my $url = $video->{link}->{url};
-
-    $curl->setopt (CURLOPT_URL,            $url);
-    $curl->setopt (CURLOPT_WRITEDATA,      $fh);
-    $curl->setopt (CURLOPT_ENCODING,       "identity");
-    $curl->setopt (CURLOPT_HEADER,         0);
-    $curl->setopt (CURLOPT_USERAGENT,      $config{agent});
-    $curl->setopt (CURLOPT_FOLLOWLOCATION, 1);
-    $curl->setopt (CURLOPT_AUTOREFERER,    1);
-    $curl->setopt (CURLOPT_VERBOSE,        $config{verbose_libcurl} ? 1:0);
-
-    unless ($config{quiet}) {
-        $curl->setopt (CURLOPT_NOPROGRESS, 0);
-        $curl->setopt (CURLOPT_PROGRESSFUNCTION, \&progress_callback);
-    }
-
-    $curl->setopt (CURLOPT_CONNECTTIMEOUT,     $config{connect_timeout});
-    $curl->setopt (CURLOPT_TIMEOUT,            $config{transfer_timeout});
-    $curl->setopt (CURLOPT_DNS_CACHE_TIMEOUT,  $config{dns_cache_timeout});
-
-    $curl->setopt (CURLOPT_RESUME_FROM_LARGE,    $initial_length);
-    $curl->setopt (CURLOPT_MAX_RECV_SPEED_LARGE, $config{throttle} * 1024);
-
-    $curl->setopt (CURLOPT_PROXY, $config{proxy});
-    $curl->setopt (CURLOPT_PROXY, "")  if $config{no_proxy};
-
-    pb_init ($initial_length, $fname);
-
-    my $rc = $curl->perform ();
-
-    close $fh;
-
-    my $resp_code = $curl->getinfo (CURLINFO_RESPONSE_CODE);
-    my $conn_code = $curl->getinfo (CURLINFO_HTTP_CONNECTCODE);
-
-    my $errmsg;
-
-    if ($rc == CURLE_OK) {
-        if ($resp_code != 200 && $resp_code != 206)
-            { $errmsg = format_unexpected_http_error ($resp_code, $conn_code); }
-    }
-    else
-        { $errmsg = format_error ($rc, $resp_code, $conn_code); }
-
-    if ($errmsg) {
-        print STDERR "\n$errmsg\n";
-        return 0;
-    }
-
-    pb_finish ();
-
-    return (1, $fpath);
+    return ($? >> 8, $fpath);
 }
-
-sub format_unexpected_http_error {
-    return
-        sprintf "server response code %d, expected 200 or 206 (conn_code=%d)",
-            shift, shift;
-}
-
-sub format_error {
-    my $curl_code = shift;
-    return sprintf "error: %s (curl_code=%d, resp_code=%d, conn_code=%d)",
-            $curl->strerror($curl_code), $curl_code, shift, shift;
-}
-
-sub pb_init {
-    my ($initial_length, $fname) = @_;
-
-    my $term_width = term_width ();
-
-    %pb = (
-        expected_bytes => $video->{link}->{length_bytes},
-        initial_bytes  => $initial_length,
-        time_started   => time,
-        last_update    => 0,
-        term_width     => $term_width,
-        count          => 0,
-        width          => $term_width - 1,
-        old_width      => $term_width - 1,
-        done           => 0,
-        fname          => encode_utf8 ($fname), # Do not touch.
-    );
-
-    if ($initial_length > $video->{link}->{length_bytes})
-        { $pb{expected_bytes} = $initial_length; }
-
-    $recv_sigwinch = 0;
-    $SIG{WINCH}    = \&sigwinch_callback;
-}
-
-sub pb_finish {
-
-    if ($pb{expected_bytes} > 0
-        && $pb{count} + $pb{initial_bytes} > $pb{expected_bytes})
-    {
-        $pb{expected_bytes} = $pb{initial_bytes} + $pb{count};
-    }
-
-    $pb{done} = 1;
-
-    progress_callback ();
-
-    print "\n"  unless $config{quiet};
-}
-
-sub sigwinch_callback { $recv_sigwinch = 1; }
-
-sub term_width {
-    return DEFAULT_TERM_WIDTH unless $HAVE_TERM_READKEY;
-    return (Term::ReadKey::GetTerminalSize ())[0];
-}
-
-sub progress_callback {
-    my ($a_, $b_, $now) = @_;
-
-    my $tnow    = time;
-    my $elapsed = $tnow - $pb{time_started};
-
-    my $force_update = 0;
-
-    if ($recv_sigwinch) {
-
-        my $old_term_width = $pb{term_width};
-
-        $pb{term_width}   = term_width ();
-        $pb{term_width} ||= DEFAULT_TERM_WIDTH;
-
-        if ($pb{term_width} != $old_term_width) {
-            $pb{old_width} = $pb{width};
-            $pb{width}     = $pb{term_width} - 1;
-            $force_update  = 1;
-        }
-
-        $recv_sigwinch = 0;
-    }
-
-    unless ($pb{done}) {
-        if (($elapsed - $pb{last_update}) < DEFAULT_UPDATE_INTERVAL
-            && not $force_update)
-        {
-            return 0;
-        }
-    }
-    else
-        { $now = $pb{expected_bytes}; }
-
-    # Current size.
-
-    my $size   =
-        (not $pb{done})
-        ? $pb{initial_bytes} + $now
-        : $now;
-
-    my $size_s = sprintf "%.1fM", to_mb ($size);
-
-    # Rate.
-
-    my $rate = $elapsed ? ($now/$elapsed) : 0;
-
-    my ($rate_s, $eta_s) = ("--.-K/s", "--:--:--");
-
-    if ($rate > 0) {
-
-        # ETA.
-
-        my $eta;
-
-        unless ($pb{done}) {
-            my $left =
-                ($pb{expected_bytes} - ($now + $pb{initial_bytes})) / $rate;
-            $eta = time_to_s ($left);
-        }
-        else {
-            $rate = ($pb{expected_bytes} - $pb{initial_bytes}) / $elapsed;
-            $eta  = time_to_s ($elapsed);
-        }
-
-        my $unit;
-        ($unit, $rate) = to_unit ($rate);
-
-        $rate_s = sprintf "%4.1f%s", $rate, $unit;
-        $eta_s  = sprintf "%6s", $eta;
-    }
-
-    # Percent.
-
-    my $percent_s = "";
-
-    if ($pb{expected_bytes} > 0) {
-
-        my $percent = int 100.0*$size/$pb{expected_bytes};
-
-        $percent_s =
-            $percent < 100
-            ? sprintf "%2d%%", $percent
-            : sprintf "100%%";
-    }
-
-    # Filename.
-
-    my $tmp = sprintf "  %4s", $size_s;
-
-    # Rate, ETA.
-
-    $tmp .= sprintf "  %s  %s", $rate_s, $eta_s;
-
-    # Percent.
-
-    $tmp .= sprintf "  %s", $percent_s;
-
-    # Filename.
-
-    my $tmp_len = length ($tmp);
-    my $sub_len = $pb{width} - $tmp_len;
-    my $b       = "";
-
-    if ($sub_len > 0) {
-        $b  = substr ($pb{fname}, 0, $sub_len);
-        $b .= " "  while length ($b) < $sub_len;
-        $b .= $tmp;
-    }
-
-    if ($pb{old_width}) { # Clear line properly.
-
-        my $m =
-            ($pb{old_width} < $pb{width})
-            ? $pb{width}
-            : $pb{old_width};
-
-        for (my $i=0; $i<$m; ++$i) { print " "; }
-
-        print "\r";
-
-        $pb{old_width} = 0;
-    }
-
-    print decode_utf8 ($b) . "\r"; # Do not touch.
-
-    $pb{last_update} = $elapsed;
-    $pb{count}       = $now;
-
-    return 0;
-}
-
-sub to_unit {
-    my $rate  = shift;
-    my @units = qw(K/s M/s G/s);
-    my $i = 0;
-    if ($rate < 1024*1024) {
-        $rate /= 1024;
-    }
-    elsif ($rate < 1024*1024) {
-        $rate /= 1024*1024;
-        $i = 1;
-    }
-    elsif ($rate < 1024*1024*1024) {
-        $rate /= 1024*1024*1024;
-        $i = 2;
-    }
-    return ($units[$i], $rate);
-}
-
-sub time_to_s { return sprintf "%02d:%02d:%02d", (gmtime (shift))[2,1,0]; }
 
 sub get_filename {
-    my ($fpath, $initial_length);
 
-    if ($config{output_file}) {
+    my $fpath;
 
-        $fpath = $config{output_file};
+    if ($config{output_file})
+        { $fpath = $config{output_file}; }
+    else
+        { $fpath = apply_output_path (apply_filename_format ()); }
 
-        $initial_length = -s $fpath || 0;
-
-        if ($initial_length >= $video->{link}->{length_bytes}
-            and not $config{overwrite})
-        {
-            $initial_length = -1; # nothing to do
-        }
-    }
-    else {
-        ($fpath, $initial_length) =
-            apply_output_path (apply_filename_format ());
-    }
-
-    $initial_length = 0  if $config{overwrite};
-
-    return ($fpath, $initial_length);
+    return $fpath;
 }
 
 sub apply_output_path {
 
+    require Cwd;
+
     # Do not touch.
-    my $cwd     = decode_utf8 (getcwd);
+    my $cwd     = decode_utf8 (Cwd::getcwd);
     my $fname   = shift;
-    my $fpath   = catfile ($cwd, $fname);
 
-    my $fpath_copy     = $fpath;
-    my $initial_length = 0;
+    require File::Spec::Functions;
 
-    if (not $config{overwrite}) {
-
-        for (my $i=0; $i<INT_MAX; ++$i) {
-
-            $initial_length = -s $fpath || 0;
-
-            if (not $initial_length)
-                { last; }
-            elsif ($initial_length >= $video->{link}->{length_bytes}) {
-                $initial_length = -1; # nothing to do
-                last;
-            }
-            else
-                { last  if $config{continue}; }
-
-            $fpath = sprintf "%s.%d", $fpath_copy, $i;
-        }
-    }
-
-    return ($fpath, $initial_length);
+    return File::Spec::Functions::catfile ($cwd, $fname);
 }
 
 sub apply_filename_format {
@@ -566,11 +240,11 @@ sub apply_filename_format {
     return $config{output_filename}
         if $config{output_filename};
 
-    my $title = trim (apply_regexp ($video->{title}));
+    my $title = trim (apply_regexp ($video->{page_title}));
     my $fname = $config{filename_format};
 
-    $fname =~ s/%s/$video->{link}->{file_suffix}/g;
-    $fname =~ s/%h/$video->{host}/g;
+    $fname =~ s/%s/$video->{link}[0]->{file_suffix}/g;
+    $fname =~ s/%h/$video->{host}/g  if $video->{host}; # quvi 0.2.8+
     $fname =~ s/%i/$video->{id}/g;
     $fname =~ s/%t/$title/g;
 
@@ -622,17 +296,14 @@ sub print_help {
 }
 
 sub print_version {
-    printf "clive version $VERSION with Perl %s on %s. WWW::Quvi %s bindings.
-libquvi version %s\n",
-        (sprintf "%vd", $^V), $^O,
-        version->declare(WWW::Quvi::version ()),
-        WWW::Quvi::version (WWW::Quvi::libquviVersionLong);
+    printf "clive $VERSION with Perl %s on %s\n",
+        (sprintf "%vd", $^V), $^O;
     exit 0;
 }
 
 sub print_license {
-print "
-# Copyright (C) 2010 Toni Gundogdu.
+print
+"# Copyright (C) 2010 Toni Gundogdu.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -650,18 +321,6 @@ print "
     exit 0;
 }
 
-sub print_support {
-    $query = new WWW::Quvi::Query;
-    my %h;
-    while (1) {
-        my ($done, $domain, $formats) = $query->next_website;
-        last if $done;
-        $h{$domain} = $formats;
-    }
-    print "$_\t$h{$_}\n"  foreach sort keys %h;
-    exit 0;
-}
-
 __END__
 
 =head1 NAME
@@ -674,33 +333,25 @@ clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> ...]
 
 =head1 DESCRIPTION
 
-clive is a command line video extraction tool for Youtube
-and other similar video-sharing websites.
+clive is a command line video extraction tool for Youtube and other similar
+video websites that require Adobe Flash for viewing the content.
 
 =head1 OPTIONS
 
-      --help                     print help and exit
-      --version                  print version and exit
-      --license                  print license and exit
-      --support                  print supported websites and exit
-      --verbose-libcurl          turn on libcurl verbose output
-  -q, --quiet                    turn off all output, excl. errors
-  -f, --format arg (=default)    download video format
-  -c, --continue                 resume partially downloaded video
-  -W, --overwrite                overwrite existing video
-  -O, --output-file arg          write downloaded video to file
-  -n, --no-download              do not download video, print info only
-      --no-proxy                 disable use of HTTP proxy
+      --help                      print help and exit
+      --version                   print version and exit
+      --license                   print license and exit
+      --quiet                     turn off all output excl. errors
+  -f, --format arg (=default)     download video format
+  -O, --output-file arg           write downloaded video to file
+  -n, --no-download               do not download video, print info only
+      --config-file arg           file to read clive arguments from
 Configuration:
+  --quvi arg                      path to quvi(1) with additional args
+  --get-with arg                  path to download command with args
   --filename-format arg (=%t.%s)  output video filename format
   --regexp arg (=/(\w|\s)/g)      regexp to clean up video title
-  --throttle arg (=0)             limit download transfer rate
   --exec arg                      invoke arg when download finishes
-  --agent arg (=Mozilla/5.0)      identify as arg to HTTP servers
-  --proxy arg                     use proxy for HTTP connections
-  --connect-timeout arg (=30)     seconds connecting allowed to take
-  --transfer-timeout arg (=0)     seconds transfer allowed to take
-  --dns-cache-timeout arg (=60)   seconds dns resolves kept in memory
 
 =head1 OPTIONS - GENERAL
 
@@ -718,29 +369,15 @@ Print version and exit.
 
 Print license and exit.
 
-=item B<--support>
+=item B<--quiet>
 
-Print supported websites, formats and exit.
-
-=item B<--verbose-libcurl>
-
-Turn on libcurl verbose output.
-
-=item B<-q, --quiet>
-
-Turn off all output but errors.
+Turn off all I<clive> output excluding errors. Note that this switch has no
+effect on any of the third party commands that clive calls.
 
 =item B<-f, --format> I<arg>
 
-Download I<arg> format of the video.
-
-=item B<-c, --continue>
-
-Resume a partially downloaded video.
-
-=item B<-W, --overwrite>
-
-Overwrite an existing video.
+Download I<arg> format of the video. Run C<quvi(1)> with C<--support> to get
+a list of the supported formats.
 
 =item B<-O, --output-file> I<arg>
 
@@ -750,32 +387,59 @@ Write video to I<arg>.
 
 Do not download the video, display video details only.
 
-=item B<--no-proxy>
+=item B<--config-file> I<arg>
 
-Do not use HTTP proxy at all, even if http_proxy is defined.
+Path to a file to read clive arguments from. By default clive reads
+from C<~/.cliverc>, C<~/.clive/config> and C<~/.config/clive/config>.
 
 =back
 
 =head1 OPTIONS - CONFIGURATION
 
-You may specify I<any> of the the command line options in the configuration file.
-Whether it makes sense, is left for you to decide as the user of this program.
+You can specify I<any> of the the command line options in the configuration
+file. These options are under C<Configuration> for superficial reasons
+(C<--help> output) only.
 
-The reason these options are found in a separate group is simply to provide
-a visually more pleasing "user experience" when the program is run with C<--help>.
-Even, if we are indeed using CLI, doesn't mean we have to be spartan about it.
 
 =over 4
+
+=item B<--quvi> I<arg>
+
+Path to C<quvi(1)> command with any additional arguments. clive calls this
+command to parse the video details (e.g. download URL). The following
+specifiers are supported:
+
+    %u  Video URL
+
+Note that I<all> occurences of the specifier will be replaced. clive also
+appends C<--quiet> to I<arg> if it's not found.
+
+If you use an HTTP proxy with C<quvi(1)>, you should extend that use to
+C<--get-with>, especially if your proxy masks your IP. Some websites
+refuse to work different IPs requesting the same URL.
+
+=item B<--get-with> I<arg>
+
+Path to a download command (e.g. C<wget(1)> or C<curl(1)>) with any additional
+arguments. clive calls this command to download the video. The following
+specifiers are supported:
+
+    %u  Video download URL
+    %f  Full path to video file
+    %n  Video file name
+
+Note that I<all> occurences of the specifier will be replaced. See also the
+note about the use of an HTTP proxy above with C<--quvi>.
 
 =item B<--filename-format> I<arg>
 
 Use I<arg> to specify the video output filename format. The default is "%t.%s".
 The following specifiers are supported:
 
-    %t  video title
-    %i  video ID
-    %h  video host ID
-    %s  video file suffix
+    %t  Video title (after applying --regexp)
+    %i  Video ID
+    %h  Video host ID (req. quvi 0.2.8+)
+    %s  Video file suffix (parsed from server returned content-type)
 
 Note that I<all> occurences of the specifier will be replaced.
 
@@ -787,78 +451,21 @@ it is used in the output filename. The default is "/(\w|\s)/g".
 Note that the syntax supports both "i" (case-insensitive) and "g"
 (global or find all).
 
-=item B<--throttle> I<arg>
-
-Limit download transfer rate to I<arg> KB/s. Default is 0 (disabled).
-
 =item B<--exec> I<arg>
 
 Invoke I<arg> after video download finishes. The following specifiers
 are supported:
 
-    %f  path to the downloaded video file
+    %f  Full path to the downloaded video file
 
 Note that I<all> occurences of the specifier will be replaced.
-
-=item B<--agent> I<arg>
-
-Identify as I<arg> to the HTTP servers.
-
-=item B<--proxy> I<arg>
-
-Use I<arg> for HTTP proxy, e.g. "http://foo:1234". Note that
-libcurl which this program ultimately uses, also supports the
-http_proxy environment setting. See also C<--no-proxy>.
-
-=item B<--connect-timeout> I<arg>
-
-This option essentially wraps the CURLOPT_CONNECTTIMEOUT of libcurl.
-Default is 30.
-
-  "Pass a long. It should contain the maximum time in seconds that
-  you allow the connection to the server to take.
-
-  This only limits the connection phase, once it has connected,
-  this option is of no more use. Set to zero to disable connection
-  timeout (it will then only timeout on the system's internal
-  timeouts). See also the CURLOPT_TIMEOUT option."
-        -- C<curl_easy_setopt(3)>
-
-=item B<--transfer-timeout>=I<arg>
-
-This option essentially wraps the CURLOPT_TIMEOUT of libcurl.
-Default is 0 (disabled).
-
-  "Pass a long as parameter containing the maximum time in seconds
-  that you allow the libcurl transfer operation to take.
-
-  Normally, name lookups can take a considerable time and limiting
-  operations to less than a few minutes risk aborting perfectly
-  normal operations. This option will cause curl to use the
-  SIGALRM to enable time-outing system calls."
-        -- C<curl_easy_setopt(3)>
-
-=item B<--dns-cache-timeout>=I<arg>
-
-This option essentially wraps the CURLOPT_DNS_CACHE_TIMEOUT of libcurl.
-Default is 60.
-
-  "Pass a long, this sets the timeout in seconds. Name resolves will
-  be kept in memory for this number of seconds. Set to zero to
-  completely disable caching, or set to -1 to make the cached
-  entries remain forever. By default, libcurl caches this info
-  for 60 seconds.
-
-  The name resolve functions of various libc implementations don't
-  re-read name server information unless explicitly told so
-  (for example, by calling C<res_init(3)>). This may cause libcurl
-  to keep using the older server even if DHCP has updated the
-  server info, and this may look like a DNS cache issue to the
-  casual libcurl-app user." -- C<curl_easy_setopt(3)>
 
 =back
 
 =head1 EXAMPLES
+
+These examples assume you have set C<--quvi> and C<--get-with> in the config
+file. See L</FILES>.
 
 =over 4
 
@@ -903,12 +510,13 @@ Consider the following example:
 
 =item B<~/.config/clive/config>
 
-You can specify the program options in the configuration file.
-The above paths are currently supported. Example:
+You can also run clive with C<--config-file /path/to/config/file>. Typical
+configuration file could look like:
 
-    --proxy http://foo:1234
+    --quvi "/usr/bin/quvi %u"
+    --get-with "/usr/bin/curl -L -C - -o %f %u"
+    --filename-format "%t_%i.%s"
     --exec "/usr/bin/vlc %f"
-    --filename-format "%h_%i_(%t).%s"
 
 Note the prepending dashes.
 
@@ -916,8 +524,22 @@ Note the prepending dashes.
 
 =head1 EXIT STATUS
 
-clive exits with 0 on success and E<gt>0 if an (unrecoverable)
-error occurred.
+clive exits with 0 on success, otherwise the code is E<gt>0. clive exits with
+1 if an error occurred while parsing the command line arguments.
+
+You should note that clive passes whatever any of the other commands it
+calls as its exit status. For example, if C<quvi(1)> a non-zero value,
+clive exits with it. Refer to the documentation of those commands for the
+different exit statuses.
+
+If you are planning to use clive for anything more peculiar, you should
+feed clive with only one URL at a time, because clive exits with the
+"last exit status". To illustrate this:
+
+    * You feed clive with two URLs
+    * First URL fails for some reason, quvi exits with a non-zero value
+    * Second URL succeeds, quvi exits with a zero value
+    * clive exits with zero
 
 =head1 MANGLED CHARACTERS
 
@@ -936,88 +558,37 @@ are copied from the original content as they are without any conversion.
 
 =over 4
 
-=item B<Add support for another website>
+=item B<Add support for a website>
 
-As of the 2.3 release, clive relies on libquvi (via WWW::Quvi) for
-parsing the video details, e.g. download links. Any additional support
-will therefore have to added to the libquvi rather than clive.
+This is quvi(1) territory, please visit L<http://quvi.googlecode.com/>.
 
-Please refer to the libquvi <http://quvi.googlecode.com/>
-documentation instead. On most systems, you can find the READMEs and
-HOWTOs in $prefix/share/quvi and $prefix/share/doc/quvi directories.
-You can find the same files in release source tarballs and at:
+You can also find the the READMEs and HOWTOs (on most systems) from
+$prefix/share/quvi and $prefix/share/doc/quvi directories. Or visit:
 
     <http://repo.or.cz/w/quvi.git/tree/HEAD:/doc>
     <http://repo.or.cz/w/quvi.git/tree/HEAD:/share/lua>
-    <http://repo.or.cz/w/quvi.git/tree/HEAD:/share/lua/website>
 
 =item B<Submitting patches>
 
-If you have cooked up a patch, please submit it to the tracker
-see L</BUGS>.
-
-If you are working with git and you have established a repo from which
-we can pull the changes from, you can use the same tracker for leaving
-pull requests.
-
-=back
-
-=head1 BUGS
-
-=over 4
-
-=item B<Trackers>
-
-Bugs, support, patches, etc. trackers for these can be found at:
-    <http://sourceforge.net/projects/clive/support>
-
-=back
-
-=head1 DEBUGGING TIPS
-
-=over 4
-
-=item B<--no-download>
-
-Use the C<--no-download> switch if you don't need to download the video.
-
-=item B<--verbose-libcurl>
-
-You can use this switch to amp up libcurl verbosity.
-
-=item B<perl -d>
-
-In some cases running clive with C<perl -d> may be helpful.
+If you have cooked up a patch, please submit it to the tracker see L</OTHER>.
+Pull requests from git repos are also welcome.
 
 =back
 
 =head1 OTHER
 
-=over 4
-
-=item B<Project>
-
 <http://clive.googlecode.com/>
 
-<http://clive.sourceforge.net/> -- redirects to the above
+<http://sourceforge.net/projects/clive/support>
 
-=item B<Files>
+<git://repo.or.cz/clive.git>
 
-The downloadable files (e.g. source tarballs) can be found at:
+=head1 SEE ALSO
 
-<http://clive.googlecode.com/>
-
-<http://sourceforge.net/projects/clive/files/> -- mirror
-
-=item B<Development repository>
-
-git clone git://repo.or.cz/clive.git
-
-=back
+C<quvi(1)>  C<wget(1)>  C<curl(1)>
 
 =head1 AUTHOR
 
-Toni Gundogdu <legatvs at sign gmail com>. See also L</BUGS>, L</DEBUGGING TIPS>
-and L</CONTRIBUTING>.
+Toni Gundogdu <legatvs at sign gmail com>.
 
 =cut

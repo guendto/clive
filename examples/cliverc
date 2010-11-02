@@ -1,0 +1,29 @@
+
+# Search paths: ~/.cliverc, ~/.clive/config, ~/.config/clive/config
+# Or run clive with --config-file /path/to/config/file
+
+# Path to quvi(1) with any additional args.
+# Note that clive adds --quiet if it's not defined.
+#   %u  Video URL
+--quvi "/usr/bin/quvi %u"
+
+# Path to a download command, this could be anything you choose,
+# as long as you work out the details.
+#   %u  Video download URL
+#   %f  Full path to video file (to write to)
+#   %n  File name (basename of the above)
+#   
+--get-with "/usr/bin/curl -L -C - o %f %u"
+
+# Play downloaded video when done.
+#--exec "/usr/bin/vlc --quiet %f"
+
+# Video filename format.
+#   %t  Video title (after applying --regexp)
+#   %i  Video ID
+#   %h  Video host ID (req. quvi 0.2.8+)
+#   %s  Video file suffix (parsed from server returned content-type)
+#--filename-format "%t_%i.%s"
+
+# Regexp to cleanup the video title before using it in a file name.
+#--regexp "/(\\w)/g"

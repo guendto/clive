@@ -10,10 +10,15 @@ GIT: <git://repo.or.cz/clive.git>
 
 PREREQUISITES
 
-See the Makefile.PL file.
+See the Makefile.PL file for Perl module prerequisites.
 
-Additional (optional):
-    * Term::ReadKey, if not found, progressbar will not resize
+You will also need:
+    * quvi(1) 0.2.4+ [1]
+    * A download command, e.g. wget(1) [2], curl(1) [3] -- or something similar
+
+[1] <http://quvi.googlecode.com/>
+[2] <http://www.gnu.org/software/wget/>
+[3] <http://curl.haxx.se/>
 
 
 INSTALLATION
@@ -21,21 +26,19 @@ INSTALLATION
 You can skip this step, if you like, and instead just run "bin/clive".
 This should work as long as the prerequisites are found.
 
-If you choose to install:
-
-    * Highly recommended
-        - Remove / uninstall any earlier version you have installed
-
-    * You can specify install prefix with INSTALL_BASE
-        e.g. perl Makefile.PL INSTALL_BASE=/usr/local
-
 To install:
-
     perl Makefile.PL
     make
     make install
+
+    * You can specify install prefix with INSTALL_BASE
+        e.g. perl Makefile.PL INSTALL_BASE=/usr/local
 
   More: <http://search.cpan.org/perldoc?ExtUtils::MakeMaker>
    FAQ: <http://perldoc.perl.org/ExtUtils/MakeMaker/FAQ.html>
 
 
+GETTING STARTED
+
+    * Configure ~/.cliverc, see "man clive" and "FILES" section for an example
+        - Set at least --quvi and --get-with

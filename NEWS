@@ -40,7 +40,7 @@ REMOVED
     * --stream-*, use quvi(1) instead, it has --exec (as of 0.2.7)
     * --cclass, replaced by --regexp
     * --exec-run, use --exec
-    * --hosts, run quvi --support"
+    * --hosts, run quvi with --support
     * --connect-timeout-socks
     * --limit-rate
     * --debug

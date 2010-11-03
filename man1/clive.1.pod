@@ -212,6 +212,27 @@ quvi (or libquvi) converts the characters to unicode if the parsed data
 contains the charset meta tag. Otherwise the characters are copied from
 the original content as they are without conversion.
 
+=head1 WEBSITE SUPPORT
+
+Run C<quvi(1)> with C<--support> to get a list of the websites and formats
+that they support.
+
+=head1 UPGRADING TO 2.3
+
+=over 4
+
+=item B<error: specify path to quvi(1) command with --quvi>
+
+clive uses C<quvi(1)> to parse the video details. Use the C<--quvi> to specify
+the path. See also L</FILES>.
+
+=item B<error: specify path to a download command with --get-with>
+
+clive uses a 3rd party command to download the videos. Use the C<--get-with> to
+specify the path. See also L</FILES>.
+
+=back
+
 =head1 CONTRIBUTING
 
 =over 4

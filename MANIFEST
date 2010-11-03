@@ -1,11 +1,11 @@
 bin/clive
 ChangeLog
 COPYING
+examples/cliverc
 Makefile.PL
+man1/clive.1.pod
 MANIFEST			This list of files
 NEWS
 README
 t/clive-Pod.t
 TODO
-examples/cliverc
-man1/clive.1.pod

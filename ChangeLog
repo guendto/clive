@@ -13,7 +13,7 @@ Changes:
         - Remove --continue, --overwrite, --proxy
         - Remove --no-proxy, --agent, --throttle
 
-Please read the NEWS file. Even if you did so for beta1.
+Please read the NEWS file. Even if you did so for beta 1.
 There have been several major changes between the betas.
 
 

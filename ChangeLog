@@ -12,7 +12,6 @@ Changes:
         - Remove Term::ReadKey dependency
         - Remove --continue, --overwrite, --proxy
         - Remove --no-proxy, --agent, --throttle
-        - Dist gz instead of bz2
 
 Please read the NEWS file. Even if you did so for beta1.
 There have been several major changes between the betas.

@@ -25,11 +25,8 @@ use version 0.77 (); our $VERSION = version->declare("2.3.0_2");
 binmode STDOUT, ":utf8";
 binmode STDERR, ":utf8";
 
-use Getopt::ArgvFile (
-home            => 1,
-startupFilename => [qw(.cliverc .clive/config .config/clive/config)],
-fileOption      => '--config-file'
-);
+use Getopt::ArgvFile qw(argvFile);
+
 use Getopt::Long qw(:config bundling);
 use Encode qw(decode_utf8);
 
@@ -45,20 +42,46 @@ sub main {
 }
 
 sub init {
+
+    if (grep {$_ eq "--config-file"} @ARGV)
+        { argvFile (fileOption => '--config-file'); }
+
+    else {
+
+        @ARGV = (@ARGV, (
+            "@/usr/local/share/clive/cliverc",
+            "@/usr/share/clive/cliverc",
+            "@/etc/clive/config"
+        ));
+
+        if ($ENV{HOME}) {
+            @ARGV = (@ARGV, (
+                '@'."$ENV{HOME}/.cliverc",
+                '@'."$ENV{HOME}/.clive/config",
+                '@'."$ENV{HOME}/.config/clive/config"
+            ));
+        }
+
+        push @ARGV, '@'."$ENV{CLIVE_CONFIG}"  if $ENV{CLIVE_CONFIG};
+
+        argvFile ();
+
+    }
+
     GetOptions (\%config,
-    'help'    => \&print_help,
-    'version' => \&print_version,
-    'license' => \&print_license,
-    'quiet',
-    'format|f=s',
-    'output_file|output-file|O=s',
-    'no_download|no-download|n',
-    # Configuration:
-    'quvi=s',
-    'get_with|get-with=s',
-    'filename_format|filename-format=s',
-    'regexp=s',
-    'exec=s',
+        'help'    => \&print_help,
+        'version' => \&print_version,
+        'license' => \&print_license,
+        'quiet',
+        'format|f=s',
+        'output_file|output-file|O=s',
+        'no_download|no-download|n',
+        # Configuration:
+        'quvi=s',
+        'get_with|get-with=s',
+        'filename_format|filename-format=s',
+        'regexp=s',
+        'exec=s',
     ) or exit 1;
 
     $config{format}          ||= 'default';

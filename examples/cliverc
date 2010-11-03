@@ -1,6 +1,11 @@
 
-# Search paths: ~/.cliverc, ~/.clive/config, ~/.config/clive/config
-# Or run clive with --config-file /path/to/config/file
+# /usr/local/share/clive/config
+# /usr/share/clive/config
+# /etc/clive/config
+# ~/.cliverc
+# ~/.clive/config
+# ~/.config/clive/config
+# or "env CLIVE_CONFIG=/path/to/config/file clive".
 
 # Path to quvi(1) with any additional args.
 # Note that clive adds --quiet if it's not defined.

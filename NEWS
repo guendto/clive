@@ -18,38 +18,40 @@ NOTES
         your system, we no longer use it
 
 REMOVED
-    * --upgrade-config
-    * --last
-    * --last-file
-    * --stderr
-    * --print-fname
-    * --cookie-jar
     * --cache-*, rendered largely obsolete due to one-time-use-URLs
-    * --stop-after
     * --emit-csv, use quvi(1) instead, it supports JSON, XML, etc.
     * --stream-*, use quvi(1) instead, it has --exec (as of 0.2.7)
-    * --cclass, replaced by --regexp
-    * --exec-run, use --exec
     * --hosts, run quvi with --support
+    * --cclass, replaced by --regexp
     * --connect-timeout-socks
+    * --exec-run, use --exec
+    * --upgrade-config
+    * --print-fname
+    * --cookie-jar
+    * --stop-after
     * --limit-rate
-    * --debug
-    * --continue
+    * --last-file
     * --overwrite
-    * --proxy
+    * --continue
     * --no-proxy
+    * --stderr
+    * --debug
+    * --proxy
     * --agent
+    * --last
 
 Open a ticket if you feel different.
 
 RENAMED
-    * --no-extract  -> --no-download
+    * --no-extract -> --no-download
 
 NEW
     * --config-file
-    * --quvi
     * --get-with
     * --regexp
+    * --quvi
+    * Additional config file search paths (e.g. system wide)
+    * Support for CLIVE_CONFIG env. setting
 
 OTHER
     * --format arg value is no longer checked

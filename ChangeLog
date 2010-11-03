@@ -7,6 +7,7 @@ Changes:
         - Use version->declare instead of version::qv
         - Add JSON::XS dependency
         - Add examples/cliverc
+        - Additional config file search paths (e.g. system-wide)
         - Remove WWW::Quvi dependency
         - Remove WWW::Curl dependency
         - Remove Term::ReadKey dependency

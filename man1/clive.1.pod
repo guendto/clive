@@ -26,7 +26,7 @@ Print license and exit.
 =item B<--quiet>
 
 Turn off all I<clive> output excluding errors. Note that this switch has no
-effect on any of the third party commands that clive calls.
+effect on any of the third party commands that clive invokes.
 
 =item B<-f, --format> I<arg>
 
@@ -43,8 +43,7 @@ Do not download the video, display video details only.
 
 =item B<--config-file> I<arg>
 
-Path to a file to read clive arguments from. By default clive reads
-from C<~/.cliverc>, C<~/.clive/config> and C<~/.config/clive/config>.
+Path to a file to read clive arguments from. See also L</FILES>.
 
 =back
 
@@ -54,12 +53,11 @@ You can specify I<any> of the the command line options in the configuration
 file. These options are under C<Configuration> for superficial reasons
 (C<--help> output) only.
 
-
 =over 4
 
 =item B<--quvi> I<arg>
 
-Path to C<quvi(1)> command with any additional arguments. clive calls this
+Path to C<quvi(1)> command with any additional arguments. clive invokes this
 command to parse the video details (e.g. download URL). The following
 specifiers are supported:
 
@@ -75,7 +73,7 @@ to work with requests for unique URLs coming from different IPs.
 =item B<--get-with> I<arg>
 
 Path to a download command (e.g. C<wget(1)> or C<curl(1)>) with any additional
-arguments. clive calls this command to download the video. The following
+arguments. clive invokes this command to download the video. The following
 specifiers are supported:
 
     %u  Video download URL
@@ -138,13 +136,7 @@ Do not download the video. Print the video details only.
 
 =item B<echo "http://www.youtube.com/watch?v=DUM1284TqFc" | clive>
 
-Yet another way to feed clive with an URL.
-
-You can also feed clive several URLs on one go, either by adding each on
-the command line (arg1, arg2, ...) or by redirecting them, for example,
-from a file. Each URL must be separated with a newline.
-
-Consider the following example:
+Yet another way to feed clive with an URL. Or feed several on one go:
 
   % cat >> urls.lst
   http://www.youtube.com/watch?v=DUM1284TqFc
@@ -158,14 +150,28 @@ Consider the following example:
 
 =over 4
 
-=item B<~/.clive>
+=item B<~/.cliverc>
 
-=item B<~/.clive/config>
+Additional search paths:
 
-=item B<~/.config/clive/config>
+    ~/.clive/config
+    ~/.config/clive/config
 
-You can also run clive with C<--config-file /path/to/config/file>. Typical
-configuration file could look like:
+For a system-wide configuration:
+
+    /usr/local/share/clive/config
+    /usr/share/clive/config
+    /etc/clive/config
+
+You can also set CLIVE_CONFIG, e.g.:
+
+    env CLIVE_CONFIG=/path/to/config/file clive
+
+Or use C<--config-file>, e.g.:
+
+    clive --config-file /path/to/config/file
+
+A typical configuration file could look like:
 
     --quvi "/usr/bin/quvi %u"
     --get-with "/usr/bin/curl -L -C - -o %f %u"
@@ -173,41 +179,38 @@ configuration file could look like:
     --exec "/usr/bin/vlc %f"
 
 You should consider setting at least the C<--quvi> and C<--get-with>.
-Note also the prepending dashes in the option names.
 
 =back
 
 =head1 EXIT STATUS
 
-clive exits with 0 on success, otherwise the code is E<gt>0. clive exits with
-1 if an error occurred while parsing the command line arguments.
+clive exits with 0 on success, otherwise the code is E<gt>0. Strictly clive
+exit statuses are 0 or 1. For example, if command line parsing fails, the exit
+status is 1.
 
-You should note that clive passes whatever any of the other commands it
-calls as its exit status. For example, if C<quvi(1)> a non-zero value,
-clive exits with it. Refer to the documentation of those commands for the
-different exit statuses.
+When an error occurs in another command invoked by clive, e.g. C<quvi(1)>,
+clive exits with the exit status returned by the command.
 
-If you are planning to use clive for anything more peculiar, you should
-feed clive with only one URL at a time, because clive exits with the
-"last exit status". To illustrate this:
+If you are planning to use clive for anything more peculiar, you should feed
+it only one URL at a time. For example:
 
-    * You feed clive with two URLs
-    * First URL fails for some reason, quvi exits with a non-zero value
-    * Second URL succeeds, quvi exits with a zero value
-    * clive exits with zero
+    * You feed clive two URLs
+    * The 1st one fails, quvi exits with a non-zero value
+    * clive proceeds to the 2nd URL, quvi now exits with zero value
+    * clive exits with the zero, even if the 1st URL failed
 
 =head1 MANGLED CHARACTERS
 
-Check your terminal settings for an invalid locale setting. You can get
-a list of the available locale names by running C<locale -a>. Also, make
-sure your terminal supports unicode. e.g.:
+Check your terminal settings for an invalid locale setting. You can get a list
+of the available locale names by running C<locale -a>. Also, make sure your
+terminal supports unicode. e.g.:
 
     % LANG=en_US.UTF8 urxvt&
     % clive ... # in the new opened terminal
 
-libquvi (which clive ultimately uses) converts the characters to unicode
-if the parsed data contains the charset meta tag. Otherwise the characters
-are copied from the original content as they are without any conversion.
+quvi (or libquvi) converts the characters to unicode if the parsed data
+contains the charset meta tag. Otherwise the characters are copied from
+the original content as they are without conversion.
 
 =head1 CONTRIBUTING
 

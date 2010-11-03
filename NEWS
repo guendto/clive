@@ -1,19 +1,21 @@
 
-2.3.0
+2.3.0  "Glorified Wrapper Script"
 
 * Single-script vs. multiple-clive-modules
+    - clive is no longer dispersed all over the file system in Perl packages
 
-* clive no longer, directly, fetches and parses video details
-    - quvi(1) <http://quvi.googlecode.com/> does this for us now
+* Use quvi(1) to parse the video details
+    - 2.3 was going to use WWW::Quvi and libquvi (beta 1)
+    - Had a piffany (beta 2)
 
-* clive no longer downloads the videos
-    - This is left for an external command to do (e.g. curl or wget)
+* Leave downloading for an external 3rd party command to do
+    - e.g. curl, wget or whatever
 
-* Some of the more esoteric features were discarded
-    - See the full list below
+* Complete command line interface clean up
+    - Esoteric or otherwise now completely obsolete features were discarded
+    - Run clive with --help to see what's left, or see "REMOVED" below
 
 NOTES
-
     * If you installed clive 2.3 beta 1, you can remove WWW::Quvi from
         your system, we no longer use it
 
@@ -21,7 +23,7 @@ REMOVED
     * --cache-*, rendered largely obsolete due to one-time-use-URLs
     * --emit-csv, use quvi(1) instead, it supports JSON, XML, etc.
     * --stream-*, use quvi(1) instead, it has --exec (as of 0.2.7)
-    * --hosts, run quvi with --support
+    * --hosts, run quvi(1) with --support
     * --cclass, replaced by --regexp
     * --connect-timeout-socks
     * --exec-run, use --exec
@@ -40,18 +42,16 @@ REMOVED
     * --agent
     * --last
 
-Open a ticket if you feel different.
-
 RENAMED
     * --no-extract -> --no-download
 
 NEW
+    * Support for additional config search paths (e.g. system wide)
+    * Support for CLIVE_CONFIG env. setting
     * --config-file
     * --get-with
     * --regexp
     * --quvi
-    * Additional config file search paths (e.g. system wide)
-    * Support for CLIVE_CONFIG env. setting
 
 OTHER
     * --format arg value is no longer checked

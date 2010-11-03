@@ -18,5 +18,6 @@ WriteMakefile(
 'JSON::XS'         => 2.30, # <http://search.cpan.org/perldoc?JSON::XS>
 'version'          => 0.77, # <http://search.cpan.org/perldoc?version>
     },
-    'LICENSE' => 'gpl'
+    'LICENSE' => 'gpl',
+    'MAN1PODS' => { 'man1/clive.1.pod' => '$(INST_MAN1DIR)/clive.$(MAN1EXT)' }
 );

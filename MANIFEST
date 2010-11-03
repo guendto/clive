@@ -8,3 +8,4 @@ README
 t/clive-Pod.t
 TODO
 examples/cliverc
+man1/clive.1.pod

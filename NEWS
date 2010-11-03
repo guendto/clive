@@ -1,26 +1,16 @@
 
 2.3.0
 
-This release makes clive more simple, modular and flexible. Instead of re-
-inventing the wheel over and over again, we now leave much of the heavy-
-lifting for other tools to do. In a sense, clive is now a glorified wrapper
-script with a few fancy tricks in the sleeve.
+* Single-script vs. multiple-clive-modules
 
-    * single-script vs. multiple-clive-modules
-        - Easier deployment and updating
+* clive no longer, directly, fetches and parses video details
+    - quvi(1) <http://quvi.googlecode.com/> does this for us now
 
-    * clive no longer, directly, fetches and parses video details
-        - quvi(1) <http://quvi.googlecode.com/> does this for us now
+* clive no longer downloads the videos
+    - This is left for an external command to do (e.g. curl or wget)
 
-    * clive no longer downloads the videos
-        - This is left for an external command to do (e.g. curl or wget)
-
-    * Some of the more esoteric features were discarded
-        - See the full list below
-
-    * Fewer prerequisites
-
-    * Additional bonus: faster response time
+* Some of the more esoteric features were discarded
+    - See the full list below
 
 NOTES
 

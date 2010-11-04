@@ -40,7 +40,7 @@ use clive::HostFactory;
 use clive::Compat;
 use clive::Error qw(CLIVE_OK CLIVE_OPTARG);
 
-use constant VERSION => "2.2.17";
+use version 0.77 (); our $VERSION = version->declare ("2.2.17");
 
 sub init {
     my $self = shift;
@@ -171,7 +171,7 @@ warranty;  not even for MERCHANTABILITY or FITNESS FOR A  PARTICULAR PURPOSE.
 sub _printVersion {
     printf "clive version %s with WWW::Curl version $WWW::Curl::VERSION\n"
         . "os=%s, perl=%s, locale=%s\n",
-        VERSION, $^O, ( sprintf "%vd", $^V ), $ENV{LANG} || "?";
+        $VERSION, $^O, ( sprintf "%vd", $^V ), $ENV{LANG} || "?";
     exit CLIVE_OK;
 }
 

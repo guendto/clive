@@ -1,6 +1,7 @@
 use warnings;
 use strict;
 
+use 5.008009;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
@@ -16,6 +17,7 @@ WriteMakefile(
 # Earlier versions may work.
 'Getopt::ArgvFile' => 1.11, # <http://search.cpan.org/perldoc?Getopt::ArgvFile>
 'JSON::XS'         => 2.30, # <http://search.cpan.org/perldoc?JSON::XS>
+# Minimum req.
 'version'          => 0.77, # <http://search.cpan.org/perldoc?version>
     },
     'LICENSE' => 'gpl',

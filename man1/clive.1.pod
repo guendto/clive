@@ -229,8 +229,8 @@ the original content as they are without conversion.
 
 =head1 WEBSITE SUPPORT
 
-Run C<quvi(1)> with C<--support> to get a list of the websites and formats
-that they support.
+See L</--format> and L</EXAMPLES>. You could also run C<quvi(1)> with C<--support>
+to get a list of the websites and formats that they support.
 
 =head1 UPGRADING TO 2.3
 

@@ -1,4 +1,11 @@
 
+2.2.17
+Changes:
+        - toUnits: fix hi-speed issue, thanks to Thomas Klausner for the report
+        - Makefile.PL: Use VERSION_FROM
+        - Use 'version' module
+
+
 Version 2.2.16
 September 28, 2010
 

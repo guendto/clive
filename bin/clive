@@ -93,6 +93,7 @@ sub init {
     # Check --quvi.
     Carp::croak "error: specify path to quvi(1) command with --quvi"
         unless $config{quvi};
+    check_format ();
 
     # Check --get-with.
     Carp::croak "error: specify path to a download command with --get-with\n"
@@ -311,6 +312,41 @@ sub apply_regexp {
         . "`/pattern/flags', e.g. `/(\\w)/g'";
 
     exit 1;
+}
+
+sub check_format {
+    if ($config{format} eq "help") {
+print
+"Usage:
+    --format arg            get format arg
+    --format list           list websites and supported formats
+    --format list arg       match arg to websites, list formats for matches
+Examples:
+    --format webm_480p      get format webm_480p (youtube)
+    --format list youtube   list youtube formats
+    --format list dailym    list dailym(otion) formats
+";
+        exit 0;
+    }
+    elsif ($config{format} eq "list") {
+        my $q = (split /\s+/, $config{quvi})[0]; # Improve this.
+        my %h;
+        foreach (qx/$q --support/) {
+            my ($k,$v) = split /\s+/, $_;
+            $h{$k} = $v;
+        }
+        # -f list <pattern>
+        if (scalar @ARGV > 0) {
+            foreach (sort keys %h)
+                { print "$_:\n  $h{$_}\n"  if $_ =~ /$ARGV[0]/; }
+            exit 0;
+        }
+        # -f list
+        else {
+            print "$_:\n  $h{$_}\n\n"  foreach sort keys %h;
+            exit 0;
+        }
+    }
 }
 
 sub print_help {

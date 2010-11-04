@@ -1,5 +1,5 @@
 
-2.3.0  "Glorified Wrapper Script" (gws)
+2.3.0  "Glorified Wrapper Script" (2.3_gws)
 
 * Single-script vs. multiple-clive-modules
     - clive is no longer dispersed all over the file system in Perl packages

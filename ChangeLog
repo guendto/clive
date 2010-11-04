@@ -1,5 +1,12 @@
 Revision history for clive.
 
+2.3.0_3 (beta 3, 2.3_gws)
+Changes:
+        - Add --format list pattern
+        - Add --format list
+        - Add --format help
+
+
 2.3.0_2 (beta 2, 2.3_gws)  Thu Nov 04 2010  legatvs
 Changes:
         - Use quvi(1) for parsing video details, --quvi arg

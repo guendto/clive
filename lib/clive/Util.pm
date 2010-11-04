@@ -72,23 +72,19 @@ sub timeToStr {
 }
 
 sub toUnits {
-    my $rate = shift;
-
-    my @units = qw|K/s M/s G/s|;
-
-    my $i = 0;
-    if ( $rate < 1024 * 1024 ) {
-        $rate /= 1024;
+    my $rate  = shift;
+    my $units =  "K/s";
+    if ($rate >= 1024*1024*1024) {
+        $rate /= 1024*1024*1024;
+        $units = "G/s";
     }
-    elsif ( $rate < 1024 * 1024 ) {
-        $rate /= 1024 * 1024;
-        $i = 1;
+    elsif ($rate >= 1024*1024) {
+        $rate /= 1024*1024;
+        $units = "M/s";
     }
-    elsif ( $rate < 1024 * 1024 * 1024 ) {
-        $rate /= 1024 * 1024 * 1024;
-        $i = 2;
-    }
-    return ( $units[$i], $rate );
+    else
+        { $rate /= 1024; }
+    ($units, $rate);
 }
 
 sub matchRegExps {

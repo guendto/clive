@@ -30,8 +30,7 @@ effect on any of the third party commands that clive invokes.
 
 =item B<-f, --format> I<arg>
 
-Download I<arg> format of the video. Run C<quvi(1)> with C<--support> to get
-a list of the supported formats.
+Download I<arg> format of the video. I<arg> can also be C<help>.
 
 =item B<-O, --output-file> I<arg>
 
@@ -125,10 +124,26 @@ file. See L</FILES> for an example config file.
 
 Typical use.
 
-=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -f sd_270p>
+=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -f webm_480p>
 
-Same but get the sd_270p (Youtube specific) format instead. See
-C<--support> for a complete list of websites and formats.
+Same but get the webm_480p format of the video.
+
+=item B<clive -f help>
+
+Help on how you can use the C<--format> option.
+
+=item B<clive -f list>
+
+Lists all C<quvi(1)> supported websites with formats.
+
+=item B<clive -f list dailymotion>
+
+Lists dailymotion formats. The pattern is matched to C<quvi(1)>
+returned website domain strings. For example:
+
+=item B<clive -f list dailym>
+
+Would yield the same results.
 
 =item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -n>
 

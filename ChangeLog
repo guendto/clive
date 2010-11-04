@@ -1,6 +1,6 @@
 Revision history for clive.
 
-2.3.0_2 (beta 2, 2.3_gws)
+2.3.0_2 (beta 2, 2.3_gws)  Thu Nov 04 2010  legatvs
 Changes:
         - Use quvi(1) for parsing video details, --quvi arg
         - Use external command to download, --get-with arg
@@ -15,7 +15,7 @@ Changes:
         - Remove --no-proxy, --agent, --throttle
 
 Please read the NEWS file. Even if you did so for beta 1.
-There have been several major changes between the betas.
+There have been several major changes since the last beta.
 
 
 2.3.0_1 (beta 1)  Wed Oct 27 2010

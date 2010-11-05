@@ -134,7 +134,7 @@ sub uniq2 { # http://is.gd/g8jQU
             $seen{$a} = 1;
         }
     }
-    return @r;
+    @r;
 }
 
 sub process_queue {
@@ -173,7 +173,7 @@ sub process_queue {
         }
     }
 
-    return $r;
+    $r;
 }
 
 sub print_checking {
@@ -196,7 +196,7 @@ sub get_video {
     if ($config{no_download})
         { print_video ($fname); return 0; }
 
-    return write_video ($fpath, $fname);
+    write_video ($fpath, $fname);
 }
 
 sub invoke_exec {
@@ -208,10 +208,10 @@ sub invoke_exec {
 
     qx/$e/;
 
-    return $? >> 8;
+    $? >> 8;
 }
 
-sub to_mb { return (shift) / (1024*1024); }
+sub to_mb { (shift) / (1024*1024); }
 
 sub print_video {
     printf "%s  %.2fM  [%s]\n",
@@ -231,7 +231,7 @@ sub write_video {
 
     qx/$g/;
 
-    return ($? >> 8, $fpath);
+    ($? >> 8, $fpath);
 }
 
 sub get_filename {
@@ -243,7 +243,7 @@ sub get_filename {
     else
         { $fpath = apply_output_path (apply_filename_format ()); }
 
-    return $fpath;
+    $fpath;
 }
 
 sub apply_output_path {
@@ -256,7 +256,7 @@ sub apply_output_path {
 
     require File::Spec::Functions;
 
-    return File::Spec::Functions::catfile ($cwd, $fname);
+    File::Spec::Functions::catfile ($cwd, $fname);
 }
 
 sub apply_filename_format {
@@ -272,7 +272,7 @@ sub apply_filename_format {
     $fname =~ s/%i/$video->{id}/g;
     $fname =~ s/%t/$title/g;
 
-    return $fname;
+    $fname;
 }
 
 sub trim {
@@ -280,7 +280,7 @@ sub trim {
     $s =~ s{^[\s]+}//;
     $s =~ s{\s+$}//;
     $s =~ s{\s\s+}/ /g;
-    return $s;
+    $s;
 }
 
 sub apply_regexp {

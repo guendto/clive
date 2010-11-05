@@ -284,6 +284,7 @@ sub trim {
 }
 
 sub apply_regexp {
+
     my ($title, $rq) = (shift, qr|^/(.*)/(.*)$|);
 
     if ($config{regexp} =~ /$rq/) {
@@ -315,6 +316,7 @@ sub apply_regexp {
 }
 
 sub check_format {
+
     if ($config{format} eq "help") {
 print
 "Usage:
@@ -328,19 +330,26 @@ Examples:
 ";
         exit 0;
     }
+
     elsif ($config{format} eq "list") {
+
         my $q = (split /\s+/, $config{quvi})[0]; # Improve this.
+
         my %h;
         foreach (qx/$q --support/) {
             my ($k,$v) = split /\s+/, $_;
             $h{$k} = $v;
         }
+
         # -f list <pattern>
         if (scalar @ARGV > 0) {
+
             foreach (sort keys %h)
                 { print "$_:\n  $h{$_}\n"  if $_ =~ /$ARGV[0]/; }
+
             exit 0;
         }
+
         # -f list
         else {
             print "$_:\n  $h{$_}\n\n"  foreach sort keys %h;

@@ -2,6 +2,7 @@ Revision history for clive.
 
 2.3.0_3 (beta 3, 2.3_gws)
 Changes:
+        - Add /etc/xdg/clive.conf
         - Add --format list pattern
         - Add --format list
         - Add --format help

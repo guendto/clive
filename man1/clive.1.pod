@@ -177,6 +177,7 @@ For a system-wide configuration:
     /usr/local/share/clive/config
     /usr/share/clive/config
     /etc/clive/config
+    /etc/xdg/clive.conf
 
 You can also set CLIVE_CONFIG, e.g.:
 

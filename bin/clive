@@ -51,7 +51,8 @@ sub init {
         @ARGV = (@ARGV, (
             "@/usr/local/share/clive/cliverc",
             "@/usr/share/clive/cliverc",
-            "@/etc/clive/config"
+            "@/etc/clive/config",
+            "@/etc/xdg/clive.conf"
         ));
 
         if ($ENV{HOME}) {

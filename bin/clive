@@ -52,6 +52,7 @@ sub init {
             "@/usr/local/share/clive/cliverc",
             "@/usr/share/clive/cliverc",
             "@/etc/clive/config",
+            "@/etc/xdg/clive/clive.conf"
             "@/etc/xdg/clive.conf"
         ));
 

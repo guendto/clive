@@ -226,6 +226,11 @@ sub _parseLine {
     $ln =~ s!/pl/!/videos/!i;  # sevenload
     $ln =~ s!/e/!/view?i=!i;   # liveleak
 
+    if ($ln =~ /\/swf\//) { # dailymotion
+        $ln =~ s!/video/!/!;
+        $ln =~ s!/swf/!/video/!;
+    }
+
     # Lastfm demystifier.
     if ( $ln =~ /last\.fm/ ) {
         $ln =~ /\+1\-(.+)/;

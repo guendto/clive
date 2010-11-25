@@ -1,4 +1,9 @@
 
+2.2.18
+Changes:
+        - Accept dailymotion swf URLs (related b#3115846)
+
+
 2.2.17  Sat Nov 06 2010  legatvs
 Changes:
         - toUnits: fix hi-speed issue, thanks to Thomas Klausner for the report

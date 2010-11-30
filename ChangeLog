@@ -1,5 +1,5 @@
 
-2.2.18
+2.2.18  Tue Nov 30 2010  legatvs
 Changes:
         - Change google test URL
         - Accept dailymotion swf URLs (related b#3115846)

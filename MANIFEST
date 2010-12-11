@@ -13,7 +13,6 @@ lib/clive/Curl.pm
 lib/clive/Error.pm
 lib/clive/Exec.pm
 lib/clive/Host/Break.pm
-lib/clive/Host/Cctv.pm
 lib/clive/Host/Clipfish.pm
 lib/clive/Host/Dailymotion.pm
 lib/clive/Host/Ehrensenf.pm

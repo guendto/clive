@@ -5,9 +5,7 @@ clive is a command line utility for extracting videos from Youtube and other
 video-sharing websites. It was written to bypass the Adobe Flash requirement
 to view the hosted videos.
 
-    http://clive.googlecode.com/
-    http://code.google.com/p/clive/issues/
-    http://code.google.com/p/clive/wiki/FAQ
+WWW: <http://clive.sourceforge.net/>
 
 
 Prerequisites
@@ -43,7 +41,7 @@ be installed. For example:
   make install
 
 See also (for Makefile.PL options etc.):
-  http://search.cpan.org/perldoc?ExtUtils::MakeMaker
+  <http://search.cpan.org/perldoc?ExtUtils::MakeMaker>
 
 
 Notes

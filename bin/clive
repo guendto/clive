@@ -447,13 +447,13 @@ parsing the video page again.
 Dump all cache records to stdout. You can use --cache-dump-format
 to format the output.
 
-=item clive -ig 3hd2
+=item clive -ig "hd"
 
-Grep for "3hd2" pattern in cache records. If pattern matches, clive
+Grep for "hd" pattern in cache records. If pattern matches, clive
 continues to extract the matched videos. Note the use of "-i"
 (--cache-ignore-case).
 
-=item clive -ig 3hd2 -D
+=item clive -ig "hd" -D
 
 Same as above but removes the record from cache instead of extracting
 the video.
@@ -627,20 +627,9 @@ clive exits 0 on success, and E<gt>0 if an error occurs.
  CLIVE_STOP        = 10   # --stop-after
  CLIVE_MARKEDBROKEN = 11  # support marked broken
 
-=head1 OTHER
+=head1 WWW
 
-Project page:
-  <http://clive.googlecode.com/>
-
-Bugs, support, etc. trackers can be found at:
-  <http://sourceforge.net/tracker/?group_id=215220>
-
-Development code:
-  % git clone git://repo.or.cz/clive.git
-
-=head1 HISTORY
-
-Originally written for Python, later (2.x) rewritten for Perl.
+<http://clive.sourceforge.net/>
 
 =head1 SEE ALSO
 

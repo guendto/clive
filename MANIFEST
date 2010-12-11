@@ -1,5 +1,6 @@
 bin/clive
 NEWS
+ChangeLog
 ChangeLog.pre-gitlog
 COPYING
 examples/config

@@ -2,7 +2,7 @@
 ###########################################################################
 # clive, command line video extraction utility.
 #
-# Copyright 2009 Toni Gundogdu.
+# Copyright 2009,2010 Toni Gundogdu.
 #
 # This file is part of clive.
 #
@@ -24,91 +24,106 @@ package clive::Host::Youtube;
 use warnings;
 use strict;
 
-# List of format IDs. This info is based on <http://quvi.googlecode.com/>.
-# Old clive aliases, for backward-compatibility, in parenthesis.
-# mobile   = 17 --       3gp (fmt17, 3gp)
-# sd_270p  = 18 --   480x270 (fmt18, mp4)
-# sd_360p  = 34 --   640x360 (fmt34)
-# hq_480p  = 35 --   848x480 (fmt35, hq)
-# hd_720p  = 22 --  1280x720 (fmt22, hd)
-# hd_1080p = 37 -- 1920x1080 (added in 2.2.15)
-# webm_480p = 43 --  854x480 (webm)
-# webm_720p = 45 -- 1280x720
-# Default is whatever Youtube gives us without the &fmt param.
-
-sub new {
-    return bless( {}, shift );
-}
+sub new { return bless ({}, shift); }
 
 sub parsePage {
-    my ( $self, $content, $props ) = @_;
+    my ($self, $content, $props) = @_;
 
-    $$props->video_host("youtube");
+    $$props->video_host ("youtube");
 
     my %re = (
         id => qr|&video_id=(.*?)&|,
-        t  => qr|&t=(.*?)&|,
+        fmt_url_map => qr|fmt_url_map=(.*?)&|,
     );
 
     my $tmp;
-    if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
+    if (clive::Util::matchRegExps (\%re, \$tmp, $content) == 0) {
+
+        my $best;
+        my %h;
 
         require URI::Escape;
 
-        $tmp->{t} = URI::Escape::uri_unescape( $tmp->{t} );
+        foreach (split /,/, URI::Escape::uri_unescape ($tmp->{fmt_url_map})) {
+            my ($id, $url) = split /\|/, $_;
+            $best   = $url unless $best;
+            $h{$id} = $url;
+        }
 
-        my $xurl
-            = "http://youtube.com/get_video?video_id=$tmp->{id}&t=$tmp->{t}";
-
-        $xurl .= "&asv=2";     # Should fix the http/404 issue (#58).
+        my $url;
 
         my $config = clive::Config->instance->config;
 
-        my $fmt;
-
-        if ( $config->{format} eq "best" ) {
-            $fmt = $1
-                if ( $$content =~ /&fmt_map=(\d+)/ && $1 ne "" );
+        if ($config->{format} eq 'best') {
+            $url = $best;
         }
         else {
-            $fmt = $1
-                if toFmt( $self, $config->{format} ) =~ /^fmt(.*)$/;
+            $url = toURL ($self, $config->{format}, \%h);
+            $url = toURL ($self, 'default', \%h)  unless $url;
         }
 
-        $xurl .= "&fmt=$fmt"
-            if $fmt;
+        $$props->video_id ($tmp->{id});
+        $$props->video_link ($url);
 
-        $$props->video_id( $tmp->{id} );
-        $$props->video_link($xurl);
-
-        return (0);
+        return 0;
     }
-    return (1);
+
+    return 1;
+}
+
+sub toURL {
+    my ($self, $fmt, $h) = @_;
+
+    $fmt = 'flv_240p'  if $fmt eq 'default';
+    $fmt = toFmt ($self, $fmt);
+
+    foreach (keys %{$h})
+        { return $$h{$_}  if $_ eq $fmt; }
+
+    return undef;
 }
 
 sub toFmt {
-    my ( $self, $id ) = @_;
+    my ($self, $id) = @_;
+
+# http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
+# $container_$maxwidth = '$fmt_id'
 
     my %h = (
-        mobile    => "fmt17",
-        sd_270p   => "fmt18",
-        sd_360p   => "fmt34",
-        hq_480p   => "fmt35",
-        hd_720p   => "fmt22",
-        hd_1080p  => "fmt37",
-        webm_480p => "fmt43",
-        webm_720p => "fmt45",
+        # flv
+        flv_240p => '5',
+        flv_360p => '34',
+        flv_480p => '35',
+        # mp4
+        mp4_360p  => '18',
+        mp4_720p  => '22',
+        mp4_1080p => '37',
+        mp4_3072p => '38',
+        # webm
+        webm_480p => '43',
+        webm_720p => '45',
+        # 3gp
+        '3gp_144p'=> '17',
 
-        # For backward-compatibility only.
-        '3gp' => "fmt17",
-        mp4   => "fmt18",
-        hq    => "fmt35",
-        hd    => "fmt22",
+# For backward-compatibility only.
+        mobile    => '17',
+        sd_270p   => "18",
+        sd_360p   => "34",
+        hq_480p   => "35",
+        hd_720p   => "22",
+        hd_1080p  => "37",
+        webm_480p => "43",
+        webm_720p => "45",
+        '3gp' => "17",
+        mp4   => "18",
+        hq    => "35",
+        hd    => "22",
     );
 
-    $id =~ s/$_/$h{$_}/ foreach keys %h;
+    foreach (keys %h)
+        { return $h{$_}  if $id eq $_; }
 
-    return ($id);
+    return $id;
 }
 
 1;

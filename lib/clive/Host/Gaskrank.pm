@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
-package clive::Host::Evisor;
+package clive::Host::Gaskrank;
 
 use warnings;
 use strict;
@@ -31,7 +31,7 @@ sub new {
 sub parsePage {
     my ( $self, $content, $props ) = @_;
 
-    $$props->video_host("gasgrank");
+    $$props->video_host("gaskrank");
 
     my %re = (
         id   => qr|.+/(.*?).flv|,

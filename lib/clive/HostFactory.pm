@@ -37,7 +37,7 @@ my @_hosts = (
     [ "Sevenload",   qr|sevenload.com|i,   "default" ],
     [ "Break",       qr|break.com|i,       "default" ],
     [ "Liveleak",    qr|liveleak.com|i,    "default" ],
-    [ "Gasgrank",      qr|gasgrank.tv|i,       "default" ],
+    [ "Gaskrank",      qr|gaskrank.tv|i,       "default" ],
     [ "Dailymotion", qr|dailymotion.com|i, "default|hq|hd" ],
     [ "Vimeo",       qr|vimeo.com|i,       "default|hd" ],
     [   "Spiegel", qr|spiegel.de|i, "default|vp6_928|vp6_576|vp6_64|h264_1400"

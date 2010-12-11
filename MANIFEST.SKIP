@@ -4,4 +4,7 @@
 ^\.
 .bz2
 .gz
-tlinks/
+url_collection/
+TODO
+t/support-.*.t
+t/lib/Test/clive.pm

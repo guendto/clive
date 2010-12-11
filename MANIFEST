@@ -35,22 +35,6 @@ lib/clive/Video.pm
 Makefile.PL
 MANIFEST			This list of files
 README
-t/00compiles.t
-t/01pod.t
-t/02youtube.t
-t/03break.t
-t/04liveleak.t
-t/05dailymotion.t
-t/06golem.t
-t/07cctv.t
-t/08evisor.t
-t/09google.t
-t/10sevenload.t
-t/12vimeo.t
-t/13error.t
-t/14spiegel.t
-t/15ehrensenf.t
-t/16clipfish.t
-t/17funnyhub.t
-t/19buzzhumor.t
-t/lib/Test/clive.pm
+t/eval-compile.t
+t/eval-pod.t
+t/eval-exitstatus.t

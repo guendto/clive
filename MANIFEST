@@ -20,7 +20,6 @@ lib/clive/Host/Funnyhub.pm
 lib/clive/Host/Golem.pm
 lib/clive/Host/Google.pm
 lib/clive/Host/Liveleak.pm
-lib/clive/Host/Myubo.pm
 lib/clive/Host/Sevenload.pm
 lib/clive/Host/Spiegel.pm
 lib/clive/Host/Vimeo.pm
@@ -51,7 +50,6 @@ t/14spiegel.t
 t/15ehrensenf.t
 t/16clipfish.t
 t/17funnyhub.t
-t/18myubo.t
 t/19buzzhumor.t
 t/lib/Test/clive.pm
 tlinks/break.url
@@ -65,7 +63,6 @@ tlinks/golem.url
 tlinks/gvideo.url
 tlinks/lastfm.url
 tlinks/liveleak.url
-tlinks/myubo.url
 tlinks/sload.url
 tlinks/spiegel.url
 tlinks/vimeo.url

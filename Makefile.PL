@@ -26,6 +26,8 @@ WriteMakefile(
         'version'          => 0.77
     },
     'LICENSE' => 'gpl',
+    'MAN1PODS' => {
+        'man1/clive.1.pod' => '${INST_MAN1DIR}/clive.$(MAN1EXT)' },
     dist      => {
         PREOP    =>
 '@if test -f .git/HEAD; then \

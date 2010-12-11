@@ -4,6 +4,7 @@ ChangeLog
 ChangeLog.pre-gitlog
 COPYING
 examples/config
+man1/clive.1.pod
 lib/clive/App.pm
 lib/clive/Cache.pm
 lib/clive/Compat.pm

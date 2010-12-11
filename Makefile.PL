@@ -10,7 +10,7 @@ WriteMakefile(
     'NAME' => 'clive',
     ( $[ >= 5.8 )
     ? ( AUTHOR     => 'Toni Gundogdu <legatvs at sign gmail com>',
-        'ABSTRACT' => 'command line video extraction utility'
+        'ABSTRACT' => 'command line video downloading tool'
         )
     : (),
     'VERSION_FROM' => 'lib/clive/Config.pm',
@@ -27,7 +27,13 @@ WriteMakefile(
     },
     'LICENSE' => 'gpl',
     dist      => {
-        COMPRESS => "bzip2",
-        SUFFIX   => ".bz2"
+        PREOP    =>
+'@if test -f .git/HEAD; then \
+	git log --stat --after="Tue Nov 30 14:02:38 2010" >ChangeLog; \
+fi',
+        POSTOP   =>
+'@if test -f .git/HEAD; then \
+	git checkout ChangeLog; \
+fi',
     },
 );

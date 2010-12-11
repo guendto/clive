@@ -102,20 +102,33 @@ sub init {
     $config{format} ||= 'default';
 
     # Check format.
-    my @youtube = qw(fmt17 fmt18 fmt22 fmt34 fmt35 fmt37 fmt43 fmt45);
-    my @youtube_new
-        = qw(mobile sd_270p sd_360p hq_480p hd_720p hd_1080p webm webm_480p webm_720p);
-    my @youtube_old = qw(hq 3gp);
-    my @google      = qw(mp4);
-    my @vimeo       = qw(hd);
-    my @spiegel                # vp6_388=default
-        = qw(vp6_64 vp6_576 vp6_928 h264_1400 small iphone podcast);
+
+    # Youtube: For backward compatibility only.
+    my @youtube_orig = qw (fmt17 fmt18 fmt22 fmt34 fmt35 fmt37 fmt43 fmt45);
+
+    my @youtube_old =
+        qw (mobile sd_270p sd_360p hq_480p hd_720p hd_1080p);
+
+    my @youtube_arcane = qw (mp4 hd hq 3gp);
+
+    # These are the most current ones, also listed with --hosts. Refer
+    # to clive/Host/Youtube.pm for details.
+
+    my @youtube_latest =
+        qw (flv_240p flv_360p flv_480p mp4_360p mp4_720p mp4_1080p
+        mp4_3072p webm_480p webm_720p 3gp_144p);
+
+    # Other:
+
+    my @spiegel = # vp6_388=default
+        qw(vp6_64 vp6_576 vp6_928 h264_1400 small iphone podcast);
+
     my @golem = qw(high ipod); # medium=default
 
     my @formats = (
         qw(default best),
-        @youtube, @youtube_old, @youtube_new, @google, @vimeo, @spiegel,
-        @golem
+        @youtube_orig, @youtube_old, @youtube_arcane, @youtube_latest,
+        @spiegel, @golem
     );
 
     #unless (@formats ~~ $config{format}) { # Perl 5.10.0+

@@ -27,10 +27,11 @@ use strict;
 use clive::Error qw(CLIVE_OK);
 
 my @_hosts = (
-    [   "Youtube",
-        qr|youtube.com|i,
-        "default|mobile|sd_270p|sd_360p|hq_480p|hd_720p|hd_1080p|webm_480p|webm_720p"
-    ],
+    [ "Youtube", qr|youtube.com|i,
+# Sat Dec 11 2010: webm_*, 3gp_144p support found in Youtube.pm, website
+# no longer seems to list them, however. Listing here only those formats
+# that seem to still work.
+"default|flv_240p|flv_360p|flv_480p|mp4_360p|mp4_720p|mp4_1080p|mp4_3072p"],
     [ "Youtube",     qr|last.fm|i,         "see youtube formats" ],
     [ "Google",      qr|video.google.|i,   "default|mp4" ],
     [ "Sevenload",   qr|sevenload.com|i,   "default" ],

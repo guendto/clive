@@ -4,7 +4,7 @@ clive
 clive is a command line video extraction tool for Youtube and other similar
 video websites that require Adobe Flash for viewing the content.
 
-WWW: <http://clive.googlecode.com/>
+WWW: <http://clive.sourceforge.net/>
 GIT: <git://repo.or.cz/clive.git>
 
 
@@ -16,7 +16,7 @@ You will also need:
     * quvi(1) 0.2.7+ [1]
     * A download command, e.g. wget(1) [2], curl(1) [3] -- or similar
 
-[1] <http://quvi.googlecode.com/>
+[1] <http://quvi.sourceforge.net/>
 [2] <http://www.gnu.org/software/wget/>
 [3] <http://curl.haxx.se/>
 

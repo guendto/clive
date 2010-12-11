@@ -216,25 +216,7 @@ it only one URL at a time. For example:
     * clive proceeds to the 2nd URL, quvi now exits with zero value
     * clive exits with the zero, even if the 1st URL failed
 
-=head1 MANGLED CHARACTERS
-
-Check your terminal settings for an invalid locale setting. You can get a list
-of the available locale names by running C<locale -a>. Also, make sure your
-terminal supports unicode. e.g.:
-
-    % LANG=en_US.UTF8 urxvt&
-    % clive ... # in the new opened terminal
-
-quvi (or libquvi) converts the characters to unicode if the parsed data
-contains the charset meta tag. Otherwise the characters are copied from
-the original content as they are without conversion.
-
-=head1 WEBSITE SUPPORT
-
-See L</--format> and L</EXAMPLES>. You could also run C<quvi(1)> with C<--support>
-to get a list of the websites and formats that they support.
-
-=head1 UPGRADING TO 2.3
+=head1 COMMON ISSUES
 
 =over 4
 
@@ -250,39 +232,18 @@ specify the path. See also L</FILES>.
 
 =back
 
-=head1 CONTRIBUTING
-
-=over 4
-
-=item B<Add support for a website>
-
-This is quvi(1) territory, please visit L<http://quvi.googlecode.com/>.
-
-You can also find the the READMEs and HOWTOs (on most systems) from
-$prefix/share/quvi and $prefix/share/doc/quvi directories. Or visit:
-
-    <http://repo.or.cz/w/quvi.git/tree/HEAD:/doc>
-    <http://repo.or.cz/w/quvi.git/tree/HEAD:/share/lua>
-
-=item B<Submitting patches>
-
-If you have cooked up a patch, please submit it to the tracker see L</OTHER>.
-Pull requests from git repos are also welcome.
-
-=back
-
-=head1 OTHER
-
-<http://clive.googlecode.com/>
-
-<http://sourceforge.net/projects/clive/support>
-
-<git://repo.or.cz/clive.git>
-
 =head1 SEE ALSO
 
 C<quvi(1)>  C<wget(1)>  C<curl(1)>
 
+=head1 WWW
+
+<http://clive.sourceforge.net/>
+
 =head1 AUTHOR
 
 Toni Gundogdu <legatvs at sign gmail com>.
+
+Thanks to all those who have contributed to the project
+by sending patches, reporting bugs and writing feedback.
+You know who you are.

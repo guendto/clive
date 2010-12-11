@@ -43,10 +43,8 @@ my @_hosts = (
     [   "Spiegel", qr|spiegel.de|i, "default|vp6_928|vp6_576|vp6_64|h264_1400"
     ],
     [ "Golem",     qr|golem.de|i,      "default|ipod|high" ],
-    [ "Ehrensenf", qr|ehrensenf.de|i,  "default" ],
     [ "Clipfish",  qr|clipfish.de|i,   "default" ],
     [ "Funnyhub",  qr|funnyhub.com|i,  "default" ],
-    [ "Myubo",     qr|myubo.com|i,     "default" ],
     [ "Buzzhumor", qr|buzzhumor.com|i, "default" ],
 );
 

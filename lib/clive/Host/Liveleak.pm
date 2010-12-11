@@ -34,7 +34,7 @@ sub parsePage {
     $$props->video_host("liveleak");
 
     my %re = (
-        id     => qr|token=(.*?)'|,
+        id     => qr|token=(.*?)['&]|,
         config => qr|'config','(.*?)'|,
     );
 

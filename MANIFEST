@@ -15,7 +15,7 @@ lib/clive/Exec.pm
 lib/clive/Host/Break.pm
 lib/clive/Host/Clipfish.pm
 lib/clive/Host/Dailymotion.pm
-lib/clive/Host/Evisor.pm
+lib/clive/Host/Gasgrank.pm
 lib/clive/Host/Funnyhub.pm
 lib/clive/Host/Golem.pm
 lib/clive/Host/Google.pm

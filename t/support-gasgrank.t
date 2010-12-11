@@ -13,5 +13,5 @@ else {
 use Test::clive;
 
 Test::clive::host(
-    qq|http://www.evisor.tv/tv/rennstrecken/1-runde-oschersleben-14082008--6985.htm|
+    qq|http://www.gasgrank.tv/tv/rennstrecken/1-runde-oschersleben-14082008--6985.htm|
 );

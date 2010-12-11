@@ -31,7 +31,7 @@ sub new {
 sub parsePage {
     my ( $self, $content, $props ) = @_;
 
-    $$props->video_host("evisor");
+    $$props->video_host("gasgrank");
 
     my %re = (
         id   => qr|.+/(.*?).flv|,

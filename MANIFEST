@@ -1,5 +1,6 @@
 bin/clive
 ChangeLog
+ChangeLog.pre-gitlog
 COPYING
 examples/cliverc
 Makefile.PL

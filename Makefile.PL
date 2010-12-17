@@ -8,7 +8,7 @@ WriteMakefile(
     'NAME' => 'clive',
     ( $[ >= 5.8 )
     ? ( 'AUTHOR'     => 'Toni Gundogdu <legatvs at sign gmail com>',
-        'ABSTRACT' => 'Command line video extraction tool'
+        'ABSTRACT' => 'Command line video download tool'
         )
     : (),
     'VERSION_FROM' => 'bin/clive',
@@ -20,6 +20,17 @@ WriteMakefile(
 # Minimum req.
 'version'          => 0.77, # <http://search.cpan.org/perldoc?version>
     },
-    'LICENSE' => 'gpl',
-    'MAN1PODS' => { 'man1/clive.1.pod' => '$(INST_MAN1DIR)/clive.$(MAN1EXT)' }
+    'LICENSE'  => 'gpl',
+    'MAN1PODS' =>
+        { 'man1/clive.1.pod' => '$(INST_MAN1DIR)/clive.$(MAN1EXT)' },
+    dist => {
+        PREOP =>
+'@if test -f .git/HEAD; then \
+	git log --stat --after="Tue Sep 28 02:13:39 2010" >ChangeLog; \
+fi',
+        POSTOP   =>
+'@if test -f .git/HEAD; then \
+	git checkout ChangeLog; \
+fi',
+    },
 );

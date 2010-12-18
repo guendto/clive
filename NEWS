@@ -1,4 +1,9 @@
 
+2.3.0_4 (beta 4, 2.3_gws)  Sat Dec 18 2010  Toni Gundogdu
+Changes:
+        - Generate ChangeLog from git log
+
+
 2.3.0_3 (beta 3, 2.3_gws)  Wed Dec 01 2010  legatvs
 Changes:
         - Add support for /etc/xdg/clive/clive.conf

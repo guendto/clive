@@ -23,29 +23,31 @@ package clive::Host::Vimeo;
 use warnings;
 use strict;
 
-sub new {
-    return bless( {}, shift );
-}
+use clive::Error qw(CLIVE_REGEXP);
+
+sub new { return bless ({}, shift); }
 
 sub parsePage {
     my ( $self, $content, $props ) = @_;
 
     $$props->video_host("vimeo");
 
-    my %re = ( id => qr|clip_id=(.*?)[&"]|, );
+    my $id = $1  if $$props->page_link =~ /vimeo\.com\/(\d+)/;
 
-    my $tmp;
-    if ( clive::Util::matchRegExps( \%re, \$tmp, $content ) == 0 ) {
-        my $config = "http://vimeo.com/moogaloop/load/clip:$tmp->{id}";
-
-        if ( _parseConfig( $self, $config, $tmp->{id} ) == 0 ) {
-            $$props->video_id( $tmp->{id} );
-            $$props->video_link( $self->{video_link} );
-
-            return (0);
-        }
+    unless ($1) {
+        clive::Log->instance->err (CLIVE_REGEXP, "no match: video id");
+        return (1);
     }
-    return (1);
+
+    my $config_url = "http://vimeo.com/moogaloop/load/clip:$1";
+    my $rc         = _parseConfig ($self, $config_url, $1);
+
+    unless ($rc) {
+        $$props->video_id ($id);
+        $$props->video_link ($self->{video_link});
+    }
+
+    return ($rc);
 }
 
 sub _parseConfig {

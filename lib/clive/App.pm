@@ -215,7 +215,7 @@ sub _parseLine {
     chomp $ln;
 
     $ln = "http://$ln"
-        if $ln !~ m{^http://}i;
+        if $ln !~ m{^[a-z]+://}i;
 
     # Youtube: youtube-nocookie.com -> youtube.com.
     $ln =~ s/-nocookie//;

@@ -1,4 +1,10 @@
 
+2.2.20  Mon Dec 27 2010     Toni Gundogdu
+Changes:
+        - Accept non-HTTP (input) URLs [#3]
+Bugfixes:
+        - Vimeo.pm: Fix video ID parsing [#2]
+
 
 2.2.19  Sat Dec 11 2010     Toni Gundogdu
 Changes:

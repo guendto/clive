@@ -2,7 +2,7 @@
 ###########################################################################
 # clive, command line video extraction utility.
 #
-# Copyright 2009,2010 Toni Gundogdu.
+# Copyright 2009,2010,2011 Toni Gundogdu.
 #
 # This file is part of clive.
 #
@@ -24,29 +24,23 @@ package clive::Host::Dailymotion;
 use warnings;
 use strict;
 
-use clive::Error qw(CLIVE_FORMAT CLIVE_REGEXP CLIVE_NOSUPPORT);
+use clive::Error qw(CLIVE_REGEXP CLIVE_NOSUPPORT);
 
-sub new {
-    return bless( {}, shift );
-}
-
-use constant LONG_ASS_ERRMSG =>
-    "looks like one of dailymotion's partner videos. we cannot currently
-error: download any of those videos. note that those videos are often
-error: protected by flash drm zealots, so don't ask unless you are
-error: volunteering to write a patch.";
+sub new { return bless ({}, shift); }
 
 sub parsePage {
-    my ( $self, $content, $props ) = @_;
 
-    # Can we even dl this video?
-
-    if ( $$content =~ /SWFObject\("http:/ ) {
-        clive::Log->instance->err( CLIVE_NOSUPPORT, LONG_ASS_ERRMSG );
-        return 1;
-    }
+    my ($self, $content, $props) = @_;
 
     $$props->video_host("dailymotion");
+
+    if ($$content =~ /SWFObject\("http:/) {
+
+        clive::Log->instance->err(CLIVE_NOSUPPORT,
+            "Looks like a partner video. Refusing to continue.");
+
+        return 1;
+    }
 
     # Match video ID, title.
 
@@ -55,61 +49,84 @@ sub parsePage {
         title => qr|title="(.*?)"|,
     );
 
-    my $tmp;
-    return 1
-        if clive::Util::matchRegExps( \%re, \$tmp, $content ) != 0;
+    my ($tmp, $lnk);
 
-    # Match available formats.
+    return 1  if clive::Util::matchRegExps (\%re, \$tmp, $content) != 0;
 
-    my $re = qr|%22(\w\w)URL%22%3A%22(.*?)%22|;
-    my %lst = $$content =~ /$re/gm;
+    # Some videos have only one link available.
 
-    if ( keys %lst == 0 ) {
-        clive::Log->instance->err( CLIVE_REGEXP, "no match: `$re'" );
-        return 1;
+    if ($$content =~ /"video", "(.*?)"/)
+        { $lnk = $1; }
+
+    else {
+        my $r;
+        ($r,$lnk) = parseVideoURL ($self, $content);
+        return $r  unless $r == 0;
     }
 
-    # User requested format.
-
-    my $format = clive::Config->instance->config->{format};
-    $format = "sd" if $format eq "default";    # Alias.
-
-    # Match requested format to a video link.
-
-    my $lnk;
-    foreach (qw/sd hq hd/) {
-        if ( not exists $lst{$_} ) {
-            print STDERR "warning: `$_' not found in hash, ignored.\n";
-            next;
-        }
-        if ( $format eq "best" ) {
-            $lnk = $lst{$_};
-        }
-        elsif ( $format eq $_ ) {
-            $lnk = $lst{$_};
-            last;
-        }
-    }
-
-    if ( not defined $lnk ) {
-        clive::Log->instance->err( CLIVE_REGEXP,
-            "oops. \$lnk undefined. that does not look right. terminating." );
+    if (not defined $lnk) {
+        clive::Log->instance->err (CLIVE_REGEXP, "no match: video URL");
         return 1;
     }
 
     # Cleanup video link.
 
     $lnk =~ s/%5C//g;
+
     require URI::Escape;
-    $lnk = URI::Escape::uri_unescape($lnk);
+    $lnk = URI::Escape::uri_unescape ($lnk);
 
     # Set video properties.
 
-    $$props->video_id( $tmp->{id} );
-    $$props->page_title( undef, $tmp->{title} );
-    $$props->video_link($lnk);
+    $$props->video_id   ($tmp->{id});
+    $$props->page_title (undef, $tmp->{title});
+    $$props->video_link ($lnk);
 
     return 0;
+}
+
+sub parseVideoURL {
+
+    my ($self, $content) = @_;
+    my $lnk;
+
+    # Match available formats.
+
+    my $re = qr|%22(\w\w)URL%22%3A%22(.*?)%22|;
+    my %lst = $$content =~ /$re/gm;
+
+    if (keys %lst == 0) {
+        clive::Log->instance->err(CLIVE_REGEXP, "no match: `$re'");
+        return (1, $lnk);
+    }
+
+    # User requested format.
+
+    my $format = clive::Config->instance->config->{format};
+    $format    = "sd" if $format eq "default"; # sd=default
+
+    # Match requested format to a video link.
+
+    foreach (qw/sd hq hd/) {
+
+        if (not exists $lst{$_}) {
+            print STDERR "warning: `$_' not found in hash, ignored.\n";
+            next;
+        }
+
+        if ($format eq "best")
+            { $lnk = $lst{$_}; }
+
+        elsif ($format eq $_) {
+            $lnk = $lst{$_};
+            last;
+        }
+
+    }
+
+    # parsePage will take care of checking $lnk value.
+
+    return (0, $lnk);
 }
 
 1;

@@ -35,9 +35,7 @@ use clive::Error qw(CLIVE_NET CLIVE_STOP);
 my $bp;
 
 sub init {
-    my $self = shift;
-
-    my $config = clive::Config->instance->config;
+    my ($self, $config) = (shift, clive::Config->instance->config);
 
     my $c = WWW::Curl::Easy->new;
     $c->setopt( CURLOPT_USERAGENT, $config->{agent} || "Mozilla/5.0" );
@@ -45,6 +43,9 @@ sub init {
     $c->setopt( CURLOPT_AUTOREFERER,    1 );
     $c->setopt( CURLOPT_HEADER,         1 );
     $c->setopt( CURLOPT_NOBODY,         0 );
+    # Ideally we'd set this for dailymotion only, as quvi does, but
+    # the current (2.2) code would require too many changes to do this.
+    $c->setopt( CURLOPT_COOKIE,         "family_filter=off" );
 
     $c->setopt( CURLOPT_VERBOSE, 1 )
         if $config->{debug};

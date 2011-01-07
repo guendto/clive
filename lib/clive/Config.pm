@@ -40,7 +40,7 @@ use clive::HostFactory;
 use clive::Compat;
 use clive::Error qw(CLIVE_OK CLIVE_OPTARG);
 
-use version 0.77 (); our $VERSION = version->declare ("2.2.21");
+use version 0.77 (); our $VERSION = version->declare ("2.2.22");
 
 sub init {
     my $self = shift;

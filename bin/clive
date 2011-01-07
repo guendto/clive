@@ -34,43 +34,51 @@ my %config;
 my @queue;
 my $video;
 
-exit main ();
+exit main();
 
 sub main {
-    init ();
-    return process_queue ();
+    init();
+    return process_queue();
 }
 
 sub init {
 
-    if (grep {$_ eq "--config-file"} @ARGV)
-        { argvFile (fileOption => '--config-file'); }
+    if ( grep { $_ eq "--config-file" } @ARGV ) {
+        argvFile( fileOption => '--config-file' );
+    }
 
     else {
 
-        @ARGV = (@ARGV, (
-            "@/usr/local/share/clive/cliverc",
-            "@/usr/share/clive/cliverc",
-            "@/etc/clive/config",
-            "@/etc/xdg/clive/clive.conf",
-            "@/etc/xdg/clive.conf"
-        ));
+        @ARGV = (
+            @ARGV,
+            (
+                "@/usr/local/share/clive/cliverc",
+                "@/usr/share/clive/cliverc",
+                "@/etc/clive/config",
+                "@/etc/xdg/clive/clive.conf",
+                "@/etc/xdg/clive.conf"
+            )
+        );
 
-        if ($ENV{HOME}) {
-            @ARGV = (@ARGV, (
-                '@'."$ENV{HOME}/.cliverc",
-                '@'."$ENV{HOME}/.clive/config",
-                '@'."$ENV{HOME}/.config/clive/config"
-            ));
+        if ( $ENV{HOME} ) {
+            @ARGV = (
+                @ARGV,
+                (
+                    '@' . "$ENV{HOME}/.cliverc",
+                    '@' . "$ENV{HOME}/.clive/config",
+                    '@' . "$ENV{HOME}/.config/clive/config"
+                )
+            );
         }
 
-        push @ARGV, '@'."$ENV{CLIVE_CONFIG}"  if $ENV{CLIVE_CONFIG};
+        push @ARGV, '@' . "$ENV{CLIVE_CONFIG}" if $ENV{CLIVE_CONFIG};
 
-        argvFile ();
+        argvFile();
 
     }
 
-    GetOptions (\%config,
+    GetOptions(
+        \%config,
         'help'    => \&print_help,
         'version' => \&print_version,
         'license' => \&print_license,
@@ -78,6 +86,7 @@ sub init {
         'format|f=s',
         'output_file|output-file|O=s',
         'no_download|no-download|n',
+
         # Configuration:
         'quvi=s',
         'get_with|get-with=s',
@@ -94,44 +103,44 @@ sub init {
 
     # Check --quvi.
     Carp::croak "error: specify path to quvi(1) command with --quvi"
-        unless $config{quvi};
-    check_format ();
+      unless $config{quvi};
+    check_format();
 
     # Check --get-with.
     Carp::croak "error: specify path to a download command with --get-with\n"
-        unless $config{get_with};
+      unless $config{get_with};
 
     # Check --regexp.
-    apply_regexp ();
+    apply_regexp();
 
-    add_queue ($_)  foreach @ARGV;
+    add_queue($_) foreach @ARGV;
 
-    if (scalar @queue == 0)
-        { add_queue ($_) while <STDIN>; }
+    if ( scalar @queue == 0 ) { add_queue($_) while <STDIN>; }
 
-    @queue = uniq2 (@queue); # Remove duplicate URLs.
+    @queue = uniq2(@queue);    # Remove duplicate URLs.
 
-    select STDOUT; $| = 1; # Go unbuffered.
+    select STDOUT;
+    $| = 1;                    # Go unbuffered.
 }
 
 sub add_queue {
 
-    my $ln = trim (shift);
+    my $ln = trim(shift);
     chomp $ln;
 
     return if $ln =~ /^$/;
     return if $ln =~ /^#/;
 
-    $ln = "http://$ln"  if $ln !~ m{^http://}i;
+    $ln = "http://$ln" if $ln !~ m{^http://}i;
 
     push @queue, $ln;
 }
 
-sub uniq2 { # http://is.gd/g8jQU
+sub uniq2 {    # http://is.gd/g8jQU
     my %seen = ();
-    my @r = ();
+    my @r    = ();
     foreach my $a (@_) {
-        unless ($seen{$a}) {
+        unless ( $seen{$a} ) {
             push @r, $a;
             $seen{$a} = 1;
         }
@@ -150,12 +159,12 @@ sub process_queue {
 
     foreach (@queue) {
 
-        print_checking (++$i, $n);
+        print_checking( ++$i, $n );
 
         my $q = $config{quvi};
-           $q =~ s/%u/"$_"/;
-           $q .= " -q"  if $q !~ /-q/; # Force --quiet.
-           $q .= " -f $config{format}";
+        $q =~ s/%u/"$_"/;
+        $q .= " -q" if $q !~ /-q/;     # Force --quiet.
+        $q .= " -f $config{format}";
 
         my $o = join '', qx/$q/;
 
@@ -163,15 +172,14 @@ sub process_queue {
 
         next unless $r == 0;
 
-        $video = JSON::XS::decode_json ($o);
+        $video = JSON::XS::decode_json($o);
 
-        print "done.\n"  unless $config{quiet};
+        print "done.\n" unless $config{quiet};
 
-        ($r, $fpath) = get_video ();
+        ( $r, $fpath ) = get_video();
 
-        if ($r == 0) {
-            if ($config{exec})
-                { $r = invoke_exec ($fpath); }
+        if ( $r == 0 ) {
+            if ( $config{exec} ) { $r = invoke_exec($fpath); }
         }
     }
 
@@ -180,11 +188,11 @@ sub process_queue {
 
 sub print_checking {
 
-    return  if $config{quiet};
+    return if $config{quiet};
 
-    my ($i, $n) = @_;
+    my ( $i, $n ) = @_;
 
-    print "($i of $n) "  if $n > 1;
+    print "($i of $n) " if $n > 1;
     print "Checking ...";
 }
 
@@ -192,58 +200,55 @@ sub get_video {
 
     require File::Basename;
 
-    my $fpath = get_filename ();
-    my $fname = File::Basename::basename ($fpath);
+    my $fpath = get_filename();
+    my $fname = File::Basename::basename($fpath);
 
-    if ($config{no_download})
-        { print_video ($fname); return 0; }
+    if ( $config{no_download} ) { print_video($fname); return 0; }
 
-    write_video ($fpath, $fname);
+    write_video( $fpath, $fname );
 }
 
 sub invoke_exec {
 
     my $fpath = shift;
 
-    my $e =  $config{exec};
-       $e =~ s/%f/"$fpath"/g;
+    my $e = $config{exec};
+    $e =~ s/%f/"$fpath"/g;
 
     qx/$e/;
 
     $? >> 8;
 }
 
-sub to_mb { (shift) / (1024*1024); }
+sub to_mb { (shift) / ( 1024 * 1024 ); }
 
 sub print_video {
     printf "%s  %.2fM  [%s]\n",
-        shift,
-        to_mb ($video->{link}[0]->{length_bytes}),
-        $video->{link}[0]->{content_type};
+      shift,
+      to_mb( $video->{link}[0]->{length_bytes} ),
+      $video->{link}[0]->{content_type};
 }
 
 sub write_video {
 
-    my ($fpath, $fname) = @_;
+    my ( $fpath, $fname ) = @_;
 
     my $g = $config{get_with};
-       $g =~ s/%u/"$video->{link}[0]->{url}"/g;
-       $g =~ s/%f/"$fpath"/g;
-       $g =~ s/%n/"$fname"/g;
+    $g =~ s/%u/"$video->{link}[0]->{url}"/g;
+    $g =~ s/%f/"$fpath"/g;
+    $g =~ s/%n/"$fname"/g;
 
     qx/$g/;
 
-    ($? >> 8, $fpath);
+    ( $? >> 8, $fpath );
 }
 
 sub get_filename {
 
     my $fpath;
 
-    if ($config{output_file})
-        { $fpath = $config{output_file}; }
-    else
-        { $fpath = apply_output_path (apply_filename_format ()); }
+    if ( $config{output_file} ) { $fpath = $config{output_file}; }
+    else { $fpath = apply_output_path( apply_filename_format() ); }
 
     $fpath;
 }
@@ -253,24 +258,24 @@ sub apply_output_path {
     require Cwd;
 
     # Do not touch.
-    my $cwd     = decode_utf8 (Cwd::getcwd);
-    my $fname   = shift;
+    my $cwd   = decode_utf8(Cwd::getcwd);
+    my $fname = shift;
 
     require File::Spec::Functions;
 
-    File::Spec::Functions::catfile ($cwd, $fname);
+    File::Spec::Functions::catfile( $cwd, $fname );
 }
 
 sub apply_filename_format {
 
     return $config{output_filename}
-        if $config{output_filename};
+      if $config{output_filename};
 
-    my $title = trim (apply_regexp ($video->{page_title}));
+    my $title = trim( apply_regexp( $video->{page_title} ) );
     my $fname = $config{filename_format};
 
     $fname =~ s/%s/$video->{link}[0]->{file_suffix}/g;
-    $fname =~ s/%h/$video->{host}/g  if $video->{host}; # quvi 0.2.8+
+    $fname =~ s/%h/$video->{host}/g if $video->{host};    # quvi 0.2.8+
     $fname =~ s/%i/$video->{id}/g;
     $fname =~ s/%t/$title/g;
 
@@ -287,41 +292,39 @@ sub trim {
 
 sub apply_regexp {
 
-    my ($title, $rq) = (shift, qr|^/(.*)/(.*)$|);
+    my ( $title, $rq ) = ( shift, qr|^/(.*)/(.*)$| );
 
-    if ($config{regexp} =~ /$rq/) {
+    if ( $config{regexp} =~ /$rq/ ) {
 
-        return unless $title; # Must be a syntax check.
+        return unless $title;    # Must be a syntax check.
 
-        $title = decode_utf8 ($title); # Do not touch.
+        $title = decode_utf8($title);    # Do not touch.
 
-        my ($pat, $flags, $g, $i) = ($1, $2);
+        my ( $pat, $flags, $g, $i ) = ( $1, $2 );
 
         if ($flags) {
-            $g = ($flags =~ /g/);
-            $i = ($flags =~ /i/);
+            $g = ( $flags =~ /g/ );
+            $i = ( $flags =~ /i/ );
         }
 
         $rq = $i ? qr|$pat|i : qr|$pat|;
 
-        return
-            $g
-            ? join '', $title =~ /$rq/g
-            : join '', $title =~ /$rq/;
+        return $g
+          ? join '', $title =~ /$rq/g
+          : join '', $title =~ /$rq/;
     }
 
     print STDERR
-        "invalid syntax (`$config{regexp}'), expected Perl like syntax "
-        . "`/pattern/flags', e.g. `/(\\w)/g'";
+      "invalid syntax (`$config{regexp}'), expected Perl like syntax "
+      . "`/pattern/flags', e.g. `/(\\w)/g'";
 
     exit 1;
 }
 
 sub check_format {
 
-    if ($config{format} eq "help") {
-print
-"Usage:
+    if ( $config{format} eq "help" ) {
+        print "Usage:
     --format arg            get format arg
     --format list           list websites and supported formats
     --format list arg       match arg to websites, list formats for matches
@@ -333,28 +336,29 @@ Examples:
         exit 0;
     }
 
-    elsif ($config{format} eq "list") {
+    elsif ( $config{format} eq "list" ) {
 
-        my $q = (split /\s+/, $config{quvi})[0]; # Improve this.
+        my $q = ( split /\s+/, $config{quvi} )[0];    # Improve this.
 
         my %h;
         foreach (qx/$q --support/) {
-            my ($k,$v) = split /\s+/, $_;
+            my ( $k, $v ) = split /\s+/, $_;
             $h{$k} = $v;
         }
 
         # -f list <pattern>
-        if (scalar @ARGV > 0) {
+        if ( scalar @ARGV > 0 ) {
 
-            foreach (sort keys %h)
-                { print "$_:\n  $h{$_}\n"  if $_ =~ /$ARGV[0]/; }
+            foreach ( sort keys %h ) {
+                print "$_:\n  $h{$_}\n" if $_ =~ /$ARGV[0]/;
+            }
 
             exit 0;
         }
 
         # -f list
         else {
-            print "$_:\n  $h{$_}\n\n"  foreach sort keys %h;
+            print "$_:\n  $h{$_}\n\n" foreach sort keys %h;
             exit 0;
         }
     }
@@ -362,18 +366,16 @@ Examples:
 
 sub print_help {
     require Pod::Usage;
-    Pod::Usage::pod2usage (-exitstatus=>0, -verbose=>1);
+    Pod::Usage::pod2usage( -exitstatus => 0, -verbose => 1 );
 }
 
 sub print_version {
-    printf "clive $VERSION with Perl %s on %s\n",
-        (sprintf "%vd", $^V), $^O;
+    printf "clive $VERSION with Perl %s on %s\n", ( sprintf "%vd", $^V ), $^O;
     exit 0;
 }
 
 sub print_license {
-print
-"# Copyright (C) 2010 Toni Gundogdu.
+    print "# Copyright (C) 2010 Toni Gundogdu.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

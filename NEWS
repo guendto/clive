@@ -1,4 +1,9 @@
 
+2.2.21  Fri Jan 07 2011     Toni Gundogdu
+Bugfixes:
+        - Dailymotion.pm: Access blocked by "family filter" (#4)
+
+
 2.2.20  Mon Dec 27 2010     Toni Gundogdu
 Changes:
         - Accept non-HTTP (input) URLs [#3]

@@ -4,3 +4,7 @@
 ^\.
 .gz
 TODO
+~$
+^patches/
+.patch
+.bak$

@@ -3,6 +3,7 @@ ChangeLog
 ChangeLog.pre-gitlog
 COPYING
 examples/cliverc
+examples/git/hooks/pre-commit
 Makefile.PL
 man1/clive.1.pod
 MANIFEST			This list of files

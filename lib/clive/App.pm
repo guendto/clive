@@ -217,11 +217,12 @@ sub _parseLine {
     $ln = "http://$ln"
         if $ln !~ m{^[a-z]+://}i;
 
-    # Youtube: youtube-nocookie.com -> youtube.com.
-    $ln =~ s/-nocookie//;
+    # Youtube.
+    $ln =~ s!youtu.be/!youtube.com/watch?v=!i;  # youtu.be
+    $ln =~ s/-nocookie//;      # -nocookie
+    $ln =~ s!/v/!/watch?v=!i;  # Embedded
 
     # Translate host specific embedded link to video page link.
-    $ln =~ s!/v/!/watch?v=!i;  # youtube
     $ln =~ s!googleplayer.swf!videoplay!i;    # googlevideo
     $ln =~ s!/pl/!/videos/!i;  # sevenload
     $ln =~ s!/e/!/view?i=!i;   # liveleak

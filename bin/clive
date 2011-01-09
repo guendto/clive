@@ -107,7 +107,8 @@ sub init {
     check_format();
 
     # Check --get-with.
-    Carp::croak "error: specify path to a download command with --get-with\n"
+    Carp::croak
+      "error: specify path to a download command with --get-with\n"
       unless $config{get_with};
 
     # Check --regexp.
@@ -370,7 +371,8 @@ sub print_help {
 }
 
 sub print_version {
-    printf "clive $VERSION with Perl %s on %s\n", ( sprintf "%vd", $^V ), $^O;
+    printf "clive $VERSION with Perl %s on %s\n",
+      ( sprintf "%vd", $^V ), $^O;
     exit 0;
 }
 

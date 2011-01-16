@@ -1,4 +1,9 @@
 
+2.2.22  Sun Jan 16 2011     Toni Gundogdu
+Changes:
+        - Accept youtu.be URLs (#8)
+
+
 2.2.21  Fri Jan 07 2011     Toni Gundogdu
 Bugfixes:
         - Dailymotion.pm: Access blocked by "family filter" (#4)

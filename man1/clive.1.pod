@@ -7,6 +7,10 @@ clive - command line video extraction tool
 clive is a command line video extraction tool for Youtube and other similar
 video websites that require Adobe Flash for viewing the content.
 
+As of clive 2.3+ uses C<quvi(1)> for parsing the video details and the
+user-defined command to download the video. See L</--quvi>,
+L</--get-with> and L</FILES> for more about these.
+
 =head1 OPTIONS
 
 =over 4
@@ -124,9 +128,9 @@ file. See L</FILES> for an example config file.
 
 Typical use.
 
-=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -f webm_480p>
+=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -f mp4_360p>
 
-Same but get the webm_480p format of the video.
+Same but get the mp4_360p format of the video.
 
 =item B<clive -f help>
 

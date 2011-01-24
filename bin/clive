@@ -330,7 +330,7 @@ sub check_format {
     --format list           list websites and supported formats
     --format list arg       match arg to websites, list formats for matches
 Examples:
-    --format webm_480p      get format webm_480p (youtube)
+    --format mp4_360p       get format mp4_360p (youtube)
     --format list youtube   list youtube formats
     --format list dailym    list dailym(otion) formats
 ";

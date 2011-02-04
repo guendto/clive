@@ -1,15 +1,36 @@
 =head1 NAME
 
-clive - command line video extraction tool
+clive - (c)ommand (li)ne (v)ideo (e)xtration tool
 
 =head1 DESCRIPTION
 
 clive is a command line video extraction tool for Youtube and other similar
-video websites that require Adobe Flash for viewing the content.
+video websites that require Adobe Flash for viewing the videos.
 
-As of clive 2.3+ uses C<quvi(1)> for parsing the video details and the
-user-defined command to download the video. See L</--quvi>,
-L</--get-with> and L</FILES> for more about these.
+=head1 HISTORY
+
+In 2006 clive was a little more than a simple shell script that could be
+used to extract flash videos from Youtube for viewing them with an
+external player software. The primary motivation for writing clive was
+to work around the flash player plugin which, at the time, was less
+than a pleasant experience on Linux.
+
+clive was rewritten in Python and released to the public in the
+early 2007. It was rewritten again in the late 2008, this time in
+Perl.
+
+The development work of 2.3 started in the late 2010 as "gws" or
+"glorified wrapper script". The 2.3 was an attempt to make better
+use of the already existing tools, such as C<quvi(1)>.
+
+=head1 GETTING STARTED
+
+See L</FILES> for an example configuration file. You should consider
+setting at least L</--quvi> and L</--get-with> in your configuration
+file for seamless use.
+
+The sections L</TROUBLESHOOTING> and L</EXAMPLES> contain invaluable
+information about using clive.
 
 =head1 OPTIONS
 
@@ -52,26 +73,28 @@ Path to a file to read clive arguments from. See also L</FILES>.
 
 =head1 OPTIONS - CONFIGURATION
 
-You can specify I<any> of the the command line options in the configuration
-file. These options are under C<Configuration> for superficial reasons
-(C<--help> output) only.
+In addition to the command line, the options may also be read from the
+configuration file. See L</FILES>.
 
 =over 4
 
 =item B<--quvi> I<arg>
 
-Path to C<quvi(1)> command with any additional arguments. clive invokes this
-command to parse the video details (e.g. download URL). The following
-specifiers are supported:
+I<arg> to be invoked to start the C<quvi(1)> command which clive uses to
+parse the video details. This is typically a full path to C<quvi(1)> with
+any additional options.
 
-    %u  Video URL
+The following specifiers can be used in the I<arg>:
 
-Note that I<all> occurences of the specifier will be replaced. clive also
-appends C<--quiet> to I<arg> if it's not found.
+    %u .. Video URL
 
-If you use an HTTP proxy with C<quvi(1)>, you should do the same with
-C<--get-with>, especially the proxy masks your IP. Some websites refuse
-to work with requests for unique URLs coming from different IPs.
+I<All> occurences of the specifier will be replaced. clive will
+automatically append C<--quiet> to I<arg>.
+
+NOTE: If you use an HTTP proxy with C<quvi(1)>, you should do the same with
+C<--get-with> -- especially if the proxy masks your IP. Some websites may
+refuse connections originating from different IPs to (unique, generated)
+video download URLs.
 
 =item B<--get-with> I<arg>
 
@@ -117,6 +140,61 @@ Note that I<all> occurences of the specifier will be replaced.
 
 =back
 
+=head1 TROUBLESHOOTING
+
+=over 4
+
+=item B<error: specify path to quvi(1) command with --quvi>
+
+clive uses C<quvi(1)> to parse the video details. Use the C<--quvi> to specify
+the path. See also L</FILES>.
+
+=item B<error: specify path to a download command with --get-with>
+
+clive uses a 3rd party command to download the videos. Use the C<--get-with> to
+specify the path to such command. See also L</FILES>.
+
+=back
+
+=head1 FILES
+
+=over 4
+
+=item B<~/.cliverc>
+
+Additional search paths:
+
+    ~/.clive/config
+    ~/.config/clive/config
+
+For a system-wide configuration:
+
+    /usr/local/share/clive/config
+    /usr/share/clive/config
+    /etc/clive/config
+    /etc/xdg/clive/clive.conf
+    /etc/xdg/clive.conf
+
+You can also set CLIVE_CONFIG, e.g.:
+
+    env CLIVE_CONFIG=/path/to/config/file clive
+
+Or use C<--config-file>, e.g.:
+
+    clive --config-file /path/to/config/file
+
+A typical configuration file could look like:
+
+    --quvi "/usr/bin/quvi %u"
+    --get-with "/usr/bin/curl -L -C - -o %f %u"
+    --filename-format "%t_%i.%s"
+    --exec "/usr/bin/vlc %f"
+
+If you are unsure, consider setting at least the C<--quvi> and
+C<--get-with> in your configuration file.
+
+=back
+
 =head1 EXAMPLES
 
 These examples assume you have set C<--quvi> and C<--get-with> in the config
@@ -155,51 +233,19 @@ Do not download the video. Print the video details only.
 
 =item B<echo "http://www.youtube.com/watch?v=DUM1284TqFc" | clive>
 
-Yet another way to feed clive with an URL. Or feed several on one go:
+A fancy way to feed clive an URL.
 
-  % cat >> urls.lst
+clive can handle multiple URLs in one go. One way to do this, is to
+specify each on the command line as arguments. An alternative source
+could be a file. For example:
+
+  cat >> urls.lst
   http://www.youtube.com/watch?v=DUM1284TqFc
   http://www.youtube.com/watch?v=TqgTz8ymZl8
-  (ctrl+d)
-  % clive < urls.lst
+  (CTRL+D)
+  clive < urls.lst
 
-=back
-
-=head1 FILES
-
-=over 4
-
-=item B<~/.cliverc>
-
-Additional search paths:
-
-    ~/.clive/config
-    ~/.config/clive/config
-
-For a system-wide configuration:
-
-    /usr/local/share/clive/config
-    /usr/share/clive/config
-    /etc/clive/config
-    /etc/xdg/clive/clive.conf
-    /etc/xdg/clive.conf
-
-You can also set CLIVE_CONFIG, e.g.:
-
-    env CLIVE_CONFIG=/path/to/config/file clive
-
-Or use C<--config-file>, e.g.:
-
-    clive --config-file /path/to/config/file
-
-A typical configuration file could look like:
-
-    --quvi "/usr/bin/quvi %u"
-    --get-with "/usr/bin/curl -L -C - -o %f %u"
-    --filename-format "%t_%i.%s"
-    --exec "/usr/bin/vlc %f"
-
-You should consider setting at least the C<--quvi> and C<--get-with>.
+Make a note that each URL must be separated with a newline character.
 
 =back
 
@@ -220,22 +266,6 @@ it only one URL at a time. For example:
     * clive proceeds to the 2nd URL, quvi now exits with zero value
     * clive exits with the zero, even if the 1st URL failed
 
-=head1 COMMON ISSUES
-
-=over 4
-
-=item B<error: specify path to quvi(1) command with --quvi>
-
-clive uses C<quvi(1)> to parse the video details. Use the C<--quvi> to specify
-the path. See also L</FILES>.
-
-=item B<error: specify path to a download command with --get-with>
-
-clive uses a 3rd party command to download the videos. Use the C<--get-with> to
-specify the path. See also L</FILES>.
-
-=back
-
 =head1 SEE ALSO
 
 C<quvi(1)>  C<wget(1)>  C<curl(1)>
@@ -244,10 +274,11 @@ C<quvi(1)>  C<wget(1)>  C<curl(1)>
 
 <http://clive.sourceforge.net/>
 
+<http://quvi.sourceforge.net/>
+
 =head1 AUTHOR
 
 Toni Gundogdu <legatvs at sign gmail com>.
 
-Thanks to all those who have contributed to the project
-by sending patches, reporting bugs and writing feedback.
-You know who you are.
+Thanks to all those who have contributed to the project by sending
+patches, reporting bugs and writing feedback. You know who you are.

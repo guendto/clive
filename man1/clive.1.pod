@@ -1,550 +1,284 @@
-
 =head1 NAME
 
-clive - command line video extraction utility
-
-=head1 SYNOPSIS
-
-clive [options]... [URL]...
+clive - (c)ommand (li)ne (v)ideo (e)xtration tool
 
 =head1 DESCRIPTION
 
-clive is a command line video extraction utility for Youtube and other similar
-video-sharing websites. It was written to work around the Adobe Flash plugin
-requirement as the technology is poorly supported on Unix-like systems.
+clive is a command line video extraction tool for Youtube and other similar
+video websites that require Adobe Flash for viewing the videos.
 
-clive is not an universal video extraction utility. In fact, it supports only
-a number of video websites. Each website typically exposes access to the video
-content in a very different way, meaning that clive has to be customized for
-each website in order to download any videos from them.
+=head1 HISTORY
 
-=head1 OPTION SYNTAX
+In 2006 clive was a little more than a simple shell script that could be
+used to extract flash videos from Youtube for viewing them with an
+external player software. The primary motivation for writing clive was
+to work around the flash player plugin which, at the time, was less
+than a pleasant experience on Linux.
 
-You may freely mix different option styles and specify options after
-the command line arguments, e.g.:
-  % clive -c URL --format=best
+clive was rewritten in Python and released to the public in the
+early 2007. It was rewritten again in the late 2008, this time in
+Perl.
 
-You may also put several options together that do not require arguments:
-  % clive -cnrf best URL
+The development work of 2.3 started in the late 2010 as "gws" or
+"glorified wrapper script". The 2.3 was an attempt to make better
+use of the already existing tools, such as C<quvi(1)>.
 
-Note that the "dashed" options have aliases. For example:
-  % clive --no-extract --no_extract --noextract
-  % clive --cache-read --cache_read --cacheread
+=head1 GETTING STARTED
+
+See L</FILES> for an example configuration file. You should consider
+setting at least L</--quvi> and L</--get-with> in your configuration
+file for seamless use.
+
+The sections L</TROUBLESHOOTING> and L</EXAMPLES> contain invaluable
+information about using clive.
 
 =head1 OPTIONS
 
 =over 4
 
-=item B<-h, --help>
+=item B<--help>
 
 Print help and exit.
 
-=item B<-v, --version>
+=item B<--version>
 
 Print version and exit.
 
-=item B<--hosts>
+=item B<--license>
 
-Print supported hosts with available formats and exit.
+Print license and exit.
 
-=item B<--upgrade-config>
+=item B<--quiet>
 
-Upgrade clive 2.0/2.1 config to current 2.2+ format and exit.
+Turn off all I<clive> output excluding errors. Note that this switch has no
+effect on any of the third party commands that clive invokes.
 
-=item B<-l, --last>
+=item B<-f, --format> I<arg>
 
-Re-feed the previously fed video page links from the last run time.
+Download I<arg> format of the video. I<arg> can also be C<help>.
 
-=item B<--last-file>=I<path>
+=item B<-O, --output-file> I<arg>
 
-Use I<path> instead of the default path. See also L</FILES>.
+Write video to I<arg>.
 
-=back
+=item B<-n, --no-download>
 
-B<Output options>
+Do not download the video, display video details only.
 
-=over 4
+=item B<--config-file> I<arg>
 
-=item B<--emit-csv>
-
-Print (or emit) video details in CSV format to standard output.
-Implies --no-extract.
-
-=item B<--print-fname>
-
-Print filename on a separate line before download starts.
-
-=item B<--debug>
-
-Print cURL debug (or verbose) messages to standard error.
-
-=item B<-q, --quiet>
-
-Turn off all output to standard output and error.
-
-=item B<--stderr>
-
-Direct all output to standard error.
+Path to a file to read clive arguments from. See also L</FILES>.
 
 =back
 
-B<HTTP Options>
+=head1 OPTIONS - CONFIGURATION
+
+In addition to the command line, the options may also be read from the
+configuration file. See L</FILES>.
 
 =over 4
 
-=item B<--agent>=I<string>
+=item B<--quvi> I<arg>
 
-Identify clive as I<string> to HTTP servers. Defaults to "Mozilla/5.0".
+I<arg> to be invoked to start the C<quvi(1)> command which clive uses to
+parse the video details. This is typically a full path to C<quvi(1)> with
+any additional options.
 
-=item B<--connect-timeout>=I<seconds>
+The following specifiers can be used in the I<arg>:
 
-Maximum time in I<seconds> allowed for connection to take. Defaults to 30.
+    %u .. Video URL
 
-=item B<--connect-timeout-socks>=I<seconds>
+I<All> occurences of the specifier will be replaced. clive will
+automatically append C<--quiet> to I<arg>.
 
-Same as above but tries to workaround the SOCKS proxy bug in cURL.
-Defaults to 30.
+NOTE: If you use an HTTP proxy with C<quvi(1)>, you should do the same with
+C<--get-with> -- especially if the proxy masks your IP. Some websites may
+refuse connections originating from different IPs to (unique, generated)
+video download URLs.
 
-=item B<--proxy>=I<address>
+=item B<--get-with> I<arg>
 
-Use I<address> for HTTP proxy. Example: "http://foo:1234".
+Path to a download command (e.g. C<wget(1)> or C<curl(1)>) with any additional
+arguments. clive invokes this command to download the video. The following
+specifiers are supported:
 
-=item B<--no-proxy>
+    %u  Video download URL
+    %f  Full path to video file
+    %n  Video file name
 
-Disable all use of HTTP proxy, even if http_proxy environment variable is set.
+Note that I<all> occurences of the specifier will be replaced. See also the
+note above about using an HTTP proxy with C<--quvi>.
 
-=item B<--cookie-jar>=I<file>
+=item B<--filename-format> I<arg>
 
-Enable cookies, which are otherwise rejected by default, and have libcurl
-to write them to I<file>. Specify "-" to instead to have the cookies written
-to stdout.
+Use I<arg> to specify the video output filename format. The default is "%t.%s".
+The following specifiers are supported:
+
+    %t  Video title (after applying --regexp)
+    %i  Video ID
+    %h  Video host ID (req. quvi 0.2.8+)
+    %s  Video file suffix (parsed from server returned content-type)
+
+Note that I<all> occurences of the specifier will be replaced.
+
+=item B<--regexp> I<arg>
+
+Use regular expression I<arg> to clean up the video title before
+it is used in the output filename. The default is "/(\w|\s)/g".
+
+Note that the syntax supports both "i" (case-insensitive) and "g"
+(global or find all).
+
+=item B<--exec> I<arg>
+
+Invoke I<arg> after video download finishes. The following specifiers
+are supported:
+
+    %f  Full path to the downloaded video file
+
+Note that I<all> occurences of the specifier will be replaced.
 
 =back
 
-B<Cache Options>
+=head1 TROUBLESHOOTING
 
 =over 4
 
-=item B<--cache-file>=I<path>
+=item B<error: specify path to quvi(1) command with --quvi>
 
-Use I<path> instead of the default path. See L</FILES>.
+clive uses C<quvi(1)> to parse the video details. Use the C<--quvi> to specify
+the path. See also L</FILES>.
 
-=item B<-r, --cache-read>
+=item B<error: specify path to a download command with --get-with>
 
-Read video details from cache record if it exists. Allows clive to
-skip video page fetching and parsing again. See L</CACHE> section for more
-on this.
-
-=item B<-d, --cache-dump>
-
-Dump cache records to standard output.
-
-=item B<--cache-dump-format>=I<format-string>
-
-Used to format the output of the above. Defaults to "%n: %t [%f, %mMB]".
-
-Example:
-  % clive --cache-dump --cache-dump-format="%d: %t"
-
-Supported format specifiers:
-  %t .. video page title
-  %i .. video id
-  %h .. video host
-  %l .. video file length (bytes)
-  %m .. video file length (MB)
-  %d .. date (last update)
-  %T .. time (last update)
-  %s .. time stamp (same as "%d %T")
-  %f .. video file format
-  %n .. index
-
-=item B<--cache-grep>=I<pattern>
-
-Grep stored cache records for I<pattern>. See also L</EXAMPLES - ADVANCED USE>.
-
-=item B<-i, --cache-ignore-case>
-
-Ignore case-differences while matching records.
-
-=item B<-D, --cache-remove-record>
-
-Remove matched records from cache.
-
-=item B<--cache-clear>
-
-Truncate cache records.
-
-=item B<--no-cache>
-
-Disable all (read and write) cache use.
-
-=back
-
-B<Download Options>
-
-=over 4
-
-=item B<-f, --format>=I<format>
-
-Download the I<format> of the video. If I<format> is set to I<best>, clive
-will attempt to download the best quality of the video.
-
-If this option is not used (or is used with "default"), clive will
-attempt to download whatever is assumed to be the default format
-for the website.
-
-Note also that each I<format> is specific to a website. See
-L</FORMATS> for more.
-
-=item B<-n, --no-extract>
-
-Do not extract the video. In other words: simulate only to the point
-that clive verifies the video link after fetching and parsing the
-video page.
-
-=item B<-O, --output-file>=I<file>
-
-Write video to I<file>. Overwrites an already existing file.
-
-Do not use this option when you are downloading more than one video
- on one go.
-
-See also the note below.
-
-=item B<-c, --continue>
-
-Continue partially downloaded video file.
-
-Note that, by default, clive appends a numeric suffix to the filename
-if the file exists already. That is unless:
-
-  * file is already completely retrieved, or:
-  * -c or -O is used
-
-=item B<--save-dir>=I<dir>
-
-Save extracted videos to I<dir>. clive defaults to the current working
-directory.
-
-=item B<--cclass>=I<class>
-
-Use character-I<class> to filter video page titles. Defaults to "\w".
-This is a Perl regular expression character class. For example:
-"[A-Za-z0-9]".
-
-=item B<-C, --no-cclass>
-
-Disables the use of B<--cclass>. Causes clive to use the video page
-title as it is for output filename.
-
-=item B<--filename-format>=I<format-string>
-
-Use I<format-string> to format output video filenames. Default is "%t.%s".
-
-Supported format specifiers:
-  %t .. video page title (after applying character-class filter)
-  %s .. video file suffix (e.g. "flv")
-  %i .. video id
-  %h .. video host
-
-=item B<--exec>=I<command>;
-
-Defines the I<command> to run when video file transfer completes.
-Note that B<--exec-run> must be used to actually cause clive
-to invoke the defined I<command>.
-
-Optional arguments may be passed to the command. The expression must be
-terminated by a semicolon (";"). If the specifier "%i" appears anywhere
-in the I<command>, it is replaced by the pathname of the extracted
-video file.
-
-=item B<--exec>=I<command>+
-
-Same as above but "%i" is replaced with as many path names as
-possible for the invocation of I<command>.
-
-=item B<-e, --exec-run>
-
-Causes clive to invoke the command defined with B<--exec> when
-transfer finishes.
-
-=item B<--stream-exec>=I<command>
-
-Define the command to be invoked with B<--stream> and B<--stream-pass>.
-If a "%i" specifier is used in the I<command>, it will be replaced with
-either video file path name (B<--stream>) or parsed video link
-(B<--stream-pass>).
-
-=item B<--stream>=I<percent>
-
-Causes clive to fetch, parse, start download and eventually invoke
-the command defined with B<--stream-exec> when the transfer reaches
-the percentage defined with this option. See also L</EXAMPLES>.
-
-Note that clive does nothing to check if there is enough data buffered
-before invoking the B<--stream-exec> defined I<command>. If the transfer
-rate drops significantly after starting the process and it runs out of data,
-clive does nothing to fix this.
-
-Also note that clive will not continue to download another file before the
-child process exits.
-
-This mode is supported for historical reasons. Consider using
-B<--stream-pass> instead.
-
-=item B<-s, --stream-pass>
-
-Otherwise the same as above but B<instead of> starting the download,
-clive passes the parsed video link to the command defined with
-B<--stream-exec>. See also L</EXAMPLES>.
-
-This option was inspired by a C<clive(1)> wrapper script contributed
-by Bill Squire.
-
-=item B<--limit-rate>=I<amount>
-
-Limit transfer rate to I<amount> KB/s.
-
-=item B<--stop-after>=I<size|percent>
-
-Stop file transfer after I<size> or I<percent>. The value must
-be terminated by either '%' or 'M'.
-
-=back
-
-=head1 EXAMPLES - BASIC USE
-
-=over 4
-
-=item clive "http://youtube.com/watch?v=3HD220e0bx4"
-
-Extracts video (flv) from the above video page link. You
-can then play the flv video file in a media player.
-
-=item cat E<gt> url.lst
-
-  http://en.sevenload.com/videos/IUL3gda-Funny-Football-Clips
-  http://youtube.com/watch?v=3HD220e0bx4
-  http://break.com/index/beach-tackle-whip-lash.html
-  http://www.liveleak.com/view?i=704_1228511265
-
-=item cat url.lst | clive
-
-You can feed clive multiple video page links like this
-or as command line arguments.
-
-=item clive URL1 URL2 URL3 URL4
-
-When you are using the pipes, be sure to separate each link with a newline.
-
-=item xclip -o | clive
-
-There are many X clipboard utilities. The above example uses C<xclip(1)>
-and a pipe to paste (or feed) the contents to clive.
-
-=item clive -l
-
-Recall last video page link input. Regardless the way they were fed
-to clive.
-
-=back
-
-=head1 EXAMPLES - ADVANCED USE
-
-=over 4
-
-=item clive -f best "http://youtube.com/watch?v=3HD220e0bx4"
-
-Extract the best format of the video.
-
-=item clive -r -f best "http://youtube.com/watch?v=3HD220e0bx4"
-
-Same as above but read the cache record without fetching and
-parsing the video page again.
-
-=item clive --cache-dump
-
-Dump all cache records to stdout. You can use --cache-dump-format
-to format the output.
-
-=item clive -ig "hd"
-
-Grep for "hd" pattern in cache records. If pattern matches, clive
-continues to extract the matched videos. Note the use of "-i"
-(--cache-ignore-case).
-
-=item clive -ig "hd" -D
-
-Same as above but removes the record from cache instead of extracting
-the video.
-
-=item clive --exec="ffmpeg -i %i -acodec libvorbis %i.ogg;" -e URL
-
-Copy audio from downloaded video to ogg with C<ffmpeg(1)>.
-
-=item clive --stream-exec="mplayer -really-quiet %i" --stream=25 URL
-
-Start playing the video being extracted when the transfer reaches
-25% complete.
-
-=item echo '--stream-exec="mplayer -really-quiet %i"' >> ~/.cliverc
-
-=item clive -s URL
-
-Alternative to Adobe Flash. C<vlc(1)> and C<totem(1)> have been reported
-to work also.
-
-=back
-
-=head1 FORMATS
-
-Run the program with C<--hosts> to view the supported websites and
-format IDs to be used with C<--format>.
-
-=over 4
-
-=item B<youtube.com>
-
-For historical reasons, you can still use the following format IDs
-with Youtube:
-  mp4, hd, hq, 3gp
-
-Note however that the above IDs are considered deprecated and will be
-removed in the future versions. Run clive with C<--hosts> to get a list
-of the current IDs.
+clive uses a 3rd party command to download the videos. Use the C<--get-with> to
+specify the path to such command. See also L</FILES>.
 
 =back
 
 =head1 FILES
 
-Should HOME environment variable be undefined for some reason, clive will
-use the current working directory instead.
-
 =over 4
 
-=item $HOME/.cliverc, $HOME/.clive/config, $HOME/.config/clive/config
+=item B<~/.cliverc>
 
-User configuration file. For example:
-  % cat >> ~/.cliverc
-  -f best
-  --proxy=http://foo:1234
+Additional search paths:
 
-=item $HOME/.cache/clive/last
+    ~/.clive/config
+    ~/.config/clive/config
 
-File containing the last user input (video page links).
+For a system-wide configuration:
 
-You can use --last-file to override the path, e.g.:
-  --last-file=/path/to/last/file.
+    /usr/local/share/clive/config
+    /usr/share/clive/config
+    /etc/clive/config
+    /etc/xdg/clive/clive.conf
+    /etc/xdg/clive.conf
 
-You can also define this option in the config file.
+You can also set CLIVE_CONFIG, e.g.:
 
-See also CLIVE_CACHE notes below.
+    env CLIVE_CONFIG=/path/to/config/file clive
 
-=item $HOME/.cache/clive/cache
+Or use C<--config-file>, e.g.:
 
-BerkeleyDB based cache file containing the records of fetched
-and parsed video pages.
+    clive --config-file /path/to/config/file
 
-You can use --cache-file to override the path., e.g.:
-  --cache-file=/path/to/cache/file.
+A typical configuration file could look like:
 
-You can also define this option in the config file.
+    --quvi "/usr/bin/quvi %u"
+    --get-with "/usr/bin/curl -L -C - -o %f %u"
+    --filename-format "%t_%i.%s"
+    --exec "/usr/bin/vlc %f"
 
-See also CLIVE_CACHE notes below.
-
-=item Notes: CLIVE_CACHE
-
-clive defaults to use $HOME/.cache/clive/ for "last" and
-"cache" files described above.
-
-The use of the default path can be overridden by
-CLIVE_CACHE environment variable. Note that clive
-will attempt to create the specified path recursively.
-
-Examples:
-  setenv CLIVE_CACHE /home/user/cachedata (in csh terms)
-  clive # will read/write /home/user/cachedata/(last|cache)
-
-  unsetenv CLIVE_CACHE
-  clive # read/write $HOME/clive/(last|cache)
-
-  clive --last-file=mylast --cache-file=cachedata/mycache
-    # read/write "mylast" file, read/write cachedata/mycache file
+If you are unsure, consider setting at least the C<--quvi> and
+C<--get-with> in your configuration file.
 
 =back
 
-=head1 CACHE
+=head1 EXAMPLES
 
-The purpose of the cache is to allow clive to skip fetching
-and parsing the video page again. It does not contain any
-actual video data so one should not expect to recover a deleted
-video file from the cache. Only some of the parsed details
-are stored as records to the cache.
+These examples assume you have set C<--quvi> and C<--get-with> in the config
+file. See L</FILES> for an example config file.
 
-By now, it is should be a well known fact that the cache fails
-with some of the supported hosts. For example Youtube video links
-expire after some time, this causes the re-extraction to fail if
-the cached video link is used later again.
+=over 4
 
-This was the main reason why in 2.2.0 reading from cache was
-disabled by default. Many users reported the reuse of expired
-video links as a bug previously even though it was well documented
-in the manual page explaining that most of the HTTP 403/404 errors
-were actually caused by expired video links.
+=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc">
 
-It is, of course, still possible to read from cache. You can
-enable this by invoking the --cache-read option. This causes
-clive to look up a saved cache record and reuse the stored
-video details if they are found instead of fetching the video
-page.
+Typical use.
 
-The use of the cache can be disabled with the --no-cache option.
-This disables both read and write. Note that if the BerkeleyDB Perl
-module is not installed, clive will not use the cache.
+=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -f mp4_360p>
 
-See also the --cache-grep option.
+Same but get the mp4_360p format of the video.
 
-=head1 DEBUGGING
+=item B<clive -f help>
 
-Amp up libcurl verbosity:
+Help on how you can use the C<--format> option.
 
-  % clive --debug URL
+=item B<clive -f list>
 
-Parse only, do not download the video:
+Lists all C<quvi(1)> supported websites with formats.
 
-  % clive -n URL
+=item B<clive -f list dailymotion>
+
+Lists dailymotion formats. The pattern is matched to C<quvi(1)>
+returned website domain strings. For example:
+
+=item B<clive -f list dailym>
+
+Would yield the same results.
+
+=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -n>
+
+Do not download the video. Print the video details only.
+
+=item B<echo "http://www.youtube.com/watch?v=DUM1284TqFc" | clive>
+
+A fancy way to feed clive an URL.
+
+clive can handle multiple URLs in one go. One way to do this, is to
+specify each on the command line as arguments. An alternative source
+could be a file. For example:
+
+  cat >> urls.lst
+  http://www.youtube.com/watch?v=DUM1284TqFc
+  http://www.youtube.com/watch?v=TqgTz8ymZl8
+  (CTRL+D)
+  clive < urls.lst
+
+Make a note that each URL must be separated with a newline character.
+
+=back
 
 =head1 EXIT STATUS
 
-clive exits 0 on success, and E<gt>0 if an error occurs.
+clive exits with 0 on success, otherwise the code is E<gt>0. Strictly clive
+exit statuses are 0 or 1. For example, if command line parsing fails, the exit
+status is 1.
 
- CLIVE_OK          = 0
- CLIVE_NOTHINGTODO = 1    # file already retrieved
- CLIVE_NOSUPPORT   = 2    # host not supported
- CLIVE_READ        = 3    # file open/read error
- CLIVE_GREP        = 4    # grep: nothing matched in cache
- CLIVE_OPTARG      = 5    # invalid option argument
- CLIVE_SYSTEM      = 6    # system call failed (e.g. fork)
- CLIVE_REGEXP      = 7    # regexp pattern matching failed
- CLIVE_FORMAT      = 8    # requested format unavailable
- CLIVE_NET         = 9    # network error
- CLIVE_STOP        = 10   # --stop-after
- CLIVE_MARKEDBROKEN = 11  # support marked broken
+When an error occurs in another command invoked by clive, e.g. C<quvi(1)>,
+clive exits with the exit status returned by the command.
+
+If you are planning to use clive for anything more peculiar, you should feed
+it only one URL at a time. For example:
+
+    * You feed clive two URLs
+    * The 1st one fails, quvi exits with a non-zero value
+    * clive proceeds to the 2nd URL, quvi now exits with zero value
+    * clive exits with the zero, even if the 1st URL failed
+
+=head1 SEE ALSO
+
+C<quvi(1)>  C<wget(1)>  C<curl(1)>
 
 =head1 WWW
 
 <http://clive.sourceforge.net/>
 
-=head1 SEE ALSO
-
-C<cclive(1)>
+<http://quvi.sourceforge.net/>
 
 =head1 AUTHOR
 
-Toni Gundogdu <legatvs at sign gmail com>
+Toni Gundogdu <legatvs at sign gmail com>.
 
-Thanks to all those who have contributed to the project
-by sending patches, reporting bugs and writing feedback.
-You know who you are.
-
-=cut
+Thanks to all those who have contributed to the project by sending
+patches, reporting bugs and writing feedback. You know who you are.

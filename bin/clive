@@ -1,84 +1,423 @@
 #!/usr/bin/perl
 # -*- coding: ascii -*-
-###########################################################################
-# clive, command line video extraction utility.
-# Copyright 2007, 2008, 2009 Toni Gundogdu.
 #
-# This file is part of clive.
+# Copyright (C) 2010 Toni Gundogdu.
 #
-# clive is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option)
-# any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# clive is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-# details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program. If not, see <http://www.gnu.org/licenses/>.
-###########################################################################
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 use warnings;
 use strict;
 
-binmode( STDOUT, ":utf8" );
-binmode( STDERR, ":utf8" );
+use version 0.77 (); our $VERSION = version->declare("2.3.0.1");
 
-use clive::App;
+binmode STDOUT, ":utf8";
+binmode STDERR, ":utf8";
 
-clive::App->main;
+use Getopt::ArgvFile qw(argvFile);
+
+use Getopt::Long qw(:config bundling);
+use Encode qw(decode_utf8);
+
+my %config;
+my @queue;
+my $video;
+
+exit main();
+
+sub main {
+    init();
+    return process_queue();
+}
+
+sub init {
+
+    if ( grep { $_ eq "--config-file" } @ARGV ) {
+        argvFile( fileOption => '--config-file' );
+    }
+
+    else {
+
+        @ARGV = (
+            @ARGV,
+            (
+                "@/usr/local/share/clive/cliverc",
+                "@/usr/share/clive/cliverc",
+                "@/etc/clive/config",
+                "@/etc/xdg/clive/clive.conf",
+                "@/etc/xdg/clive.conf"
+            )
+        );
+
+        if ( $ENV{HOME} ) {
+            @ARGV = (
+                @ARGV,
+                (
+                    '@' . "$ENV{HOME}/.cliverc",
+                    '@' . "$ENV{HOME}/.clive/config",
+                    '@' . "$ENV{HOME}/.config/clive/config"
+                )
+            );
+        }
+
+        push @ARGV, '@' . "$ENV{CLIVE_CONFIG}" if $ENV{CLIVE_CONFIG};
+
+        argvFile();
+
+    }
+
+    GetOptions(
+        \%config,
+        'help'    => \&print_help,
+        'version' => \&print_version,
+        'license' => \&print_license,
+        'quiet',
+        'format|f=s',
+        'output_file|output-file|O=s',
+        'no_download|no-download|n',
+
+        # Configuration:
+        'quvi=s',
+        'get_with|get-with=s',
+        'filename_format|filename-format=s',
+        'regexp=s',
+        'exec=s',
+    ) or exit 1;
+
+    $config{format}          ||= 'default';
+    $config{filename_format} ||= '%t.%s';
+    $config{regexp}          ||= '/(\\w|\\s)/g';
+
+    require Carp;
+
+    # Check --quvi.
+    Carp::croak "error: specify path to quvi(1) command with --quvi"
+      unless $config{quvi};
+    check_format();
+
+    # Check --get-with.
+    Carp::croak
+      "error: specify path to a download command with --get-with\n"
+      unless $config{get_with};
+
+    # Check --regexp.
+    apply_regexp();
+
+    add_queue($_) foreach @ARGV;
+
+    if ( scalar @queue == 0 ) { add_queue($_) while <STDIN>; }
+
+    @queue = uniq2(@queue);    # Remove duplicate URLs.
+
+    select STDOUT;
+    $| = 1;                    # Go unbuffered.
+}
+
+sub add_queue {
+
+    my $ln = trim(shift);
+    chomp $ln;
+
+    return if $ln =~ /^$/;
+    return if $ln =~ /^#/;
+
+    $ln = "http://$ln" if $ln !~ m{^http://}i;
+
+    push @queue, $ln;
+}
+
+sub uniq2 {    # http://is.gd/g8jQU
+    my %seen = ();
+    my @r    = ();
+    foreach my $a (@_) {
+        unless ( $seen{$a} ) {
+            push @r, $a;
+            $seen{$a} = 1;
+        }
+    }
+    @r;
+}
+
+sub process_queue {
+
+    require JSON::XS;
+
+    my $n = scalar @queue;
+    my $i = 0;
+    my $r = 0;
+    my $fpath;
+
+    foreach (@queue) {
+
+        print_checking( ++$i, $n );
+
+        my $q = $config{quvi};
+        $q =~ s/%u/"$_"/;
+        $q .= " -q" if $q !~ /-q/;     # Force --quiet.
+        $q .= " -f $config{format}";
+
+        my $o = join '', qx/$q/;
+
+        $r = $? >> 8;
+
+        next unless $r == 0;
+
+        $video = JSON::XS::decode_json($o);
+
+        print "done.\n" unless $config{quiet};
+
+        ( $r, $fpath ) = get_video();
+
+        if ( $r == 0 ) {
+            if ( $config{exec} ) { $r = invoke_exec($fpath); }
+        }
+    }
+
+    $r;
+}
+
+sub print_checking {
+
+    return if $config{quiet};
+
+    my ( $i, $n ) = @_;
+
+    print "($i of $n) " if $n > 1;
+    print "Checking ...";
+}
+
+sub get_video {
+
+    require File::Basename;
+
+    my $fpath = get_filename();
+    my $fname = File::Basename::basename($fpath);
+
+    if ( $config{no_download} ) { print_video($fname); return 0; }
+
+    write_video( $fpath, $fname );
+}
+
+sub invoke_exec {
+
+    my $fpath = shift;
+
+    my $e = $config{exec};
+    $e =~ s/%f/"$fpath"/g;
+
+    qx/$e/;
+
+    $? >> 8;
+}
+
+sub to_mb { (shift) / ( 1024 * 1024 ); }
+
+sub print_video {
+    printf "%s  %.2fM  [%s]\n",
+      shift,
+      to_mb( $video->{link}[0]->{length_bytes} ),
+      $video->{link}[0]->{content_type};
+}
+
+sub write_video {
+
+    my ( $fpath, $fname ) = @_;
+
+    my $g = $config{get_with};
+    $g =~ s/%u/"$video->{link}[0]->{url}"/g;
+    $g =~ s/%f/"$fpath"/g;
+    $g =~ s/%n/"$fname"/g;
+
+    qx/$g/;
+
+    ( $? >> 8, $fpath );
+}
+
+sub get_filename {
+
+    my $fpath;
+
+    if ( $config{output_file} ) { $fpath = $config{output_file}; }
+    else { $fpath = apply_output_path( apply_filename_format() ); }
+
+    $fpath;
+}
+
+sub apply_output_path {
+
+    require Cwd;
+
+    # Do not touch.
+    my $cwd   = decode_utf8(Cwd::getcwd);
+    my $fname = shift;
+
+    require File::Spec::Functions;
+
+    File::Spec::Functions::catfile( $cwd, $fname );
+}
+
+sub apply_filename_format {
+
+    return $config{output_filename}
+      if $config{output_filename};
+
+    my $title = trim( apply_regexp( $video->{page_title} ) );
+    my $fname = $config{filename_format};
+
+    $fname =~ s/%s/$video->{link}[0]->{file_suffix}/g;
+    $fname =~ s/%h/$video->{host}/g if $video->{host};    # quvi 0.2.8+
+    $fname =~ s/%i/$video->{id}/g;
+    $fname =~ s/%t/$title/g;
+
+    $fname;
+}
+
+sub trim {
+    my $s = shift;
+    $s =~ s{^[\s]+}//;
+    $s =~ s{\s+$}//;
+    $s =~ s{\s\s+}/ /g;
+    $s;
+}
+
+sub apply_regexp {
+
+    my ( $title, $rq ) = ( shift, qr|^/(.*)/(.*)$| );
+
+    if ( $config{regexp} =~ /$rq/ ) {
+
+        return unless $title;    # Must be a syntax check.
+
+        $title = decode_utf8($title);    # Do not touch.
+
+        my ( $pat, $flags, $g, $i ) = ( $1, $2 );
+
+        if ($flags) {
+            $g = ( $flags =~ /g/ );
+            $i = ( $flags =~ /i/ );
+        }
+
+        $rq = $i ? qr|$pat|i : qr|$pat|;
+
+        return $g
+          ? join '', $title =~ /$rq/g
+          : join '', $title =~ /$rq/;
+    }
+
+    print STDERR
+      "invalid syntax (`$config{regexp}'), expected Perl like syntax "
+      . "`/pattern/flags', e.g. `/(\\w)/g'";
+
+    exit 1;
+}
+
+sub check_format {
+
+    if ( $config{format} eq "help" ) {
+        print "Usage:
+    --format arg            get format arg
+    --format list           list websites and supported formats
+    --format list arg       match arg to websites, list formats for matches
+Examples:
+    --format mp4_360p       get format mp4_360p (youtube)
+    --format list youtube   list youtube formats
+    --format list dailym    list dailym(otion) formats
+";
+        exit 0;
+    }
+
+    elsif ( $config{format} eq "list" ) {
+
+        my $q = ( split /\s+/, $config{quvi} )[0];    # Improve this.
+
+        my %h;
+        foreach (qx/$q --support/) {
+            my ( $k, $v ) = split /\s+/, $_;
+            $h{$k} = $v;
+        }
+
+        # -f list <pattern>
+        if ( scalar @ARGV > 0 ) {
+
+            foreach ( sort keys %h ) {
+                print "$_:\n  $h{$_}\n" if $_ =~ /$ARGV[0]/;
+            }
+
+            exit 0;
+        }
+
+        # -f list
+        else {
+            print "$_:\n  $h{$_}\n\n" foreach sort keys %h;
+            exit 0;
+        }
+    }
+}
+
+sub print_help {
+    require Pod::Usage;
+    Pod::Usage::pod2usage( -exitstatus => 0, -verbose => 1 );
+}
+
+sub print_version {
+    printf "clive $VERSION with Perl %s on %s\n",
+      ( sprintf "%vd", $^V ), $^O;
+    exit 0;
+}
+
+sub print_license {
+    print "# Copyright (C) 2010 Toni Gundogdu.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+";
+    exit 0;
+}
 
 __END__
 
 =head1 SYNOPSIS
 
-clive [options]... [URL]...
+clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> ...]
 
 =head1 OPTIONS
 
- -h, --help                     Print help and exit
- -v, --version                  Print version and exit
-     --hosts                    Print supported hosts and exit
-     --upgrade-config           Upgrade 2.0/2.1 config to 2.2+ format
- -l, --last                     Recall last input
-     --last-file=FILE           Read/write FILE instead of default path
-Output Options:
-     --emit-csv                 Emit video details in CSV to stdout
-     --debug                    Print cURL debug messages
- -q, --quiet                    Turn off all output
-     --stderr                   Redirect all output to stderr
-     --print-fname              Print filename before download starts
-HTTP Options:
-     --agent=STRING             Identify as STRING to http server
-     --connect-timeout=SECS     Max time allowed connection to take
-     --connect-timeout-socks=S  Same as above, tries to workaround SOCKS
-     --proxy=ADDR               Use ADDR for http proxy
-     --no-proxy                 Disable all use of http proxy
-     --cookie-jar=FILE          Enable cookies, write them to FILE
-Cache Options:
-     --cache-file=FILE          Read/write FILE instead of default path
- -r, --cache-read               Enable reading from cache
- -d, --cache-dump               Dump cache records to stdout
-     --cache-dump-format=STRING Print format for dumping cache records
-     --cache-grep=PATTERN       Grep cache records for PATTERN
- -i, --cache-ignore-case        Ignore case while matching records
- -D, --cache-remove-record      Remove matched records from cache
-     --cache-clear              Truncate cache records
-     --no-cache                 Disable cache all (read and write) use
-Download Options:
- -f, --format=FORMAT            Extract FORMAT of video
- -O, --output-file=FILE         Write video to file
- -c, --continue                 Continue partially downloaded file
- -n, --no-extract               Do not extract any videos
-     --save-dir=DIR             Save video files to DIR
-     --cclass=CLASS             Use character CLASS to filter titles
- -C, --no-cclass                Do not apply character class
-     --filename-format=STRING   Use STRING to format output filename
-     --exec=CMD                 Command to run when transfer finishes
- -e, --exec-run                 Invoke command defined with --exec
-     --stream-exec=CMD          Stream command to be invoked
-     --stream=PERCENT           Invoke --stream-exec when transfer reaches %
- -s, --stream-pass              Pass video link to --stream-exec command
-     --limit-rate=AMOUNT        Limit transfer rate to AMOUNT (KB/s)
-     --stop-after=SIZE|PERCENT  Stop file transfer after SIZE or PERCENT
+      --help                      print help and exit
+      --version                   print version and exit
+      --license                   print license and exit
+      --quiet                     turn off all output excl. errors
+  -f, --format arg (=default)     download video format
+  -O, --output-file arg           write downloaded video to file
+  -n, --no-download               do not download video, print info only
+      --config-file arg           file to read clive arguments from
+Configuration:
+  --quvi arg                      path to quvi(1) with additional args
+  --get-with arg                  path to download command with args
+  --filename-format arg (=%t.%s)  output video filename format
+  --regexp arg (=/(\w|\s)/g)      regexp to clean up video title
+  --exec arg                      invoke arg when download finishes
+
+=cut
+
+# vim: set ts=4 sw=4 tw=72 expandtab:

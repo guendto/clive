@@ -1,0 +1,2 @@
+#!/bin/sh
+perltidy -b bin/clive -bext=~

@@ -1,4 +1,68 @@
 
+
+== 2.3 ==
+
+2.3.0_4 (beta 4, 2.3_gws)  Sat Dec 18 2010  Toni Gundogdu
+Changes:
+        - Generate ChangeLog from git log
+
+
+2.3.0_3 (beta 3, 2.3_gws)  Wed Dec 01 2010  legatvs
+Changes:
+        - Add support for /etc/xdg/clive/clive.conf
+        - Add support /etc/xdg/clive.conf
+        - Add --format list pattern
+        - Add --format list
+        - Add --format help
+
+
+2.3.0_2 (beta 2, 2.3_gws)  Thu Nov 04 2010  legatvs
+Changes:
+        - Use quvi(1) for parsing video details, --quvi arg
+        - Use external command to download, --get-with arg
+        - Use version->declare instead of version::qv
+        - Add JSON::XS dependency
+        - Add examples/cliverc
+        - Additional config file search paths (e.g. system-wide)
+        - Remove WWW::Quvi dependency
+        - Remove WWW::Curl dependency
+        - Remove Term::ReadKey dependency
+        - Remove --continue, --overwrite, --proxy
+        - Remove --no-proxy, --agent, --throttle
+
+
+2.3.0_1 (beta 1)  Wed Oct 27 2010
+
+Changes:
+        - Use libquvi (WWW::Quvi) to parse video details
+        - Remove options / features
+        - Rename options
+        - Prerequisites
+Bugfixes:
+        - Progressbar unicode issues
+
+
+2.3.0  "Glorified Wrapper Script" (2.3_gws)
+
+* Single-script vs. multiple-clive-modules
+    - clive is no longer dispersed all over the file system in Perl packages
+
+* Use quvi(1) to parse the video details
+    - 2.3 was going to use WWW::Quvi and libquvi (beta 1)
+    - Had a piffany (beta 2)
+
+* Leave downloading for an external 3rd party command to do
+    - e.g. curl, wget or whatever
+
+* Complete command line interface clean up
+    - Esoteric, or otherwise now completely obsoleted, features were discarded
+
+See also:
+  <http://sourceforge.net/apps/trac/clive/wiki/DevelopmentStatus>
+
+
+== 2.2 ==
+
 2.2.22  Sun Jan 16 2011     Toni Gundogdu
 Changes:
         - Accept youtu.be URLs (#8)

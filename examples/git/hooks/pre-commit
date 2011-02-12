@@ -1,2 +1,2 @@
 #!/bin/sh
-perltidy -b bin/clive -bext=~
+perltidy -l=72 -b bin/clive -bext=~

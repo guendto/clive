@@ -2,6 +2,19 @@
 
 == 2.3 ==
 
+2.3.0.1  Sat Feb 12 2011    Toni Gundogdu
+Changes:
+        - Replace outdated webm_480p with mp4_360p in examples
+        - README: Cleanup, add notes for packagers
+        - Add examples/git/hooks/pre-commit
+        - Manual: Cleanup, add HISTORY
+        - Add vim modeline
+Other:
+        - Create "2.2" branch from "master"
+        - Merge "2.3_gws" into "master" branch
+        - http://sourceforge.net/apps/trac/clive/wiki/Changes-2.3
+
+
 2.3.0_4 (beta 4, 2.3_gws)  Sat Dec 18 2010  Toni Gundogdu
 Changes:
         - Generate ChangeLog from git log

@@ -11,14 +11,13 @@ GIT: <git://repo.or.cz/clive.git>
 PREREQUISITES
 
 See the Makefile.PL file for Perl module prerequisites, under "PREREQ_PM".
-
-You will also need:
-    * quvi(1) 0.2.7+ [1]
-    * A download command, e.g. wget(1) [2], curl(1) [3] -- or similar
+Additionally, you will need:
+  * quvi [1], 0.2.7+
+  * Download command, e.g. curl [2] or wget [2]
 
 [1] <http://quvi.sourceforge.net/>
-[2] <http://www.gnu.org/software/wget/>
-[3] <http://curl.haxx.se/>
+[2] <http://curl.haxx.se/>
+[3] <http://www.gnu.org/software/wget/>
 
 
 INSTALLATION
@@ -26,22 +25,49 @@ INSTALLATION
 You could skip this step, if you like, and instead just run "bin/clive".
 This should work as long as the prerequisites are found.
 
-    perl Makefile.PL
-    make
-    make install
+perl Makefile.PL
+make
+make install
 
-    * You can specify the install prefix with INSTALL_BASE
-        e.g. perl Makefile.PL INSTALL_BASE=/usr/local
+You can specify the install prefix with INSTALL_BASE
+e.g. "perl Makefile.PL INSTALL_BASE=/usr/local"
 
-  More: <http://search.cpan.org/perldoc?ExtUtils::MakeMaker>
-   FAQ: <http://perldoc.perl.org/ExtUtils/MakeMaker/FAQ.html>
+More: <http://search.cpan.org/perldoc?ExtUtils::MakeMaker>
+ FAQ: <http://perldoc.perl.org/ExtUtils/MakeMaker/FAQ.html>
 
 
 GETTING STARTED
 
-    * Configure ~/.cliverc, see "man clive" and "FILES" section for an example
-        - Set at least --quvi and --get-with, e.g.:
+Read "man clive" (or "perldoc man1/clive.1.pod"). You should consider
+setting --quvi and --get-with in your config file for seamless use.
+For example:
 
-            % cat > ~/.cliverc
-            --quvi "/usr/bin/quvi %u"
-            --get-with "/usr/bin/curl -L -C - -o %f %u"
+% cat > ~/.cliverc
+--quvi "/usr/bin/quvi %u"
+--get-with "/usr/bin/curl -L -C - -o %f %u"
+
+If you need to set HTTP proxy, etc., please refer to the documentation
+of those commands.
+
+
+NOTES FOR PACKAGERS
+
+Consider packaging a system-wide default configuration file along with
+your clive package. The config file should define at least --quvi and
+--get-with (see "GETTING STARTED" above) so that clive will work
+"out-of-the-box" when your package is installed.
+
+You could use wget(1) instead of curl(1), although I am yet to find
+the correct combo of options that allows resuming file transfers
+without overwriting the existing file (e.g. "wget -c -O %f" does not
+yield the hoped results).
+
+Whatever values you choose to set in the default system-wide config
+file, please be sure to make your clive package depend on those
+commands/packages.
+
+For additional notes about the configuration file (e.g. paths), please
+read the "FILES" section in the manual page.
+    % perldoc man1/clive.1.pod
+
+For an example config file, please see also examples/cliverc.

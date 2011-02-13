@@ -371,8 +371,7 @@ sub print_help {
 }
 
 sub print_version {
-    printf "clive $VERSION with Perl %s on %s\n",
-      ( sprintf "%vd", $^V ), $^O;
+    print "clive $VERSION\n";
     exit 0;
 }
 

@@ -186,6 +186,8 @@ Or use C<--config-file>, e.g.:
 A typical configuration file could look like:
 
     --quvi "/usr/bin/quvi %u"
+ # Recommended value for quvi 0.2.12+
+ #  --quvi "/usr/bin/quvi --category-http %u"
     --get-with "/usr/bin/curl -L -C - -o %f %u"
     --filename-format "%t_%i.%s"
     --exec "/usr/bin/vlc %f"

@@ -280,7 +280,7 @@ C<quvi(1)>  C<wget(1)>  C<curl(1)>
 
 =head1 AUTHOR
 
-Toni Gundogdu <legatvs at sign gmail com>.
+Toni Gundogdu E<lt>legatvs at sign gmail comE<gt>
 
 Thanks to all those who have contributed to the project by sending
 patches, reporting bugs and writing feedback. You know who you are.

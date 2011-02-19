@@ -371,7 +371,7 @@ sub print_help {
 }
 
 sub print_version {
-    print "clive $VERSION\n";
+    print "clive version $VERSION\n";
     exit 0;
 }
 

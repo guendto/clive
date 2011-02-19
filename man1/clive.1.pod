@@ -2,6 +2,10 @@
 
 clive - (c)ommand (li)ne (v)ideo (e)xtration tool
 
+=head1 SYNOPSIS
+
+clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> ...]
+
 =head1 DESCRIPTION
 
 clive is a command line video extraction tool for Youtube and other similar

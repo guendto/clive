@@ -32,7 +32,7 @@ sub parsePage {
     $$props->video_host ("youtube");
 
     my %re = (
-        id => qr|&video_id=(.*?)&|,
+        id => qr|"video_id": "(.*?)"|,
         fmt_url_map => qr|fmt_url_map=(.*?)&|,
     );
 

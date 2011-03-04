@@ -86,10 +86,14 @@ sub toURL {
 sub toFmt {
     my ($self, $id) = @_;
 
-# http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
+# <http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs>
 # $container_$maxwidth = '$fmt_id'
 
+# See also clive/Config.pm.
+
     my %h = (
+
+# Most current. Matches those used with quvi.
         # flv
         flv_240p => '5',
         flv_360p => '34',
@@ -99,9 +103,6 @@ sub toFmt {
         mp4_720p  => '22',
         mp4_1080p => '37',
         mp4_3072p => '38',
-        # webm
-        webm_480p => '43',
-        webm_720p => '45',
         # 3gp
         '3gp_144p'=> '17',
 
@@ -112,13 +113,22 @@ sub toFmt {
         hq_480p   => "35",
         hd_720p   => "22",
         hd_1080p  => "37",
-        webm_480p => "43",
-        webm_720p => "45",
-        '3gp' => "17",
-        mp4   => "18",
-        hq    => "35",
-        hd    => "22",
+        '3gp'     => "17",
+        mp4       => "18",
+        hq        => "35",
+        hd        => "22",
+        # webm - obsolete as of 2.2.19
+        # See <http://sourceforge.net/apps/trac/clive/ticket/1>
+        # and <http://sourceforge.net/apps/trac/quvi/ticket/5#comment:5>
+        webm_480p => '43',
+        webm_720p => '45',
     );
+
+# Ditto.
+    for (qw (fmt17 fmt18 fmt22 fmt34 fmt35 fmt37 fmt43 fmt45)) {
+        $_ =~ /fmt(\d+)/;
+        $h{$_} = $1;
+    }
 
     foreach (keys %h)
         { return $h{$_}  if $id eq $_; }

@@ -2,6 +2,15 @@
 
 == 2.3 ==
 
+2.3.0.2  Tue Mar 15 2011  Toni Gundogdu
+Changes:
+        - Make --version less verbose
+        - Manual: Add SYNOPSIS
+        - examples/cliverc, Manual: Add --category-http (quvi 0.2.12+)
+Bugfixes:
+        - examples/cliverc: Typo in --get-with
+
+
 2.3.0.1  Sat Feb 12 2011    Toni Gundogdu
 Changes:
         - Replace outdated webm_480p with mp4_360p in examples

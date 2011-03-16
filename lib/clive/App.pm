@@ -221,6 +221,7 @@ sub _parseLine {
     $ln =~ s!youtu.be/!youtube.com/watch?v=!i;  # youtu.be
     $ln =~ s/-nocookie//;      # -nocookie
     $ln =~ s!/v/!/watch?v=!i;  # Embedded
+    $ln =~ s!/embed/!/watch?v=!i;
 
     # Translate host specific embedded link to video page link.
     $ln =~ s!googleplayer.swf!videoplay!i;    # googlevideo

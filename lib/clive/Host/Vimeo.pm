@@ -57,6 +57,14 @@ sub _parseConfig {
 
     my $content;
     if ( $curl->fetchToMem( $url, \$content, "config" ) == 0 ) {
+
+        if ($content =~ /<error>/) {
+            my $e = "no match: error message";
+            $e = $1 if $content =~ /<message>(.*?)\n/;
+            clive::Log->instance->err (CLIVE_REGEXP, $e);
+            return 1;
+        }
+
         my %re = (
             sig => qr|<request_signature>(.*?)</request_signature>|,
             sig_exp =>

@@ -1,4 +1,12 @@
 
+2.2.24  Thu Mar 31 2011  Toni Gundogdu
+Changes:
+        - Vimeo.pm: Display server returned error message
+        - Youtube: Support additional embed URL types (/e/, /embed/)
+Bugfixes:
+        - Youtube.pm: Add missing fmtNN IDs
+
+
 2.2.23  Thu Mar 03 2011  Toni Gundogdu
 Bugfixes:
         - Dailymotion.pm: Fix format support

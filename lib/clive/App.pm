@@ -222,6 +222,7 @@ sub _parseLine {
     $ln =~ s/-nocookie//;      # -nocookie
     $ln =~ s!/v/!/watch?v=!i;  # Embedded
     $ln =~ s!/embed/!/watch?v=!i;
+    $ln =~ s!/e/!/watch?v=!i if $ln =~ /youtu/; # liveleak uses this also
 
     # Translate host specific embedded link to video page link.
     $ln =~ s!googleplayer.swf!videoplay!i;    # googlevideo

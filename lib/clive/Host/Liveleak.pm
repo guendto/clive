@@ -35,7 +35,7 @@ sub parsePage {
 
     my %re = (
         id     => qr|token=(.*?)['&]|,
-        config => qr|'config','(.*?)'|,
+        config => qr|config: "(.*?)"|,
     );
 
     my $tmp;
@@ -63,18 +63,9 @@ sub _parseConfig {
         my %re = ( file => qr|<file>(.*?)</file>| );
         my $tmp;
         if ( clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 ) {
-            if ( $curl->fetchToMem( $tmp->{file}, \$content, "playlist" )
-                == 0 )
-            {
-                %re = ( location => qr|<location>(.*?)</location>| );
-                $tmp = undef;
-                if (clive::Util::matchRegExps( \%re, \$tmp, \$content ) == 0 )
-                {
-                    $self->{video_link} = $tmp->{location};
-                    $self->{video_link} =~ tr/ //d;
-                    return (0);
-                }
-            }
+            $self->{video_link} = $tmp->{file};
+            $self->{video_link} =~ tr/ //d;
+            return (0);
         }
     }
     return (1);

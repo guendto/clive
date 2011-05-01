@@ -1,4 +1,9 @@
 
+2.2.25  Sun May 01 2011  Toni Gundogdu
+Bugfixes:
+        - #7: Liveleak.pm: no match: `(?-xism:'config','(.*?)')'
+
+
 2.2.24  Thu Mar 31 2011  Toni Gundogdu
 Changes:
         - Vimeo.pm: Display server returned error message

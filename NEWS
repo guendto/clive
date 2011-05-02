@@ -2,6 +2,11 @@
 
 == 2.3 ==
 
+2.3.0.3  Mon May 02 2011  Toni Gundogdu
+Changes:
+        - Add support to read input from files
+
+
 2.3.0.2  Tue Mar 15 2011  Toni Gundogdu
 Changes:
         - Make --version less verbose

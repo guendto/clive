@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 # -*- coding: ascii -*-
 #
-# Copyright (C) 2010 Toni Gundogdu.
+# clive
+# Copyright (C) 2010,2011  Toni Gundogdu <legatvs@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -114,17 +115,39 @@ sub init {
     # Check --regexp.
     apply_regexp();
 
-    add_queue($_) foreach @ARGV;
+    # Process input.
 
-    if ( scalar @queue == 0 ) { add_queue($_) while <STDIN>; }
+    if ( scalar @ARGV == 0 ) {
+        append_queue($_) while <STDIN>;
+    }
+    else {
+        foreach (@ARGV) {
+            if ( !is_url($_) ) {
+                open my $fh, "<", $_
+                  or print STDERR "$_: $!\n" and next;
+                append_queue($_) while <$fh>;
+                close $fh;
+            }
+            else {
+                append_queue($_);
+            }
+        }
+    }
 
     @queue = uniq2(@queue);    # Remove duplicate URLs.
 
+    print STDERR "error: no input urls\n" and exit 0x3    # QUVI_INVARG
+      unless scalar @queue;
+
     select STDOUT;
-    $| = 1;                    # Go unbuffered.
+    $| = 1;    # Go unbuffered.
 }
 
-sub add_queue {
+sub is_url {
+    return $_ =~ /^\w+\:\/\//;
+}
+
+sub append_queue {
 
     my $ln = trim(shift);
     chomp $ln;
@@ -376,7 +399,8 @@ sub print_version {
 }
 
 sub print_license {
-    print "# Copyright (C) 2010 Toni Gundogdu.
+    print "# clive
+# Copyright (C) 2010,2011  Toni Gundogdu <legatvs\@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -398,7 +422,7 @@ __END__
 
 =head1 SYNOPSIS
 
-clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> ...]
+clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> | E<lt>fileE<gt> ...]
 
 =head1 OPTIONS
 

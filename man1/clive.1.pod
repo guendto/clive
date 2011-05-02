@@ -4,7 +4,7 @@ clive - (c)ommand (li)ne (v)ideo (e)xtration tool
 
 =head1 SYNOPSIS
 
-clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> ...]
+clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> | E<lt>fileE<gt> ...]
 
 =head1 DESCRIPTION
 
@@ -29,9 +29,9 @@ use of the already existing tools, such as C<quvi(1)>.
 
 =head1 GETTING STARTED
 
-See L</FILES> for an example configuration file. You should consider
-setting at least L</--quvi> and L</--get-with> in your configuration
-file for seamless use.
+See L</FILES> for an example configuration file. You should set at very
+least L</--quvi> and L</--get-with> in your configuration file for
+seamless use.
 
 The sections L</TROUBLESHOOTING> and L</EXAMPLES> contain invaluable
 information about using clive.
@@ -96,8 +96,8 @@ I<All> occurences of the specifier will be replaced. clive will
 automatically append C<--quiet> to I<arg>.
 
 NOTE: If you use an HTTP proxy with C<quvi(1)>, you should do the same with
-C<--get-with> -- especially if the proxy masks your IP. Some websites may
-refuse connections originating from different IPs to (unique, generated)
+C<--get-with> -- especially if the proxy masks your (real) IP. Some websites
+may refuse connections originating from different IPs to (unique, generated)
 video download URLs.
 
 =item B<--get-with> I<arg>
@@ -190,14 +190,14 @@ Or use C<--config-file>, e.g.:
 A typical configuration file could look like:
 
     --quvi "/usr/bin/quvi %u"
- # Recommended value for quvi 0.2.12+
+ # Recommended value to be used with quvi 0.2.12+
  #  --quvi "/usr/bin/quvi --category-http %u"
     --get-with "/usr/bin/curl -L -C - -o %f %u"
     --filename-format "%t_%i.%s"
     --exec "/usr/bin/vlc %f"
 
-If you are unsure, consider setting at least the C<--quvi> and
-C<--get-with> in your configuration file.
+You should set at very least L</--quvi> and L</--get-with> in your
+configuration file for seamless use.
 
 =back
 
@@ -208,13 +208,13 @@ file. See L</FILES> for an example config file.
 
 =over 4
 
-=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc">
+=item B<clive "URL">
 
 Typical use.
 
-=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -f mp4_360p>
+=item B<clive -f mp4_360 "YOUTUBE_URL">
 
-Same but get the mp4_360p format of the video.
+Similar but get the mp4_360p format (specific to YouTube) of the video.
 
 =item B<clive -f help>
 
@@ -231,27 +231,25 @@ returned website domain strings. For example:
 
 =item B<clive -f list dailym>
 
-Would yield the same results.
+Yields the same results.
 
-=item B<clive "http://www.youtube.com/watch?v=DUM1284TqFc" -n>
+=item B<clive "URL" -n>
 
 Do not download the video. Print the video details only.
 
-=item B<echo "http://www.youtube.com/watch?v=DUM1284TqFc" | clive>
+=item B<echo "URL" | clive>
 
-A fancy way to feed clive an URL.
+Read from stdin. Same but read multiple URLs (in this case from a file):
 
-clive can handle multiple URLs in one go. One way to do this, is to
-specify each on the command line as arguments. An alternative source
-could be a file. For example:
+  % cat >> URLs
+  URL1
+  URL2
+  (^D)
+  % clive < URLs
+  Or:
+  % clive URLs
 
-  cat >> urls.lst
-  http://www.youtube.com/watch?v=DUM1284TqFc
-  http://www.youtube.com/watch?v=TqgTz8ymZl8
-  (CTRL+D)
-  clive < urls.lst
-
-Make a note that each URL must be separated with a newline character.
+Please note that each URL must be separated with a newline character.
 
 =back
 

@@ -13,19 +13,10 @@ video websites that require Adobe Flash for viewing the videos.
 
 =head1 HISTORY
 
-In 2006 clive was a little more than a simple shell script that could be
-used to extract flash videos from Youtube for viewing them with an
-external player software. The primary motivation for writing clive was
-to work around the flash player plugin which, at the time, was less
-than a pleasant experience on Linux.
-
-clive was rewritten in Python and released to the public in the
-early 2007. It was rewritten again in the late 2008, this time in
-Perl.
-
-The development work of 2.3 started in the late 2010 as "gws" or
-"glorified wrapper script". The 2.3 was an attempt to make better
-use of the already existing tools, such as C<quvi(1)>.
+clive originates from the need to work around the Adobe Flash player
+requirement with YouTube. It was originally a simple shell script
+that parsed the video stream URLs and used a third party command
+to download the videos.
 
 =head1 GETTING STARTED
 

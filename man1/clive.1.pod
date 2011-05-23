@@ -8,20 +8,23 @@ clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> | E<lt>fileE<gt> ...]
 
 =head1 DESCRIPTION
 
-clive is a command line video extraction tool for Youtube and other similar
-video websites that require Adobe Flash for viewing the videos.
+clive is a command line media extraction tool for Youtube and similar
+websites that require Adobe Flash.
 
 =head1 HISTORY
 
 clive originates from the need to work around the Adobe Flash player
 requirement with YouTube. It was originally a simple shell script
-that parsed the video stream URLs and used a third party command
-to download the videos.
+that parsed the media stream URLs and used a third party command
+to download the media.
 
 =head1 GETTING STARTED
 
-See L</FILES> for an example configuration file. You should set at very
-least L</--quvi> and L</--get-with> in your configuration file for
+clive attempts to detect the typical commands used with L</--quvi> and
+L</--get-with> from the $PATH, and uses the predefined values with them.
+
+See L</FILES> for an example configuration file. You should at least
+define L</--quvi> and L</--get-with> in your configuration file for
 seamless use.
 
 The sections L</TROUBLESHOOTING> and L</EXAMPLES> contain invaluable
@@ -48,17 +51,17 @@ Print license and exit.
 Turn off all I<clive> output excluding errors. Note that this switch has no
 effect on any of the third party commands that clive invokes.
 
-=item B<-f, --format> I<arg>
+=item B<-f, --format> I<arg> (=default)
 
-Download I<arg> format of the video. I<arg> can also be C<help>.
+Download I<arg> format of the media. I<arg> may be C<help>.
 
 =item B<-O, --output-file> I<arg>
 
-Write video to I<arg>.
+Write media to I<arg>. Overrides C<--filename-format>.
 
 =item B<-n, --no-download>
 
-Do not download the video, display video details only.
+Do not download the media, print details only.
 
 =item B<--config-file> I<arg>
 
@@ -76,12 +79,12 @@ configuration file. See L</FILES>.
 =item B<--quvi> I<arg>
 
 I<arg> to be invoked to start the C<quvi(1)> command which clive uses to
-parse the video details. This is typically a full path to C<quvi(1)> with
-any additional options.
+parse the media details. This is typically a full path to C<quvi(1)> with
+any additional options. Overrides any value set by autodetection.
 
 The following specifiers can be used in the I<arg>:
 
-    %u .. Video URL
+  %u .. Media stream URL
 
 I<All> occurences of the specifier will be replaced. clive will
 automatically append C<--quiet> to I<arg>.
@@ -89,49 +92,49 @@ automatically append C<--quiet> to I<arg>.
 NOTE: If you use an HTTP proxy with C<quvi(1)>, you should do the same with
 C<--get-with> -- especially if the proxy masks your (real) IP. Some websites
 may refuse connections originating from different IPs to (unique, generated)
-video download URLs.
+media stream URLs.
 
 =item B<--get-with> I<arg>
 
 Path to a download command (e.g. C<wget(1)> or C<curl(1)>) with any additional
-arguments. clive invokes this command to download the video. The following
-specifiers are supported:
+arguments. clive invokes this command to download the media.  Overrides any
+value set by autodetection.
 
-    %u  Video download URL
-    %f  Full path to video file
-    %n  Video file name
-
-Note that I<all> occurences of the specifier will be replaced. See also the
-note above about using an HTTP proxy with C<--quvi>.
-
-=item B<--filename-format> I<arg>
-
-Use I<arg> to specify the video output filename format. The default is "%t.%s".
 The following specifiers are supported:
 
-    %t  Video title (after applying --regexp)
-    %i  Video ID
-    %h  Video host ID (req. quvi 0.2.8+)
-    %s  Video file suffix (parsed from server returned content-type)
+  %u  Media stream URL
+  %f  Full path to media file
+  %n  Media file name
 
-Note that I<all> occurences of the specifier will be replaced.
+I<All> occurences of the specifier will be replaced. See also the
+note above about using an HTTP proxy with C<--quvi>.
 
-=item B<--regexp> I<arg>
+=item B<--filename-format> I<arg> (="%t.%s")
 
-Use regular expression I<arg> to clean up the video title before
-it is used in the output filename. The default is "/(\w|\s)/g".
+Use I<arg> to specify the media output filename format.
+The following specifiers are supported:
 
-Note that the syntax supports both "i" (case-insensitive) and "g"
-(global or find all).
+  %t  Media title (after applying --regexp)
+  %i  Media ID
+  %h  Media host ID (req. quvi 0.2.8+)
+  %s  Media file suffix (parsed from server returned content-type)
+
+I<All> occurences of the specifier will be replaced.
+
+=item B<--regexp> I<arg> (="/(\w|\s)/g")
+
+Use regular expression I<arg> to clean up the media title before
+it is used in the filename. The syntax supports both "i"
+(case-insensitive) and "g" (global or "find all").
 
 =item B<--exec> I<arg>
 
-Invoke I<arg> after video download finishes. The following specifiers
+Invoke I<arg> after media download finishes. The following specifiers
 are supported:
 
-    %f  Full path to the downloaded video file
+  %f  Full path to the downloaded media file
 
-Note that I<all> occurences of the specifier will be replaced.
+I<All> occurences of the specifier will be replaced.
 
 =back
 
@@ -141,12 +144,12 @@ Note that I<all> occurences of the specifier will be replaced.
 
 =item B<error: specify path to quvi(1) command with --quvi>
 
-clive uses C<quvi(1)> to parse the video details. Use the C<--quvi> to specify
+clive uses C<quvi(1)> to parse the media details. Use the C<--quvi> to specify
 the path. See also L</FILES>.
 
 =item B<error: specify path to a download command with --get-with>
 
-clive uses a 3rd party command to download the videos. Use the C<--get-with> to
+clive uses a 3rd party command to download the media. Use the C<--get-with> to
 specify the path to such command. See also L</FILES>.
 
 =back
@@ -159,33 +162,33 @@ specify the path to such command. See also L</FILES>.
 
 Additional search paths:
 
-    ~/.clive/config
-    ~/.config/clive/config
+  ~/.clive/config
+  ~/.config/clive/config
 
 For a system-wide configuration:
 
-    /usr/local/share/clive/config
-    /usr/share/clive/config
-    /etc/clive/config
-    /etc/xdg/clive/clive.conf
-    /etc/xdg/clive.conf
+  /usr/local/share/clive/config
+  /usr/share/clive/config
+  /etc/clive/config
+  /etc/xdg/clive/clive.conf
+  /etc/xdg/clive.conf
 
 You can also set CLIVE_CONFIG, e.g.:
 
-    env CLIVE_CONFIG=/path/to/config/file clive
+  env CLIVE_CONFIG=/path/to/config/file clive
 
 Or use C<--config-file>, e.g.:
 
-    clive --config-file /path/to/config/file
+  clive --config-file /path/to/config/file
 
 A typical configuration file could look like:
 
-    --quvi "/usr/bin/quvi %u"
+  --quvi "/usr/bin/quvi %u"
  # Recommended value to be used with quvi 0.2.12+
  #  --quvi "/usr/bin/quvi --category-http %u"
-    --get-with "/usr/bin/curl -L -C - -o %f %u"
-    --filename-format "%t_%i.%s"
-    --exec "/usr/bin/vlc %f"
+  --get-with "/usr/bin/curl -L -C - -o %f %u"
+  --filename-format "%t_%i.%s"
+  --exec "/usr/bin/vlc %f"
 
 You should set at very least L</--quvi> and L</--get-with> in your
 configuration file for seamless use.
@@ -205,20 +208,15 @@ Typical use.
 
 =item B<clive -f mp4_360 "YOUTUBE_URL">
 
-Similar but get the mp4_360p format (specific to YouTube) of the video.
+Same but get the mp4_360p format of the media, instead.
 
-=item B<clive -f help>
+=item B<clive -f list youtube>
 
-Help on how you can use the C<--format> option.
+Print the supported formats for "youtube".
 
-=item B<clive -f list>
+=item B<clive -f list yout>
 
-Lists all C<quvi(1)> supported websites with formats.
-
-=item B<clive -f list dailymotion>
-
-Lists dailymotion formats. The pattern is matched to C<quvi(1)>
-returned website domain strings. For example:
+Yields the same results.
 
 =item B<clive -f list dailym>
 
@@ -226,11 +224,11 @@ Yields the same results.
 
 =item B<clive "URL" -n>
 
-Do not download the video. Print the video details only.
+Do not download the media, print the details only.
 
 =item B<echo "URL" | clive>
 
-Read from stdin. Same but read multiple URLs (in this case from a file):
+Read input from the pipeline. Similarly:
 
   % cat >> URLs
   URL1
@@ -256,10 +254,10 @@ clive exits with the exit status returned by the command.
 If you are planning to use clive for anything more peculiar, you should feed
 it only one URL at a time. For example:
 
-    * You feed clive two URLs
-    * The 1st one fails, quvi exits with a non-zero value
-    * clive proceeds to the 2nd URL, quvi now exits with zero value
-    * clive exits with the zero, even if the 1st URL failed
+  * You feed clive two URLs
+  * The 1st one fails, quvi exits with a non-zero value
+  * clive proceeds to the 2nd URL, quvi now exits with zero value
+  * clive exits with the zero, even if the 1st URL failed
 
 =head1 SEE ALSO
 

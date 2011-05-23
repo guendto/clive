@@ -395,11 +395,8 @@ sub apply_regexp {
           : join '', $title =~ /$rq/;
     }
 
-    print STDERR
-      "invalid syntax (`$config{regexp}'), expected Perl like syntax "
-      . "`/pattern/flags', e.g. `/(\\w)/g'";
-
-    exit 1;
+    croak "error: --regexp: expects "
+      . "`/pattern/flags', for example: `/(\\w)/g'\n";
 }
 
 sub check_format {

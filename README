@@ -1,8 +1,6 @@
-clive
-============
 
-clive is a command line video extraction tool for Youtube and other similar
-video websites that require Adobe Flash for viewing the content.
+clive is a command line media extraction tool for Youtube and similar
+websites that require Adobe Flash.
 
 WWW: <http://clive.sourceforge.net/>
 GIT: <git://repo.or.cz/clive.git>
@@ -13,7 +11,7 @@ PREREQUISITES
 See the Makefile.PL file for Perl module prerequisites, under "PREREQ_PM".
 Additionally, you will need:
   * quvi [1], 0.2.7+
-  * Download command, e.g. curl [2] or wget [2]
+  * Download command, e.g. curl [2] or wget [2], etc.
 
 [1] <http://quvi.sourceforge.net/>
 [2] <http://curl.haxx.se/>

@@ -21,7 +21,7 @@
 use warnings;
 use strict;
 
-use version 0.77 (); our $VERSION = version->declare("2.3.0.3");
+use version 0.77 (); our $VERSION = version->declare("2.3.1");
 
 binmode STDOUT, ":utf8";
 binmode STDERR, ":utf8";

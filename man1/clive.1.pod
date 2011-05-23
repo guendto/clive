@@ -46,7 +46,7 @@ Print version and exit.
 
 Print license and exit.
 
-=item B<--quiet>
+=item B<-q, --quiet>
 
 Turn off all I<clive> output excluding errors. Note that this switch has no
 effect on any of the third party commands that clive invokes.

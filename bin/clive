@@ -84,7 +84,7 @@ sub init {
         'help'    => \&print_help,
         'version' => \&print_version,
         'license' => \&print_license,
-        'quiet',
+        'quiet|q',
         'format|f=s',
         'output_file|output-file|O=s',
         'no_download|no-download|n',

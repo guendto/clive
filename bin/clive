@@ -30,6 +30,7 @@ use Getopt::ArgvFile qw(argvFile);
 
 use Getopt::Long qw(:config bundling);
 use Encode qw(decode_utf8);
+use Carp qw(croak);
 
 my %config;
 my @queue;
@@ -100,17 +101,46 @@ sub init {
     $config{filename_format} ||= '%t.%s';
     $config{regexp}          ||= '/(\\w|\\s)/g';
 
-    require Carp;
-
     # Check --quvi.
-    Carp::croak "error: specify path to quvi(1) command with --quvi"
-      unless $config{quvi};
+    unless ( $config{quvi} ) {
+
+        print "Detect quvi from \$PATH\n" unless $config{quiet};
+
+        my $s = detect_cmd('quvi');
+        if ($s) {
+            $config{quvi} = "quvi %u";
+        }
+        else {
+            croak
+              "error: specify path to quvi(1) command with --quvi\n";
+        }
+    }
     check_format();
 
     # Check --get-with.
-    Carp::croak
-      "error: specify path to a download command with --get-with\n"
-      unless $config{get_with};
+    unless ( $config{get_with} ) {
+
+        print "Detect a download command from \$PATH\n"
+          unless $config{quiet};
+
+        my %h = (
+            curl => "-L -C - -o %f %u",
+
+            # Add new ones below.
+        );
+
+        for my $k ( keys %h ) {
+            my $s = detect_cmd($k);
+            if ($s) {
+                $config{get_with} = "$k $h{$k}";
+                last;
+            }
+        }
+
+        croak
+          "error: specify path to a download command with --get-with\n"
+          unless $config{get_with};
+    }
 
     # Check --regexp.
     apply_regexp();
@@ -141,6 +171,33 @@ sub init {
 
     select STDOUT;
     $| = 1;    # Go unbuffered.
+}
+
+sub detect_cmd {
+    my ($cmd) = @_;
+
+    print "  Check for $cmd ..." unless $config{quiet};
+
+    my $o = join '', qx|$cmd --version 2>/dev/null|;
+
+    if ( $? >> 8 == 0 ) {
+
+        # TODO: Use more a elegant regexp combining all three.
+        my @a = (
+            qr|(\d+.\d+.\d+-\w+-\w+)|, qr|(\d+.\d+.\d+)|, qr|(\d+.\d+)|
+        );
+
+        foreach (@a) {
+            if ( $o =~ /$_/ ) {
+                print "$1\n" unless $config{quiet};
+                return $1;
+            }
+        }
+    }
+    else {
+        print "no\n" unless $config{quiet};
+    }
+    undef;
 }
 
 sub is_url {

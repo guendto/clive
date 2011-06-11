@@ -32,6 +32,10 @@ use Getopt::Long qw(:config bundling);
 use Encode qw(decode_utf8);
 use Carp qw(croak);
 
+my $depr_msg = "Warning:
+    '--format list' is deprecated and will be removed in the later
+    versions. Use --query-formats instead.";
+
 my %config;
 my @queue;
 my $video;
@@ -85,6 +89,7 @@ sub init {
         'version' => \&print_version,
         'license' => \&print_license,
         'quiet|q',
+        'query_formats|query-formats|F',
         'format|f=s',
         'output_file|output-file|O=s',
         'no_download|no-download|n',
@@ -143,6 +148,7 @@ sub init {
     }
 
     # Check --regexp.
+
     apply_regexp();
 
     # Process input.
@@ -244,23 +250,22 @@ sub process_queue {
 
         my $q = $config{quvi};
         $q =~ s/%u/"$_"/;
-        $q .= " -q" if $q !~ /-q/;     # Force --quiet.
+        $q .= " -q" if $q !~ /-q/;               # Force --quiet.
         $q .= " -f $config{format}";
+        $q .= " -F" if $config{query_formats};
 
         my $o = join '', qx/$q/;
-
         $r = $? >> 8;
 
         next unless $r == 0;
 
-        $video = JSON::XS::decode_json($o);
-
         print "done.\n" unless $config{quiet};
+        print $o and next if $config{query_formats};
 
+        $video = JSON::XS::decode_json($o);
         ( $r, $fpath ) = get_video();
-
         if ( $r == 0 ) {
-            if ( $config{exec} ) { $r = invoke_exec($fpath); }
+            $r = invoke_exec($fpath) if $config{exec};
         }
     }
 
@@ -402,15 +407,14 @@ sub apply_regexp {
 sub check_format {
 
     if ( $config{format} eq "help" ) {
-        print "Usage:
-    --format arg            get format arg
-    --format list           list websites and supported formats
-    --format list arg       match arg to websites, list formats for matches
+        printf "Usage:
+     --format arg                get format arg of media
+     --format list               print domains with formats
+     --format list arg           match arg to supported domain names
 Examples:
-    --format mp4_360p       get format mp4_360p (youtube)
-    --format list youtube   list youtube formats
-    --format list dailym    list dailym(otion) formats
-";
+     --format list youtube       print youtube formats
+     --format fmt34_360p         get format fmt34_360p of media
+%s\n", $depr_msg;
         exit 0;
     }
 
@@ -430,15 +434,16 @@ Examples:
             foreach ( sort keys %h ) {
                 print "$_:\n  $h{$_}\n" if $_ =~ /$ARGV[0]/;
             }
-
-            exit 0;
         }
 
         # -f list
         else {
             print "$_:\n  $h{$_}\n\n" foreach sort keys %h;
-            exit 0;
         }
+
+        printf "%s\n", $depr_msg;
+
+        exit 0;
     }
 }
 

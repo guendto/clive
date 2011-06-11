@@ -32,6 +32,11 @@ information about using clive.
 
 =head1 OPTIONS
 
+Unless an arg is specified in the command line, clive reads from the
+stdin. The command line args may be either URLs or files to read.
+If clive reads from either stdin or files, it expects each URL to be
+separated by a newline character.
+
 =over 4
 
 =item B<--help>
@@ -51,9 +56,18 @@ Print license and exit.
 Turn off all I<clive> output excluding errors. Note that this switch has no
 effect on any of the third party commands that clive invokes.
 
+=item B<-F, --query-formats>
+
+Query available formats.
+
 =item B<-f, --format> I<arg> (=default)
 
-Download I<arg> format of the media. I<arg> may be C<help>.
+Download format I<arg> of the media. I<arg> can also be C<help> or C<list>.
+The resulting format may be different from the I<arg> if the requested
+format was not available. This is determined by libquvi, not clive.
+
+I<arg> C<list> is deprecated and will be removed in the later versions.
+Use C<--query-formats> instead.
 
 =item B<-O, --output-file> I<arg>
 
@@ -200,45 +214,28 @@ configuration file for seamless use.
 These examples assume you have set C<--quvi> and C<--get-with> in the config
 file. See L</FILES> for an example config file.
 
+Put the URLs inside quotes when they are specified as the command line
+arguments to the program. This is the recommended practice.
+
 =over 4
 
-=item B<clive "URL">
+=item clive "URL"
 
 Typical use.
 
-=item B<clive -f mp4_360 "YOUTUBE_URL">
+=item clive -f best "URL"
 
-Same but get the mp4_360p format of the media, instead.
+Download the best available format of the media. This assumes E<gt>1
+formats are supported, otherwise will fallback to default format.
 
-=item B<clive -f list youtube>
+=item clive -F "URL"
 
-Print the supported formats for "youtube".
+Query available formats to the URL. Use one of the returned format
+strings from this list with C<--format>.
 
-=item B<clive -f list yout>
-
-Yields the same results.
-
-=item B<clive -f list dailym>
-
-Yields the same results.
-
-=item B<clive "URL" -n>
+=item clive -n "URL"
 
 Do not download the media, print the details only.
-
-=item B<echo "URL" | clive>
-
-Read input from the pipeline. Similarly:
-
-  % cat >> URLs
-  URL1
-  URL2
-  (^D)
-  % clive < URLs
-  Or:
-  % clive URLs
-
-Please note that each URL must be separated with a newline character.
 
 =back
 
@@ -265,9 +262,12 @@ C<quvi(1)>  C<wget(1)>  C<curl(1)>
 
 =head1 WWW
 
-<http://clive.sourceforge.net/>
+ Home  : http://clive.sourceforge.net/
+ gitweb: http://repo.or.cz/w/clive.git
 
-<http://quvi.sourceforge.net/>
+=head1 LICENSE
+
+clive is free software, licensed under the GPLv3+.
 
 =head1 AUTHOR
 

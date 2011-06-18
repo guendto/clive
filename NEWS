@@ -2,6 +2,15 @@
 
 == 2.3 ==
 
+2.3.1
+Changes:
+        - Add --query-formats, deprecate "--format list"
+        - Detect quvi and/or download command from $PATH
+            - In the absence of --quvi and/or --get-with
+        - Bump quvi prerequisite to 0.2.17
+        - Revise manual
+
+
 2.3.0.3  Mon May 02 2011  Toni Gundogdu
 Changes:
         - Add support to read input from files

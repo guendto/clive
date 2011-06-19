@@ -2,7 +2,13 @@
 
 == 2.3 ==
 
-2.3.1
+2.3.1.1  Sun Jun 19 2011  Toni Gundogdu
+
+Fixes:
+        - Missing details in --help output
+
+
+2.3.1  Sat Jun 18 2011  Toni Gundogdu
 Changes:
         - Add --query-formats, deprecate "--format list"
         - Detect quvi and/or download command from $PATH

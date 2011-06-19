@@ -485,20 +485,21 @@ clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> | E<lt>fileE<gt> ...]
 
 =head1 OPTIONS
 
-      --help                      print help and exit
-      --version                   print version and exit
-      --license                   print license and exit
-      --quiet                     turn off all output excl. errors
-  -f, --format arg (=default)     download video format
-  -O, --output-file arg           write downloaded video to file
-  -n, --no-download               do not download video, print info only
-      --config-file arg           file to read clive arguments from
+      --help                      Print help and exit
+      --version                   Print version and exit
+      --license                   Print license and exit
+      --quiet                     Turn off all output excl. errors
+  -F, --query-formats             Query available formats to URL
+  -f, --format arg (=default)     Download media format
+  -O, --output-file arg           Write media to arg
+  -n, --no-download               Do not download media, print details
+      --config-file arg           File to read clive arguments from
 Configuration:
-  --quvi arg                      path to quvi(1) with additional args
-  --get-with arg                  path to download command with args
-  --filename-format arg (=%t.%s)  output video filename format
-  --regexp arg (=/(\w|\s)/g)      regexp to clean up video title
-  --exec arg                      invoke arg when download finishes
+  --quvi arg                      Path to quvi(1) with additional args
+  --get-with arg                  Path to download command with args
+  --filename-format arg (=%t.%s)  Downloaded media filename format
+  --regexp arg (=/(\w|\s)/g)      Regexp to cleanup media title
+  --exec arg                      Invoke arg after each finished download
 
 =cut
 

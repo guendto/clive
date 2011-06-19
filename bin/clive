@@ -38,7 +38,7 @@ my $depr_msg = "Warning:
 
 my %config;
 my @queue;
-my $video;
+my $media;
 
 exit main();
 
@@ -262,8 +262,8 @@ sub process_queue {
         print "done.\n" unless $config{quiet};
         print $o and next if $config{query_formats};
 
-        $video = JSON::XS::decode_json($o);
-        ( $r, $fpath ) = get_video();
+        $media = JSON::XS::decode_json($o);
+        ( $r, $fpath ) = get_media();
         if ( $r == 0 ) {
             $r = invoke_exec($fpath) if $config{exec};
         }
@@ -282,16 +282,16 @@ sub print_checking {
     print "Checking ...";
 }
 
-sub get_video {
+sub get_media {
 
     require File::Basename;
 
     my $fpath = get_filename();
     my $fname = File::Basename::basename($fpath);
 
-    if ( $config{no_download} ) { print_video($fname); return 0; }
+    if ( $config{no_download} ) { print_media($fname); return 0; }
 
-    write_video( $fpath, $fname );
+    write_media( $fpath, $fname );
 }
 
 sub invoke_exec {
@@ -308,19 +308,19 @@ sub invoke_exec {
 
 sub to_mb { (shift) / ( 1024 * 1024 ); }
 
-sub print_video {
+sub print_media {
     printf "%s  %.2fM  [%s]\n",
       shift,
-      to_mb( $video->{link}[0]->{length_bytes} ),
-      $video->{link}[0]->{content_type};
+      to_mb( $media->{link}[0]->{length_bytes} ),
+      $media->{link}[0]->{content_type};
 }
 
-sub write_video {
+sub write_media {
 
     my ( $fpath, $fname ) = @_;
 
     my $g = $config{get_with};
-    $g =~ s/%u/"$video->{link}[0]->{url}"/g;
+    $g =~ s/%u/"$media->{link}[0]->{url}"/g;
     $g =~ s/%f/"$fpath"/g;
     $g =~ s/%n/"$fname"/g;
 
@@ -357,12 +357,12 @@ sub apply_filename_format {
     return $config{output_filename}
       if $config{output_filename};
 
-    my $title = trim( apply_regexp( $video->{page_title} ) );
+    my $title = trim( apply_regexp( $media->{page_title} ) );
     my $fname = $config{filename_format};
 
-    $fname =~ s/%s/$video->{link}[0]->{file_suffix}/g;
-    $fname =~ s/%h/$video->{host}/g if $video->{host};    # quvi 0.2.8+
-    $fname =~ s/%i/$video->{id}/g;
+    $fname =~ s/%s/$media->{link}[0]->{file_suffix}/g;
+    $fname =~ s/%h/$media->{host}/g if $media->{host};    # quvi 0.2.8+
+    $fname =~ s/%i/$media->{id}/g;
     $fname =~ s/%t/$title/g;
 
     $fname;

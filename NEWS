@@ -1,4 +1,10 @@
 
+2.2.26  Fri Aug 05 2011  Toni Gundogdu
+Bugfixes:
+        - Youtube.pm: no match: `(?-xism:fmt_url_map=(.*?)&)' (#12)
+            - Thanks to Ansgar Burchardt for the patch
+
+
 2.2.25  Sun May 01 2011  Toni Gundogdu
 Bugfixes:
         - #7: Liveleak.pm: no match: `(?-xism:'config','(.*?)')'

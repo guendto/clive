@@ -33,7 +33,7 @@ sub parsePage {
 
     my %re = (
         id => qr|"video_id": "(.*?)"|,
-        fmt_url_map => qr|fmt_url_map=(.*?)&|,
+        url_encoded_fmt_stream_map => qr|url_encoded_fmt_stream_map=(.*?)&|,
     );
 
     my $tmp;
@@ -44,8 +44,14 @@ sub parsePage {
 
         require URI::Escape;
 
-        foreach (split /,/, URI::Escape::uri_unescape ($tmp->{fmt_url_map})) {
-            my ($id, $url) = split /\|/, $_;
+        foreach (split /,/, URI::Escape::uri_unescape ($tmp->{url_encoded_fmt_stream_map})) {
+	    my %map;
+	    for my $kv (split /&/) {
+		my ($key, $value) = split /=/, $kv;
+		$map{$key} = URI::Escape::uri_unescape($value);
+	    }
+	    my $id = $map{itag};
+	    my $url = $map{url};
             $best   = $url unless $best;
             $h{$id} = $url;
         }

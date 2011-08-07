@@ -2,7 +2,7 @@
 # -*- coding: ascii -*-
 #
 # clive
-# Copyright (C) 2010,2011  Toni Gundogdu <legatvs@gmail.com>
+# Copyright (C) 2010-2011  Toni Gundogdu <legatvs@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,372 +42,394 @@ my $media;
 
 exit main();
 
-sub main {
-    init();
-    return process_queue();
+sub main
+{
+  init();
+  return process_queue();
 }
 
-sub init {
+sub init
+{
+  if (grep {$_ eq "--config-file"} @ARGV)
+  {
+    argvFile(fileOption => '--config-file');
+  }
 
-    if ( grep { $_ eq "--config-file" } @ARGV ) {
-        argvFile( fileOption => '--config-file' );
-    }
-
-    else {
-
-        @ARGV = (
-            @ARGV,
-            (
-                "@/usr/local/share/clive/cliverc",
-                "@/usr/share/clive/cliverc",
-                "@/etc/clive/config",
-                "@/etc/xdg/clive/clive.conf",
-                "@/etc/xdg/clive.conf"
-            )
-        );
-
-        if ( $ENV{HOME} ) {
-            @ARGV = (
-                @ARGV,
-                (
-                    '@' . "$ENV{HOME}/.cliverc",
-                    '@' . "$ENV{HOME}/.clive/config",
-                    '@' . "$ENV{HOME}/.config/clive/config"
-                )
+  else
+  {
+    @ARGV = (
+             @ARGV,
+             (
+              "@/usr/local/share/clive/cliverc",
+              "@/usr/share/clive/cliverc",
+              "@/etc/clive/config",
+              "@/etc/xdg/clive/clive.conf",
+              "@/etc/xdg/clive.conf"
+             )
             );
-        }
 
-        push @ARGV, '@' . "$ENV{CLIVE_CONFIG}" if $ENV{CLIVE_CONFIG};
-
-        argvFile();
-
+    if ($ENV{HOME})
+    {
+      @ARGV = (
+               @ARGV,
+               (
+                '@' . "$ENV{HOME}/.cliverc",
+                '@' . "$ENV{HOME}/.clive/config",
+                '@' . "$ENV{HOME}/.config/clive/config"
+               )
+              );
     }
 
-    GetOptions(
-        \%config,
-        'help'    => \&print_help,
-        'version' => \&print_version,
-        'license' => \&print_license,
-        'quiet|q',
-        'query_formats|query-formats|F',
-        'format|f=s',
-        'output_file|output-file|O=s',
-        'no_download|no-download|n',
+    push @ARGV, '@' . "$ENV{CLIVE_CONFIG}" if $ENV{CLIVE_CONFIG};
 
-        # Configuration:
-        'quvi=s',
-        'get_with|get-with=s',
-        'filename_format|filename-format=s',
-        'regexp=s',
-        'exec=s',
-    ) or exit 1;
+    argvFile();
+  }
 
-    $config{format}          ||= 'default';
-    $config{filename_format} ||= '%t.%s';
-    $config{regexp}          ||= '/(\\w|\\s)/g';
+  GetOptions(
+    \%config,
+    'help'    => \&print_help,
+    'version' => \&print_version,
+    'license' => \&print_license,
+    'quiet|q',
+    'query_formats|query-formats|F',
+    'format|f=s',
+    'output_file|output-file|O=s',
+    'no_download|no-download|n',
 
-    # Check --quvi.
-    unless ( $config{quvi} ) {
+    # Configuration:
+    'quvi=s',
+    'get_with|get-with=s',
+    'filename_format|filename-format=s',
+    'regexp=s',
+    'exec=s',
+            ) or exit 1;
 
-        print "Detect quvi from \$PATH\n" unless $config{quiet};
+  $config{format}          ||= 'default';
+  $config{filename_format} ||= '%t.%s';
+  $config{regexp}          ||= '/(\\w|\\s)/g';
 
-        my $s = detect_cmd('quvi');
-        if ($s) {
-            $config{quvi} = "quvi %u";
-        }
-        else {
-            croak
-              "error: specify path to quvi(1) command with --quvi\n";
-        }
+  # Check --quvi.
+  unless ($config{quvi})
+  {
+    print "Detect quvi from \$PATH\n" unless $config{quiet};
+
+    my $s = detect_cmd('quvi');
+    if ($s)
+    {
+      $config{quvi} = "quvi %u";
     }
-    check_format();
-
-    # Check --get-with.
-    unless ( $config{get_with} ) {
-
-        print "Detect a download command from \$PATH\n"
-          unless $config{quiet};
-
-        my %h = (
-            curl => "-L -C - -o %f %u",
-
-            # Add new ones below.
-        );
-
-        for my $k ( keys %h ) {
-            my $s = detect_cmd($k);
-            if ($s) {
-                $config{get_with} = "$k $h{$k}";
-                last;
-            }
-        }
-
-        croak
-          "error: specify path to a download command with --get-with\n"
-          unless $config{get_with};
+    else
+    {
+      croak "error: specify path to quvi(1) command with --quvi\n";
     }
+  }
+  check_format();
 
-    # Check --regexp.
+  # Check --get-with.
+  unless ($config{get_with})
+  {
 
-    apply_regexp();
+    print "Detect a download command from \$PATH\n"
+      unless $config{quiet};
 
-    # Process input.
+    my %h = (
+      curl => "-L -C - -o %f %u",
 
-    if ( scalar @ARGV == 0 ) {
-        append_queue($_) while <STDIN>;
-    }
-    else {
-        foreach (@ARGV) {
-            if ( !is_url($_) ) {
-                open my $fh, "<", $_
-                  or print STDERR "$_: $!\n" and next;
-                append_queue($_) while <$fh>;
-                close $fh;
-            }
-            else {
-                append_queue($_);
-            }
-        }
+      # Add new ones below.
+            );
+
+    for my $k (keys %h)
+    {
+      my $s = detect_cmd($k);
+      if ($s)
+      {
+        $config{get_with} = "$k $h{$k}";
+        last;
+      }
     }
 
-    @queue = uniq2(@queue);    # Remove duplicate URLs.
+    croak "error: specify path to a download command with --get-with\n"
+      unless $config{get_with};
+  }
 
-    print STDERR "error: no input urls\n" and exit 0x3    # QUVI_INVARG
-      unless scalar @queue;
+  # Check --regexp.
 
-    select STDOUT;
-    $| = 1;    # Go unbuffered.
-}
+  apply_regexp();
 
-sub detect_cmd {
-    my ($cmd) = @_;
+  # Process input.
 
-    print "  Check for $cmd ..." unless $config{quiet};
-
-    my $o = join '', qx|$cmd --version 2>/dev/null|;
-
-    if ( $? >> 8 == 0 ) {
-
-        # TODO: Use more a elegant regexp combining all three.
-        my @a = (
-            qr|(\d+.\d+.\d+-\w+-\w+)|, qr|(\d+.\d+.\d+)|, qr|(\d+.\d+)|
-        );
-
-        foreach (@a) {
-            if ( $o =~ /$_/ ) {
-                print "$1\n" unless $config{quiet};
-                return $1;
-            }
-        }
+  if (scalar @ARGV == 0)
+  {
+    append_queue($_) while <STDIN>;
+  }
+  else
+  {
+    foreach (@ARGV)
+    {
+      if (!is_url($_))
+      {
+        open my $fh, "<", $_
+          or print STDERR "$_: $!\n" and next;
+        append_queue($_) while <$fh>;
+        close $fh;
+      }
+      else
+      {
+        append_queue($_);
+      }
     }
-    else {
-        print "no\n" unless $config{quiet};
+  }
+
+  @queue = uniq2(@queue);    # Remove duplicate URLs.
+
+  print STDERR "error: no input urls\n" and exit 0x3    # QUVI_INVARG
+    unless scalar @queue;
+
+  select STDOUT;
+  $| = 1;                                               # Go unbuffered.
+}
+
+sub detect_cmd
+{
+  my ($cmd) = @_;
+
+  print "  Check for $cmd ..." unless $config{quiet};
+
+  my $o = join '', qx|$cmd --version 2>/dev/null|;
+
+  if ($? >> 8 == 0)
+  {
+
+    # TODO: Use more a elegant regexp combining all three.
+    my @a =
+      (qr|(\d+.\d+.\d+-\w+-\w+)|, qr|(\d+.\d+.\d+)|, qr|(\d+.\d+)|);
+
+    foreach (@a)
+    {
+      if ($o =~ /$_/)
+      {
+        print "$1\n" unless $config{quiet};
+        return $1;
+      }
     }
-    undef;
+  }
+  else
+  {
+    print "no\n" unless $config{quiet};
+  }
+  undef;
 }
 
-sub is_url {
-    return $_ =~ /^\w+\:\/\//;
+sub is_url
+{
+  return $_ =~ /^\w+\:\/\//;
 }
 
-sub append_queue {
+sub append_queue
+{
+  my $ln = trim(shift);
+  chomp $ln;
 
-    my $ln = trim(shift);
-    chomp $ln;
+  return if $ln =~ /^$/;
+  return if $ln =~ /^#/;
 
-    return if $ln =~ /^$/;
-    return if $ln =~ /^#/;
+  $ln = "http://$ln" if $ln !~ m{^http://}i;
 
-    $ln = "http://$ln" if $ln !~ m{^http://}i;
-
-    push @queue, $ln;
+  push @queue, $ln;
 }
 
-sub uniq2 {    # http://is.gd/g8jQU
-    my %seen = ();
-    my @r    = ();
-    foreach my $a (@_) {
-        unless ( $seen{$a} ) {
-            push @r, $a;
-            $seen{$a} = 1;
-        }
+sub uniq2
+{    # http://is.gd/g8jQU
+  my %seen = ();
+  my @r    = ();
+  foreach my $a (@_)
+  {
+    unless ($seen{$a})
+    {
+      push @r, $a;
+      $seen{$a} = 1;
     }
-    @r;
+  }
+  @r;
 }
 
-sub process_queue {
+sub process_queue
+{
+  require JSON::XS;
 
-    require JSON::XS;
+  my $n = scalar @queue;
+  my $i = 0;
+  my $r = 0;
+  my $fpath;
 
-    my $n = scalar @queue;
-    my $i = 0;
-    my $r = 0;
-    my $fpath;
+  foreach (@queue)
+  {
+    print_checking(++$i, $n);
 
-    foreach (@queue) {
+    my $q = $config{quvi};
+    $q =~ s/%u/"$_"/;
+    $q .= " -q" if $q !~ /-q/;               # Force --quiet.
+    $q .= " -f $config{format}";
+    $q .= " -F" if $config{query_formats};
 
-        print_checking( ++$i, $n );
+    my $o = join '', qx/$q/;
+    $r = $? >> 8;
 
-        my $q = $config{quvi};
-        $q =~ s/%u/"$_"/;
-        $q .= " -q" if $q !~ /-q/;               # Force --quiet.
-        $q .= " -f $config{format}";
-        $q .= " -F" if $config{query_formats};
+    next unless $r == 0;
 
-        my $o = join '', qx/$q/;
-        $r = $? >> 8;
+    print "done.\n" unless $config{quiet};
+    print $o and next if $config{query_formats};
 
-        next unless $r == 0;
+    $media = JSON::XS::decode_json($o);
+    ($r, $fpath) = get_media();
+    if ($r == 0)
+    {
+      $r = invoke_exec($fpath) if $config{exec};
+    }
+  }
+  $r;
+}
 
-        print "done.\n" unless $config{quiet};
-        print $o and next if $config{query_formats};
+sub print_checking
+{
+  return if $config{quiet};
 
-        $media = JSON::XS::decode_json($o);
-        ( $r, $fpath ) = get_media();
-        if ( $r == 0 ) {
-            $r = invoke_exec($fpath) if $config{exec};
-        }
+  my ($i, $n) = @_;
+
+  print "($i of $n) " if $n > 1;
+  print "Checking ...";
+}
+
+sub get_media
+{
+  require File::Basename;
+
+  my $fpath = get_filename();
+  my $fname = File::Basename::basename($fpath);
+
+  if ($config{no_download}) {print_media($fname); return 0;}
+
+  write_media($fpath, $fname);
+}
+
+sub invoke_exec
+{
+  my $fpath = shift;
+
+  my $e = $config{exec};
+  $e =~ s/%f/"$fpath"/g;
+
+  qx/$e/;
+
+  $? >> 8;
+}
+
+sub to_mb {(shift) / (1024 * 1024);}
+
+sub print_media
+{
+  printf "%s  %.2fM  [%s]\n",
+    shift,
+    to_mb($media->{link}[0]->{length_bytes}),
+    $media->{link}[0]->{content_type};
+}
+
+sub write_media
+{
+  my ($fpath, $fname) = @_;
+
+  my $g = $config{get_with};
+  $g =~ s/%u/"$media->{link}[0]->{url}"/g;
+  $g =~ s/%f/"$fpath"/g;
+  $g =~ s/%n/"$fname"/g;
+
+  qx/$g/;
+
+  ($? >> 8, $fpath);
+}
+
+sub get_filename
+{
+  my $fpath;
+
+  if ($config{output_file}) {$fpath = $config{output_file};}
+  else {$fpath = apply_output_path(apply_filename_format());}
+
+  $fpath;
+}
+
+sub apply_output_path
+{
+  require Cwd;
+
+  # Do not touch.
+  my $cwd   = decode_utf8(Cwd::getcwd);
+  my $fname = shift;
+
+  require File::Spec::Functions;
+
+  File::Spec::Functions::catfile($cwd, $fname);
+}
+
+sub apply_filename_format
+{
+  return $config{output_filename}
+    if $config{output_filename};
+
+  my $title = trim(apply_regexp($media->{page_title}));
+  my $fname = $config{filename_format};
+
+  $fname =~ s/%s/$media->{link}[0]->{file_suffix}/g;
+  $fname =~ s/%h/$media->{host}/g if $media->{host};    # quvi 0.2.8+
+  $fname =~ s/%i/$media->{id}/g;
+  $fname =~ s/%t/$title/g;
+
+  $fname;
+}
+
+sub trim
+{
+  my $s = shift;
+  $s =~ s{^[\s]+}//;
+  $s =~ s{\s+$}//;
+  $s =~ s{\s\s+}/ /g;
+  $s;
+}
+
+sub apply_regexp
+{
+  my ($title, $rq) = (shift, qr|^/(.*)/(.*)$|);
+
+  if ($config{regexp} =~ /$rq/)
+  {
+    return unless $title;    # Must be a syntax check.
+
+    $title = decode_utf8($title);    # Do not touch.
+
+    my ($pat, $flags, $g, $i) = ($1, $2);
+
+    if ($flags)
+    {
+      $g = ($flags =~ /g/);
+      $i = ($flags =~ /i/);
     }
 
-    $r;
+    $rq = $i ? qr|$pat|i : qr|$pat|;
+
+    return $g
+      ? join '', $title =~ /$rq/g
+      : join '', $title =~ /$rq/;
+  }
+
+  croak "error: --regexp: expects "
+    . "`/pattern/flags', for example: `/(\\w)/g'\n";
 }
 
-sub print_checking {
-
-    return if $config{quiet};
-
-    my ( $i, $n ) = @_;
-
-    print "($i of $n) " if $n > 1;
-    print "Checking ...";
-}
-
-sub get_media {
-
-    require File::Basename;
-
-    my $fpath = get_filename();
-    my $fname = File::Basename::basename($fpath);
-
-    if ( $config{no_download} ) { print_media($fname); return 0; }
-
-    write_media( $fpath, $fname );
-}
-
-sub invoke_exec {
-
-    my $fpath = shift;
-
-    my $e = $config{exec};
-    $e =~ s/%f/"$fpath"/g;
-
-    qx/$e/;
-
-    $? >> 8;
-}
-
-sub to_mb { (shift) / ( 1024 * 1024 ); }
-
-sub print_media {
-    printf "%s  %.2fM  [%s]\n",
-      shift,
-      to_mb( $media->{link}[0]->{length_bytes} ),
-      $media->{link}[0]->{content_type};
-}
-
-sub write_media {
-
-    my ( $fpath, $fname ) = @_;
-
-    my $g = $config{get_with};
-    $g =~ s/%u/"$media->{link}[0]->{url}"/g;
-    $g =~ s/%f/"$fpath"/g;
-    $g =~ s/%n/"$fname"/g;
-
-    qx/$g/;
-
-    ( $? >> 8, $fpath );
-}
-
-sub get_filename {
-
-    my $fpath;
-
-    if ( $config{output_file} ) { $fpath = $config{output_file}; }
-    else { $fpath = apply_output_path( apply_filename_format() ); }
-
-    $fpath;
-}
-
-sub apply_output_path {
-
-    require Cwd;
-
-    # Do not touch.
-    my $cwd   = decode_utf8(Cwd::getcwd);
-    my $fname = shift;
-
-    require File::Spec::Functions;
-
-    File::Spec::Functions::catfile( $cwd, $fname );
-}
-
-sub apply_filename_format {
-
-    return $config{output_filename}
-      if $config{output_filename};
-
-    my $title = trim( apply_regexp( $media->{page_title} ) );
-    my $fname = $config{filename_format};
-
-    $fname =~ s/%s/$media->{link}[0]->{file_suffix}/g;
-    $fname =~ s/%h/$media->{host}/g if $media->{host};    # quvi 0.2.8+
-    $fname =~ s/%i/$media->{id}/g;
-    $fname =~ s/%t/$title/g;
-
-    $fname;
-}
-
-sub trim {
-    my $s = shift;
-    $s =~ s{^[\s]+}//;
-    $s =~ s{\s+$}//;
-    $s =~ s{\s\s+}/ /g;
-    $s;
-}
-
-sub apply_regexp {
-
-    my ( $title, $rq ) = ( shift, qr|^/(.*)/(.*)$| );
-
-    if ( $config{regexp} =~ /$rq/ ) {
-
-        return unless $title;    # Must be a syntax check.
-
-        $title = decode_utf8($title);    # Do not touch.
-
-        my ( $pat, $flags, $g, $i ) = ( $1, $2 );
-
-        if ($flags) {
-            $g = ( $flags =~ /g/ );
-            $i = ( $flags =~ /i/ );
-        }
-
-        $rq = $i ? qr|$pat|i : qr|$pat|;
-
-        return $g
-          ? join '', $title =~ /$rq/g
-          : join '', $title =~ /$rq/;
-    }
-
-    croak "error: --regexp: expects "
-      . "`/pattern/flags', for example: `/(\\w)/g'\n";
-}
-
-sub check_format {
-
-    if ( $config{format} eq "help" ) {
-        printf "Usage:
+sub check_format
+{
+  if ($config{format} eq "help")
+  {
+    printf "Usage:
      --format arg                get format arg of media
      --format list               print domains with formats
      --format list arg           match arg to supported domain names
@@ -415,51 +437,58 @@ Examples:
      --format list youtube       print youtube formats
      --format fmt34_360p         get format fmt34_360p of media
 %s\n", $depr_msg;
-        exit 0;
-    }
-
-    elsif ( $config{format} eq "list" ) {
-
-        my $q = ( split /\s+/, $config{quvi} )[0];    # Improve this.
-
-        my %h;
-        foreach (qx/$q --support/) {
-            my ( $k, $v ) = split /\s+/, $_;
-            $h{$k} = $v;
-        }
-
-        # -f list <pattern>
-        if ( scalar @ARGV > 0 ) {
-
-            foreach ( sort keys %h ) {
-                print "$_:\n  $h{$_}\n" if $_ =~ /$ARGV[0]/;
-            }
-        }
-
-        # -f list
-        else {
-            print "$_:\n  $h{$_}\n\n" foreach sort keys %h;
-        }
-
-        printf "%s\n", $depr_msg;
-
-        exit 0;
-    }
-}
-
-sub print_help {
-    require Pod::Usage;
-    Pod::Usage::pod2usage( -exitstatus => 0, -verbose => 1 );
-}
-
-sub print_version {
-    print "clive version $VERSION\n";
     exit 0;
+  }
+
+  elsif ($config{format} eq "list")
+  {
+    my $q = (split /\s+/, $config{quvi})[0];    # Improve this.
+
+    my %h;
+    foreach (qx/$q --support/)
+    {
+      my ($k, $v) = split /\s+/, $_;
+      $h{$k} = $v;
+    }
+
+    # -f list <pattern>
+    if (scalar @ARGV > 0)
+    {
+
+      foreach (sort keys %h)
+      {
+        print "$_:\n  $h{$_}\n" if $_ =~ /$ARGV[0]/;
+      }
+    }
+
+    # -f list
+    else
+    {
+      print "$_:\n  $h{$_}\n\n" foreach sort keys %h;
+    }
+
+    printf "%s\n", $depr_msg;
+
+    exit 0;
+  }
 }
 
-sub print_license {
-    print "# clive
-# Copyright (C) 2010,2011  Toni Gundogdu <legatvs\@gmail.com>
+sub print_help
+{
+  require Pod::Usage;
+  Pod::Usage::pod2usage(-exitstatus => 0, -verbose => 1);
+}
+
+sub print_version
+{
+  print "clive version $VERSION\n";
+  exit 0;
+}
+
+sub print_license
+{
+  print "# clive
+# Copyright (C) 2010-2011  Toni Gundogdu <legatvs\@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -474,7 +503,7 @@ sub print_license {
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ";
-    exit 0;
+  exit 0;
 }
 
 __END__
@@ -503,4 +532,4 @@ Configuration:
 
 =cut
 
-# vim: set ts=4 sw=4 tw=72 expandtab:
+# vim: set ts=2 sw=2 tw=72 expandtab:

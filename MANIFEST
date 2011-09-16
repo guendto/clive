@@ -8,5 +8,7 @@ Makefile.PL
 doc/man1/clive.1.pod
 MANIFEST			This list of files
 NEWS
+INSTALL
 README
+README.packagers
 t/clive-Pod.t

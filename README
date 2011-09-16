@@ -1,71 +1,36 @@
 
+
+GENERAL
+=======
+
 clive is a command line media extraction tool for Youtube and similar
-websites that require Adobe Flash.
+websites that require flash.
 
 Home  : <http://clive.sourceforge.net/>
 gitweb: <http://repo.or.cz/w/clive.git>
 
 
-PREREQUISITES
+LICENSE
+=======
 
-See the Makefile.PL file for Perl module prerequisites, under "PREREQ_PM".
-Additionally, you will need:
-  * quvi [1], 0.2.16.1+
-  * Download command, e.g. curl [2] or wget [2], etc.
-
-[1] <http://quvi.sourceforge.net/>
-[2] <http://curl.haxx.se/>
-[3] <http://www.gnu.org/software/wget/>
-
-
-INSTALLATION
-
-You could skip this step, if you like, and instead just run "bin/clive".
-This should work as long as the prerequisites are found.
-
-perl Makefile.PL
-make
-make install
-
-You can specify the install prefix with INSTALL_BASE
-e.g. "perl Makefile.PL INSTALL_BASE=/usr/local"
-
-More: <http://search.cpan.org/perldoc?ExtUtils::MakeMaker>
- FAQ: <http://perldoc.perl.org/ExtUtils/MakeMaker/FAQ.html>
+clive is free software, licensed under the GPLv3+.
 
 
 GETTING STARTED
+===============
 
-Read "man clive" (or "perldoc man1/clive.1.pod"). You should consider
-setting --quvi and --get-with in your config file for seamless use.
-For example:
+Read the manual. The FAQ is available at <http://clive.sourceforge.net/>.
 
-% cat > ~/.cliverc
---quvi "/usr/bin/quvi %u"
---get-with "/usr/bin/curl -L -C - -o %f %u"
+For the impatient:
 
-If you need to set HTTP proxy, etc., please refer to the documentation
-of those commands.
+ cat > ~/.cliverc
+ --quvi "/usr/bin/quvi %u"
+ --get-with "/usr/bin/curl -L -C - -o %f %u"
+
+clive will attempt to detect those commands from the $PATH by default,
+unless you define the above two. The above steps are recommended.
+
+If you use an HTTP proxy, refer to the documentation of those commands.
 
 
-NOTES FOR PACKAGERS
-
-Consider packaging a system-wide default configuration file along with
-your clive package. The config file should define at least --quvi and
---get-with (see "GETTING STARTED" above) so that clive will work
-"out-of-the-box" when your package is installed.
-
-You could use wget(1) instead of curl(1), although I am yet to find
-the correct combo of options that allows resuming file transfers
-without overwriting the existing file (e.g. "wget -c -O %f" does not
-yield the hoped results).
-
-Whatever values you choose to set in the default system-wide config
-file, please be sure to make your clive package depend on those
-commands/packages.
-
-For additional notes about the configuration file (e.g. paths), please
-read the "FILES" section in the manual page.
-    % perldoc man1/clive.1.pod
-
-For an example config file, please see also examples/cliverc.
+vim: set ts=2 sw=2 tw=72 expandtab:

@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+
 use warnings;
 use strict;
 
@@ -5,31 +7,33 @@ use 5.008009;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    'NAME' => 'clive',
-    ( $[ >= 5.8 )
-    ? ( 'AUTHOR'     => 'Toni Gundogdu <legatvs at sign gmail com>',
-        'ABSTRACT' => 'Command line video download tool'
-        )
-    : (),
-    'VERSION_FROM' => 'bin/clive',
-    'EXE_FILES' => ['bin/clive'],
-    'PREREQ_PM' => {
-# Earlier versions may work.
-'Getopt::ArgvFile' => 1.11, # <http://search.cpan.org/perldoc?Getopt::ArgvFile>
-'JSON::XS'         => 2.30, # <http://search.cpan.org/perldoc?JSON::XS>
-# Minimum req.
-'version'          => 0.77, # <http://search.cpan.org/perldoc?version>
-    },
-    'LICENSE'  => 'gpl',
-    'MAN1PODS' =>
-        { 'man1/clive.1.pod' => '$(INST_MAN1DIR)/clive.$(MAN1EXT)' },
-    dist => {
-        PREOP =>
-'@if test -f .git/HEAD; then \
-	git log --stat --after="Tue Sep 28 02:13:39 2010" >ChangeLog; \
+  NAME       => 'clive',
+  DISTNAME   => 'clive',
+  VERSION_FROM => 'bin/clive',
+  PREREQ_PM => {
+'Getopt::ArgvFile' => 1.11,
+'JSON::XS'         => 2.30,
+  },
+  BUILD_REQUIRES => {
+    'ExtUtils::MakeMaker' => 0,
+  },
+  CONFIGURE_REQUIRES => {
+    'ExtUtils::MakeMaker' => 0,
+  },
+  MIN_PERL_VERSION => 5.008009,
+  ($] >= 5.005 ?
+    (ABSTRACT_FROM => 'man1/clive.1.pod',
+     AUTHOR => 'Toni Gundogdu <legatvs@cpan.org>') : ()),
+  'LICENSE' => 'gpl',
+  'EXE_FILES'    => ['bin/clive'],
+  'MAN1PODS' =>
+    {'man1/clive.1.pod' => '$(INST_MAN1DIR)/clive.$(MAN1EXT)'},
+  dist => {
+    PREOP => '@if test -f .git/HEAD; then \
+	git log --stat --name-only --date=short --abbrev-commit \
+		--after="Tue Sep 28 02:13:39 2010" > ChangeLog; \
 fi',
-        POSTOP   =>
-'@if test -f .git/HEAD; then \
+    POSTOP => '@if test -f .git/HEAD; then \
 	git checkout ChangeLog; \
 fi',
     },

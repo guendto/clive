@@ -22,12 +22,12 @@ WriteMakefile(
   },
   MIN_PERL_VERSION => 5.008009,
   ($] >= 5.005 ?
-    (ABSTRACT_FROM => 'man1/clive.1.pod',
+    (ABSTRACT_FROM => 'doc/man1/clive.1.pod',
      AUTHOR => 'Toni Gundogdu <legatvs@cpan.org>') : ()),
   'LICENSE' => 'gpl',
   'EXE_FILES'    => ['bin/clive'],
   'MAN1PODS' =>
-    {'man1/clive.1.pod' => '$(INST_MAN1DIR)/clive.$(MAN1EXT)'},
+    {'doc/man1/clive.1.pod' => '$(INST_MAN1DIR)/clive.$(MAN1EXT)'},
   dist => {
     PREOP => '@if test -f .git/HEAD; then \
 	git log --stat --name-only --date=short --abbrev-commit \

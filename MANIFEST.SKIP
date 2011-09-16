@@ -3,10 +3,7 @@
 ^blib/
 ^\.
 .gz
-TODO
 ~$
 ^patches/
 .patch
 .bak$
-url_collection/
-scripts/

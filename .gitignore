@@ -4,7 +4,7 @@ patches/
 *.patch
 *.diff
 blib/
-TODO*
+todo/
 *.swp
 *.bz2
 *.bak

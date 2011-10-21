@@ -1,16 +1,14 @@
 
 PACKAGERS
----------
-
-Please consider packaging a preconfigured system wide configuration
-file with clive. See "examples/cliverc" for an example of this.
+=========
 
 clive will attempt to detect the quvi(1) and the curl(1) commands
-from the $PATH unless --quvi and/or --get-with are defined in the
-config file. The former may work "out of the box" but I recommend
-adding those values to a system wide config file to avoid any confusion.
+from the $PATH if either "--quvi" or "--get-with" is missing.
 
-See also the manual page for the "FILES". It details the typical paths
-for the system wide config files.
+Please consider installing a preconfigured system wide configuration
+file with clive. This file should contain the preconfigured "--quvi"
+and "--get-with" (see "$top_srcdir/examples/cliverc"). See also the
+manual page ($top_srcdir/doc/man1/clive.1.pod) for "FILES" which lists
+the typical system wide config file paths.
 
 Last but not least, thanks for your support.

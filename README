@@ -1,36 +1,7 @@
 
 
-GENERAL
-=======
-
-clive is a command line media extraction tool for Youtube and similar
+clive is a command line media extraction tool for YouTube and similar
 websites that require flash.
 
 Home  : <http://clive.sourceforge.net/>
 gitweb: <http://repo.or.cz/w/clive.git>
-
-
-LICENSE
-=======
-
-clive is free software, licensed under the GPLv3+.
-
-
-GETTING STARTED
-===============
-
-Read the manual. The FAQ is available at <http://clive.sourceforge.net/>.
-
-For the impatient:
-
- cat > ~/.cliverc
- --quvi "/usr/bin/quvi %u"
- --get-with "/usr/bin/curl -L -C - -o %f %u"
-
-clive will attempt to detect those commands from the $PATH by default,
-unless you define the above two. The above steps are recommended.
-
-If you use an HTTP proxy, refer to the documentation of those commands.
-
-
-vim: set ts=2 sw=2 tw=72 expandtab:

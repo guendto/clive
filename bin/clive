@@ -88,7 +88,7 @@ sub init
   GetOptions(
     \%config,
     'help'    => \&print_help,
-    'version' => \&print_version,
+    'version' => sub {print "clive version $VERSION\n"; exit 0},
     'license' => \&print_license,
     'quiet|q',
     'query_formats|query-formats|F',
@@ -477,12 +477,6 @@ sub print_help
 {
   require Pod::Usage;
   Pod::Usage::pod2usage(-exitstatus => 0, -verbose => 1);
-}
-
-sub print_version
-{
-  print "clive version $VERSION\n";
-  exit 0;
 }
 
 sub print_license

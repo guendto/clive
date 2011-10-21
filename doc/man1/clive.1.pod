@@ -8,89 +8,106 @@ clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> | E<lt>fileE<gt> ...]
 
 =head1 DESCRIPTION
 
-clive is a command line media extraction tool for Youtube and similar
-websites that require Adobe Flash.
+clive is a command line media extraction tool for YouTube and similar
+websites that require flash.
 
-=head1 HISTORY
+=head2 Background
 
-clive originates from the need to work around the Adobe Flash player
-requirement with YouTube. It was originally a simple shell script
-that parsed the media stream URLs and used a third party command
-to download the media.
+clive originates from a simple shell script that was cooked up to work
+around the YouTube's flash requirement back in 2006.
 
-=head1 GETTING STARTED
+=head2 Getting started
 
-clive attempts to detect the typical commands used with L</--quvi> and
-L</--get-with> from the $PATH, and uses the predefined values with them.
+=head3 Configuring
 
-See L</FILES> for an example configuration file. You should at least
-define L</--quvi> and L</--get-with> in your configuration file for
-seamless use.
+=head4 Autodetection
 
-The sections L</TROUBLESHOOTING> and L</EXAMPLES> contain invaluable
-information about using clive.
+clive will attempt to autodetect the required commands from the $PATH,
+when they have not been defined in either config file or the command
+line.
+
+=head4 Configuration file
+
+See L</FILES> for an example configuration file. You may want to
+consider adding at least the L</--quvi> and L</--get-with> there.
+
+=head4 See also
+
+L</TROUBLESHOOTING>, L</KNOWN ISSUES> and L</EXAMPLES>.
 
 =head1 OPTIONS
 
-Unless an arg is specified in the command line, clive reads from the
-stdin. The command line args may be either URLs or files to read.
-If clive reads from either stdin or files, it expects each URL to be
-separated by a newline character.
+clive expects the URLs to be separated by a newline character when the
+they are read from either stdin or files.
 
-=over 4
-
-=item B<--help>
+=head2 --help
 
 Print help and exit.
 
-=item B<--version>
+=head2 --version
 
 Print version and exit.
 
-=item B<--license>
+=head2 --license
 
 Print license and exit.
 
-=item B<-q, --quiet>
+=head2 -q, --quiet
 
 Turn off all I<clive> output excluding errors. Note that this switch has no
 effect on any of the third party commands that clive invokes.
 
-=item B<-F, --query-formats>
+=head2 -F, --query-formats
 
-Query available formats.
+Query available formats to an URL. The returned string will contain
+an array of I<format strings>, each separated by the '|' character.
+The array is created, by libquvi, from the data returned by the server.
+You can use these I<format strings> with C<--format>.
 
-=item B<-f, --format> I<arg> (=default)
+See also L</EXAMPLES> and C<--format>.
 
-Download format I<arg> of the media. I<arg> can also be C<help> or C<list>.
-The resulting format may be different from the I<arg> if the requested
-format was not available. This is determined by libquvi, not clive.
+=head2 -f, --format I<arg> (=default)
 
-I<arg> C<list> is deprecated and will be removed in the later versions.
-Use C<--query-formats> instead.
+Download format I<arg> of the media. The I<arg> can also be C<default>,
+C<best>, C<help> or C<list>. Note, however, that of these, the C<list> and
+the C<help> are deprecated and will be removed in the later versions of
+clive.
 
-=item B<-O, --output-file> I<arg>
+The I<arg> value is used with all of the URLs fed to clive at runtime. If
+the I<arg> is C<best>, libquvi will determine the C<best> format available
+to an URL.
+
+If the I<arg> is C<default> libquvi attempts to return an URL to whatever
+was deemed to be the C<default> format to the URL. libquvi will switch
+to C<default> format if the I<arg> was unregognized or the requested
+I<arg> format was unavailable.
+
+For the above reasons, the downloaded format may be different from the
+requested I<arg> format.
+
+For details about the YouTube's "fmt" IDs, refer to:
+ http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
+
+See also L</EXAMPLES>, C<--query-formats>.
+
+=head2 -O, --output-file I<arg>
 
 Write media to I<arg>. Overrides C<--filename-format>.
 
-=item B<-n, --no-download>
+=head2 -n, --no-download
 
 Do not download the media, print details only.
 
-=item B<--config-file> I<arg>
+=head2 --config-file I<arg>
 
 Path to a file to read clive arguments from. See also L</FILES>.
 
-=back
-
 =head1 OPTIONS - CONFIGURATION
 
-In addition to the command line, the options may also be read from the
-configuration file. See L</FILES>.
+The C<configuration> options may be read from the config file.
+See L</FILES>.
 
-=over 4
-
-=item B<--quvi> I<arg>
+=head2 --quvi I<arg>
 
 I<arg> to be invoked to start the C<quvi(1)> command which clive uses to
 parse the media details. This is typically a full path to C<quvi(1)> with
@@ -103,12 +120,7 @@ The following specifiers can be used in the I<arg>:
 I<All> occurences of the specifier will be replaced. clive will
 automatically append C<--quiet> to I<arg>.
 
-NOTE: If you use an HTTP proxy with C<quvi(1)>, you should do the same with
-C<--get-with> -- especially if the proxy masks your (real) IP. Some websites
-may refuse connections originating from different IPs to (unique, generated)
-media stream URLs.
-
-=item B<--get-with> I<arg>
+=head2 --get-with I<arg>
 
 Path to a download command (e.g. C<wget(1)> or C<curl(1)>) with any additional
 arguments. clive invokes this command to download the media.  Overrides any
@@ -116,149 +128,178 @@ value set by autodetection.
 
 The following specifiers are supported:
 
+  %n  Media filename (after applying --regexp and --filename-format)
+  %f  Path to downloaded media file (output path and %n)
   %u  Media stream URL
-  %f  Full path to media file
-  %n  Media file name
 
-I<All> occurences of the specifier will be replaced. See also the
-note above about using an HTTP proxy with C<--quvi>.
+I<All> occurences of the specifier will be replaced.
 
-=item B<--filename-format> I<arg> (="%t.%s")
+=head2 --filename-format I<arg> (="%t.%s")
 
 Use I<arg> to specify the media output filename format.
 The following specifiers are supported:
 
   %t  Media title (after applying --regexp)
+  %h  Media host ID
+  %s  File suffix
   %i  Media ID
-  %h  Media host ID (req. quvi 0.2.8+)
-  %s  Media file suffix (parsed from server returned content-type)
 
 I<All> occurences of the specifier will be replaced.
 
-=item B<--regexp> I<arg> (="/(\w|\s)/g")
+=head2 --regexp I<arg> (="/(\w|\s)/g")
 
 Use regular expression I<arg> to clean up the media title before
 it is used in the filename. The syntax supports both "i"
 (case-insensitive) and "g" (global or "find all").
 
-=item B<--exec> I<arg>
+=head2 --exec I<arg>
 
 Invoke I<arg> after media download finishes. The following specifiers
 are supported:
 
-  %f  Full path to the downloaded media file
+  %f  Path to the downloaded media file
 
 I<All> occurences of the specifier will be replaced.
 
-=back
-
 =head1 TROUBLESHOOTING
 
-=over 4
-
-=item B<error: specify path to quvi(1) command with --quvi>
+=head2 error: specify path to quvi(1) command with --quvi
 
 clive uses C<quvi(1)> to parse the media details. Use the C<--quvi> to specify
 the path. See also L</FILES>.
 
-=item B<error: specify path to a download command with --get-with>
+=head2 error: specify path to a download command with --get-with
 
 clive uses a 3rd party command to download the media. Use the C<--get-with> to
 specify the path to such command. See also L</FILES>.
 
-=back
+=head2 HTTP/1.0 500 Internal Server Error
 
-=head1 FILES
+Any number of reasons. Some have been tracked back to unacceptable
+user-agent string value and mangled HTTP headers (e.g. a green-eyed
+HTTP proxy). See also L</KNOWN ISSUES>.
 
-=over 4
+=head1 KNOWN ISSUES
 
-=item B<~/.cliverc>
+=head2 Resuming partially transferred files may fail
 
-Additional search paths:
+Some websites are known to refuse to work with the HTTP requests to
+resume a file transfer.
 
-  ~/.clive/config
-  ~/.config/clive/config
+=head3 Workaround
 
-For a system-wide configuration:
+None known. You will have to remove the existing file before you try
+again.
 
-  /usr/local/share/clive/config
-  /usr/share/clive/config
-  /etc/clive/config
-  /etc/xdg/clive/clive.conf
-  /etc/xdg/clive.conf
+=head2 HTTP user-agent
 
-You can also set CLIVE_CONFIG, e.g.:
+Some websites refuse to play nice with renegade user-agent strings.
 
-  env CLIVE_CONFIG=/path/to/config/file clive
+=head3 Recommendations
 
-Or use C<--config-file>, e.g.:
+Make sure both C<quvi(1)> and C<curl(1)> use the same user-agent string.
+Note that C<quvi(1)> uses "Mozilla/5.0" by default. See also
+L</TROUBLESHOOTING> for C<HTTP/500>.
 
-  clive --config-file /path/to/config/file
+=head2 HTTP proxy
 
-A typical configuration file could look like:
+Generally OK, although some proxies may have been configured to
+C<cook up> the HTTP headers before they are sent back to the server.
+This may sometimes lead to issues with the servers.
 
-  --quvi "/usr/bin/quvi %u"
- # Recommended value to be used with quvi 0.2.12+
- #  --quvi "/usr/bin/quvi --category-http %u"
-  --get-with "/usr/bin/curl -L -C - -o %f %u"
-  --filename-format "%t_%i.%s"
-  --exec "/usr/bin/vlc %f"
+=head3 Recommendations
 
-You should set at very least L</--quvi> and L</--get-with> in your
-configuration file for seamless use.
+If you use an HTTP proxy, make sure you have configured all of the commands
+that clive uses (e.g. C<quvi(1)>, C<curl(1)>, etc.) to use the same proxy.
 
-=back
+=head2 Exit status
 
-=head1 EXAMPLES
-
-These examples assume you have set C<--quvi> and C<--get-with> in the config
-file. See L</FILES> for an example config file.
-
-Put the URLs inside quotes when they are specified as the command line
-arguments to the program. This is the recommended practice.
-
-=over 4
-
-=item clive "URL"
-
-Typical use.
-
-=item clive -f best "URL"
-
-Download the best available format of the media. This assumes E<gt>1
-formats are supported, otherwise will fallback to default format.
-
-=item clive -F "URL"
-
-Query available formats to the URL. Use one of the returned format
-strings from this list with C<--format>.
-
-=item clive -n "URL"
-
-Do not download the media, print the details only.
-
-=back
-
-=head1 EXIT STATUS
-
-clive exits with 0 on success, otherwise the code is E<gt>0. Strictly clive
-exit statuses are 0 or 1. For example, if command line parsing fails, the exit
-status is 1.
-
-When an error occurs in another command invoked by clive, e.g. C<quvi(1)>,
-clive exits with the exit status returned by the command.
-
-If you are planning to use clive for anything more peculiar, you should feed
-it only one URL at a time. For example:
+If you are planning to use clive for anything more peculiar, consider the
+following example:
 
   * You feed clive two URLs
   * The 1st one fails, quvi exits with a non-zero value
   * clive proceeds to the 2nd URL, quvi now exits with zero value
   * clive exits with the zero, even if the 1st URL failed
 
+=head3 Workaround
+
+Feed one URL at a time.
+
+=head1 FILES
+
+=head2 Local user
+
+  * ~/.config/clive/config
+  * ~/.clive/config
+  * ~/.cliverc
+
+=head2 System wide
+
+  * /usr/local/share/clive/config
+  * /etc/xdg/clive/clive.conf
+  * /usr/share/clive/config
+  * /etc/xdg/clive.conf
+  * /etc/clive/config
+
+=head2 CLIVE_CONFIG
+
+You can also set CLIVE_CONFIG, e.g.:
+
+  env CLIVE_CONFIG=/path/to/config/file clive
+
+=head2 --config-file
+
+Or use C<--config-file>, e.g.:
+
+  clive --config-file /path/to/config/file
+
+=head2 Example config
+
+A typical configuration file could look like:
+
+  --get-with "/usr/bin/curl -L -C - -o %f %u --user-agent Mozilla/5.0"
+  --quvi "/usr/bin/quvi --category-http %u"
+  --filename-format "%t_%i.%s"
+  --exec "/usr/bin/vlc %f"
+
+=head1 EXAMPLES
+
+=head2 Note
+
+Put the URLs inside quotes when they are specified as the command line
+arguments to the program. This is the recommended practice.
+
+=head2 clive "URL"
+
+Typical use.
+
+=head2 clive -f best "URL"
+
+Download the best available format of the media.
+
+=head2 clive -F "URL"
+
+Query available formats to the URL. Use one of the returned format
+strings from this list with C<--format>.
+
+=head2 clive -n "URL"
+
+Do not download the media, print the details only.
+
+=head1 EXIT STATUS
+
+clive exits with 0 on success, otherwise the code is E<gt>0. For example,
+if command line parsing fails, the exit status is 1.
+
+When an error occurs in another command invoked by clive, e.g. C<quvi(1)>,
+clive then exits with the exit status returned by that command.
+
+See also L</KNOWN ISSUES> for L</Exit status>.
+
 =head1 SEE ALSO
 
-C<quvi(1)>  C<wget(1)>  C<curl(1)>
+C<quvi(1)>  C<curl(1)>
 
 =head1 WWW
 

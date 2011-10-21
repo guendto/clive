@@ -133,7 +133,7 @@ sub init
       unless $config{quiet};
 
     my %h = (
-      curl => "-L -C - -o %f %u",
+      curl => "-L -C - -o %f %u --user-agent Mozilla/5.0",
 
       # Add new ones below.
             );

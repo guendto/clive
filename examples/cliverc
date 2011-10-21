@@ -1,35 +1,35 @@
 
-# /usr/local/share/clive/config
-# /usr/share/clive/config
-# /etc/clive/config
-# ~/.cliverc
-# ~/.clive/config
-# ~/.config/clive/config
-# or "env CLIVE_CONFIG=/path/to/config/file clive".
+# Typical paths.
+#   /usr/local/share/clive/config
+#   /usr/share/clive/config
+#   /etc/clive/config
+#   ~/.cliverc
+#   ~/.clive/config
+#   ~/.config/clive/config
+# or set the path to the file with CLIVE_CONFIG env. variable.
 
-# Path to quvi(1) with any additional args.
-# Note that clive adds --quiet if it's not defined.
-#   %u  Video URL
---quvi "/usr/bin/quvi %u"
-# Recommended value to be used with quvi 0.2.12+
-#--quvi "/usr/bin/quvi --category-http %u"
+# quvi command. clive appends "--quiet" to it.
+#   %u  Media page URL
+--quvi "/usr/bin/quvi --category-http %u"
 
-# Path to a download command, this could be anything you choose,
-# as long as you work out the details.
-#   %u  Video download URL
-#   %f  Full path to video file (to write to)
+# Download command.
+#   %u  Media stream URL
+#   %f  Path to the downloaded media file
 #   %n  File name (basename of the above)
---get-with "/usr/bin/curl -L -C - -o %f %u"
+# Make a note of user-agent. Some websites are known refuse to work
+# with the curl default user-agent value. Use the quvi default value.
+--get-with "/usr/bin/curl -L -C - -o %f %u --user-agent Mozilla/5.0"
 
-# Play downloaded video when done.
+# Play copied media file when transfer finishes.
+#   %f  Path to the local media file
 #--exec "/usr/bin/vlc --quiet %f"
 
-# Video filename format.
-#   %t  Video title (after applying --regexp)
-#   %i  Video ID
-#   %h  Video host ID (req. quvi 0.2.8+)
-#   %s  Video file suffix (parsed from server returned content-type)
+# Save downloaded media as, where
+#   %h  Media host ID
+#   %t  Media title
+#   %s  File suffix
+#   %i  Media ID
 #--filename-format "%t_%i.%s"
 
-# Regexp to cleanup the video title before using it in a file name.
+# Cleanup title with regular expression.
 #--regexp "/(\\w)/g"

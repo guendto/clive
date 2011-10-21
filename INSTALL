@@ -1,36 +1,25 @@
 
 
-PREREQUISITES
+Prerequisites
 =============
 
-Required
---------
-
-  * Perl 5.8.9+             <http://perl.org/>
-  * quvi tool 0.2.16.1+     <http://quvi.sourceforge.net/>
-  * Getopt::ArgvFile        <http://search.cpan.org/perldoc?Getopt::ArgvFile>
-  * JSON::XS                <http://search.cpan.org/perldoc?JSON::XS>
-  * curl tool               <http://curl.haxx.se/>
-
-Additionally, to install:
--------------------------
-
-  * ExtUtils::MakeMaker <http://search.cpan.org/perldoc?ExtUtils::MakeMaker>
+* Perl 5.8.9+       <http://perl.org/>
+* quvi 0.2.16.1+    <http://quvi.sourceforge.net/>
+* Getopt::ArgvFile  <http://search.cpan.org/perldoc?Getopt::ArgvFile>
+* JSON::XS          <http://search.cpan.org/perldoc?JSON::XS>
+* curl              <http://curl.haxx.se/>
 
 
-INSTALLATION
-============
-
-Notes
------
+Installation from source
+========================
 
 Uninstall earlier versions of clive if you have any installed.
 
 For the impatient
 -----------------
 
-Assuming you have installed the prerequisites to your system already,
-just run "bin/clive" without installing it.
+Run bin/clive without installing. This assumes the required Perl modules
+and system commands can be found by the script.
 
 Typical installation
 --------------------
@@ -44,7 +33,7 @@ To install:
   * Note that you can specify install prefix with INSTALL_BASE
     e.g. perl Makefile.PL INSTALL_BASE=/usr/local
 
-Recommended reading if you are new to ExtUtils::MakeMaker:
+Recommended reading:
   * <http://search.cpan.org/perldoc?ExtUtils::MakeMaker>
   * <http://perldoc.perl.org/ExtUtils/MakeMaker/FAQ.html>
 

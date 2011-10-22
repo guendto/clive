@@ -1,4 +1,12 @@
 
+2.2.27  Sat Oct 22 2011  Toni Gundogdu
+Bugfixes:
+    - Make "--hosts" work again
+Changes:
+    - Print "$host\n  $fmts" with "--hosts"
+    - Do not use regexps with "--hosts"
+
+
 2.2.26  Fri Aug 05 2011  Toni Gundogdu
 Bugfixes:
         - Youtube.pm: no match: `(?-xism:fmt_url_map=(.*?)&)' (#12)

@@ -504,9 +504,14 @@ __END__
 
 =head1 SYNOPSIS
 
-clive [E<lt>optionsE<gt>] [E<lt>urlE<gt> | E<lt>fileE<gt> ...]
+clive [-F] [-n] [--format=E<lt>value<gt>] [--output-file=E<lt>value<gt>]
+      [--filename-format=E<lt>valueE<gt>] [--config-file=E<lt>value<gt>]
+      [--quvi=E<lt>valueE<gt>] [--get-with=E<lt>valueE<gt>]
+      [--regexp=E<lt>valueE<gt>] [--exec=E<lt>valueE<gt>]
+      [--help] [--version] [--license] [--quiet]
+      [E<lt>urlE<gt> | E<lt>fileE<gt>]
 
-=head1 OPTIONS
+=head2 OPTIONS
 
       --help                      Print help and exit
       --version                   Print version and exit

@@ -1,6 +1,11 @@
 
+2.3.2  Sat Oct 22 2011  Toni Gundogdu
+Changes:
+    - Revise README, README.packagers, INSTALL, manual, Makefile.PL
+    - Add --user-agent to args used with autodetected curl command
+    - Revise examples/cliverc, add --user-agent to curl example
+    - Lower quvi prerequisite to 0.2.16.1
 
-== 2.3 ==
 
 2.3.1.1  Sun Jun 19 2011  Toni Gundogdu
 
@@ -102,67 +107,6 @@ Bugfixes:
 See also:
   <http://sourceforge.net/apps/trac/clive/wiki/DevelopmentStatus>
 
-
-== 2.2 ==
-
-2.2.22  Sun Jan 16 2011     Toni Gundogdu
-Changes:
-        - Accept youtu.be URLs (#8)
-
-
-2.2.21  Fri Jan 07 2011     Toni Gundogdu
-Bugfixes:
-        - Dailymotion.pm: Access blocked by "family filter" (#4)
-
-
-2.2.20  Mon Dec 27 2010     Toni Gundogdu
-Changes:
-        - Accept non-HTTP (input) URLs [#3]
-Bugfixes:
-        - Vimeo.pm: Fix video ID parsing [#2]
-
-
-2.2.19  Sat Dec 11 2010     Toni Gundogdu
-Changes:
-        - Set <http://clive.sourceforge.net> as new WWW home
-        - Add man1/clive.1.pod, manify from this from now on
-        - Youtube: Extend format aliases to match quvi IDs
-        - Remove myubo support: dead site
-        - Backup ChangeLog as ChangeLog.pre-gitlog
-        - Generate ChangeLog from gitlog
-        - Rename Evisor.pm to Gaskrank.pm
-        - Rename tests
-        - Remove dangling (and broken) ehrensenf, cctv support
-        - Exclude network tests, can still be found in the repo
-        - gzip release tarball from now on
-Bugfixes:
-        - Liveleak.pm: token/ID parsing
-        - Youtube.pm: Unknown error (http/404) [#1]
-
-
-Version 2.2.15
-
-Changes to --format
-
-  * "flv" is now called "default"
-
-Youtube:
-
-  * Add HD 1080p support
-
-  * Add support for the quvi supported Youtube IDs (e.g. sd_270p).
-    The old (and vague) IDs (e.g. mp4 or hd) are still supported
-    but should be considered _deprecated_.
-
-
-Version 2.2.9
-
-cctv support was fixed. These videos appear to come in (at least) two
-flavors now: multi-segment and single-segment. The issue has been
-discussed here:
-  http://code.google.com/p/clive/issues/detail?id=45
-
-It was decided, mainly due to overall laziness, that multi-segment
-video links are to be dumped to the terminal without any further
-fiddling with them. The reasons have also been covered in the above
-discussion.
+For earlier version history, please see:
+  http://repo.or.cz/w/clive.git/blob/maint-2.2:/NEWS
+  http://repo.or.cz/w/clive.git/blob/maint-2.2:/ChangeLog.pre-gitlog

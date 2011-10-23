@@ -1,4 +1,10 @@
 
+2.2.28  Sun Oct 23 2011  Toni Gundogdu
+Bugfixes:
+    - Capitalisation of host modules, thanks Ansgar Burchardt! (#13)
+    - Issues with some youtube.com videos, thanks Ingo Saitz! (#14)
+
+
 2.2.27  Sat Oct 22 2011  Toni Gundogdu
 Bugfixes:
     - Make "--hosts" work again

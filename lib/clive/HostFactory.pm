@@ -27,24 +27,24 @@ use strict;
 use clive::Error qw(CLIVE_OK);
 
 my @_hosts = (
-[ "YouTube", qr|youtube.com|i,
+[ "Youtube", qr|youtube.com|i,
 # Sat Dec 11 2010: webm_*, 3gp_144p support found in Youtube.pm, website
 # no longer seems to list them, however. Listing here only those formats
 # that seem to still work.
 "default|flv_240p|flv_360p|flv_480p|mp4_360p|mp4_720p|mp4_1080p|mp4_3072p"],
-["LastFM",      qr|last.fm|i,         "See YouTube formats"],
+["Lastfm",      qr|last.fm|i,         "See YouTube formats"],
 ["Google",      qr|video.google.|i,   "default|mp4"],
 ["Sevenload",   qr|sevenload.com|i,   "default"],
 ["Break",       qr|break.com|i,       "default"],
-["LiveLeak",    qr|liveleak.com|i,    "default"],
+["Liveleak",    qr|liveleak.com|i,    "default"],
 ["Gaskrank",    qr|gaskrank.tv|i,       "default"],
-["DailyMotion", qr|dailymotion.com|i, "default|hq|hd"],
+["Dailymotion", qr|dailymotion.com|i, "default|hq|hd"],
 ["Vimeo",       qr|vimeo.com|i,       "default|hd"],
 ["Spiegel",     qr|spiegel.de|i, "default|vp6_928|vp6_576|vp6_64|h264_1400"],
 ["Golem",       qr|golem.de|i,      "default|ipod|high"],
-["ClipFish",    qr|clipfish.de|i,   "default"],
-[ "FunnyHub",   qr|funnyhub.com|i,  "default"],
-[ "BuzzHumor",  qr|buzzhumor.com|i, "default"]
+["Clipfish",    qr|clipfish.de|i,   "default"],
+[ "Funnyhub",   qr|funnyhub.com|i,  "default"],
+[ "Buzzhumor",  qr|buzzhumor.com|i, "default"]
 );
 
 sub new {

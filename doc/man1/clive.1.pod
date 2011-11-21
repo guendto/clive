@@ -1,6 +1,6 @@
 =head1 NAME
 
-clive - (c)ommand (li)ne (v)ideo (e)xtration tool
+clive - (c)ommand (li)ne (v)ideo (e)xtraction tool
 
 =head1 SYNOPSIS
 

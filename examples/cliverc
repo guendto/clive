@@ -10,7 +10,9 @@
 
 # quvi command. clive appends "--quiet" to it.
 #   %u  Media page URL
---quvi "/usr/bin/quvi --category-http %u"
+# quvi 0.4.1+
+--quvi "/usr/bin/quvi -c http %u"
+#--quvi "/usr/bin/quvi --category-http %u"
 
 # Download command.
 #   %u  Media stream URL

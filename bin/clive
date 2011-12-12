@@ -36,6 +36,7 @@ my $depr_msg = "Warning:
     '--format list' is deprecated and will be removed in the later
     versions. Use --query-formats instead.";
 
+my $quvi_quiet_switch = '-q';
 my %config;
 my @queue;
 my $media;
@@ -54,7 +55,6 @@ sub init
   {
     argvFile(fileOption => '--config-file');
   }
-
   else
   {
     @ARGV = (
@@ -123,6 +123,7 @@ sub init
       croak "error: specify path to quvi(1) command with --quvi\n";
     }
   }
+  check_quvi();
   check_format();
 
   # Check --get-with.
@@ -194,7 +195,6 @@ sub detect_cmd
   my ($cmd) = @_;
 
   print "  Check for $cmd ..." unless $config{quiet};
-
   my $o = join '', qx|$cmd --version 2>/dev/null|;
 
   if ($? >> 8 == 0)
@@ -203,7 +203,6 @@ sub detect_cmd
     # TODO: Use more a elegant regexp combining all three.
     my @a =
       (qr|(\d+.\d+.\d+-\w+-\w+)|, qr|(\d+.\d+.\d+)|, qr|(\d+.\d+)|);
-
     foreach (@a)
     {
       if ($o =~ /$_/)
@@ -268,7 +267,8 @@ sub process_queue
 
     my $q = $config{quvi};
     $q =~ s/%u/"$_"/;
-    $q .= " -q" if $q !~ /-q/;               # Force --quiet.
+    $q .= " $quvi_quiet_switch"
+      if $q !~ /$quvi_quiet_switch/;    # Force quiet.
     $q .= " -f $config{format}";
     $q .= " -F" if $config{query_formats};
 
@@ -423,6 +423,25 @@ sub apply_regexp
 
   croak "error: --regexp: expects "
     . "`/pattern/flags', for example: `/(\\w)/g'\n";
+}
+
+sub detect_quvi_version
+{
+  my $q = (split /\s+/, $config{quvi})[0];    # Improve this.
+  my $o = qx|$q --version|;
+  if ($? >> 8 == 0)
+  {
+    return ($1, $2, $3) if (split /\n/, $o)[0] =~ /(\d+).(\d+).(\d+)/;
+  }
+  print "warning: unable to detect quvi version\n"
+    unless $config{quiet};
+  -1;
+}
+
+sub check_quvi
+{
+  my @v = detect_quvi_version();
+  $quvi_quiet_switch = '-vq' if $v[0] >= 0 && $v[1] >= 4 && $v[2] >= 1;
 }
 
 sub check_format

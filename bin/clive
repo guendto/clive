@@ -232,8 +232,6 @@ sub append_queue
   return if $ln =~ /^$/;
   return if $ln =~ /^#/;
 
-  $ln = "http://$ln" if $ln !~ m{^http://}i;
-
   push @queue, $ln;
 }
 

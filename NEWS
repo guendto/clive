@@ -1,3 +1,12 @@
+v2.3.3 (2012-03-16) / Toni Gundogdu
+
+Toni Gundogdu:
+  - Do not prepend "http" URL if it is not found [13c5d89]
+  - examples/cliverc: Use new category option [9b32fd2]
+  - Fix a typo in manual [249c3d9]
+  - Revise --help output [cf1f0dd]
+  - Use -vq with quvi when supported (#15) [02b3f64]
+
 
 2.3.2  Sat Oct 22 2011  Toni Gundogdu
 Changes:
